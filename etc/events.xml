@@ -1,0 +1,20 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="payment_method_assign_data_multisafepay_ideal">
+        <observer name="ideal_assign_chosen_issuer" instance="MultiSafepay\ConnectCore\Observer\Gateway\IdealDataAssignObserver" />
+    </event>
+    <event name="payment_method_assign_data_multisafepay_payafter">
+        <observer name="payafter_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PayafterDataAssignObserver" />
+    </event>
+    <event name="payment_method_assign_data_multisafepay_afterpay">
+        <observer name="afterpay_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\AfterpayDataAssignObserver" />
+    </event>
+    <event name="payment_method_assign_data_multisafepay_directbanktransfer">
+        <observer name="directbanktransfer_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\DirectBankTransferDataAssignObserver" />
+    </event>
+    <event name="payment_method_assign_data_multisafepay_directdebit">
+        <observer name="directdebit_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\DirectDebitDataAssignObserver" />
+    </event>
+    <event name="payment_method_assign_data_multisafepay_einvoicing">
+        <observer name="einvoicing_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\EinvoicingDataAssignObserver" />
+    </event>
+</config>

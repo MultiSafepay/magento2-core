@@ -1,0 +1,148 @@
+<?php
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2020 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+
+declare(strict_types=1);
+
+namespace MultiSafepay\ConnectCore\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Payment\Model\MethodInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Model\Order\Payment;
+use MultiSafepay\Api\Transactions\UpdateRequest;
+use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\Exception\ApiException;
+use Psr\Http\Client\ClientExceptionInterface;
+
+class ShipmentSaveAfterObserver implements ObserverInterface
+{
+
+    /**
+     * @var SdkFactory
+     */
+    private $sdkFactory;
+
+    /**
+     * @var UpdateRequest
+     */
+    private $updateRequest;
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * @var ManagerInterface
+     */
+    private $messageManager;
+
+    /**
+     * ShipmentSaveAfterObserver constructor.
+     *
+     * @param SdkFactory $sdkFactory
+     * @param Logger $logger
+     * @param ManagerInterface $messageManager
+     * @param UpdateRequest $updateRequest
+     */
+    public function __construct(
+        SdkFactory $sdkFactory,
+        Logger $logger,
+        ManagerInterface $messageManager,
+        UpdateRequest $updateRequest
+    ) {
+        $this->sdkFactory = $sdkFactory;
+        $this->logger = $logger;
+        $this->messageManager = $messageManager;
+        $this->updateRequest = $updateRequest;
+    }
+
+    /**
+     * @inheritDoc
+     * @throws LocalizedException
+     * @throws ClientExceptionInterface
+     */
+    public function execute(Observer $observer): void
+    {
+        $event = $observer->getEvent();
+
+        /** @var ShipmentInterface $shipment */
+        $shipment = $event->getShipment();
+
+        $order = $shipment->getOrder();
+
+        /** @var Payment $payment */
+        $payment = $order->getPayment();
+
+        $this->addShippingToTransaction($payment->getMethodInstance(), $shipment, $order);
+    }
+
+    /**
+     * @param MethodInterface $paymentMethodInstance
+     * @param ShipmentInterface $shipment
+     * @param OrderInterface $order
+     * @throws ClientExceptionInterface
+     */
+    public function addShippingToTransaction(
+        MethodInterface $paymentMethodInstance,
+        ShipmentInterface $shipment,
+        OrderInterface $order
+    ): void {
+        if ($paymentMethodInstance->getConfigData('is_multisafepay')) {
+            $transactionManager = $this->sdkFactory->get()->getTransactionManager();
+
+            $updateRequest = $this->updateRequest->addData([
+                    "tracktrace_code" => $this->getTrackingNumber($shipment),
+                    "carrier" => $order->getShippingDescription(),
+                    "ship_date" => $shipment->getCreatedAt(),
+                    "reason" => 'Shipped'
+                ]);
+
+            $orderId = $order->getIncrementId();
+
+            try {
+                $transactionManager->update($orderId, $updateRequest)->getResponseData();
+            } catch (ApiException $apiException) {
+                $this->logger->logUpdateRequestApiException($orderId, $apiException);
+
+                $msg = __('The order status could not be updated at MultiSafepay.
+                It can be manually updated in MultiSafepay Control');
+
+                $this->messageManager->addErrorMessage($msg);
+                return;
+            }
+
+            $msg = __('The order status has succesfully been updated at MultiSafepay');
+            $this->messageManager->addSuccessMessage($msg);
+        }
+    }
+
+    /**
+     * @param ShipmentInterface $shipment
+     * @return string
+     */
+    public function getTrackingNumber(ShipmentInterface $shipment): string
+    {
+        if (empty($shipment->getTracks())) {
+            return '';
+        }
+        return $shipment->getTracks()[0]->getTrackNumber();
+    }
+}

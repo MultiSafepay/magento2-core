@@ -1,0 +1,155 @@
+<payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
+    <methods>
+        <method name="multisafepay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_ideal">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_payafter">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_klarna">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_afterpay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_bancontact">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_amex">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_applepay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_belfius">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_creditcard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_dotpay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_eps">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_giropay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_idealqr">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_maestro">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_mastercard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_paysafecard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_sofort">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_trustpay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_visa">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_alipay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_directbanktransfer">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_banktransfer">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_santander">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_cbc">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_directdebit">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_einvoicing">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_inghomepay">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_kbc">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_paypal">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_trustly">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_babygiftcard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_beautyandwellness">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_boekenbon">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_fashioncheque">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_fashiongiftcard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_fietsenbon">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_gezondheidsbon">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_givacard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_goodcard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_nationaletuinbon">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_parfumcadeaukaart">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_podiumcadeaukaart">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_sportenfit">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_vvvcadeaukaart">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_webshopgiftcard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_wellnessgiftcard">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_wijncadeau">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_winkelcheque">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+        <method name="multisafepay_yourgift">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
+    </methods>
+</payment>
