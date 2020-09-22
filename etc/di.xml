@@ -83,6 +83,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -211,6 +212,7 @@
             <argument name="requestBuilder" xsi:type="object">IdealRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -724,6 +726,7 @@
             <argument name="requestBuilder" xsi:type="object">BancontactRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -852,6 +855,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayAmexRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -980,6 +984,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayApplePayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1108,6 +1113,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayBelfiusRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1236,6 +1242,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1364,6 +1371,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayDotpayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1492,6 +1500,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayEPSRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1620,6 +1629,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayGiropayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1748,6 +1758,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayIdealQRRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1876,6 +1887,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayMaestroRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2004,6 +2016,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayMastercardRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2132,6 +2145,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayPaysafecardRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2260,6 +2274,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepaySofortRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2388,6 +2403,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayTrustPayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2516,6 +2532,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayVisaRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2644,6 +2661,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayAlipayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2772,6 +2790,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayDirectBankTransferRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -2901,6 +2920,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayBankTransferRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3029,6 +3049,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepaySantanderRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3157,6 +3178,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayCBCRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3285,6 +3307,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayDirectDebitRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3414,6 +3437,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayEinvoicingRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3543,6 +3567,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayINGHomePayRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3671,6 +3696,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayKBCRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3799,6 +3825,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayPaypalRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3927,6 +3954,7 @@
             <argument name="requestBuilder" xsi:type="object">MultiSafepayTrustlyRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
