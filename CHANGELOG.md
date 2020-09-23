@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added dependencies in module.xml and composer.json
 
+### Changed
+- Upgraded the PHP-SDK to version 4
+
 ## [1.0.0] - 2020-09-02
 ### Added
 - First public release

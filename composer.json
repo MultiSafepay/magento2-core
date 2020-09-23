@@ -3,7 +3,7 @@
     "description": "MultiSafepay module for Magento 2",
     "version": "1.0.0",
     "require": {
-        "multisafepay/php-sdk": "^2.0|^3.0",
+        "multisafepay/php-sdk": "^4.0",
         "php-http/guzzle6-adapter": "*",
         "guzzlehttp/psr7": "*",
         "magento/framework": "^101.0.1|^101.1|^102.0|^103.0",
