@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Added MultiSafepay refund_id to the refund transaction in the Magento Payment.
+- Added missing gift card logos
 
 ### Fixed
 - Added dependencies in module.xml and composer.json

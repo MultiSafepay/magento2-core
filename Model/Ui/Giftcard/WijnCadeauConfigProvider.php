@@ -17,26 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Giftcard;
 
-use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 
-class WijnCadeauConfigProvider extends GenericConfigProvider
+class WijnCadeauConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_wijncadeau';
-
-    /**
-     * Retrieve assoc array of checkout configuration
-     *
-     * @return array
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                $this->getCode() => [
-                ]
-            ]
-        ];
-    }
 
     /**
      * @return string

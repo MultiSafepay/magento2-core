@@ -759,11 +759,11 @@
             <multisafepay_babygiftcard>
                 <active>0</active>
                 <model>MultiSafepayBabyGiftcardFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Baby Giftcard</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -780,11 +780,11 @@
             <multisafepay_beautyandwellness>
                 <active>0</active>
                 <model>MultiSafepayBeautyAndWellnessFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Beauty and wellness</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -801,11 +801,11 @@
             <multisafepay_boekenbon>
                 <active>0</active>
                 <model>MultiSafepayBoekenbonFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Boekenbon</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -822,11 +822,11 @@
             <multisafepay_fashioncheque>
                 <active>0</active>
                 <model>MultiSafepayFashionChequeFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Fashioncheque</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -843,11 +843,11 @@
             <multisafepay_fashiongiftcard>
                 <active>0</active>
                 <model>MultiSafepayFashionGiftcardFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Fashion gift card</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -864,11 +864,11 @@
             <multisafepay_fietsenbon>
                 <active>0</active>
                 <model>MultiSafepayFietsenbonFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Fietsenbon</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -885,11 +885,11 @@
             <multisafepay_gezondheidsbon>
                 <active>0</active>
                 <model>MultiSafepayGezondheidsbonFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Gezondheidsbon</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -906,11 +906,11 @@
             <multisafepay_givacard>
                 <active>0</active>
                 <model>MultiSafepayGivacardFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Givacard</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -927,11 +927,11 @@
             <multisafepay_goodcard>
                 <active>0</active>
                 <model>MultiSafepayGoodcardFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Goodcard</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -948,11 +948,11 @@
             <multisafepay_nationaletuinbon>
                 <active>0</active>
                 <model>MultiSafepayNationaleTuinbonFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Nationale tuinbon</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -969,11 +969,11 @@
             <multisafepay_parfumcadeaukaart>
                 <active>0</active>
                 <model>MultiSafepayParfumcadeaukaartFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Parfum cadeaukaart</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <can_refund>1</can_refund>
                 <is_gateway>1</is_gateway>
@@ -991,11 +991,11 @@
             <multisafepay_podiumcadeaukaart>
                 <active>0</active>
                 <model>MultiSafepayPodiumcadeaukaartFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Podium cadeaukaart</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1012,11 +1012,11 @@
             <multisafepay_sportenfit>
                 <active>0</active>
                 <model>MultiSafepaySportenfitFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Sport &amp; Fit</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1033,11 +1033,11 @@
             <multisafepay_vvvcadeaukaart>
                 <active>0</active>
                 <model>MultiSafepayVVVcadeaukaartFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>VVV cadeaukaart</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1054,11 +1054,11 @@
             <multisafepay_webshopgiftcard>
                 <active>0</active>
                 <model>MultiSafepayWebshopGiftcardFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Webshop Giftcard</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1075,11 +1075,11 @@
             <multisafepay_wellnessgiftcard>
                 <active>0</active>
                 <model>MultiSafepayWellnessGiftcardFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Wellness Giftcard</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1096,11 +1096,11 @@
             <multisafepay_wijncadeau>
                 <active>0</active>
                 <model>MultiSafepayWijnCadeauFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Wijn Cadeau</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1117,11 +1117,11 @@
             <multisafepay_winkelcheque>
                 <active>0</active>
                 <model>MultiSafepayWinkelChequeFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Winkel Cheque</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
@@ -1138,11 +1138,11 @@
             <multisafepay_yourgift>
                 <active>0</active>
                 <model>MultiSafepayYourGiftFacade</model>
-                <order_status>pending_payment</order_status>
+                <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>YourGift</title>
                 <currency>EUR</currency>
-                <can_authorize>1</can_authorize>
+                <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>

@@ -17,25 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Giftcard;
 
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\View\Asset\Repository as AssetRepository;
-use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 
-class SportenfitConfigProvider extends GenericConfigProvider
+class SportenfitConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_sportenfit';
-
-    /**
-     * SportenfitConfigProvider constructor.
-     *
-     * @param AssetRepository $assetRepository
-     */
-    public function __construct(
-        AssetRepository $assetRepository
-    ) {
-        $this->assetRepository = $assetRepository;
-        parent::__construct($assetRepository);
-    }
 
     /**
      * @return string
@@ -43,25 +29,5 @@ class SportenfitConfigProvider extends GenericConfigProvider
     public function getCode(): string
     {
         return self::CODE;
-    }
-
-    /**
-     * @return string
-     * @throws LocalizedException
-     */
-    public function getImage(): string
-    {
-        $path = $this->getPath();
-        $this->assetRepository->createAsset($path);
-
-        return $this->assetRepository->getUrl($path);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return 'MultiSafepay_ConnectFrontend::images/giftcard/' . $this->getCode() . '.png';
     }
 }
