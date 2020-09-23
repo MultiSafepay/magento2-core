@@ -5,9 +5,6 @@
         <plugin name="add_available_methods" type="MultiSafepay\ConnectCore\Plugin\MethodListPlugin" sortOrder="1" disabled="false"  />
     </type>
 
-    <preference for="Psr\Http\Client\ClientInterface" type="Http\Adapter\Guzzle6\Client" />
-    <preference for="Psr\Http\Message\RequestFactoryInterface" type="MultiSafepay\ConnectCore\Model\Api\RequestFactory" />
-    <preference for="Psr\Http\Message\StreamFactoryInterface" type="MultiSafepay\ConnectCore\Model\Api\StreamFactory" />
     <preference for="MultiSafepay\ConnectCore\Api\StockReducerInterface" type="MultiSafepay\ConnectCore\Model\StockReducer" />
 
     <!-- MultiSafepay Payment Method Facade configuration -->

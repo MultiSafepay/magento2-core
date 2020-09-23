@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added MultiSafepay refund_id to the refund transaction in the Magento Payment.
 - Added missing gift card logos
+- Added http-factory-guzzle package as a dependency for PSR-17 factories
 
 ### Fixed
 - Added dependencies in module.xml and composer.json
+
+### Removed
+- Removed custom factories to be replaced by http-factory-guzzle factories
 
 ### Changed
 - Upgraded the PHP-SDK to version 4

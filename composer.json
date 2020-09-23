@@ -6,6 +6,7 @@
         "multisafepay/php-sdk": "^4.0",
         "php-http/guzzle6-adapter": "*",
         "guzzlehttp/psr7": "*",
+        "http-interop/http-factory-guzzle": "^1.0",
         "magento/framework": "^101.0.1|^101.1|^102.0|^103.0",
         "magento/module-sales": "^102.0|^103.0",
         "magento/module-checkout": "^100.0",

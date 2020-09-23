@@ -17,28 +17,14 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Factory;
 
+use Http\Factory\Guzzle\RequestFactory;
+use Http\Factory\Guzzle\StreamFactory;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\Sdk;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
+use \Http\Adapter\Guzzle6\Client;
 
 class SdkFactory
 {
-    /**
-     * @var ClientInterface
-     */
-    private $psrClient;
-
-    /**
-     * @var RequestFactoryInterface
-     */
-    private $requestFactory;
-
-    /**
-     * @var StreamFactoryInterface
-     */
-    private $streamFactory;
 
     /**
      * @var Config
@@ -46,17 +32,32 @@ class SdkFactory
     private $config;
 
     /**
+     * @var Client
+     */
+    private $psrClient;
+
+    /**
+     * @var StreamFactory
+     */
+    private $streamFactory;
+
+    /**
+     * @var RequestFactory
+     */
+    private $requestFactory;
+
+    /**
      * Client constructor.
      *
-     * @param ClientInterface $psrClient
-     * @param RequestFactoryInterface $requestFactory
-     * @param StreamFactoryInterface $streamFactory
+     * @param Client $psrClient
+     * @param RequestFactory $requestFactory
+     * @param StreamFactory $streamFactory
      * @param Config $config
      */
     public function __construct(
-        ClientInterface $psrClient,
-        RequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory,
+        Client $psrClient,
+        RequestFactory $requestFactory,
+        StreamFactory $streamFactory,
         Config $config
     ) {
         $this->psrClient = $psrClient;
