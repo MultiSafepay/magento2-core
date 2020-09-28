@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Unit\Factory;
 
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
@@ -25,6 +24,7 @@ use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
+use Http\Adapter\Guzzle6\Client;
 
 class SdkFactoryTest extends TestCase
 {
@@ -32,11 +32,6 @@ class SdkFactoryTest extends TestCase
      * @var ObjectManager
      */
     private $objectManager;
-
-    /**
-     * @var SdkFactory
-     */
-    private $sdkFactory;
 
     /**
      * @inheritDoc
@@ -52,7 +47,14 @@ class SdkFactoryTest extends TestCase
     public function testValidateShouldThrowExceptionIfApiKeyIsEmpty(): void
     {
         $this->expectException(InvalidApiKeyException::class);
-        $sdkFactory = $this->objectManager->getObject(SdkFactory::class);
+
+        $config = $this->createMock(Config::class);
+        $config->method('getApiKey')->willThrowException(new InvalidApiKeyException);
+
+        $psrClient = new Client();
+
+        $arguments = ['config' => $config, 'psrClient' => $psrClient];
+        $sdkFactory = $this->objectManager->getObject(SdkFactory::class, $arguments);
         $sdkFactory->get();
     }
 
@@ -65,7 +67,9 @@ class SdkFactoryTest extends TestCase
         $config = $this->createMock(Config::class);
         $config->method('getApiKey')->willReturn('__FAKE_KEY__');
 
-        $arguments = ['config' => $config];
+        $psrClient = new Client();
+
+        $arguments = ['config' => $config, 'psrClient' => $psrClient];
         $sdkFactory = $this->objectManager->getObject(SdkFactory::class, $arguments);
         $result = $sdkFactory->get();
         $this->assertInstanceOf(Sdk::class, $result);
