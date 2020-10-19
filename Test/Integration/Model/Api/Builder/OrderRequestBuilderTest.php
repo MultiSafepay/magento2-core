@@ -55,7 +55,11 @@ class OrderRequestBuilderTest extends AbstractTestCase
         $this->assertTrue(count($items) > 1);
 
         $couponCode = '1234567890';
-        $this->createCouponCode($couponCode);
+        try {
+            $this->createCouponCode($couponCode);
+        } catch (\Magento\Framework\Exception\AlreadyExistsException $exception) {
+        }
+
         $quote->setCouponCode($couponCode);
 
         $shippingRate = $this->getObjectManager()->get(\Magento\Quote\Model\Quote\Address\Rate::class);
