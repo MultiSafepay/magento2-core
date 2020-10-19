@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added http-factory-guzzle package as a dependency for PSR-17 factories
 
 ### Fixed
+- Added support for all the street lines (Before only street line 1 and 2 were supported)
 - Added dependencies in module.xml and composer.json
 
 ### Removed

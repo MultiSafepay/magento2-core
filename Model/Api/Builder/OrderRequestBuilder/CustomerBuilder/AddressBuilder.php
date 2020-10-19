@@ -50,8 +50,7 @@ class AddressBuilder
         $orderRequestAddress = new Address();
 
         $streetAndHouseNumber = $this->addressParser->parse(
-            $address->getStreetLine(1),
-            $address->getStreetLine(2)
+            rtrim(implode(' ', $address->getStreet()))
         );
 
         if ($address->getRegion() !== null) {
