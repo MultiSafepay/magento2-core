@@ -87,7 +87,7 @@
                 <model>KlarnaFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
-                <title>Klarna</title>
+                <title>Klarna - buy now, pay later</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
