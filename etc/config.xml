@@ -519,7 +519,7 @@
                 <model>MultiSafepayDirectBankTransferFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
-                <title>Direct Bank Transfer</title>
+                <title>Request To Pay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
