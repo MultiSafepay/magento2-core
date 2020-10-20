@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed custom factories to be replaced by http-factory-guzzle factories
 
 ### Changed
+- Rebrand Klarna to their latest standards
 - Upgraded the PHP-SDK to version 4
 
 ## [1.0.0] - 2020-09-02
