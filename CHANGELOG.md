@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added MultiSafepay refund_id to the refund transaction in the Magento Payment.
 - Added missing gift card logos
 - Added http-factory-guzzle package as a dependency for PSR-17 factories
+- Added event for adding or changing the transaction request data before it is sent to MultiSafepay
 
 ### Fixed
 - Added support for all the street lines (Before only street line 1 and 2 were supported)
