@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder;
 
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Config\Config;
@@ -99,12 +100,18 @@ class OrderRequestBuilder
     private $deliveryBuilder;
 
     /**
+     * @var ManagerInterface
+     */
+    private $eventManager;
+
+    /**
      * Data constructor.
      *
      * @param CustomerBuilder $customerBuilder
      * @param Config $config
      * @param Description $description
      * @param DeliveryBuilder $deliveryBuilder
+     * @param ManagerInterface $eventManager
      * @param GatewayInfoBuilder $gatewayInfoBuilder
      * @param ShoppingCartBuilder $shoppingCartBuilder
      * @param PaymentOptionsBuilder $paymentOptionsBuilder
@@ -119,6 +126,7 @@ class OrderRequestBuilder
         Config $config,
         Description $description,
         DeliveryBuilder $deliveryBuilder,
+        ManagerInterface $eventManager,
         GatewayInfoBuilder $gatewayInfoBuilder,
         ShoppingCartBuilder $shoppingCartBuilder,
         PaymentOptionsBuilder $paymentOptionsBuilder,
@@ -132,6 +140,7 @@ class OrderRequestBuilder
         $this->config = $config;
         $this->description = $description;
         $this->deliveryBuilder = $deliveryBuilder;
+        $this->eventManager = $eventManager;
         $this->gatewayInfoBuilder = $gatewayInfoBuilder;
         $this->shoppingCartBuilder = $shoppingCartBuilder;
         $this->paymentOptionsBuilder = $paymentOptionsBuilder;
@@ -177,6 +186,11 @@ class OrderRequestBuilder
         $this->gatewayInfoBuilder->build($order, $payment, $orderRequest);
         $this->secondsActiveBuilder->build($orderRequest, $this->config);
         $this->deliveryBuilder->build($order, $payment, $orderRequest);
+
+        $this->eventManager->dispatch(
+            'before_send_multisafepay_order_request',
+            ['order' => $order, 'orderRequest' => $orderRequest]
+        );
 
         return $orderRequest;
     }
