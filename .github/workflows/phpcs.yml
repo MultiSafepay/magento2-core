@@ -34,11 +34,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Setup Magento 2 repo credentials
-        run: sudo composer config --global http-basic.repo.magento.com ${{ secrets.MAGENTO_CE_USER }} ${{ secrets.MAGENTO_CE_PASSWORD }}
+        run: composer config --global http-basic.repo.magento.com ${{ secrets.MAGENTO_CE_USER }} ${{ secrets.MAGENTO_CE_PASSWORD }}
       - name: Download Magento 2
         run: |
-          sudo composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition /tmp/magento2
-          sudo chmod -R 777 /tmp/magento2
+          composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition /tmp/magento2
+          chmod -R 777 /tmp/magento2
       - name: Place plugin in Magento2
         run: |
           mkdir -p /tmp/magento2/app/code/MultiSafepay/Connect
