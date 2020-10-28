@@ -19,31 +19,40 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Framework\App\ProductMetadataInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PluginDetails;
+use MultiSafepay\ConnectCore\Util\VersionUtil;
 
 class PluginDataBuilder
 {
-    public const VERSION = '2.0.0';
     /**
      * @var ProductMetadataInterface
      */
     private $metadata;
+
     /**
      * @var PluginDetails
      */
     private $pluginDetails;
 
     /**
+     * @var VersionUtil
+     */
+    private $versionUtil;
+
+    /**
      * PluginDetails constructor.
      *
      * @param ProductMetadataInterface $metadata
      * @param PluginDetails $pluginDetails
+     * @param VersionUtil $versionUtil
      */
     public function __construct(
         ProductMetadataInterface $metadata,
-        PluginDetails $pluginDetails
+        PluginDetails $pluginDetails,
+        VersionUtil $versionUtil
     ) {
         $this->metadata = $metadata;
         $this->pluginDetails = $pluginDetails;
+        $this->versionUtil = $versionUtil;
     }
 
     /**
@@ -53,6 +62,6 @@ class PluginDataBuilder
     {
         return $this->pluginDetails->addApplicationName($this->metadata->getName())
             ->addApplicationVersion($this->metadata->getVersion())
-            ->addPluginVersion(self::VERSION);
+            ->addPluginVersion($this->versionUtil->getPluginVersion());
     }
 }
