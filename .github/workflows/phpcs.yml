@@ -29,6 +29,8 @@ jobs:
         run: |
           sudo docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
           sudo -E docker-php-ext-install -j$(nproc) intl soap xsl zip pdo pdo_mysql gd gettext mbstring bcmath sockets
+      - name: Downgrade composer
+        run: sudo composer self-update --1
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Setup Magento 2 repo credentials
