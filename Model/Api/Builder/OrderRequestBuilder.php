@@ -175,7 +175,7 @@ class OrderRequestBuilder
 
         $orderRequest = $this->orderRequest->addType($type)
             ->addOrderId($orderId)
-            ->addMoney(new Money((float) $order->getGrandTotal() * 100, $currencyCode))
+            ->addMoney(new Money((float) $order->getBaseGrandTotal() * 100, $currencyCode))
             ->addDescription($this->description->addDescription('Payment for order #' . $orderId))
             ->addGatewayCode((string) $this->config->getValue('gateway_code'))
             ->addPaymentOptions($this->paymentOptionsBuilder->build($orderId))

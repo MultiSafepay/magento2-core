@@ -59,6 +59,6 @@ class OrderItemBuilder
      */
     public function getPrice(Item $item): float
     {
-        return ($item->getPrice() - ($item->getDiscountAmount() / $item->getQtyOrdered()));
+        return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $item->getQtyOrdered()));
     }
 }

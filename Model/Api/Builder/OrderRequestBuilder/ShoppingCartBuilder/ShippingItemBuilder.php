@@ -33,7 +33,7 @@ class ShippingItemBuilder
     {
         return (new Item())
             ->addName($order->getShippingDescription())
-            ->addUnitPrice(new Money((float) $order->getShippingAmount() * 100, $currency))
+            ->addUnitPrice(new Money((float) $order->getBaseShippingAmount() * 100, $currency))
             ->addQuantity(1)
             ->addDescription('Shipping')
             ->addMerchantItemId('msp-shipping')
@@ -46,8 +46,8 @@ class ShippingItemBuilder
      */
     public function getShippingTaxRate(OrderInterface $order): float
     {
-        $shippingTaxAmount = $order->getShippingTaxAmount();
-        $originalShippingAmount = $order->getShippingInclTax() - $shippingTaxAmount;
+        $shippingTaxAmount = $order->getBaseShippingTaxAmount();
+        $originalShippingAmount = $order->getBaseShippingInclTax() - $shippingTaxAmount;
 
         return (float) $shippingTaxAmount / $originalShippingAmount * 100;
     }
