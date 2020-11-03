@@ -25,6 +25,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ValueObject\Money;
 
 class RefundTransactionBuilder implements BuilderInterface
@@ -45,20 +46,28 @@ class RefundTransactionBuilder implements BuilderInterface
     private $storeManager;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * RefundTransactionBuilder constructor.
      *
      * @param RefundRequest $refundRequest
+     * @param Config $config
      * @param Description $description
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         RefundRequest $refundRequest,
+        Config $config,
         Description $description,
         StoreManagerInterface $storeManager
     ) {
         $this->refundRequest = $refundRequest;
         $this->description = $description;
         $this->storeManager = $storeManager;
+        $this->config = $config;
     }
 
     /**
@@ -77,7 +86,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
 
-        $description = $this->description->addDescription('Refund for order #' . $orderId);
+        $description = $this->description->addDescription($this->getDescriptionFromConfig($orderId));
         $money = new Money($amount, $this->getCurrencyFromOrder($order));
 
         $refund = $this->refundRequest->addMoney($money)
@@ -107,5 +116,20 @@ class RefundTransactionBuilder implements BuilderInterface
         }
 
         return (string)$this->storeManager->getStore($order->getStoreId())->getCurrentCurrency()->getCode();
+    }
+
+    /**
+     * @param $orderId
+     * @return string
+     */
+    public function getDescriptionFromConfig($orderId): string
+    {
+        $refundDescription = (string)$this->config->getValue('refund_custom_description');
+
+        if (empty($refundDescription)) {
+            return ('Refund for order #' . $orderId);
+        }
+
+        return str_replace('{{order.increment_id}}', $orderId, $refundDescription);
     }
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder;
 
+use Exception;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -24,9 +25,9 @@ use Magento\Payment\Gateway\Config\Config;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\DeliveryBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\DescriptionBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PaymentOptionsBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PluginDataBuilder;
@@ -65,11 +66,6 @@ class OrderRequestBuilder
     private $orderRequest;
 
     /**
-     * @var Description
-     */
-    private $description;
-
-    /**
      * @var ShoppingCartBuilder
      */
     private $shoppingCartBuilder;
@@ -105,11 +101,16 @@ class OrderRequestBuilder
     private $eventManager;
 
     /**
+     * @var DescriptionBuilder
+     */
+    private $descriptionBuilder;
+
+    /**
      * Data constructor.
      *
      * @param CustomerBuilder $customerBuilder
      * @param Config $config
-     * @param Description $description
+     * @param DescriptionBuilder $descriptionBuilder
      * @param DeliveryBuilder $deliveryBuilder
      * @param ManagerInterface $eventManager
      * @param GatewayInfoBuilder $gatewayInfoBuilder
@@ -124,7 +125,7 @@ class OrderRequestBuilder
     public function __construct(
         CustomerBuilder $customerBuilder,
         Config $config,
-        Description $description,
+        DescriptionBuilder $descriptionBuilder,
         DeliveryBuilder $deliveryBuilder,
         ManagerInterface $eventManager,
         GatewayInfoBuilder $gatewayInfoBuilder,
@@ -138,7 +139,6 @@ class OrderRequestBuilder
     ) {
         $this->customerBuilder = $customerBuilder;
         $this->config = $config;
-        $this->description = $description;
         $this->deliveryBuilder = $deliveryBuilder;
         $this->eventManager = $eventManager;
         $this->gatewayInfoBuilder = $gatewayInfoBuilder;
@@ -149,6 +149,7 @@ class OrderRequestBuilder
         $this->orderRequest = $orderRequest;
         $this->currencyUtil = $currencyUtil;
         $this->transactionTypeBuilder = $transactionTypeBuilder;
+        $this->descriptionBuilder = $descriptionBuilder;
     }
 
     /**
@@ -156,6 +157,7 @@ class OrderRequestBuilder
      * @return OrderRequest
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws Exception
      */
     public function build(OrderInterface $order): OrderRequest
     {
@@ -176,7 +178,7 @@ class OrderRequestBuilder
         $orderRequest = $this->orderRequest->addType($type)
             ->addOrderId($orderId)
             ->addMoney(new Money((float) $order->getBaseGrandTotal() * 100, $currencyCode))
-            ->addDescription($this->description->addDescription('Payment for order #' . $orderId))
+            ->addDescription($this->descriptionBuilder->build($orderId))
             ->addGatewayCode((string) $this->config->getValue('gateway_code'))
             ->addPaymentOptions($this->paymentOptionsBuilder->build($orderId))
             ->addCustomer($this->customerBuilder->build($order))
