@@ -86,7 +86,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
 
-        $description = $this->description->addDescription($this->getDescriptionFromConfig($orderId));
+        $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
         $money = new Money($amount, $this->getCurrencyFromOrder($order));
 
         $refund = $this->refundRequest->addMoney($money)
@@ -116,20 +116,5 @@ class RefundTransactionBuilder implements BuilderInterface
         }
 
         return (string)$this->storeManager->getStore($order->getStoreId())->getCurrentCurrency()->getCode();
-    }
-
-    /**
-     * @param $orderId
-     * @return string
-     */
-    public function getDescriptionFromConfig($orderId): string
-    {
-        $refundDescription = (string)$this->config->getValue('refund_custom_description');
-
-        if (empty($refundDescription)) {
-            return ('Refund for order #' . $orderId);
-        }
-
-        return str_replace('{{order.increment_id}}', $orderId, $refundDescription);
     }
 }

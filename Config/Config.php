@@ -97,4 +97,19 @@ class Config
     {
         return (string)$this->getValue(self::ORDER_CONFIRMATION_EMAIL, $storeId);
     }
+
+    /**
+     * @param $orderId
+     * @return string
+     */
+    public function getRefundDescription($orderId): string
+    {
+        $refundDescription = (string)$this->getValue('refund_custom_description');
+
+        if (empty($refundDescription)) {
+            return ('Refund for order #' . $orderId);
+        }
+
+        return str_replace('{{order.increment_id}}', $orderId, $refundDescription);
+    }
 }

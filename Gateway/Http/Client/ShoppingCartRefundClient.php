@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Gateway\Http\Client;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -37,17 +38,25 @@ class ShoppingCartRefundClient implements ClientInterface
     private $description;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * RefundClient constructor.
      *
+     * @param Config $config
      * @param Description $description
      * @param SdkFactory $sdkFactory
      */
     public function __construct(
+        Config $config,
         Description $description,
         SdkFactory $sdkFactory
     ) {
         $this->description = $description;
         $this->sdkFactory = $sdkFactory;
+        $this->config = $config;
     }
 
     /**
@@ -65,7 +74,9 @@ class ShoppingCartRefundClient implements ClientInterface
         $transaction = $transactionManager->get($orderId);
 
         $refundRequest = $transactionManager->createRefundRequest($transaction);
-        $refundRequest->addDescription($this->description->addDescription('Refund for order #' . $orderId));
+
+        $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
+        $refundRequest->addDescription($description);
 
         foreach ($request['payload'] as $refundItem) {
             $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
