@@ -22,6 +22,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
@@ -78,7 +79,12 @@ class RefundTransactionBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $amount = SubjectReader::readAmount($buildSubject) * 100;
+        $amount = SubjectReader::readAmount($buildSubject);
+
+        $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
+        if ($amount <= 0) {
+            throw new CouldNotRefundException(__($msg));
+        }
 
         $payment = $paymentDataObject->getPayment();
 
@@ -87,7 +93,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $orderId = $order->getIncrementId();
 
         $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
-        $money = new Money($amount, $this->getCurrencyFromOrder($order));
+        $money = new Money($amount * 100, $this->getCurrencyFromOrder($order));
 
         $refund = $this->refundRequest->addMoney($money)
             ->addDescription($description);

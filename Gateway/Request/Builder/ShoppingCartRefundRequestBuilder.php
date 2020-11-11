@@ -20,7 +20,9 @@ namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Sales\Model\Order\Creditmemo\Item;
 
 class ShoppingCartRefundRequestBuilder implements BuilderInterface
@@ -29,6 +31,7 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
     /**
      * @inheritDoc
      * @throws NoSuchEntityException
+     * @throws CouldNotRefundException
      */
     public function build(array $buildSubject): array
     {
@@ -39,10 +42,16 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
 
+        /** @var CreditmemoInterface $creditMemo */
         $creditMemo = $payment->getCreditMemo();
 
         if ($creditMemo === null) {
             throw new NoSuchEntityException(__('The refund could not be created because the credit memo is missing'));
+        }
+
+        $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
+        if ($creditMemo->getDiscountAmount() === 0) {
+            throw new CouldNotRefundException(__($msg));
         }
 
         $refund = [];
