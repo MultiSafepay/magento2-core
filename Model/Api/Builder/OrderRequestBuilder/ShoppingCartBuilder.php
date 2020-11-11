@@ -108,17 +108,19 @@ class ShoppingCartBuilder
      */
     public function build(OrderInterface $order): ShoppingCart
     {
+        $storeId = $order->getStoreId();
+
         $items = [];
         $orderItems = $order->getItems();
 
-        $currency = $this->currencyUtil->getCurrencyCodeByOrder($order);
+        $currency = $this->currencyUtil->getCurrencyCode($order);
 
         /** @var Item $item */
         foreach ($orderItems as $item) {
             if (!$this->canAddtoShoppingCart($item)) {
                 continue;
             }
-            $items[] = $this->orderItemBuilder->build($item, $currency);
+            $items[] = $this->orderItemBuilder->build($item, $currency, $storeId);
         }
 
         if ($order->getShippingAmount() > 0) {
@@ -165,6 +167,8 @@ class ShoppingCartBuilder
      */
     private function getItemsFromFoomanTotalGroup(CartInterface $quote, string $currency): array
     {
+        $storeId = $quote->getStoreId();
+
         $shippingAddress = $quote->getShippingAddress();
         $extensionAttributes = $shippingAddress->getExtensionAttributes();
 
@@ -183,7 +187,7 @@ class ShoppingCartBuilder
 
         $items = [];
         foreach ($foomanTotals->getItems() as $total) {
-            $items[] = $this->foomanSurchargeBuilder->build($total, $currency);
+            $items[] = $this->foomanSurchargeBuilder->build($total, $currency, $storeId);
         }
 
         return $items;

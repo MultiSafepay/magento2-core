@@ -8,6 +8,9 @@
                 <live_api_key />
                 <test_api_key />
                 <order_confirmation_email>after_transaction</order_confirmation_email>
+                <transaction_custom_description />
+                <refund_custom_description />
+                <use_base_currency>1</use_base_currency>
                 <debug>0</debug>
             </general>
         </multisafepay>

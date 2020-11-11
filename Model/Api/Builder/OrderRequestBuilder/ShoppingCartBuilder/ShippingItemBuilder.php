@@ -19,10 +19,35 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Shoppin
 
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item;
+use MultiSafepay\ConnectCore\Util\PriceUtil;
+use MultiSafepay\ConnectCore\Util\TaxUtil;
 use MultiSafepay\ValueObject\Money;
 
 class ShippingItemBuilder
 {
+    /**
+     * @var PriceUtil
+     */
+    private $priceUtil;
+
+    /**
+     * @var TaxUtil
+     */
+    private $taxUtil;
+
+    /**
+     * ShippingItemBuilder constructor.
+     *
+     * @param PriceUtil $priceUtil
+     * @param TaxUtil $taxUtil
+     */
+    public function __construct(
+        PriceUtil $priceUtil,
+        TaxUtil $taxUtil
+    ) {
+        $this->priceUtil = $priceUtil;
+        $this->taxUtil = $taxUtil;
+    }
 
     /**
      * @param OrderInterface $order
@@ -31,24 +56,14 @@ class ShippingItemBuilder
      */
     public function build(OrderInterface $order, string $currency): Item
     {
+        $shippingPrice = $this->priceUtil->getShippingUnitPrice($order);
+
         return (new Item())
             ->addName($order->getShippingDescription())
-            ->addUnitPrice(new Money((float) $order->getBaseShippingAmount() * 100, $currency))
+            ->addUnitPrice(new Money($shippingPrice * 100, $currency))
             ->addQuantity(1)
             ->addDescription('Shipping')
             ->addMerchantItemId('msp-shipping')
-            ->addTaxRate($this->getShippingTaxRate($order));
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @return float
-     */
-    public function getShippingTaxRate(OrderInterface $order): float
-    {
-        $shippingTaxAmount = $order->getBaseShippingTaxAmount();
-        $originalShippingAmount = $order->getBaseShippingInclTax() - $shippingTaxAmount;
-
-        return (float) $shippingTaxAmount / $originalShippingAmount * 100;
+            ->addTaxRate($this->taxUtil->getShippingTaxRate($order));
     }
 }

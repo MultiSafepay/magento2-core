@@ -27,6 +27,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ValueObject\Money;
 
 class RefundTransactionBuilder implements BuilderInterface
@@ -52,16 +53,23 @@ class RefundTransactionBuilder implements BuilderInterface
     private $config;
 
     /**
+     * @var CurrencyUtil
+     */
+    private $currencyUtil;
+
+    /**
      * RefundTransactionBuilder constructor.
      *
      * @param RefundRequest $refundRequest
      * @param Config $config
+     * @param CurrencyUtil $currencyUtil
      * @param Description $description
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         RefundRequest $refundRequest,
         Config $config,
+        CurrencyUtil $currencyUtil,
         Description $description,
         StoreManagerInterface $storeManager
     ) {
@@ -69,6 +77,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $this->description = $description;
         $this->storeManager = $storeManager;
         $this->config = $config;
+        $this->currencyUtil = $currencyUtil;
     }
 
     /**
@@ -79,7 +88,7 @@ class RefundTransactionBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $amount = SubjectReader::readAmount($buildSubject);
+        $amount = (float)SubjectReader::readAmount($buildSubject);
 
         $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount <= 0) {
@@ -93,7 +102,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $orderId = $order->getIncrementId();
 
         $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
-        $money = new Money($amount * 100, $this->getCurrencyFromOrder($order));
+        $money = new Money($this->getAmount($amount, $order) * 100, $this->currencyUtil->getCurrencyCode($order));
 
         $refund = $this->refundRequest->addMoney($money)
             ->addDescription($description);
@@ -105,22 +114,16 @@ class RefundTransactionBuilder implements BuilderInterface
     }
 
     /**
+     * @param float $amount
      * @param OrderInterface $order
-     * @return string
-     * @throws NoSuchEntityException
+     * @return float
      */
-    private function getCurrencyFromOrder(OrderInterface $order): string
+    public function getAmount(float $amount, OrderInterface $order): float
     {
-        $currencyCode = (string)$order->getOrderCurrencyCode();
-        if (!empty($currencyCode)) {
-            return $currencyCode;
+        if ($this->config->useBaseCurrency($order->getStoreId())) {
+            return $amount;
         }
 
-        $currencyCode = (string)$order->getGlobalCurrencyCode();
-        if (!empty($currencyCode)) {
-            return $currencyCode;
-        }
-
-        return (string)$this->storeManager->getStore($order->getStoreId())->getCurrentCurrency()->getCode();
+        return round($amount * $order->getBaseToOrderRate(), 2);
     }
 }

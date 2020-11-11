@@ -28,6 +28,8 @@ class Config
     public const API_MODE = 'mode';
     public const DEBUG = 'debug';
     public const ORDER_CONFIRMATION_EMAIL = 'order_confirmation_email';
+    public const REFUND_DESCRIPTION = 'refund_custom_description';
+    public const USE_BASE_CURRENCY = 'use_base_currency';
 
     /**
      * @var ScopeConfigInterface
@@ -100,16 +102,26 @@ class Config
 
     /**
      * @param $orderId
+     * @param null $storeId
      * @return string
      */
-    public function getRefundDescription($orderId): string
+    public function getRefundDescription($orderId, $storeId = null): string
     {
-        $refundDescription = (string)$this->getValue('refund_custom_description');
+        $refundDescription = (string)$this->getValue(self::REFUND_DESCRIPTION, $storeId);
 
         if (empty($refundDescription)) {
             return ('Refund for order #' . $orderId);
         }
 
         return str_replace('{{order.increment_id}}', $orderId, $refundDescription);
+    }
+
+    /**
+     * @param null $storeId
+     * @return bool
+     */
+    public function useBaseCurrency($storeId = null): bool
+    {
+        return (bool)$this->getValue(self::USE_BASE_CURRENCY, $storeId);
     }
 }

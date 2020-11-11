@@ -92,6 +92,45 @@ class ConfigTest extends AbstractTestCase
     }
 
     /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     */
+    public function testGetDefaultRefundDescription()
+    {
+        $order = $this->getOrder();
+        $orderId = $order->getId();
+        $refundDescription = $this->getConfig()->getRefundDescription($orderId);
+        $this->assertTrue((bool)strstr($refundDescription, 'Refund for order #'), $refundDescription);
+    }
+
+    /**
+     * @magentoConfigFixture default_store multisafepay/general/refund_custom_description "You will get your money"
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     */
+    public function testGetConfiguredRefundDescription()
+    {
+        $order = $this->getOrder();
+        $orderId = $order->getId();
+        $refundDescription = $this->getConfig()->getRefundDescription($orderId);
+        $this->assertTrue((bool)strstr($refundDescription, 'You will get your money'), $refundDescription);
+    }
+
+    /**
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
+     */
+    public function testUseBaseCurrencyIsFalse()
+    {
+        $this->assertFalse($this->getConfig()->useBaseCurrency());
+    }
+
+    /**
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
+     */
+    public function testUseBaseCurrencyIsTrue()
+    {
+        $this->assertTrue($this->getConfig()->useBaseCurrency());
+    }
+
+    /**
      * @return Config
      */
     private function getConfig(): Config

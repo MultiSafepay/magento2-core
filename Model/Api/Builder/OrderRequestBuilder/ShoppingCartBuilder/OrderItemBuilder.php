@@ -19,20 +19,40 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Shoppin
 
 use Magento\Sales\Model\Order\Item;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item as TransactionItem;
+use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ValueObject\Money;
 
 class OrderItemBuilder
 {
     /**
+     * @var PriceUtil
+     */
+    private $priceUtil;
+
+    /**
+     * OrderItemBuilder constructor.
+     *
+     * @param PriceUtil $priceUtil
+     */
+    public function __construct(
+        PriceUtil $priceUtil
+    ) {
+        $this->priceUtil = $priceUtil;
+    }
+
+    /**
      * @param Item $item
      * @param string $currency
+     * @param string $storeId
      * @return TransactionItem
      */
-    public function build(Item $item, string $currency): TransactionItem
+    public function build(Item $item, string $currency, $storeId): TransactionItem
     {
+        $unitPrice = $this->priceUtil->getUnitPrice($item, $storeId);
+
         return (new TransactionItem())
             ->addName($item->getName())
-            ->addUnitPrice(new Money(round($this->getPrice($item) * 100, 10), $currency))
+            ->addUnitPrice(new Money(round($unitPrice * 100, 10), $currency))
             ->addQuantity((int)$item->getQtyOrdered())
             ->addDescription($this->getDescription($item))
             ->addMerchantItemId($item->getSku())
@@ -51,14 +71,5 @@ class OrderItemBuilder
             return '';
         }
         return $description;
-    }
-
-    /**
-     * @param Item $item
-     * @return float
-     */
-    public function getPrice(Item $item): float
-    {
-        return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $item->getQtyOrdered()));
     }
 }

@@ -35,6 +35,7 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondsActive
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ValueObject\Money;
 
 class OrderRequestBuilder
@@ -106,6 +107,11 @@ class OrderRequestBuilder
     private $descriptionBuilder;
 
     /**
+     * @var PriceUtil
+     */
+    private $priceUtil;
+
+    /**
      * Data constructor.
      *
      * @param CustomerBuilder $customerBuilder
@@ -114,6 +120,7 @@ class OrderRequestBuilder
      * @param DeliveryBuilder $deliveryBuilder
      * @param ManagerInterface $eventManager
      * @param GatewayInfoBuilder $gatewayInfoBuilder
+     * @param PriceUtil $priceUtil
      * @param ShoppingCartBuilder $shoppingCartBuilder
      * @param PaymentOptionsBuilder $paymentOptionsBuilder
      * @param PluginDataBuilder $pluginDataBuilder
@@ -129,6 +136,7 @@ class OrderRequestBuilder
         DeliveryBuilder $deliveryBuilder,
         ManagerInterface $eventManager,
         GatewayInfoBuilder $gatewayInfoBuilder,
+        PriceUtil $priceUtil,
         ShoppingCartBuilder $shoppingCartBuilder,
         PaymentOptionsBuilder $paymentOptionsBuilder,
         PluginDataBuilder $pluginDataBuilder,
@@ -150,6 +158,7 @@ class OrderRequestBuilder
         $this->currencyUtil = $currencyUtil;
         $this->transactionTypeBuilder = $transactionTypeBuilder;
         $this->descriptionBuilder = $descriptionBuilder;
+        $this->priceUtil = $priceUtil;
     }
 
     /**
@@ -172,12 +181,13 @@ class OrderRequestBuilder
 
         $this->config->setMethodCode($payment->getMethod());
 
-        $currencyCode = $this->currencyUtil->getCurrencyCodeByOrder($order);
+        $currencyCode = $this->currencyUtil->getCurrencyCode($order);
+        $grandTotal = $this->priceUtil->getGrandTotal($order);
         $type = $this->transactionTypeBuilder->build($payment, $this->config);
 
         $orderRequest = $this->orderRequest->addType($type)
             ->addOrderId($orderId)
-            ->addMoney(new Money((float) $order->getBaseGrandTotal() * 100, $currencyCode))
+            ->addMoney(new Money($grandTotal * 100, $currencyCode))
             ->addDescription($this->descriptionBuilder->build($orderId))
             ->addGatewayCode((string) $this->config->getValue('gateway_code'))
             ->addPaymentOptions($this->paymentOptionsBuilder->build($orderId))
