@@ -31,6 +31,7 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\DescriptionBu
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PaymentOptionsBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PluginDataBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondChanceBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondsActiveBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
@@ -107,6 +108,11 @@ class OrderRequestBuilder
     private $descriptionBuilder;
 
     /**
+     * @var SecondChanceBuilder
+     */
+    private $secondChanceBuilder;
+
+    /**
      * @var PriceUtil
      */
     private $priceUtil;
@@ -120,6 +126,7 @@ class OrderRequestBuilder
      * @param DeliveryBuilder $deliveryBuilder
      * @param ManagerInterface $eventManager
      * @param GatewayInfoBuilder $gatewayInfoBuilder
+     * @param SecondChanceBuilder $secondChanceBuilder
      * @param PriceUtil $priceUtil
      * @param ShoppingCartBuilder $shoppingCartBuilder
      * @param PaymentOptionsBuilder $paymentOptionsBuilder
@@ -136,6 +143,7 @@ class OrderRequestBuilder
         DeliveryBuilder $deliveryBuilder,
         ManagerInterface $eventManager,
         GatewayInfoBuilder $gatewayInfoBuilder,
+        SecondChanceBuilder $secondChanceBuilder,
         PriceUtil $priceUtil,
         ShoppingCartBuilder $shoppingCartBuilder,
         PaymentOptionsBuilder $paymentOptionsBuilder,
@@ -158,6 +166,7 @@ class OrderRequestBuilder
         $this->currencyUtil = $currencyUtil;
         $this->transactionTypeBuilder = $transactionTypeBuilder;
         $this->descriptionBuilder = $descriptionBuilder;
+        $this->secondChanceBuilder = $secondChanceBuilder;
         $this->priceUtil = $priceUtil;
     }
 
@@ -198,6 +207,7 @@ class OrderRequestBuilder
         $this->gatewayInfoBuilder->build($order, $payment, $orderRequest);
         $this->secondsActiveBuilder->build($orderRequest, $this->config);
         $this->deliveryBuilder->build($order, $payment, $orderRequest);
+        $this->secondChanceBuilder->build($orderRequest);
 
         $this->eventManager->dispatch(
             'before_send_multisafepay_order_request',
