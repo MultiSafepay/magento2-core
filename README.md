@@ -75,9 +75,3 @@ What will you get in return? A brand new designed MultiSafepay t-shirt which wil
 
 ## Want to be part of the team?
 Are you a developer interested in working at MultiSafepay? [View](https://www.multisafepay.com/careers/#jobopenings) our job openings and feel free to get in touch with us.
-
-## Development (@dev)
-@todo
-    
-## Tests
-@todo: PHPUnit setup for unit, integration, etc
