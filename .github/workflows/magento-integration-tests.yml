@@ -1,5 +1,5 @@
-name: ExtDN Actions
-on: [pull_request]
+name: Integration Tests
+on: [pull_request, push]
 
 jobs:
   integration-tests:
