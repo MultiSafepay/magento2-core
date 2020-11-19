@@ -10,3 +10,5 @@ composer config repositories.multisafepay-php-sdk vcs git@github.com:MultiSafepa
 
 composer config minimum-stability dev
 composer config prefer-stable false
+
+composer require yireo/magento2-replace-bundled:@dev --no-update
