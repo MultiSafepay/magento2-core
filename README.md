@@ -2,15 +2,12 @@
   <img src="https://www.multisafepay.com/img/multisafepaylogo.svg" width="400px" position="center">
 </p>
 
-# MultiSafepay plugin 2.0 for Magento 2 **(Beta)**
+# MultiSafepay plugin for Magento 2
 
-This is a beta version of the core module of our new Magento 2 plugin. 
+This is the core module of our new Magento 2 plugin. 
 The new plugin brings code improvements, unit/integration testing, and it is build on top of the Magento payment provider gateway structure.
 
-Before you get started, please read our [installation & configuration manual](https://docs.multisafepay.com/integrations/plugins/magento2/beta/) first.
-
-**Currently this module has not yet been proven to be fully stable. 
-We recommend not using this in a production environment yet, until it has been thoroughly tested.**
+Before you get started, please read our [installation & configuration manual](https://docs.multisafepay.com/integrations/plugins/magento2/) first.
 
 ## About MultiSafepay ##
 MultiSafepay is a collecting payment service provider which means we take care of the agreements, technical details and payment collection required for each payment method. You can start selling online today and manage all your transactions from one place.
@@ -21,7 +18,7 @@ The supported Payment Methods & Giftcards for this plugin can be found over here
 ## Requirements
 - To use the plugin you need a MultiSafepay account. You can create a test account on https://testmerchant.multisafepay.com/signup
 - Magento Open Source version 2.2.x & 2.3.x & 2.4.x
-- PHP 7.2+ (PHP 7.3 or higher recommended)
+- PHP 7.1+
 
 ## Module suite
 
