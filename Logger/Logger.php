@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Logger;
 use Monolog\Logger as CoreLogger;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class Logger extends CoreLogger
 {
@@ -124,5 +125,15 @@ class Logger extends CoreLogger
     public function logInvalidSecureToken($orderId): void
     {
         $this->error('(Order ID: ' . $orderId . ') Invalid secureToken provided in request parameters.');
+    }
+
+    public function logInvalidIpAddress(string $orderId, InvalidArgumentException $invalidArgumentException): void
+    {
+        $this->error('(Order ID: ' . $orderId . ') ' . $invalidArgumentException->getMessage());
+    }
+
+    public function logInvalidForwardedIp(string $orderId, InvalidArgumentException $invalidArgumentException): void
+    {
+        $this->error('(Order ID: ' . $orderId . ') ' . $invalidArgumentException->getMessage());
     }
 }

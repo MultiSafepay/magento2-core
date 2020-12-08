@@ -24,9 +24,9 @@ use Magento\Framework\Locale\ResolverInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\IpAddressBuilder;
 use MultiSafepay\ValueObject\Customer\EmailAddress;
 use MultiSafepay\ValueObject\Customer\PhoneNumber;
-use MultiSafepay\ValueObject\IpAddress;
 
 class CustomerBuilder
 {
@@ -51,23 +51,31 @@ class CustomerBuilder
     private $httpHeader;
 
     /**
+     * @var IpAddressBuilder
+     */
+    private $ipAddressBuilder;
+
+    /**
      * Customer constructor.
      *
      * @param AddressBuilder $address
      * @param CustomerDetails $customerDetails
      * @param Header $httpHeader
+     * @param IpAddressBuilder $ipAddressBuilder
      * @param ResolverInterface $localeResolver
      */
     public function __construct(
         AddressBuilder $address,
         CustomerDetails $customerDetails,
         Header $httpHeader,
+        IpAddressBuilder $ipAddressBuilder,
         ResolverInterface $localeResolver
     ) {
         $this->address = $address;
         $this->customerDetails = $customerDetails;
         $this->httpHeader = $httpHeader;
         $this->localeResolver = $localeResolver;
+        $this->ipAddressBuilder = $ipAddressBuilder;
     }
 
     /**
@@ -93,12 +101,14 @@ class CustomerBuilder
             ->addEmailAddress(new EmailAddress($billingAddress->getEmail()))
             ->addUserAgent($this->httpHeader->getHttpUserAgent());
 
-        if ($order->getRemoteIp()) {
-            $this->customerDetails->addIpAddress(new IpAddress($order->getRemoteIp()));
+        $orderId = $order->getIncrementId();
+
+        if ($order->getRemoteIp() !== null) {
+            $this->ipAddressBuilder->build($this->customerDetails, $order->getRemoteIp(), $orderId);
         }
 
         if ($order->getXForwardedFor() !== null) {
-            $this->customerDetails->addForwardedIp(new IpAddress($order->getXForwardedFor()));
+            $this->ipAddressBuilder->buildForwardedIp($this->customerDetails, $order->getXForwardedFor(), $orderId);
         }
 
         return $this->customerDetails;
