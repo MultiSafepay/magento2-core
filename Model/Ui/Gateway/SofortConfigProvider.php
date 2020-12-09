@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class SofortConfigProvider extends GenericConfigProvider
@@ -35,15 +36,17 @@ class SofortConfigProvider extends GenericConfigProvider
      * PayafterConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
+     * @param Config $config
      * @param ResolverInterface $localeResolver
      */
     public function __construct(
         AssetRepository $assetRepository,
+        Config $config,
         ResolverInterface $localeResolver
     ) {
         $this->assetRepository = $assetRepository;
         $this->localeResolver = $localeResolver;
-        parent::__construct($assetRepository);
+        parent::__construct($assetRepository, $config);
     }
 
     /**

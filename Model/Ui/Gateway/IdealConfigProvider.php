@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\Exception\ApiException;
@@ -50,17 +51,19 @@ class IdealConfigProvider extends GenericConfigProvider
      * IdealConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
+     * @param Config $config
      * @param Session $checkoutSession
      * @param Logger $logger
      * @param SdkFactory $sdkFactory
      */
     public function __construct(
         AssetRepository $assetRepository,
+        Config $config,
         Session $checkoutSession,
         Logger $logger,
         SdkFactory $sdkFactory
     ) {
-        parent::__construct($assetRepository);
+        parent::__construct($assetRepository, $config);
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->sdkFactory = $sdkFactory;
@@ -87,7 +90,8 @@ class IdealConfigProvider extends GenericConfigProvider
             'payment' => [
                 $this->getCode() => [
                     'issuers' => $this->getIssuers(),
-                    'image' => $this->getImage()
+                    'image' => $this->getImage(),
+                    'is_preselected' => $this->isPreselected()
                 ]
             ]
         ];

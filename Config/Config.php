@@ -30,6 +30,7 @@ class Config
     public const ORDER_CONFIRMATION_EMAIL = 'order_confirmation_email';
     public const REFUND_DESCRIPTION = 'refund_custom_description';
     public const USE_BASE_CURRENCY = 'use_base_currency';
+    public const PRESELECTED_METHOD = 'preselected_method';
 
     /**
      * @var ScopeConfigInterface
@@ -123,5 +124,14 @@ class Config
     public function useBaseCurrency($storeId = null): bool
     {
         return (bool)$this->getValue(self::USE_BASE_CURRENCY, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getPreselectedMethod($storeId = null): string
+    {
+        return (string)$this->getValue(self::PRESELECTED_METHOD, $storeId);
     }
 }

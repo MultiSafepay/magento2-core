@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use MultiSafepay\ConnectCore\Config\Config;
 
 class GenericConfigProvider implements ConfigProviderInterface
 {
@@ -31,14 +32,22 @@ class GenericConfigProvider implements ConfigProviderInterface
     protected $assetRepository;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * AbstractConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
+     * @param Config $config
      */
     public function __construct(
-        AssetRepository $assetRepository
+        AssetRepository $assetRepository,
+        Config $config
     ) {
         $this->assetRepository = $assetRepository;
+        $this->config = $config;
     }
 
     /**
@@ -52,7 +61,8 @@ class GenericConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 $this->getCode() => [
-                    'image' => $this->getImage()
+                    'image' => $this->getImage(),
+                    'is_preselected' => $this->isPreselected()
                 ]
             ]
         ];
@@ -76,5 +86,13 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function getCode(): string
     {
         return self::CODE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPreselected(): bool
+    {
+        return $this->getCode() === $this->config->getPreselectedMethod();
     }
 }
