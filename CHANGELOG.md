@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - IP Address is now filtered, preventing error when retrieving 2 ip addresses from the customer.
+- Fix error 'Type "" is not a known type.' when placing a backend order with a non-MultiSafepay payment method.
 
 ## [2.0.1] - 2020-11-27
 ### Fixed

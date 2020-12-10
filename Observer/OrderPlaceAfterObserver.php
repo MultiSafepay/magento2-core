@@ -93,29 +93,33 @@ class OrderPlaceAfterObserver implements ObserverInterface
         /** @var OrderInterface $order */
         $order = $observer->getEvent()->getOrder();
 
-        try {
-            $transaction = $this->orderRequestInitializer->initialize($order);
-        } catch (InvalidApiKeyException $invalidApiKeyException) {
-            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
-            $msg = __('The order can not be created, because the MultiSafepay API key is invalid');
-            $this->messageManager->addErrorMessage($msg);
-            return;
-        } catch (ApiException $apiException) {
-            $this->logger->logPaymentLinkError($order->getIncrementId(), $apiException);
-            $msg = __('The order can not be created, because there was a MultiSafepay error: ') .
-                $apiException->getCode() . ' ' . $apiException->getMessage();
-            $this->messageManager->addErrorMessage($msg);
-            return;
-        }
-
-        $paymentUrl = $transaction->getPaymentUrl();
-
         /** @var Payment $payment */
         $payment = $order->getPayment();
-        $this->paymentLink->addToAdditionalInformation($payment, $paymentUrl);
 
-        $msg = __('Payment link for this transaction: ') . $paymentUrl;
-        $order->addCommentToStatusHistory($msg);
-        $this->orderRepository->save($order);
+        $isMultiSafepay = $payment->getMethodInstance()->getConfigData('is_multisafepay');
+
+        if ($isMultiSafepay) {
+            try {
+                $transaction = $this->orderRequestInitializer->initialize($order);
+            } catch (InvalidApiKeyException $invalidApiKeyException) {
+                $this->logger->logInvalidApiKeyException($invalidApiKeyException);
+                $msg = __('The order can not be created, because the MultiSafepay API key is invalid');
+                $this->messageManager->addErrorMessage($msg);
+                return;
+            } catch (ApiException $apiException) {
+                $this->logger->logPaymentLinkError($order->getIncrementId(), $apiException);
+                $msg = __('The order can not be created, because there was a MultiSafepay error: ') .
+                    $apiException->getCode() . ' ' . $apiException->getMessage();
+                $this->messageManager->addErrorMessage($msg);
+                return;
+            }
+
+            $paymentUrl = $transaction->getPaymentUrl();
+            $this->paymentLink->addToAdditionalInformation($payment, $paymentUrl);
+
+            $msg = __('Payment link for this transaction: ') . $paymentUrl;
+            $order->addCommentToStatusHistory($msg);
+            $this->orderRepository->save($order);
+        }
     }
 }
