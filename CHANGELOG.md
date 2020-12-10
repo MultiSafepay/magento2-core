@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added in3 payment method
 - Added support for preselected default payment method in the checkout
 
 ### Fixed

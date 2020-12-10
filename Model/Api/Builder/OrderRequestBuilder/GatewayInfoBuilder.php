@@ -29,11 +29,13 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBu
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\IdealGatewayInfoBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\
 PayAfterEinvoicingGatewayInfoBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\In3GatewayInfoBuilder;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectBankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\EinvoicingConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\In3ConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 
 class GatewayInfoBuilder
@@ -64,12 +66,18 @@ class GatewayInfoBuilder
     private $payAfterEinvoicingGatewayInfoBuilder;
 
     /**
+     * @var In3GatewayInfoBuilder
+     */
+    private $in3GatewayInfoBuilder;
+
+    /**
      * GatewayInfoBuilder constructor.
      *
      * @param AfterpayGatewayInfoBuilder $afterpayGatewayInfoBuilder
      * @param DirectBankTransferGatewayInfoBuilder $directBankTransferGatewayInfoBuilder
      * @param DirectDebitGatewayInfoBuilder $directDebitGatewayInfoBuilder
      * @param IdealGatewayInfoBuilder $idealGatewayInfoBuilder
+     * @param In3GatewayInfoBuilder $in3GatewayInfoBuilder
      * @param PayAfterEinvoicingGatewayInfoBuilder $payAfterEinvoicingGatewayInfoBuilder
      */
     public function __construct(
@@ -77,6 +85,7 @@ class GatewayInfoBuilder
         DirectBankTransferGatewayInfoBuilder $directBankTransferGatewayInfoBuilder,
         DirectDebitGatewayInfoBuilder $directDebitGatewayInfoBuilder,
         IdealGatewayInfoBuilder $idealGatewayInfoBuilder,
+        In3GatewayInfoBuilder $in3GatewayInfoBuilder,
         PayAfterEinvoicingGatewayInfoBuilder $payAfterEinvoicingGatewayInfoBuilder
     ) {
         $this->afterpayGatewayInfoBuilder = $afterpayGatewayInfoBuilder;
@@ -84,6 +93,7 @@ class GatewayInfoBuilder
         $this->directDebitGatewayInfoBuilder = $directDebitGatewayInfoBuilder;
         $this->idealGatewayInfoBuilder = $idealGatewayInfoBuilder;
         $this->payAfterEinvoicingGatewayInfoBuilder = $payAfterEinvoicingGatewayInfoBuilder;
+        $this->in3GatewayInfoBuilder = $in3GatewayInfoBuilder;
     }
 
     /**
@@ -114,6 +124,8 @@ class GatewayInfoBuilder
             case DirectDebitConfigProvider::CODE:
                 $orderRequest->addGatewayInfo($this->directDebitGatewayInfoBuilder->build($payment));
                 break;
+            case In3ConfigProvider::CODE:
+                $orderRequest->addGatewayInfo($this->in3GatewayInfoBuilder->build($order, $payment));
         }
     }
 }
