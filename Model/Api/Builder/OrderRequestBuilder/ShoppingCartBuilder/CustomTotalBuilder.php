@@ -27,7 +27,9 @@ class CustomTotalBuilder
         'subtotal',
         'shipping',
         'tax',
-        'grand_total'
+        'grand_total',
+        'mp_reward_spent',
+        'mp_reward_earn'
     ];
 
     /**
@@ -67,8 +69,8 @@ class CustomTotalBuilder
         $title = $total->getTitle();
 
         if ($title instanceof Phrase) {
-            return $title->getText();
+            return (string) $title->getText();
         }
-        return $title;
+        return (string) $title;
     }
 }
