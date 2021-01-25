@@ -93,7 +93,7 @@ class CustomerBuilder
 
         $customerAddress = $this->address->build($order->getBillingAddress());
 
-        $this->customerDetails->addLocale($this->localeResolver->getLocale())
+        $this->customerDetails->addLocale($this->localeResolver->emulate($order->getStoreId()))
             ->addFirstName($billingAddress->getFirstname())
             ->addLastName($billingAddress->getLastname())
             ->addAddress($customerAddress)
