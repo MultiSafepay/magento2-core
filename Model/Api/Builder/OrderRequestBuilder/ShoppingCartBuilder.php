@@ -26,6 +26,7 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Item;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\CustomTotalBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\FoomanSurchargeTotalBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder;
@@ -72,8 +73,14 @@ class ShoppingCartBuilder
     private $currencyUtil;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * ShoppingCartBuilder constructor.
      *
+     * @param Config $config
      * @param CustomTotalBuilder $customTotalBuilder
      * @param CustomTotalValidator $customTotalValidator
      * @param OrderItemBuilder $orderItemBuilder
@@ -83,6 +90,7 @@ class ShoppingCartBuilder
      * @param CurrencyUtil $currencyUtil
      */
     public function __construct(
+        Config $config,
         CustomTotalBuilder $customTotalBuilder,
         CustomTotalValidator $customTotalValidator,
         OrderItemBuilder $orderItemBuilder,
@@ -98,6 +106,7 @@ class ShoppingCartBuilder
         $this->shippingItemBuilder = $shippingItemBuilder;
         $this->quoteRepository = $quoteRepository;
         $this->currencyUtil = $currencyUtil;
+        $this->config = $config;
     }
 
     /**
@@ -147,12 +156,18 @@ class ShoppingCartBuilder
     private function getItemsFromQuote(CartInterface $quote, string $currency): array
     {
         $items = [];
+
+        // Merge excluded totals from config with predefined
+        $customTotalsConfig = $this->config->getCustomTotals($quote->getStoreId());
+        $customTotalList = array_map('trim', explode(';', $customTotalsConfig));
+        $excludedTotals = array_merge($customTotalList, CustomTotalBuilder::EXCLUDED_TOTALS);
+
         foreach ($quote->getTotals() as $total) {
             if (!$this->customTotalValidator->validate($total)) {
                 continue;
             }
 
-            if (!in_array($total->getCode(), CustomTotalBuilder::DEFAULT_TOTALS, true)) {
+            if (!in_array($total->getCode(), $excludedTotals, true)) {
                 $items[] = $this->customTotalBuilder->build($total, $currency);
             }
         }

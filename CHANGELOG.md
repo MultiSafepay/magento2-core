@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Added retrieval of icons from local directory for Givacard, Wellness gift card and Winkel Cheque
+- Improved custom totals and added support for exclusions
 
 ## [2.1.0] - 2020-12-10
 ### Added

@@ -23,6 +23,8 @@ use Magento\Store\Model\ScopeInterface;
 class Config
 {
     public const DEFAULT_PATH_PATTERN = 'multisafepay/general/%s';
+    public const ADVANCED_PATH_PATTERN = 'multisafepay/advanced/%s';
+
     public const TEST_API_KEY = 'test_api_key';
     public const LIVE_API_KEY = 'live_api_key';
     public const API_MODE = 'mode';
@@ -31,6 +33,7 @@ class Config
     public const REFUND_DESCRIPTION = 'refund_custom_description';
     public const USE_BASE_CURRENCY = 'use_base_currency';
     public const PRESELECTED_METHOD = 'preselected_method';
+    public const CUSTOM_TOTALS = 'custom_totals';
 
     /**
      * @var ScopeConfigInterface
@@ -57,6 +60,20 @@ class Config
     {
         return $this->scopeConfig->getValue(
             sprintf(self::DEFAULT_PATH_PATTERN, $field),
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * @param string $field
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getAdvancedValue(string $field, $storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            sprintf(self::ADVANCED_PATH_PATTERN, $field),
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -133,5 +150,14 @@ class Config
     public function getPreselectedMethod($storeId = null): string
     {
         return (string)$this->getValue(self::PRESELECTED_METHOD, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getCustomTotals($storeId = null): string
+    {
+        return (string)$this->getAdvancedValue(self::CUSTOM_TOTALS, $storeId);
     }
 }

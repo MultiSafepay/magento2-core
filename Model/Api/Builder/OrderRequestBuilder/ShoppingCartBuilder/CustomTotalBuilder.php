@@ -23,7 +23,7 @@ use MultiSafepay\ValueObject\Money;
 
 class CustomTotalBuilder
 {
-    public const DEFAULT_TOTALS = [
+    public const EXCLUDED_TOTALS = [
         'subtotal',
         'shipping',
         'tax',
