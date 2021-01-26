@@ -49,7 +49,7 @@ class FoomanSurchargeTotalBuilder
     {
         return (new Item())
             ->addName($total->getLabel())
-            ->addUnitPrice(new Money((float) $this->getAmount($total, $storeId) * 100, $currency))
+            ->addUnitPrice(new Money(round($this->getAmount($total, $storeId) * 100, 10), $currency))
             ->addQuantity(1)
             ->addDescription($total->getLabel())
             ->addMerchantItemId('fooman-surcharge')
@@ -63,10 +63,10 @@ class FoomanSurchargeTotalBuilder
     public function getTaxRate(\Fooman\Totals\Api\Data\TotalInterface $total, $storeId): float
     {
         if ($this->config->useBaseCurrency($storeId)) {
-            return (round($total->getBaseTaxAmount() / $total->getBaseAmount() * 100));
+            return round($total->getBaseTaxAmount() / $total->getBaseAmount() * 100);
         }
 
-        return (round($total->getTaxAmount() / $total->getAmount() * 100));
+        return round($total->getTaxAmount() / $total->getAmount() * 100);
     }
 
     /**
@@ -77,9 +77,9 @@ class FoomanSurchargeTotalBuilder
     public function getAmount($total, $storeId): float
     {
         if ($this->config->useBaseCurrency($storeId)) {
-            return $total->getBaseAmount();
+            return (float)$total->getBaseAmount();
         }
 
-        return $total->getAmount();
+        return (float)$total->getAmount();
     }
 }

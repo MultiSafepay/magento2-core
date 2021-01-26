@@ -28,8 +28,9 @@ class CustomTotalBuilder
         'shipping',
         'tax',
         'grand_total',
+        'fooman_surcharge_tax_after',
         'mp_reward_spent',
-        'mp_reward_earn'
+        'mp_reward_earn',
     ];
 
     /**
