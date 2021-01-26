@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.0] - 2021-01-26
 ### Added
 - Added support for Mageplaza Reward Points
 
 ### Fixed
 - Fixed wrong store locale being sent in admin backend orders
 - Fixed Uncaught TypeError with string to float conversion for Fooman Surcharge
+- Fixed order e-mails not being sent in some cases for backend orders
 
 ### Changed
 - Added retrieval of icons from local directory for Givacard, Wellness gift card and Winkel Cheque
