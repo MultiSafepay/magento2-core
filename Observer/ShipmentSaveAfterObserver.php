@@ -106,7 +106,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         OrderInterface $order
     ): void {
         if ($paymentMethodInstance->getConfigData('is_multisafepay')) {
-            $transactionManager = $this->sdkFactory->get()->getTransactionManager();
+            $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->get()->getTransactionManager();
 
             $updateRequest = $this->updateRequest->addData([
                     "tracktrace_code" => $this->getTrackingNumber($shipment),

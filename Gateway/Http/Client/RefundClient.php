@@ -52,11 +52,10 @@ class RefundClient implements ClientInterface
     {
         $request = $transferObject->getBody();
 
-        $multiSafepaySdk = $this->sdkFactory->get();
+        $multiSafepaySdk = $this->sdkFactory->create($request['store_id'])->get();
         $transactionManager = $multiSafepaySdk->getTransactionManager();
 
-        $orderId = $request['order_id'];
-        $transaction = $transactionManager->get($orderId);
+        $transaction = $transactionManager->get($request['order_id']);
 
         return $transactionManager->refund($transaction, $request['payload'])->getResponseData();
     }

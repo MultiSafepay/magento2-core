@@ -79,7 +79,8 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
 
         return [
             'payload' => $refund,
-            'order_id' => $orderId
+            'order_id' => $orderId,
+            'store_id' => (int)$order->getStoreId()
         ];
     }
 }

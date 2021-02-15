@@ -67,7 +67,7 @@ class ShoppingCartRefundClient implements ClientInterface
     {
         $request = $transferObject->getBody();
 
-        $multiSafepaySdk = $this->sdkFactory->get();
+        $multiSafepaySdk = $this->sdkFactory->create($request['store_id'])->get();
         $transactionManager = $multiSafepaySdk->getTransactionManager();
 
         $orderId = $request['order_id'];

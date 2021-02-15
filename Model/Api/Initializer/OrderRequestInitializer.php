@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Model\Api\Initializer;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\TransactionResponse;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
@@ -61,9 +62,9 @@ class OrderRequestInitializer
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function initialize($order): TransactionResponse
+    public function initialize(OrderInterface $order): TransactionResponse
     {
-        $multiSafepaySdk = $this->sdkFactory->get();
+        $multiSafepaySdk = $this->sdkFactory->create((int)$order->getStoreId())->get();
         $transactionManager = $multiSafepaySdk->getTransactionManager();
         return $transactionManager->create($this->orderRequestBuilder->build($order));
     }
