@@ -75,8 +75,8 @@ class SofortConfigProvider extends GenericConfigProvider
     public function getPath(): string
     {
         if ($this->localeResolver->getLocale() === 'de_DE') {
-            return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-de.png';
+            return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-de.png';
         }
-        return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-en.png';
+        return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-en.png';
     }
 }

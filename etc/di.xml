@@ -6334,4 +6334,65 @@
         </arguments>
     </type>
 
+    <type name="MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="multisafepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MultiSafepayConfigProvider</item>
+                <item name="multisafepay_ideal" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider</item>
+                <item name="multisafepay_payafter" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider</item>
+                <item name="multisafepay_klarna" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider</item>
+                <item name="multisafepay_afterpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider</item>
+                <item name="multisafepay_bancontact" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactConfigProvider</item>
+                <item name="multisafepay_amex" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider</item>
+                <item name="multisafepay_applepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\ApplePayConfigProvider</item>
+                <item name="multisafepay_belfius" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BelfiusConfigProvider</item>
+                <item name="multisafepay_creditcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider</item>
+                <item name="multisafepay_dotpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\DotpayConfigProvider</item>
+                <item name="multisafepay_eps" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\EPSConfigProvider</item>
+                <item name="multisafepay_giropay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\GiropayConfigProvider</item>
+                <item name="multisafepay_idealqr" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealQRConfigProvider</item>
+                <item name="multisafepay_maestro" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider</item>
+                <item name="multisafepay_mastercard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider</item>
+                <item name="multisafepay_paysafecard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\PaysafecardConfigProvider</item>
+                <item name="multisafepay_sofort" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\SofortConfigProvider</item>
+                <item name="multisafepay_trustpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\TrustPayConfigProvider</item>
+                <item name="multisafepay_visa" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider</item>
+                <item name="multisafepay_alipay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayConfigProvider</item>
+                <item name="multisafepay_directbanktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectBankTransferConfigProvider</item>
+                <item name="multisafepay_banktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider</item>
+                <item name="multisafepay_santander" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\SantanderConfigProvider</item>
+                <item name="multisafepay_cbc" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\CBCConfigProvider</item>
+                <item name="multisafepay_directdebit" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider</item>
+                <item name="multisafepay_einvoicing" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\EinvoicingConfigProvider</item>
+                <item name="multisafepay_inghomepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\INGHomePayConfigProvider</item>
+                <item name="multisafepay_kbc" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\KBCConfigProvider</item>
+                <item name="multisafepay_paypal" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\PaypalConfigProvider</item>
+                <item name="multisafepay_trustly" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\TrustlyConfigProvider</item>
+                <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3ConfigProvider</item>
+
+                <!-- Gift cards -->
+                <item name="multisafepay_babygiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BabyGiftcardConfigProvider</item>
+                <item name="multisafepay_beautyandwellness" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BeautyAndWellnessConfigProvider</item>
+                <item name="multisafepay_boekenbon" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BoekenbonConfigProvider</item>
+                <item name="multisafepay_fashioncheque" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\FashionChequeConfigProvider</item>
+                <item name="multisafepay_fashiongiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\FashionGiftcardConfigProvider</item>
+                <item name="multisafepay_fietsenbon" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\FietsenbonConfigProvider</item>
+                <item name="multisafepay_gezondheidsbon" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\GezondheidsbonConfigProvider</item>
+                <item name="multisafepay_givacard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\GivacardConfigProvider</item>
+                <item name="multisafepay_good4fun" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\Good4funConfigProvider</item>
+                <item name="multisafepay_goodcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\GoodcardConfigProvider</item>
+                <item name="multisafepay_nationaletuinbon" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\NationaleTuinbonConfigProvider</item>
+                <item name="multisafepay_parfumcadeaukaart" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\ParfumcadeaukaartConfigProvider</item>
+                <item name="multisafepay_podiumcadeaukaart" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\PodiumcadeaukaartConfigProvider</item>
+                <item name="multisafepay_sportenfit" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\SportenfitConfigProvider</item>
+                <item name="multisafepay_vvvcadeaukaart" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\VVVcadeaukaartConfigProvider</item>
+                <item name="multisafepay_webshopgiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\WebshopGiftcardConfigProvider</item>
+                <item name="multisafepay_wellnessgiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\WellnessGiftcardConfigProvider</item>
+                <item name="multisafepay_wijncadeau" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\WijnCadeauConfigProvider</item>
+                <item name="multisafepay_winkelcheque" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\WinkelChequeConfigProvider</item>
+                <item name="multisafepay_yourgift" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\YourGiftConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>

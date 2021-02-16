@@ -23,11 +23,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Model\Api\Initializer\OrderRequestInitializer;
-use MultiSafepay\ConnectCore\Model\PaymentLink;
+use MultiSafepay\ConnectCore\Service\PaymentLink;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -35,19 +33,9 @@ use Psr\Http\Client\ClientExceptionInterface;
 class OrderPlaceAfterObserver implements ObserverInterface
 {
     /**
-     * @var OrderRequestInitializer
-     */
-    private $orderRequestInitializer;
-
-    /**
      * @var Logger
      */
     private $logger;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
 
     /**
      * @var PaymentLink
@@ -64,29 +52,23 @@ class OrderPlaceAfterObserver implements ObserverInterface
      *
      * @param Logger $logger
      * @param ManagerInterface $messageManager
-     * @param OrderRepositoryInterface $orderRepository
-     * @param OrderRequestInitializer $orderRequestInitializer
      * @param PaymentLink $paymentLink
      */
     public function __construct(
         Logger $logger,
         ManagerInterface $messageManager,
-        OrderRepositoryInterface $orderRepository,
-        OrderRequestInitializer $orderRequestInitializer,
         PaymentLink $paymentLink
     ) {
         $this->logger = $logger;
         $this->messageManager = $messageManager;
-        $this->orderRepository = $orderRepository;
-        $this->orderRequestInitializer = $orderRequestInitializer;
         $this->paymentLink = $paymentLink;
     }
 
     /**
-     * @inheritDoc
+     * @param Observer $observer
+     * @throws ClientExceptionInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
-     * @throws ClientExceptionInterface
      */
     public function execute(Observer $observer)
     {
@@ -95,12 +77,12 @@ class OrderPlaceAfterObserver implements ObserverInterface
 
         /** @var Payment $payment */
         $payment = $order->getPayment();
-
         $isMultiSafepay = $payment->getMethodInstance()->getConfigData('is_multisafepay');
 
         if ($isMultiSafepay) {
             try {
-                $transaction = $this->orderRequestInitializer->initialize($order);
+                $paymentUrl = $this->paymentLink->getPaymentLinkByOrder($order);
+                $this->paymentLink->addPaymentLink($order, $paymentUrl);
             } catch (InvalidApiKeyException $invalidApiKeyException) {
                 $this->logger->logInvalidApiKeyException($invalidApiKeyException);
                 $msg = __('The order can not be created, because the MultiSafepay API key is invalid');
@@ -113,13 +95,6 @@ class OrderPlaceAfterObserver implements ObserverInterface
                 $this->messageManager->addErrorMessage($msg);
                 return;
             }
-
-            $paymentUrl = $transaction->getPaymentUrl();
-            $this->paymentLink->addToAdditionalInformation($payment, $paymentUrl);
-
-            $msg = __('Payment link for this transaction: ') . $paymentUrl;
-            $order->addCommentToStatusHistory($msg);
-            $this->orderRepository->save($order);
         }
     }
 }

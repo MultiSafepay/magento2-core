@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Logger;
 
+use Exception;
 use Monolog\Logger as CoreLogger;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
@@ -37,6 +38,19 @@ class Logger extends CoreLogger
         );
 
         $this->debug($apiException->getDetails());
+    }
+
+    /**
+     * @param string $orderId
+     * @param Exception $exception
+     * @return void
+     */
+    public function logGeneralErrorForOrder(string $orderId, Exception $exception): void
+    {
+        $this->error(
+            '(Order ID: ' . $orderId . ') Error: ' .
+            $exception->getCode() . ' ' . $exception->getMessage()
+        );
     }
 
     /**

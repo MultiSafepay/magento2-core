@@ -75,9 +75,9 @@ class PayafterConfigProvider extends GenericConfigProvider
     public function getPath(): string
     {
         if ($this->localeResolver->getLocale() === 'nl_NL') {
-            return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-nl.png';
+            return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-nl.png';
         }
 
-        return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-en.png';
+        return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-en.png';
     }
 }
