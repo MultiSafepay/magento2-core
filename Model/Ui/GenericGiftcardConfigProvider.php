@@ -29,7 +29,7 @@ class GenericGiftcardConfigProvider extends GenericConfigProvider
      */
     public function getImage(): string
     {
-        $path = 'MultiSafepay_ConnectFrontend::images/giftcard/' . $this->getCode() . '.png';
+        $path = 'MultiSafepay_ConnectCore::images/giftcard/' . $this->getCode() . '.png';
 
         $this->assetRepository->createAsset($path);
         return $this->assetRepository->getUrl($path);

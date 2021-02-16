@@ -74,7 +74,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getImage(): string
     {
-        $path = 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '.png';
+        $path = 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '.png';
 
         $this->assetRepository->createAsset($path);
         return $this->assetRepository->getUrl($path);

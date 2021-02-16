@@ -28,6 +28,7 @@ use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -55,28 +56,35 @@ class ShipmentSaveAfterObserver implements ObserverInterface
     private $messageManager;
 
     /**
+     * @var PaymentMethodUtil
+     */
+    private $paymentMethodUtil;
+
+    /**
      * ShipmentSaveAfterObserver constructor.
      *
      * @param SdkFactory $sdkFactory
      * @param Logger $logger
      * @param ManagerInterface $messageManager
      * @param UpdateRequest $updateRequest
+     * @param PaymentMethodUtil $paymentMethodUtil
      */
     public function __construct(
         SdkFactory $sdkFactory,
         Logger $logger,
         ManagerInterface $messageManager,
-        UpdateRequest $updateRequest
+        UpdateRequest $updateRequest,
+        PaymentMethodUtil $paymentMethodUtil
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->logger = $logger;
         $this->messageManager = $messageManager;
         $this->updateRequest = $updateRequest;
+        $this->paymentMethodUtil = $paymentMethodUtil;
     }
 
     /**
-     * @inheritDoc
-     * @throws LocalizedException
+     * @param Observer $observer
      * @throws ClientExceptionInterface
      */
     public function execute(Observer $observer): void
@@ -85,27 +93,20 @@ class ShipmentSaveAfterObserver implements ObserverInterface
 
         /** @var ShipmentInterface $shipment */
         $shipment = $event->getShipment();
-
         $order = $shipment->getOrder();
-
-        /** @var Payment $payment */
-        $payment = $order->getPayment();
-
-        $this->addShippingToTransaction($payment->getMethodInstance(), $shipment, $order);
+        $this->addShippingToTransaction($shipment, $order);
     }
 
     /**
-     * @param MethodInterface $paymentMethodInstance
      * @param ShipmentInterface $shipment
      * @param OrderInterface $order
      * @throws ClientExceptionInterface
      */
     public function addShippingToTransaction(
-        MethodInterface $paymentMethodInstance,
         ShipmentInterface $shipment,
         OrderInterface $order
     ): void {
-        if ($paymentMethodInstance->getConfigData('is_multisafepay')) {
+        if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
             $transactionManager = $this->sdkFactory->get()->getTransactionManager();
 
             $updateRequest = $this->updateRequest->addData([

@@ -76,19 +76,19 @@ class BankTransferConfigProvider extends GenericConfigProvider
     {
         switch ($this->localeResolver->getLocale()) {
             case 'nl_NL':
-                return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-nl.png';
+                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-nl.png';
 
             case 'fr_FR':
-                return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-fr.png';
+                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-fr.png';
 
             case 'de_DE':
-                return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-de.png';
+                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-de.png';
 
             case 'es_ES':
-                return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-es.png';
+                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-es.png';
 
             default:
-                return 'MultiSafepay_ConnectFrontend::images/' . $this->getCode() . '-en.png';
+                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-en.png';
         }
     }
 }
