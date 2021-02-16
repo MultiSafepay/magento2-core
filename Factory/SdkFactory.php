@@ -79,6 +79,7 @@ class SdkFactory
         if ($storeId) {
             $this->storeId = $storeId;
         }
+
         return $this;
     }
 

@@ -64,8 +64,7 @@ class OrderRequestInitializer
      */
     public function initialize(OrderInterface $order): TransactionResponse
     {
-        $multiSafepaySdk = $this->sdkFactory->create((int)$order->getStoreId())->get();
-        $transactionManager = $multiSafepaySdk->getTransactionManager();
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->get()->getTransactionManager();
         return $transactionManager->create($this->orderRequestBuilder->build($order));
     }
 }
