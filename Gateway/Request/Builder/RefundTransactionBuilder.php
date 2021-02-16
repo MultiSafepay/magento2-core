@@ -23,7 +23,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
-use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -43,11 +43,6 @@ class RefundTransactionBuilder implements BuilderInterface
     private $description;
 
     /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
      * @var Config
      */
     private $config;
@@ -64,18 +59,15 @@ class RefundTransactionBuilder implements BuilderInterface
      * @param Config $config
      * @param CurrencyUtil $currencyUtil
      * @param Description $description
-     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         RefundRequest $refundRequest,
         Config $config,
         CurrencyUtil $currencyUtil,
-        Description $description,
-        StoreManagerInterface $storeManager
+        Description $description
     ) {
         $this->refundRequest = $refundRequest;
         $this->description = $description;
-        $this->storeManager = $storeManager;
         $this->config = $config;
         $this->currencyUtil = $currencyUtil;
     }
@@ -109,7 +101,8 @@ class RefundTransactionBuilder implements BuilderInterface
 
         return [
             'payload' => $refund,
-            'order_id' => $orderId
+            'order_id' => $orderId,
+            Store::STORE_ID => (int)$order->getStoreId()
         ];
     }
 

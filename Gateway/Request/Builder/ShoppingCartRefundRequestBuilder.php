@@ -24,6 +24,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Sales\Model\Order\Creditmemo\Item;
+use Magento\Store\Model\Store;
 
 class ShoppingCartRefundRequestBuilder implements BuilderInterface
 {
@@ -79,7 +80,8 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
 
         return [
             'payload' => $refund,
-            'order_id' => $orderId
+            'order_id' => $orderId,
+            Store::STORE_ID => (int)$order->getStoreId()
         ];
     }
 }

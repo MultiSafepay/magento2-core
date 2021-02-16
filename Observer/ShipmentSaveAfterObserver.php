@@ -19,12 +19,9 @@ namespace MultiSafepay\ConnectCore\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
-use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -107,7 +104,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         OrderInterface $order
     ): void {
         if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
-            $transactionManager = $this->sdkFactory->get()->getTransactionManager();
+            $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->get()->getTransactionManager();
 
             $updateRequest = $this->updateRequest->addData([
                     "tracktrace_code" => $this->getTrackingNumber($shipment),
@@ -144,6 +141,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         if (empty($shipment->getTracks())) {
             return '';
         }
+
         return $shipment->getTracks()[0]->getTrackNumber();
     }
 }

@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Gateway\Http\Client;
 
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
+use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -52,11 +53,9 @@ class RefundClient implements ClientInterface
     {
         $request = $transferObject->getBody();
 
-        $multiSafepaySdk = $this->sdkFactory->get();
-        $transactionManager = $multiSafepaySdk->getTransactionManager();
+        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->get()->getTransactionManager();
 
-        $orderId = $request['order_id'];
-        $transaction = $transactionManager->get($orderId);
+        $transaction = $transactionManager->get($request['order_id']);
 
         return $transactionManager->refund($transaction, $request['payload'])->getResponseData();
     }

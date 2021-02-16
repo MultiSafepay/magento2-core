@@ -17,15 +17,14 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Factory;
 
+use Http\Adapter\Guzzle6\Client;
 use Http\Factory\Guzzle\RequestFactory;
 use Http\Factory\Guzzle\StreamFactory;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\Sdk;
-use \Http\Adapter\Guzzle6\Client;
 
 class SdkFactory
 {
-
     /**
      * @var Config
      */
@@ -45,6 +44,11 @@ class SdkFactory
      * @var RequestFactory
      */
     private $requestFactory;
+
+    /**
+     * @var int|null
+     */
+    private $storeId;
 
     /**
      * Client constructor.
@@ -67,13 +71,26 @@ class SdkFactory
     }
 
     /**
+     * @param int|null $storeId
+     * @return $this
+     */
+    public function create(?int $storeId = null): self
+    {
+        if ($storeId) {
+            $this->storeId = $storeId;
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Sdk
      */
     public function get(): Sdk
     {
         return new Sdk(
-            $this->config->getApiKey(),
-            $this->config->getMode(),
+            $this->config->getApiKey($this->storeId),
+            $this->config->getMode($this->storeId),
             $this->psrClient,
             $this->requestFactory,
             $this->streamFactory
