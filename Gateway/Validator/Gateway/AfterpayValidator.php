@@ -21,6 +21,7 @@ use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use MultiSafepay\ConnectCore\Model\Api\Validator\DateOfBirthValidator;
+use MultiSafepay\ConnectCore\Model\Api\Validator\GenderValidator;
 
 class AfterpayValidator extends AbstractValidator
 {
@@ -30,16 +31,24 @@ class AfterpayValidator extends AbstractValidator
     private $dateOfBirthValidator;
 
     /**
+     * @var GenderValidator
+     */
+    private $genderValidator;
+
+    /**
      * AfterpayValidator constructor.
      *
      * @param DateOfBirthValidator $dateOfBirthValidator
+     * @param GenderValidator $genderValidator
      * @param ResultInterfaceFactory $resultFactory
      */
     public function __construct(
         DateOfBirthValidator $dateOfBirthValidator,
+        GenderValidator $genderValidator,
         ResultInterfaceFactory $resultFactory
     ) {
         $this->dateOfBirthValidator = $dateOfBirthValidator;
+        $this->genderValidator = $genderValidator;
         parent::__construct($resultFactory);
     }
 
@@ -48,11 +57,25 @@ class AfterpayValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $payment = $validationSubject['payment'];
+        $paymentAdditionalInformation = !empty($validationSubject['payment'])
+            ? $validationSubject['payment']->getAdditionalInformation() : [];
 
-        if (!$this->dateOfBirthValidator->validate($payment->getAdditionalInformation()['date_of_birth'])) {
+        if (!$paymentAdditionalInformation) {
+            return $this->createResult(false, [__('Can\'t get a payment information')]);
+        }
+
+        if (!isset($paymentAdditionalInformation['date_of_birth'])
+            || !$this->dateOfBirthValidator->validate($paymentAdditionalInformation['date_of_birth'])
+        ) {
             return $this->createResult(false, [__('Invalid Date of Birth')]);
         }
+
+        if (!isset($paymentAdditionalInformation['gender'])
+            || !$this->genderValidator->validate($paymentAdditionalInformation['gender'])
+        ) {
+            return $this->createResult(false, [__('Please choose a gender')]);
+        }
+
         return $this->createResult(true);
     }
 }

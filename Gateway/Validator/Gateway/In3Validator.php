@@ -57,21 +57,22 @@ class In3Validator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $payment = $validationSubject['payment'];
+        $paymentAdditionalInformation = !empty($validationSubject['payment'])
+            ? $validationSubject['payment']->getAdditionalInformation() : [];
 
-        if (!array_key_exists('date_of_birth', $payment->getAdditionalInformation())) {
+        if (!$paymentAdditionalInformation) {
+            return $this->createResult(false, [__('Can\'t get a payment information')]);
+        }
+
+        if (!isset($paymentAdditionalInformation['date_of_birth'])
+            || !$this->dateOfBirthValidator->validate($paymentAdditionalInformation['date_of_birth'])
+        ) {
             return $this->createResult(false, [__('Invalid Date of Birth')]);
         }
 
-        if (!$this->dateOfBirthValidator->validate($payment->getAdditionalInformation()['date_of_birth'])) {
-            return $this->createResult(false, [__('Invalid Date of Birth')]);
-        }
-
-        if (!array_key_exists('gender', $payment->getAdditionalInformation())) {
-            return $this->createResult(false, [__('Please choose a gender')]);
-        }
-
-        if (!$this->genderValidator->validate($payment->getAdditionalInformation()['gender'])) {
+        if (!isset($paymentAdditionalInformation['gender'])
+            || !$this->genderValidator->validate($paymentAdditionalInformation['gender'])
+        ) {
             return $this->createResult(false, [__('Please choose a gender')]);
         }
 
