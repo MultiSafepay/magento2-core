@@ -141,6 +141,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         if (empty($shipment->getTracks())) {
             return '';
         }
+
         return $shipment->getTracks()[0]->getTrackNumber();
     }
 }
