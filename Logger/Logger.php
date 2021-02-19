@@ -22,6 +22,7 @@ use Monolog\Logger as CoreLogger;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Exception\InvalidArgumentException;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class Logger extends CoreLogger
 {
@@ -141,13 +142,59 @@ class Logger extends CoreLogger
         $this->error('(Order ID: ' . $orderId . ') Invalid secureToken provided in request parameters.');
     }
 
+    /**
+     * @param string $orderId
+     * @param InvalidArgumentException $invalidArgumentException
+     */
     public function logInvalidIpAddress(string $orderId, InvalidArgumentException $invalidArgumentException): void
     {
         $this->error('(Order ID: ' . $orderId . ') ' . $invalidArgumentException->getMessage());
     }
 
-    public function logInvalidForwardedIp(string $orderId, InvalidArgumentException $invalidArgumentException): void
+    /**
+     * @param string $orderId
+     */
+    public function logMissingPaymentToken(string $orderId): void
     {
-        $this->error('(Order ID: ' . $orderId . ') ' . $invalidArgumentException->getMessage());
+        $this->error('(Order ID: ' . $orderId . ')
+        Payment token not found when trying to create recurring transaction');
+    }
+
+    /**
+     * @param string $orderId
+     * @param Exception $exception
+     */
+    public function logOrderRequestBuilderException(string $orderId, Exception $exception): void
+    {
+        $this->error('(Order ID: ' . $orderId . ') Failed to create Order Request: '
+            . $exception->getMessage());
+    }
+
+    /**
+     * @param string $orderId
+     * @param ClientExceptionInterface $clientException
+     */
+    public function logClientException(string $orderId, ClientExceptionInterface $clientException): void
+    {
+        $this->error('(Order ID: ' . $orderId . ') Client exception when trying to place transaction: '
+            . $clientException->getMessage());
+    }
+
+    /**
+     * @param string $path
+     * @param Exception $exception
+     */
+    public function logMissingVaultIcon(string $path, Exception $exception): void
+    {
+        $this->error('Icon with path: ' . $path . ' can not be loaded. '
+            . $exception->getMessage());
+    }
+
+    /**
+     * @param \InvalidArgumentException $invalidArgumentException
+     */
+    public function logJsonHandlerException(\InvalidArgumentException $invalidArgumentException): void
+    {
+        $this->error('Could not convert Json data: ' . $invalidArgumentException->getMessage());
     }
 }

@@ -18,10 +18,13 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PluginDetails;
 use MultiSafepay\ConnectCore\Util\VersionUtil;
 
-class PluginDataBuilder
+class PluginDataBuilder implements OrderRequestBuilderInterface
 {
     /**
      * @var ProductMetadataInterface
@@ -56,12 +59,20 @@ class PluginDataBuilder
     }
 
     /**
-     * @return PluginDetails
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return void
      */
-    public function build(): PluginDetails
-    {
-        return $this->pluginDetails->addApplicationName($this->metadata->getName())
-            ->addApplicationVersion($this->metadata->getVersion())
-            ->addPluginVersion($this->versionUtil->getPluginVersion());
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
+        $orderRequest->addPluginDetails(
+            $this->pluginDetails->addApplicationName($this->metadata->getName())
+                ->addApplicationVersion($this->metadata->getVersion())
+                ->addPluginVersion($this->versionUtil->getPluginVersion())
+        );
     }
 }

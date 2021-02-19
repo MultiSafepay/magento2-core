@@ -17,10 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Meta;
 
-class DirectBankTransferGatewayInfoBuilder
+class DirectBankTransferGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
      * @var Meta
@@ -39,10 +40,11 @@ class DirectBankTransferGatewayInfoBuilder
     }
 
     /**
+     * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @return Meta
      */
-    public function build(OrderPaymentInterface $payment): Meta
+    public function build(OrderInterface $order, OrderPaymentInterface $payment): Meta
     {
         $additionalInformation = $payment->getAdditionalInformation();
 

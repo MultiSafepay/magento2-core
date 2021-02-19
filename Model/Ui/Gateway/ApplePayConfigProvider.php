@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class ApplePayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_applepay';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

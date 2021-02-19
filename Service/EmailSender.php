@@ -122,6 +122,7 @@ class EmailSender
     /**
      * @param OrderPaymentInterface $payment
      * @param Invoice $invoice
+     * @return bool
      * @throws Exception
      */
     public function sendInvoiceEmail(OrderPaymentInterface $payment, Invoice $invoice): bool
@@ -146,5 +147,13 @@ class EmailSender
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function checkOrderConfirmationBeforeTransaction(): bool
+    {
+        return $this->config->getOrderConfirmationEmail() === Config::BEFORE_TRANSACTION;
     }
 }

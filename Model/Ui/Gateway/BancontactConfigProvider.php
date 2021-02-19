@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class BancontactConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_bancontact';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

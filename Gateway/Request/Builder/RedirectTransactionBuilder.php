@@ -24,7 +24,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\StatusResolver;
-use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Service\EmailSender;
 
 class RedirectTransactionBuilder implements BuilderInterface
 {
@@ -35,30 +35,30 @@ class RedirectTransactionBuilder implements BuilderInterface
     private $statusResolver;
 
     /**
-     * @var Config
-     */
-    private $config;
-
-    /**
      * @var State
      */
     private $state;
 
     /**
+     * @var EmailSender
+     */
+    private $emailSender;
+
+    /**
      * RedirectTransactionBuilder constructor.
      *
-     * @param Config $config
+     * @param EmailSender $emailSender
      * @param State $state
      * @param StatusResolver $statusResolver
      */
     public function __construct(
-        Config $config,
+        EmailSender $emailSender,
         State $state,
         StatusResolver $statusResolver
     ) {
-        $this->config = $config;
         $this->statusResolver = $statusResolver;
         $this->state = $state;
+        $this->emailSender = $emailSender;
     }
 
     /**
@@ -84,7 +84,7 @@ class RedirectTransactionBuilder implements BuilderInterface
         }
 
         // If not backend order, check when order confirmation e-mail needs to be sent
-        if ($this->config->getOrderConfirmationEmail() !== 'before_transaction') {
+        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction()) {
             $stateObject->setIsNotified(false);
 
             $order = $payment->getOrder();

@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class WinkelChequeConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_winkelcheque';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class CBCConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_cbc';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

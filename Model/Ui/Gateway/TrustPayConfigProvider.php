@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class TrustPayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_trustpay';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

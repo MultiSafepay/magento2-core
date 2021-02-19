@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class EinvoicingConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_einvoicing';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

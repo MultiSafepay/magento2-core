@@ -18,10 +18,13 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Framework\UrlInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
 use MultiSafepay\ConnectCore\Model\SecureToken;
 
-class PaymentOptionsBuilder
+class PaymentOptionsBuilder implements OrderRequestBuilderInterface
 {
     public const NOTIFICATION_URL = 'multisafepay/connect/notification';
     public const REDIRECT_URL = 'multisafepay/connect/success';
@@ -60,11 +63,17 @@ class PaymentOptionsBuilder
     }
 
     /**
-     * @param string $orderId
-     * @return PaymentOptions
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return void
      */
-    public function build(string $orderId): PaymentOptions
-    {
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
+        $orderId = (string) $order->getRealOrderId();
         $secureToken = $this->secureToken->generate($orderId);
 
         $parameters = [
@@ -78,10 +87,12 @@ class PaymentOptionsBuilder
         $redirectUrl = $this->urlBuilder->getDirectUrl(self::REDIRECT_URL, $parameters);
         $cancelUrl = $this->urlBuilder->getDirectUrl(self::CANCEL_URL, $parameters);
 
-        return $this->paymentOptions->addNotificationUrl($notificationUrl)
-            ->addRedirectUrl($redirectUrl)
-            ->addCancelUrl($cancelUrl)
-            ->addCloseWindow(false)
-            ->addNotificationMethod('GET');
+        $orderRequest->addPaymentOptions(
+            $this->paymentOptions->addNotificationUrl($notificationUrl)
+                ->addRedirectUrl($redirectUrl)
+                ->addCancelUrl($cancelUrl)
+                ->addCloseWindow(false)
+                ->addNotificationMethod('GET')
+        );
     }
 }

@@ -17,18 +17,20 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\IpAddressBuilder;
 use MultiSafepay\ValueObject\Customer\EmailAddress;
 use MultiSafepay\ValueObject\Customer\PhoneNumber;
 
-class CustomerBuilder
+class CustomerBuilder implements OrderRequestBuilderInterface
 {
     /**
      * @var ResolverInterface
@@ -56,6 +58,11 @@ class CustomerBuilder
     private $ipAddressBuilder;
 
     /**
+     * @var Session
+     */
+    private $customerSession;
+
+    /**
      * Customer constructor.
      *
      * @param AddressBuilder $address
@@ -63,28 +70,35 @@ class CustomerBuilder
      * @param Header $httpHeader
      * @param IpAddressBuilder $ipAddressBuilder
      * @param ResolverInterface $localeResolver
+     * @param Session $customerSession
      */
     public function __construct(
         AddressBuilder $address,
         CustomerDetails $customerDetails,
         Header $httpHeader,
         IpAddressBuilder $ipAddressBuilder,
-        ResolverInterface $localeResolver
+        ResolverInterface $localeResolver,
+        Session $customerSession
     ) {
         $this->address = $address;
         $this->customerDetails = $customerDetails;
         $this->httpHeader = $httpHeader;
         $this->localeResolver = $localeResolver;
         $this->ipAddressBuilder = $ipAddressBuilder;
+        $this->customerSession = $customerSession;
     }
 
     /**
      * @param OrderInterface $order
-     * @return CustomerDetails
-     * @throws LocalizedException
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @throws NoSuchEntityException
      */
-    public function build(OrderInterface $order): CustomerDetails
-    {
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
         $billingAddress = $order->getBillingAddress();
         if ($billingAddress === null) {
             $msg = __('The transaction could not be created because the billing address is missing');
@@ -111,6 +125,10 @@ class CustomerBuilder
             $this->ipAddressBuilder->buildForwardedIp($this->customerDetails, $order->getXForwardedFor(), $orderId);
         }
 
-        return $this->customerDetails;
+        if ($this->customerSession->isLoggedIn()) {
+            $this->customerDetails->addReference((string) $order->getCustomerId());
+        }
+
+        $orderRequest->addCustomer($this->customerDetails);
     }
 }

@@ -26,7 +26,7 @@ use MultiSafepay\ValueObject\Customer\EmailAddress;
 use MultiSafepay\ValueObject\Customer\PhoneNumber;
 use MultiSafepay\ValueObject\Date;
 
-class PayAfterEinvoicingGatewayInfoBuilder
+class PayAfterEinvoicingGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
      * @var Meta

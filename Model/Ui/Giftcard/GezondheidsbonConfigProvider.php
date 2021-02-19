@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class GezondheidsbonConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_gezondheidsbon';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

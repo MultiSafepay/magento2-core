@@ -17,6 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Asset\Repository as AssetRepository;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class MaestroConfigProvider extends GenericConfigProvider
@@ -24,10 +27,33 @@ class MaestroConfigProvider extends GenericConfigProvider
     public const CODE = 'multisafepay_maestro';
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * MaestroConfigProvider constructor.
+     *
+     * @param AssetRepository $assetRepository
+     * @param Config $config
+     * @param ScopeConfigInterface $scopeConfig
+     */
+    public function __construct(
+        AssetRepository $assetRepository,
+        Config $config,
+        ScopeConfigInterface $scopeConfig
+    ) {
+        $this->scopeConfig = $scopeConfig;
+        parent::__construct($assetRepository, $config);
+    }
+
+    /**
      * @return string
      */
-    public function getCode(): string
+    public function getMaestroGatewayCode(): string
     {
-        return self::CODE;
+        $maestroMethodCode = self::CODE;
+
+        return (string)$this->scopeConfig->getValue('payment/' . $maestroMethodCode . '/gateway_code');
     }
 }

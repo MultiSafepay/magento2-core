@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class PodiumcadeaukaartConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_podiumcadeaukaart';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class NationaleTuinbonConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_nationaletuinbon';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

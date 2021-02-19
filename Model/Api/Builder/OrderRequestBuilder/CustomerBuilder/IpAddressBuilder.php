@@ -73,7 +73,7 @@ class IpAddressBuilder
         try {
             $customerDetails->addForwardedIp(new IpAddress($filteredIp));
         } catch (InvalidArgumentException $invalidArgumentException) {
-            $this->logger->logInvalidForwardedIp($orderId, $invalidArgumentException);
+            $this->logger->logInvalidIpAddress($orderId, $invalidArgumentException);
         }
     }
 }

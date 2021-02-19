@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class VVVcadeaukaartConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_vvvcadeaukaart';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

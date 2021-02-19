@@ -241,6 +241,7 @@
                 <title>Credit Card</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_authorize_vault>1</can_authorize_vault>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -257,6 +258,142 @@
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>CREDITCARD</gateway_code>
             </multisafepay_creditcard>
+            <multisafepay_creditcard_recurring>
+                <active>1</active>
+                <model>MultiSafepayCreditCardRecurringFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Credit Card (Recurring)</title>
+                <currency>EUR</currency>
+                <can_authorize>1</can_authorize>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <allowspecific>0</allowspecific>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <allow_amount>0</allow_amount>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>redirect</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>CREDITCARD</gateway_code>
+            </multisafepay_creditcard_recurring>
+            <multisafepay_creditcard_vault>
+                <active>0</active>
+                <model>MultiSafepayCreditCardVaultFacade</model>
+                <title>Stored CreditCard (MultiSafepay)</title>
+                <transaction_type>direct</transaction_type>
+                <instant_purchase>
+                    <supported>1</supported>
+                </instant_purchase>
+            </multisafepay_creditcard_vault>
+            <multisafepay_visa_recurring>
+                <active>1</active>
+                <model>MultiSafepayVisaRecurringFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Visa (Recurring)</title>
+                <currency>EUR</currency>
+                <can_authorize>1</can_authorize>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <allowspecific>0</allowspecific>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <allow_amount>0</allow_amount>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>redirect</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>VISA</gateway_code>
+            </multisafepay_visa_recurring>
+            <multisafepay_visa_vault>
+                <active>0</active>
+                <model>MultiSafepayVisaVaultFacade</model>
+                <title>Stored Visa card (MultiSafepay)</title>
+                <transaction_type>direct</transaction_type>
+                <instant_purchase>
+                    <supported>1</supported>
+                </instant_purchase>
+            </multisafepay_visa_vault>
+            <multisafepay_mastercard_recurring>
+                <active>1</active>
+                <model>MultiSafepayMastercardRecurringFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Mastercard (Recurring)</title>
+                <currency>EUR</currency>
+                <can_authorize>1</can_authorize>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <allowspecific>0</allowspecific>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <allow_amount>0</allow_amount>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>redirect</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>MASTERCARD</gateway_code>
+            </multisafepay_mastercard_recurring>
+            <multisafepay_mastercard_vault>
+                <active>0</active>
+                <model>MultiSafepayMastercardVaultFacade</model>
+                <title>Stored Mastercard (MultiSafepay)</title>
+                <transaction_type>direct</transaction_type>
+                <instant_purchase>
+                    <supported>1</supported>
+                </instant_purchase>
+            </multisafepay_mastercard_vault>
+            <multisafepay_amex_recurring>
+                <active>1</active>
+                <model>MultiSafepayAmexRecurringFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Mastercard (Recurring)</title>
+                <currency>EUR</currency>
+                <can_authorize>1</can_authorize>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <allowspecific>0</allowspecific>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <allow_amount>0</allow_amount>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>redirect</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>AMEX</gateway_code>
+            </multisafepay_amex_recurring>
+            <multisafepay_amex_vault>
+                <active>0</active>
+                <model>MultiSafepayAmexVaultFacade</model>
+                <title>Stored American Express card (MultiSafepay)</title>
+                <transaction_type>direct</transaction_type>
+                <instant_purchase>
+                    <supported>1</supported>
+                </instant_purchase>
+            </multisafepay_amex_vault>
             <multisafepay_dotpay>
                 <active>0</active>
                 <model>MultiSafepayDotpayFacade</model>

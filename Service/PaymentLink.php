@@ -65,9 +65,9 @@ class PaymentLink
     /**
      * @param OrderInterface $order
      * @return string
+     * @throws ClientExceptionInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
-     * @throws ClientExceptionInterface
      */
     public function getPaymentLinkByOrder(OrderInterface $order): string
     {

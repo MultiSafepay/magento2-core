@@ -17,11 +17,13 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Exception;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\ConnectCore\Config\Config;
 
-class DescriptionBuilder
+class DescriptionBuilder implements OrderRequestBuilderInterface
 {
 
     /**
@@ -49,20 +51,26 @@ class DescriptionBuilder
     }
 
     /**
-     * @param $orderId
-     * @return Description
-     * @throws Exception
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return void
      */
-    public function build($orderId): Description
-    {
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
+        $orderId = (string) $order->getRealOrderId();
         $customDescription = (string)$this->config->getValue('transaction_custom_description');
 
         if (empty($customDescription)) {
-            return $this->description->addDescription('Payment for order #' . $orderId);
+            $this->description->addDescription('Payment for order #' . $orderId);
+        } else {
+            $filteredDescription = str_replace('{{order.increment_id}}', $orderId, $customDescription);
+            $this->description->addDescription($filteredDescription);
         }
 
-        $filteredDescription = str_replace('{{order.increment_id}}', $orderId, $customDescription);
-
-        return $this->description->addDescription($filteredDescription);
+        $orderRequest->addDescription($this->description);
     }
 }

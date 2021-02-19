@@ -70,14 +70,6 @@ class IdealConfigProvider extends GenericConfigProvider
     }
 
     /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
-
-    /**
      * Retrieve assoc array of checkout configuration
      *
      * @return array

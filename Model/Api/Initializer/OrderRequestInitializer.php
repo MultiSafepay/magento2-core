@@ -23,8 +23,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\TransactionResponse;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
-use MultiSafepay\Exception\ApiException;
-use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class OrderRequestInitializer
@@ -54,11 +52,9 @@ class OrderRequestInitializer
     }
 
     /**
-     * @param $order
+     * @param OrderInterface $order
      * @return TransactionResponse
      * @throws ClientExceptionInterface
-     * @throws InvalidApiKeyException
-     * @throws ApiException
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */

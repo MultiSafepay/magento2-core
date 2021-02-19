@@ -51,19 +51,11 @@ class BankTransferConfigProvider extends GenericConfigProvider
 
     /**
      * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
-
-    /**
-     * @return string
      * @throws LocalizedException
      */
     public function getImage(): string
     {
-        $path = $this->getPath();
+        $path = $this->getImagePath();
         $this->assetRepository->createAsset($path);
 
         return $this->assetRepository->getUrl($path);
@@ -72,7 +64,7 @@ class BankTransferConfigProvider extends GenericConfigProvider
     /**
      * @return string
      */
-    public function getPath(): string
+    public function getImagePath(): string
     {
         switch ($this->localeResolver->getLocale()) {
             case 'nl_NL':

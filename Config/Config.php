@@ -35,6 +35,8 @@ class Config
     public const PRESELECTED_METHOD = 'preselected_method';
     public const CUSTOM_TOTALS = 'custom_totals';
 
+    public const BEFORE_TRANSACTION = 'before_transaction';
+
     /**
      * @var ScopeConfigInterface
      */

@@ -17,22 +17,45 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Payment\Gateway\ConfigInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
+use Magento\Payment\Gateway\Config\Config;
 
-class SecondsActiveBuilder
+class SecondsActiveBuilder implements OrderRequestBuilderInterface
 {
+
     /**
-     * @param OrderRequest $orderRequest
-     * @param ConfigInterface $config
+     * @var Config
      */
-    public function build(OrderRequest $orderRequest, ConfigInterface $config): void
+    private $config;
+
+    /**
+     * SecondsActiveBuilder constructor.
+     *
+     * @param Config $config
+     */
+    public function __construct(Config $config)
     {
-        if (!$config->getValue('custom_payment_link_lifetime')) {
+        $this->config = $config;
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return void
+     */
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
+        if (!$this->config->getValue('custom_payment_link_lifetime')) {
             return;
         }
-        $unit = (int) $config->getValue('custom_payment_link_lifetime_unit');
-        $value = (int) $config->getValue('custom_payment_link_lifetime_value');
+        $unit = (int) $this->config->getValue('custom_payment_link_lifetime_unit');
+        $value = (int) $this->config->getValue('custom_payment_link_lifetime_value');
 
         switch ($unit) {
             case 0:

@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class IdealQRConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_idealqr';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

@@ -26,7 +26,7 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuild
 use MultiSafepay\ValueObject\Customer\EmailAddress;
 use MultiSafepay\ValueObject\Customer\PhoneNumber;
 
-class DeliveryBuilder
+class DeliveryBuilder implements OrderRequestBuilderInterface
 {
 
     /**

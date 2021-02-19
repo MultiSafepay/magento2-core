@@ -24,7 +24,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order\Item;
+use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\CustomTotalBuilder;
@@ -34,7 +36,7 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartB
 use MultiSafepay\ConnectCore\Model\Api\Validator\CustomTotalValidator;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 
-class ShoppingCartBuilder
+class ShoppingCartBuilder implements OrderRequestBuilderInterface
 {
 
     /**
@@ -111,14 +113,18 @@ class ShoppingCartBuilder
 
     /**
      * @param OrderInterface $order
-     * @return ShoppingCart
-     * @throws NoSuchEntityException
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return void
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function build(OrderInterface $order): ShoppingCart
-    {
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
         $storeId = $order->getStoreId();
-
         $items = [];
         $orderItems = $order->getItems();
 
@@ -139,13 +145,14 @@ class ShoppingCartBuilder
         try {
             $quote = $this->quoteRepository->get($order->getQuoteId());
         } catch (NoSuchEntityException $e) {
-            return new ShoppingCart($items);
+            $orderRequest->addShoppingCart(new ShoppingCart($items));
+            return;
         }
 
         $items = array_merge($items, $this->getItemsFromQuote($quote, $currency));
         $items = array_merge($items, $this->getItemsFromFoomanTotalGroup($quote, $currency));
 
-        return new ShoppingCart($items);
+        $orderRequest->addShoppingCart(new ShoppingCart($items));
     }
 
     /**

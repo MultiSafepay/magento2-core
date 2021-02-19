@@ -17,23 +17,44 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Payment\Gateway\ConfigInterface;
+use Magento\Payment\Gateway\Config\Config;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\Api\Transactions\OrderRequest;
 
-class TransactionTypeBuilder
+class TransactionTypeBuilder implements OrderRequestBuilderInterface
 {
     /**
-     * @param OrderPaymentInterface $payment
-     * @param ConfigInterface $config
-     * @return string
+     * @var Config
      */
-    public function build(OrderPaymentInterface $payment, ConfigInterface $config): string
+    private $config;
+
+    /**
+     * SecondsActiveBuilder constructor.
+     *
+     * @param Config $config
+     */
+    public function __construct(Config $config)
     {
-        $transactionType = (string)$config->getValue('transaction_type');
-        if ($transactionType) {
-            return $transactionType;
+        $this->config = $config;
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return void
+     */
+    public function build(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): void {
+        $transactionType = (string)$this->config->getValue('transaction_type');
+        if (!$transactionType) {
+            $transactionType = $payment->getAdditionalInformation()['transaction_type'] ?? '';
         }
 
-        return $payment->getAdditionalInformation()['transaction_type'] ?? '';
+        $orderRequest->addType($transactionType);
     }
 }

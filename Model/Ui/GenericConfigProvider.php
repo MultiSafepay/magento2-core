@@ -85,7 +85,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getCode(): string
     {
-        return self::CODE;
+        return static::CODE;
     }
 
     /**

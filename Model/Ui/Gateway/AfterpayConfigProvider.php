@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class AfterpayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_afterpay';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

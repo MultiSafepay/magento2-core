@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class GivacardConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_givacard';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

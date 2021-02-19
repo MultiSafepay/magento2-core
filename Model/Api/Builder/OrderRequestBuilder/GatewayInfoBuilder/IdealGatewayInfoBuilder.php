@@ -17,10 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Ideal;
 
-class IdealGatewayInfoBuilder
+class IdealGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
      * @var Ideal
@@ -39,10 +40,11 @@ class IdealGatewayInfoBuilder
     }
 
     /**
+     * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @return Ideal
      */
-    public function build(OrderPaymentInterface $payment): Ideal
+    public function build(OrderInterface $order, OrderPaymentInterface $payment): Ideal
     {
         return $this->ideal->addIssuerId($payment->getAdditionalInformation()['issuer_id']);
     }

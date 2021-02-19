@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class FashionChequeConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_fashioncheque';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

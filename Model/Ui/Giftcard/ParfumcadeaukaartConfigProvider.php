@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class ParfumcadeaukaartConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_parfumcadeaukaart';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

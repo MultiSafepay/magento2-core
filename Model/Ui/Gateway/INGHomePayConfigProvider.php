@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class INGHomePayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_inghomepay';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

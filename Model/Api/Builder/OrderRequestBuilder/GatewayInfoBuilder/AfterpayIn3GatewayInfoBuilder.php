@@ -26,7 +26,7 @@ use MultiSafepay\ValueObject\Customer\PhoneNumber;
 use MultiSafepay\ValueObject\Date;
 use MultiSafepay\ValueObject\Gender;
 
-class AfterpayGatewayInfoBuilder
+class AfterpayIn3GatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
      * @var Meta

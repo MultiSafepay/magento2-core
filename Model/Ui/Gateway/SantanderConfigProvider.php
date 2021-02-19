@@ -51,14 +51,6 @@ class SantanderConfigProvider extends GenericConfigProvider
 
     /**
      * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
-
-    /**
-     * @return string
      * @throws LocalizedException
      */
     public function getImage(): string

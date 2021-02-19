@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class WijnCadeauConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_wijncadeau';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

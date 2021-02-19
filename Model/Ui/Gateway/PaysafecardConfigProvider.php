@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class PaysafecardConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_paysafecard';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

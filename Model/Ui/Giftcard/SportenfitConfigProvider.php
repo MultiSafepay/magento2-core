@@ -22,12 +22,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 class SportenfitConfigProvider extends GenericGiftcardConfigProvider
 {
     public const CODE = 'multisafepay_sportenfit';
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return self::CODE;
-    }
 }

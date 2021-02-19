@@ -17,17 +17,29 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
+use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class MastercardConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_mastercard';
+    public const VAULT_CODE = 'multisafepay_mastercard_vault';
 
     /**
-     * @return string
+     * Retrieve assoc array of checkout configuration
+     *
+     * @return array
+     * @throws LocalizedException
      */
-    public function getCode(): string
+    public function getConfig(): array
     {
-        return self::CODE;
+        return [
+            'payment' => [
+                $this->getCode() => [
+                    'image' => $this->getImage(),
+                    'vaultCode' => self::VAULT_CODE
+                ]
+            ]
+        ];
     }
 }
