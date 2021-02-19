@@ -157,5 +157,8 @@
         <method name="multisafepay_good4fun">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
+        <method name="multisafepay_genericgateway">
+            <allow_multiple_address>1</allow_multiple_address>
+        </method>
     </methods>
 </payment>

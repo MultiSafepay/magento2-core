@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -24,19 +25,49 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Sales\Model\Order\Creditmemo\Item;
+use MultiSafepay\ConnectCore\Util\AmountUtil;
+use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\ValueObject\Money;
 use Magento\Store\Model\Store;
 
 class ShoppingCartRefundRequestBuilder implements BuilderInterface
 {
 
     /**
-     * @inheritDoc
-     * @throws NoSuchEntityException
+     * @var CurrencyUtil
+     */
+    private $currencyUtil;
+
+    /**
+     * @var AmountUtil
+     */
+    private $amountUtil;
+
+    /**
+     * RefundTransactionBuilder constructor.
+     *
+     * @param AmountUtil $amountUtil
+     * @param CurrencyUtil $currencyUtil
+     */
+    public function __construct(
+        AmountUtil $amountUtil,
+        CurrencyUtil $currencyUtil
+    ) {
+        $this->currencyUtil = $currencyUtil;
+        $this->amountUtil = $amountUtil;
+    }
+
+    /**
+     * @param array $buildSubject
+     * @return array
      * @throws CouldNotRefundException
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
+        $amount = (float)SubjectReader::readAmount($buildSubject);
         $payment = $paymentDataObject->getPayment();
 
         /** @var OrderInterface $order */
@@ -51,7 +82,7 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         }
 
         $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
-        if ($creditMemo->getDiscountAmount() === 0) {
+        if ($amount === 0) {
             throw new CouldNotRefundException(__($msg));
         }
 
@@ -78,7 +109,13 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             ];
         }
 
+        $money = new Money(
+            $this->amountUtil->getAmount($amount, $order) * 100,
+            $this->currencyUtil->getCurrencyCode($order)
+        );
+
         return [
+            'money' => $money,
             'payload' => $refund,
             'order_id' => $orderId,
             Store::STORE_ID => (int)$order->getStoreId()

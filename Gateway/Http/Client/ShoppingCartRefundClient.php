@@ -78,6 +78,8 @@ class ShoppingCartRefundClient implements ClientInterface
         $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
         $refundRequest->addDescription($description);
 
+        $refundRequest->addMoney($request['money']);
+
         foreach ($request['payload'] as $refundItem) {
             $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
         }

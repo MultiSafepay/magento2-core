@@ -34,7 +34,10 @@ class RefundResponseHandler implements HandlerInterface
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDataObject->getPayment();
 
-        $payment->setTransactionId($response['refund_id']);
+        if (isset($response['refund_id'])) {
+            $payment->setTransactionId($response['refund_id']);
+        }
+
         $payment->setIsTransactionClosed(true);
 
         return $this;

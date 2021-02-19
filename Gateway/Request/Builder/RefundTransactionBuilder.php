@@ -27,6 +27,7 @@ use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ValueObject\Money;
 
@@ -53,14 +54,21 @@ class RefundTransactionBuilder implements BuilderInterface
     private $currencyUtil;
 
     /**
+     * @var AmountUtil
+     */
+    private $amountUtil;
+
+    /**
      * RefundTransactionBuilder constructor.
      *
+     * @param AmountUtil $amountUtil
      * @param RefundRequest $refundRequest
      * @param Config $config
      * @param CurrencyUtil $currencyUtil
      * @param Description $description
      */
     public function __construct(
+        AmountUtil $amountUtil,
         RefundRequest $refundRequest,
         Config $config,
         CurrencyUtil $currencyUtil,
@@ -70,6 +78,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $this->description = $description;
         $this->config = $config;
         $this->currencyUtil = $currencyUtil;
+        $this->amountUtil = $amountUtil;
     }
 
     /**
@@ -94,7 +103,10 @@ class RefundTransactionBuilder implements BuilderInterface
         $orderId = $order->getIncrementId();
 
         $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
-        $money = new Money($this->getAmount($amount, $order) * 100, $this->currencyUtil->getCurrencyCode($order));
+        $money = new Money(
+            $this->amountUtil->getAmount($amount, $order) * 100,
+            $this->currencyUtil->getCurrencyCode($order)
+        );
 
         $refund = $this->refundRequest->addMoney($money)
             ->addDescription($description);
@@ -104,19 +116,5 @@ class RefundTransactionBuilder implements BuilderInterface
             'order_id' => $orderId,
             Store::STORE_ID => (int)$order->getStoreId()
         ];
-    }
-
-    /**
-     * @param float $amount
-     * @param OrderInterface $order
-     * @return float
-     */
-    public function getAmount(float $amount, OrderInterface $order): float
-    {
-        if ($this->config->useBaseCurrency($order->getStoreId())) {
-            return $amount;
-        }
-
-        return round($amount * $order->getBaseToOrderRate(), 2);
     }
 }
