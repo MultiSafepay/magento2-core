@@ -10,10 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added generic gateway feature for the possibility to add a gateway, which you can customize yourself.
   For more information, please see our [Magento 2 plugin docs](https://docs.multisafepay.com/integrations/plugins/magento2/).
-- Added Magento 2 Vault support for credit card payment methods. For more information about Magento 2 Vault feature, please see [Magento DevDocs](https://devdocs.magento.com/guides/v2.4/payments-integrations/vault/vault-intro.html)
-- Added support for Magento 2 Instant Purchases (Works only for Vault supported payment methods). Please see guide how to use and configure Magento 2 Instant purchase feature in [Magento DevDocs](https://docs.magento.com/user-guide/sales/checkout-instant-purchase.html)
+- Added Magento 2 Vault support for credit card payment methods. For more information about the Magento 2 Vault feature, please see [Magento DevDocs](https://devdocs.magento.com/guides/v2.4/payments-integrations/vault/vault-intro.html)
+- Added support for Magento 2 Instant Purchases (Works only for Vault supported payment methods). Please see the guide how to use and configure Magento 2 Instant purchase feature in [Magento DevDocs](https://docs.magento.com/user-guide/sales/checkout-instant-purchase.html)
 ### Changed
-- Code refactoring in big parts of plugin for code improvement, readability and better perfomance
+- Code refactoring in big parts of the plugin for code improvement, readability and better performance
 
 ## [2.2.1] - 2021-02-16
 ### Fixed
