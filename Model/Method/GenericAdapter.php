@@ -26,6 +26,7 @@ use Magento\Payment\Gateway\Command\CommandPoolInterface;
 use Magento\Payment\Gateway\Config\Config;
 use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Payment\Gateway\Validator\CountryValidatorFactory;
 use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\MethodInterface;
@@ -33,6 +34,7 @@ use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Model\SaleOperationInterface;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
+use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidatorFactory;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider;
 use Psr\Log\LoggerInterface;
 
@@ -109,11 +111,23 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     private $paymentConfig;
 
+    /**
+     * @var CountryValidatorFactory
+     */
+    private $countryValidatorFactory;
+
+    /**
+     * @var CurrencyValidatorFactory
+     */
+    private $currencyValidatorFactory;
+
     public function __construct(
         ManagerInterface $eventManager,
         ValueHandlerPoolInterface $valueHandlerPool,
         PaymentDataObjectFactory $paymentDataObjectFactory,
         Config $paymentConfig,
+        CountryValidatorFactory $countryValidatorFactory,
+        CurrencyValidatorFactory $currencyValidatorFactory,
         $code,
         $formBlockType,
         $infoBlockType,
@@ -123,6 +137,8 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
         LoggerInterface $logger = null
     ) {
         $this->valueHandlerPool = $valueHandlerPool;
+        $this->countryValidatorFactory = $countryValidatorFactory;
+        $this->currencyValidatorFactory = $currencyValidatorFactory;
         $this->validatorPool = $validatorPool;
         $this->commandPool = $commandPool;
         $this->code = $code;
@@ -194,7 +210,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     public function canRefund()
     {
-        return $this->canPerformCommand('refund');
+        return true;
     }
 
     /**
@@ -202,7 +218,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     public function canRefundPartialPerInvoice()
     {
-        return $this->canPerformCommand('refund_partial_per_invoice');
+        return true;
     }
 
     /**
@@ -218,7 +234,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     public function canUseInternal()
     {
-        return (bool)$this->getConfiguredValue('can_use_internal');
+        return true;
     }
 
     /**
@@ -226,7 +242,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     public function canUseCheckout()
     {
-        return (bool)$this->getConfiguredValue('can_use_checkout');
+        return true;
     }
 
     /**
@@ -258,7 +274,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     public function isGateway()
     {
-        return (bool)$this->getConfiguredValue('is_gateway');
+        return true;
     }
 
     /**
@@ -274,7 +290,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     public function isInitializeNeeded()
     {
-        return (bool)(int)$this->getConfiguredValue('can_initialize');
+        return true;
     }
 
     /**
@@ -332,12 +348,14 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     public function canUseForCountry($country)
     {
         try {
-            $validator = $this->getValidatorPool()->get('country');
+            $validator = $this->countryValidatorFactory
+                ->create(['config' => $this->setPaymentConfigCode($this->getCode())]);
         } catch (\Exception $e) {
             return true;
         }
 
         $result = $validator->validate(['country' => $country, 'storeId' => $this->getStore()]);
+
         return $result->isValid();
     }
 
@@ -347,7 +365,8 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     public function canUseForCurrency($currencyCode)
     {
         try {
-            $validator = $this->getValidatorPool()->get('currency');
+            $validator = $this->currencyValidatorFactory
+                ->create(['config' => $this->setPaymentConfigCode($this->getCode())]);
         } catch (\Exception $e) {
             return true;
         }
@@ -392,7 +411,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     {
         $this->paymentConfig->setMethodCode(GenericGatewayConfigProvider::CODE);
 
-        return $this->paymentConfig->getValue($field, $storeId ?: $this->getStore());
+        return $this->paymentConfig->getValue($field, $storeId);
     }
 
     /**
@@ -575,6 +594,17 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
         $this->code = $code;
 
         return $this;
+    }
+
+    /**
+     * @param string $code
+     * @return Config
+     */
+    public function setPaymentConfigCode(string $code)
+    {
+        $this->paymentConfig->setMethodCode($code);
+
+        return $this->paymentConfig;
     }
 
     /**

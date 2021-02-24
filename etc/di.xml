@@ -4912,7 +4912,6 @@
             <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
             <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
-            <argument name="validatorPool" xsi:type="object">MultiSafepayGenericGatewayValidatorPool</argument>
             <argument name="valueHandlerPool" xsi:type="object">MultiSafepayGenericGatewayValueHandlerPool</argument>
             <argument name="commandPool" xsi:type="object">MultiSafepayGenericGatewayCommandPool</argument>
         </arguments>
@@ -4998,26 +4997,6 @@
             <argument name="builders" xsi:type="array">
                 <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\GenericGatewayRefundTransactionBuilder</item>
             </argument>
-        </arguments>
-    </virtualType>
-
-    <!-- MultiSafepayGenericGateway Validator Pool -->
-    <virtualType name="MultiSafepayGenericGatewayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
-        <arguments>
-            <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">MultiSafepayGenericGatewayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGenericGatewayCurrencyValidator</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGenericGatewayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGenericGatewayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
         </arguments>
     </virtualType>
 
