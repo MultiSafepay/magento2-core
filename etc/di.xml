@@ -5,6 +5,11 @@
         <plugin name="add_available_methods" type="MultiSafepay\ConnectCore\Plugin\MethodListPlugin" sortOrder="1" disabled="false"  />
     </type>
 
+    <type name="Magento\Payment\Helper\Data">
+        <plugin name="add_generic_methods_to_all_payment_methods" type="MultiSafepay\ConnectCore\Plugin\Payment\Helper\DataPlugin"
+            sortOrder="1" disabled="false"  />
+    </type>
+
     <preference for="MultiSafepay\ConnectCore\Api\StockReducerInterface" type="MultiSafepay\ConnectCore\Model\StockReducer" />
 
     <!-- MultiSafepay Payment Method Facade configuration -->
@@ -4902,7 +4907,7 @@
     </virtualType>
 
     <!-- MultiSafepayGenericGateway Payment Method Facade configuration -->
-    <virtualType name="MultiSafepayGenericGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
+    <virtualType name="MultiSafepayGenericGatewayFacade" type="MultiSafepay\ConnectCore\Model\Method\GenericAdapter">
         <arguments>
             <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>

@@ -25,6 +25,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';
+    public const MULTISAFEPAY_LIST_CONFIG_PATH = '';
 
     /**
      * @var AssetRepository
@@ -94,5 +95,14 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function isPreselected(): bool
     {
         return $this->getCode() === $this->config->getPreselectedMethod();
+    }
+
+    /**
+     * @param null $storeId
+     * @return array
+     */
+    public function getGenericList($storeId = null): array
+    {
+        return $this->config->getValueByPath(static::MULTISAFEPAY_LIST_CONFIG_PATH, $storeId);
     }
 }
