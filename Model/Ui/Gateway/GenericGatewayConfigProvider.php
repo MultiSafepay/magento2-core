@@ -122,7 +122,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
     {
         $gatewaysList = $this->getGenericList($storeId);
 
-        return $gatewaysList && is_array($gatewaysList) ? array_filter(array_keys($gatewaysList), function ($key) {
+        return $gatewaysList ? array_filter(array_keys($gatewaysList), function ($key) {
             return strpos($key, self::CODE . '_') === 0;
         }) : [];
     }

@@ -103,7 +103,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getGenericList($storeId = null): array
     {
-        return $this->config->getValueByPath(static::MULTISAFEPAY_LIST_CONFIG_PATH, $storeId);
+        return (array)$this->config->getValueByPath(static::MULTISAFEPAY_LIST_CONFIG_PATH, $storeId);
     }
 
     /**
