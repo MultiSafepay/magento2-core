@@ -105,4 +105,13 @@ class GenericConfigProvider implements ConfigProviderInterface
     {
         return $this->config->getValueByPath(static::MULTISAFEPAY_LIST_CONFIG_PATH, $storeId);
     }
+
+    /**
+     * @param string $paymentCode
+     * @return bool
+     */
+    public function isMultisafepayGenericMethod(string $paymentCode): bool
+    {
+        return strpos($paymentCode, static::CODE . '_') !== false;
+    }
 }

@@ -34,6 +34,12 @@ class DataPlugin
      */
     private $scopeConfig;
 
+    /**
+     * DataPlugin constructor.
+     *
+     * @param GenericGatewayConfigProvider $genericGatewayConfigProvider
+     * @param ScopeConfigInterface $scopeConfig
+     */
     public function __construct(
         GenericGatewayConfigProvider $genericGatewayConfigProvider,
         ScopeConfigInterface $scopeConfig
@@ -52,7 +58,7 @@ class DataPlugin
     {
         if (strpos($code, GenericGatewayConfigProvider::CODE) !== false) {
             $result = $proceed(GenericGatewayConfigProvider::CODE);
-            $result->setCode($code);
+            $result->initGeneric($code, GenericGatewayConfigProvider::CODE);
 
             return $result;
         }

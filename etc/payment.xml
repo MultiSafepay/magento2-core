@@ -160,13 +160,7 @@
         <method name="multisafepay_creditcard_recurring">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
-        <method name="multisafepay_genericgateway_1">
-            <allow_multiple_address>1</allow_multiple_address>
-        </method>
-        <method name="multisafepay_genericgateway_2">
-            <allow_multiple_address>1</allow_multiple_address>
-        </method>
-        <method name="multisafepay_genericgateway_3">
+        <method name="multisafepay_genericgateway">
             <allow_multiple_address>1</allow_multiple_address>
         </method>
     </methods>

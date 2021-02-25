@@ -17,42 +17,31 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Method;
 
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\Config\Initial;
 use Magento\Framework\DataObject;
 use Magento\Framework\Event\ManagerInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\Command\ResultInterface;
 use Magento\Payment\Gateway\Config\Config;
 use Magento\Payment\Gateway\Config\ValueHandlerPoolInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
 use Magento\Payment\Gateway\Validator\CountryValidatorFactory;
 use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
+use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Payment\Model\Method\Adapter;
-use Magento\Payment\Model\SaleOperationInterface;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidatorFactory;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider;
 use Psr\Log\LoggerInterface;
 
-class GenericAdapter extends Adapter implements MethodInterface, SaleOperationInterface
+class GenericAdapter extends Adapter implements MethodInterface
 {
     /*
      * @todo: we need to check this class and delete unecessary parts or change the logic
      */
-
-    /**
-     * @var ValueHandlerPoolInterface
-     */
-    private $valueHandlerPool;
-
-    /**
-     * @var ValidatorPoolInterface
-     */
-    private $validatorPool;
 
     /**
      * @var CommandPoolInterface
@@ -85,6 +74,16 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     private $code;
 
     /**
+     * @var string
+     */
+    private $baseMethodCode = '';
+
+    /**
+     * @var array
+     */
+    private $baseGenericConfig = [];
+
+    /**
      * @var ManagerInterface
      */
     private $eventManager;
@@ -95,16 +94,9 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     private $paymentDataObjectFactory;
 
     /**
-     * @var \Magento\Payment\Gateway\Command\CommandManagerInterface
+     * @var CommandManagerInterface
      */
     private $commandExecutor;
-
-    /**
-     * Logger for exception details
-     *
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var Config
@@ -121,6 +113,29 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      */
     private $currencyValidatorFactory;
 
+    /**
+     * @var Initial
+     */
+    private $initialConfig;
+
+    /**
+     * GenericAdapter constructor.
+     *
+     * @param ManagerInterface $eventManager
+     * @param ValueHandlerPoolInterface $valueHandlerPool
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
+     * @param Config $paymentConfig
+     * @param CountryValidatorFactory $countryValidatorFactory
+     * @param CurrencyValidatorFactory $currencyValidatorFactory
+     * @param Initial $initialConfig
+     * @param $code
+     * @param $formBlockType
+     * @param $infoBlockType
+     * @param CommandPoolInterface|null $commandPool
+     * @param ValidatorPoolInterface|null $validatorPool
+     * @param CommandManagerInterface|null $commandExecutor
+     * @param LoggerInterface|null $logger
+     */
     public function __construct(
         ManagerInterface $eventManager,
         ValueHandlerPoolInterface $valueHandlerPool,
@@ -128,6 +143,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
         Config $paymentConfig,
         CountryValidatorFactory $countryValidatorFactory,
         CurrencyValidatorFactory $currencyValidatorFactory,
+        Initial $initialConfig,
         $code,
         $formBlockType,
         $infoBlockType,
@@ -136,10 +152,10 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
         CommandManagerInterface $commandExecutor = null,
         LoggerInterface $logger = null
     ) {
-        $this->valueHandlerPool = $valueHandlerPool;
         $this->countryValidatorFactory = $countryValidatorFactory;
         $this->currencyValidatorFactory = $currencyValidatorFactory;
-        $this->validatorPool = $validatorPool;
+        $this->paymentConfig = $paymentConfig;
+        $this->initialConfig = $initialConfig;
         $this->commandPool = $commandPool;
         $this->code = $code;
         $this->infoBlockType = $infoBlockType;
@@ -148,35 +164,38 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->commandExecutor = $commandExecutor;
         $this->paymentConfig = $paymentConfig;
-        $this->logger = $logger ?: ObjectManager::getInstance()->get(LoggerInterface::class);
+
+        parent::__construct(
+            $eventManager,
+            $valueHandlerPool,
+            $paymentDataObjectFactory,
+            $code,
+            $formBlockType,
+            $infoBlockType,
+            $commandPool,
+            $validatorPool,
+            $commandExecutor,
+            $logger
+        );
     }
 
     /**
-     * Returns Validator pool
-     *
-     * @return ValidatorPoolInterface
-     * @throws \DomainException
+     * @param string $code
+     * @param string $baseCode
+     * @return $this
      */
-    public function getValidatorPool()
+    public function initGeneric(string $code, string $baseCode): self
     {
-        if ($this->validatorPool === null) {
-            throw new \DomainException('Validator pool is not configured for use.');
-        }
-        return $this->validatorPool;
+        $this->setCode($code)->setBaseMethodCode($baseCode);
+        $this->baseGenericConfig = $this->getBaseGenericConfig();
+
+        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function canOrder()
-    {
-        return $this->canPerformCommand('order');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canAuthorize()
+    public function canAuthorize(): bool
     {
         return $this->canPerformCommand('authorize');
     }
@@ -184,7 +203,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canCapture()
+    public function canCapture(): bool
     {
         return $this->canPerformCommand('capture');
     }
@@ -192,7 +211,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canCapturePartial()
+    public function canCapturePartial(): bool
     {
         return $this->canPerformCommand('capture_partial');
     }
@@ -200,7 +219,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canCaptureOnce()
+    public function canCaptureOnce(): bool
     {
         return $this->canPerformCommand('capture_once');
     }
@@ -208,7 +227,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canRefund()
+    public function canRefund(): bool
     {
         return true;
     }
@@ -216,7 +235,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canRefundPartialPerInvoice()
+    public function canRefundPartialPerInvoice(): bool
     {
         return true;
     }
@@ -224,7 +243,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canVoid()
+    public function canVoid(): bool
     {
         return $this->canPerformCommand('void');
     }
@@ -232,7 +251,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canUseInternal()
+    public function canUseInternal(): bool
     {
         return true;
     }
@@ -240,7 +259,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canUseCheckout()
+    public function canUseCheckout(): bool
     {
         return true;
     }
@@ -248,7 +267,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canEdit()
+    public function canEdit(): bool
     {
         return (bool)$this->getConfiguredValue('can_edit');
     }
@@ -256,7 +275,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canFetchTransactionInfo()
+    public function canFetchTransactionInfo(): bool
     {
         return $this->canPerformCommand('fetch_transaction_info');
     }
@@ -264,7 +283,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function canReviewPayment()
+    public function canReviewPayment(): bool
     {
         return $this->canPerformCommand('review_payment');
     }
@@ -272,7 +291,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function isGateway()
+    public function isGateway(): bool
     {
         return true;
     }
@@ -280,7 +299,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function isOffline()
+    public function isOffline(): bool
     {
         return (bool)$this->getConfiguredValue('is_offline');
     }
@@ -288,7 +307,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function isInitializeNeeded()
+    public function isInitializeNeeded(): bool
     {
         return true;
     }
@@ -304,30 +323,13 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
 
         $checkResult = new DataObject();
         $checkResult->setData('is_available', true);
-        try {
-            $infoInstance = $this->getInfoInstance();
-            if ($infoInstance !== null) {
-                $validator = $this->getValidatorPool()->get('availability');
-                $result = $validator->validate(
-                    [
-                        'payment' => $this->paymentDataObjectFactory->create($infoInstance)
-                    ]
-                );
 
-                $checkResult->setData('is_available', $result->isValid());
-            }
-            // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
-        } catch (\Exception $e) {
-            // pass
-        }
-
-        // for future use in observers
         $this->eventManager->dispatch(
             'payment_method_is_active',
             [
                 'result' => $checkResult,
                 'method_instance' => $this,
-                'quote' => $quote
+                'quote' => $quote,
             ]
         );
 
@@ -337,113 +339,81 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function isActive($storeId = null)
+    public function isActive($storeId = null): bool
     {
         return (bool)$this->getConfiguredValue('active', $storeId);
     }
 
     /**
-     * @inheritdoc
+     * @param string $country
+     * @return bool
      */
-    public function canUseForCountry($country)
+    public function canUseForCountry($country): bool
     {
-        try {
-            $validator = $this->countryValidatorFactory
-                ->create(['config' => $this->setPaymentConfigCode($this->getCode())]);
-        } catch (\Exception $e) {
-            return true;
-        }
-
-        $result = $validator->validate(['country' => $country, 'storeId' => $this->getStore()]);
-
-        return $result->isValid();
+        return $this->validateByInstance(
+            $this->countryValidatorFactory,
+            ['country' => $country, 'storeId' => $this->getStore()]
+        );
     }
 
     /**
-     * @inheritdoc
+     * @param string $currencyCode
+     * @return bool
      */
-    public function canUseForCurrency($currencyCode)
+    public function canUseForCurrency($currencyCode): bool
     {
-        try {
-            $validator = $this->currencyValidatorFactory
-                ->create(['config' => $this->setPaymentConfigCode($this->getCode())]);
-        } catch (\Exception $e) {
-            return true;
-        }
-
-        $result = $validator->validate(['currency' => $currencyCode, 'storeId' => $this->getStore()]);
-        return $result->isValid();
+        return $this->validateByInstance(
+            $this->currencyValidatorFactory,
+            ['currency' => $currencyCode, 'storeId' => $this->getStore()]
+        );
     }
 
     /**
-     * Whether payment command is supported and can be executed
      *
      * @param string $commandCode
      * @return bool
      */
-    private function canPerformCommand($commandCode)
+    public function canPerformCommand($commandCode): bool
     {
         return (bool)$this->getConfiguredValue('can_' . $commandCode);
     }
 
     /**
-     * Unifies configured value handling logic
-     *
      * @param string $field
      * @param int|null $storeId
-     * @return mixed
+     * @return bool|mixed|null
      */
-    private function getConfiguredValue($field, $storeId = null)
+    private function getConfiguredValue(string $field, $storeId = null)
     {
-        $this->paymentConfig->setMethodCode($this->getCode());
-        $storeId = $storeId ?: $this->getStore();
+        $this->setPaymentConfigCode($this->code);
+        $storeId = $storeId ? : $this->getStore();
+        $configData = $this->paymentConfig->getValue($field, $storeId);
 
-        return $this->paymentConfig->getValue($field, $storeId) ?:
-            $this->getGlobalGenericConfiguredValue($field, $storeId);
+        if (!$configData) {
+            $configData = $this->baseGenericConfig[$field] ?? null;
+        }
+
+        return $configData;
     }
 
     /**
-     * @param $field
+     *
+     * @return array
+     */
+    public function getBaseGenericConfig(): array
+    {
+        return $this->initialConfig
+                   ->getData('default')[Data::XML_PATH_PAYMENT_METHODS][$this->baseMethodCode];
+    }
+
+    /**
+     * @param string $field
      * @param null $storeId
-     * @return mixed|null
-     */
-    private function getGlobalGenericConfiguredValue($field, $storeId = null)
-    {
-        $this->paymentConfig->setMethodCode(GenericGatewayConfigProvider::CODE);
-
-        return $this->paymentConfig->getValue($field, $storeId);
-    }
-
-    /**
-     * @inheritdoc
+     * @return bool|mixed|null
      */
     public function getConfigData($field, $storeId = null)
     {
         return $this->getConfiguredValue($field, $storeId);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validate()
-    {
-        try {
-            $validator = $this->getValidatorPool()->get('global');
-        } catch (\Exception $e) {
-            return $this;
-        }
-
-        $result = $validator->validate(
-            ['payment' => $this->getInfoInstance(), 'storeId' => $this->getStore()]
-        );
-
-        if (!$result->isValid()) {
-            throw new LocalizedException(
-                __(implode("\n", $result->getFailsDescription()))
-            );
-        }
-
-        return $this;
     }
 
     /**
@@ -550,7 +520,11 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     }
 
     /**
-     * @inheritdoc
+     * @param $commandCode
+     * @param array $arguments
+     * @return \Magento\Payment\Gateway\Command\ResultInterface|null
+     * @throws \Magento\Framework\Exception\NotFoundException
+     * @throws \Magento\Payment\Gateway\Command\CommandException
      */
     private function executeCommand($commandCode, array $arguments = [])
     {
@@ -587,9 +561,10 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     }
 
     /**
-     * @inheritdoc
+     * @param string $code
+     * @return $this
      */
-    public function setCode($code)
+    public function setCode(string $code): self
     {
         $this->code = $code;
 
@@ -598,9 +573,20 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
 
     /**
      * @param string $code
+     * @return $this
+     */
+    public function setBaseMethodCode(string $code): self
+    {
+        $this->baseMethodCode = $code;
+
+        return $this;
+    }
+
+    /**
+     * @param string $code
      * @return Config
      */
-    public function setPaymentConfigCode(string $code)
+    public function setPaymentConfigCode(string $code): Config
     {
         $this->paymentConfig->setMethodCode($code);
 
@@ -610,15 +596,15 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function getTitle()
+    public function getTitle(): string
     {
-        return $this->getConfiguredValue('title');
+        return (string)$this->getConfiguredValue('title');
     }
 
     /**
      * @inheritdoc
      */
-    public function setStore($storeId)
+    public function setStore($storeId): void
     {
         $this->storeId = (int)$storeId;
     }
@@ -626,7 +612,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function getStore()
+    public function getStore(): ?int
     {
         return $this->storeId;
     }
@@ -634,7 +620,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function getFormBlockType()
+    public function getFormBlockType(): string
     {
         return $this->formBlockType;
     }
@@ -642,7 +628,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function getInfoBlockType()
+    public function getInfoBlockType(): string
     {
         return $this->infoBlockType;
     }
@@ -650,7 +636,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function getInfoInstance()
+    public function getInfoInstance(): InfoInterface
     {
         return $this->infoInstance;
     }
@@ -658,7 +644,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
     /**
      * @inheritdoc
      */
-    public function setInfoInstance(InfoInterface $info)
+    public function setInfoInstance(InfoInterface $info): void
     {
         $this->infoInstance = $info;
     }
@@ -668,14 +654,14 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
      * @param DataObject $data
      * @return $this
      */
-    public function assignData(\Magento\Framework\DataObject $data)
+    public function assignData(\Magento\Framework\DataObject $data): self
     {
         $this->eventManager->dispatch(
             'payment_method_assign_data_' . $this->getCode(),
             [
                 AbstractDataAssignObserver::METHOD_CODE => $this,
                 AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-                AbstractDataAssignObserver::DATA_CODE => $data
+                AbstractDataAssignObserver::DATA_CODE => $data,
             ]
         );
 
@@ -684,7 +670,7 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
             [
                 AbstractDataAssignObserver::METHOD_CODE => $this,
                 AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-                AbstractDataAssignObserver::DATA_CODE => $data
+                AbstractDataAssignObserver::DATA_CODE => $data,
             ]
         );
 
@@ -702,14 +688,15 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
             [
                 'payment' => $this->getInfoInstance(),
                 'paymentAction' => $paymentAction,
-                'stateObject' => $stateObject
+                'stateObject' => $stateObject,
             ]
         );
+
         return $this;
     }
 
     /**
-     * @inheritdoc
+     * @return bool|mixed|string|null
      */
     public function getConfigPaymentAction()
     {
@@ -727,13 +714,32 @@ class GenericAdapter extends Adapter implements MethodInterface, SaleOperationIn
 
     /**
      * @inheritdoc
-     * @since 100.4.0
      */
-    public function sale(InfoInterface $payment, float $amount)
+    public function sale(InfoInterface $payment, float $amount): ?ResultInterface
     {
         $this->executeCommand(
             'sale',
             ['payment' => $payment, 'amount' => $amount]
         );
+    }
+
+    /**
+     * @param $validator
+     * @param array $validatorParams
+     * @return bool
+     */
+    private function validateByInstance($validator, array $validatorParams): bool
+    {
+        try {
+            $validator = $validator->create(
+                ['config' => $this->setPaymentConfigCode($this->getCode())]
+            );
+        } catch (\Exception $e) {
+            return true;
+        }
+
+        $result = $validator->validate($validatorParams);
+
+        return $result->isValid();
     }
 }
