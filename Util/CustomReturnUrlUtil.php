@@ -1,0 +1,161 @@
+<?php
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2021 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+
+declare(strict_types=1);
+
+namespace MultiSafepay\ConnectCore\Util;
+
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Model\SecureToken;
+
+class CustomReturnUrlUtil
+{
+    public const USE_CUSTOM_URL_CONFIG_PATH = 'use_custom_return_url';
+
+    public const SUCCESS_URL_TYPE_NAME = 'success';
+    public const CANCEL_URL_TYPE_NAME = 'cancel';
+
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
+     * @var StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * CustomReturnUrlUtil constructor.
+     *
+     * @param Config $config
+     * @param StoreManagerInterface $storeManager
+     * @param SecureToken $secureToken
+     * @param UrlInterface $urlBuilder
+     * @param StoreRepositoryInterface $storeRepository
+     * @param Logger $logger
+     */
+    public function __construct(
+        Config $config,
+        StoreManagerInterface $storeManager,
+        SecureToken $secureToken,
+        UrlInterface $urlBuilder,
+        StoreRepositoryInterface $storeRepository,
+        Logger $logger
+    ) {
+        $this->storeManager = $storeManager;
+        $this->config = $config;
+        $this->secureToken = $secureToken;
+        $this->urlBuilder = $urlBuilder;
+        $this->storeRepository = $storeRepository;
+        $this->logger = $logger;
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param array $transactionParameters
+     * @param string $customUrlType
+     * @return string|null
+     */
+    public function getCustomReturnUrlByType(
+        OrderInterface $order,
+        array $transactionParameters,
+        string $customUrlType = self::CANCEL_URL_TYPE_NAME
+    ): ?string {
+        $storeId = $order->getStoreId();
+
+        if ($this->config->getAdvancedValue(self::USE_CUSTOM_URL_CONFIG_PATH, $storeId)) {
+            try {
+                $customUrl = $this->config->getAdvancedValue(
+                    $this->getCustomUrlConfigPathByType($customUrlType),
+                    $storeId
+                );
+
+                return $customUrl ? $this->buildCustomUrl($customUrl, $order, $transactionParameters) : null;
+            } catch (NoSuchEntityException $noSuchEntityException) {
+                $this->logger->error(
+                    __(
+                        'Order ID: %1, Can\'t redirect to a custom url. Error: %2',
+                        $order->getIncrementId(),
+                        $noSuchEntityException->getMessage()
+                    )
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $customUrlType
+     * @return string
+     */
+    private function getCustomUrlConfigPathByType(string $customUrlType): string
+    {
+        return 'custom_' . $customUrlType . '_return_url';
+    }
+
+    /**
+     * @param string $urlString
+     * @param OrderInterface $order
+     * @param array $transactionParameters
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function buildCustomUrl(string $urlString, OrderInterface $order, array $transactionParameters): string
+    {
+        $storeId = $order->getStoreId();
+        $orderStore = $this->storeRepository->getById($storeId);
+        $availableCustomVariables = [
+            '{{order.increment_id}}' => $order->getIncrementId(),
+            '{{order.order_id}}' => $order->getEntityId(),
+            '{{payment.code}}' => $order->getPayment()->getMethod(),
+            '{{payment.transaction_id}}' => $transactionParameters['transactionid'] ?? '',
+            '{{store.unsecure_base_url}}' => $orderStore->getBaseUrl(UrlInterface::URL_TYPE_WEB),
+            '{{store.secure_base_url}}' => $orderStore->getBaseUrl(UrlInterface::URL_TYPE_WEB, true),
+            '{{store.code}}' => $orderStore->getCode(),
+            '{{store.store_id}}' => $orderStore->getId(),
+            '{{secure_token}}' => $transactionParameters['secureToken'] ?? $this->secureToken->generate((string)
+                $order->getRealOrderId()),
+        ];
+
+        foreach ($availableCustomVariables as $var => $value) {
+            $urlString = str_replace($var, $value, $urlString);
+        }
+
+        return $urlString;
+    }
+}
