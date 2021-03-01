@@ -18,9 +18,17 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidApiKeyException;
+use MultiSafepay\Sdk;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class GenericConfigProvider implements ConfigProviderInterface
 {
@@ -32,22 +40,54 @@ class GenericConfigProvider implements ConfigProviderInterface
     protected $assetRepository;
 
     /**
+     * @var ResolverInterface
+     */
+    protected $localeResolver;
+
+    /**
+     * @var SdkFactory
+     */
+    private $sdkFactory;
+
+    /**
      * @var Config
      */
     private $config;
 
     /**
-     * AbstractConfigProvider constructor.
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * @var Session
+     */
+    private $checkoutSession;
+
+    /**
+     * GenericConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
      * @param Config $config
+     * @param SdkFactory $sdkFactory
+     * @param Session $checkoutSession
+     * @param Logger $logger
+     * @param ResolverInterface $localeResolver
      */
     public function __construct(
         AssetRepository $assetRepository,
-        Config $config
+        Config $config,
+        SdkFactory $sdkFactory,
+        Session $checkoutSession,
+        Logger $logger,
+        ResolverInterface $localeResolver
     ) {
         $this->assetRepository = $assetRepository;
         $this->config = $config;
+        $this->sdkFactory = $sdkFactory;
+        $this->checkoutSession = $checkoutSession;
+        $this->logger = $logger;
+        $this->localeResolver = $localeResolver;
     }
 
     /**
@@ -62,9 +102,9 @@ class GenericConfigProvider implements ConfigProviderInterface
             'payment' => [
                 $this->getCode() => [
                     'image' => $this->getImage(),
-                    'is_preselected' => $this->isPreselected()
-                ]
-            ]
+                    'is_preselected' => $this->isPreselected(),
+                ],
+            ],
         ];
     }
 
@@ -77,6 +117,7 @@ class GenericConfigProvider implements ConfigProviderInterface
         $path = 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '.png';
 
         $this->assetRepository->createAsset($path);
+
         return $this->assetRepository->getUrl($path);
     }
 
@@ -94,5 +135,38 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function isPreselected(): bool
     {
         return $this->getCode() === $this->config->getPreselectedMethod();
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return Sdk|null
+     */
+    public function getSdk(?int $storeId = null): ?Sdk
+    {
+        try {
+            return $this->sdkFactory->create();
+        } catch (InvalidApiKeyException $invalidApiKeyException) {
+            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
+
+            return null;
+        } catch (ApiException $apiException) {
+            $orderId = $this->checkoutSession->getLastRealOrder()->getIncrementId();
+            $this->logger->logGetIssuersApiException($orderId, $apiException);
+
+            return null;
+        }
+    }
+
+    /**
+     * @return string|null
+     * @throws ClientExceptionInterface
+     */
+    public function getApiToken(): ?string
+    {
+        if ($multiSafepaySdk = $this->getSdk()) {
+            return $multiSafepaySdk->getApiTokenManager()->get()->getApiToken();
+        }
+
+        return null;
     }
 }
