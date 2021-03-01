@@ -31,41 +31,16 @@ use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Adapter;
-use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidatorFactory;
 use Psr\Log\LoggerInterface;
 
 class GenericAdapter extends Adapter
 {
-    /*
-     * @todo: we need to check this class and delete unecessary parts or change the logic
-     */
-
     /**
      * @var CommandPoolInterface
      */
     private $commandPool;
-
-    /**
-     * @var int
-     */
-    private $storeId;
-
-    /**
-     * @var string
-     */
-    private $formBlockType;
-
-    /**
-     * @var string
-     */
-    private $infoBlockType;
-
-    /**
-     * @var InfoInterface
-     */
-    private $infoInstance;
 
     /**
      * @var string
@@ -157,8 +132,6 @@ class GenericAdapter extends Adapter
         $this->initialConfig = $initialConfig;
         $this->commandPool = $commandPool;
         $this->code = $code;
-        $this->infoBlockType = $infoBlockType;
-        $this->formBlockType = $formBlockType;
         $this->eventManager = $eventManager;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->commandExecutor = $commandExecutor;
@@ -598,108 +571,6 @@ class GenericAdapter extends Adapter
     public function getTitle(): string
     {
         return (string)$this->getConfiguredValue('title');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setStore($storeId): void
-    {
-        $this->storeId = (int)$storeId;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getStore(): ?int
-    {
-        return $this->storeId;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFormBlockType(): string
-    {
-        return $this->formBlockType;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getInfoBlockType(): string
-    {
-        return $this->infoBlockType;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getInfoInstance(): InfoInterface
-    {
-        return $this->infoInstance;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setInfoInstance(InfoInterface $info): void
-    {
-        $this->infoInstance = $info;
-    }
-
-    /**
-     * @inheritdoc
-     * @param DataObject $data
-     * @return $this
-     */
-    public function assignData(\Magento\Framework\DataObject $data): self
-    {
-        $this->eventManager->dispatch(
-            'payment_method_assign_data_' . $this->getCode(),
-            [
-                AbstractDataAssignObserver::METHOD_CODE => $this,
-                AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-                AbstractDataAssignObserver::DATA_CODE => $data,
-            ]
-        );
-
-        $this->eventManager->dispatch(
-            'payment_method_assign_data',
-            [
-                AbstractDataAssignObserver::METHOD_CODE => $this,
-                AbstractDataAssignObserver::MODEL_CODE => $this->getInfoInstance(),
-                AbstractDataAssignObserver::DATA_CODE => $data,
-            ]
-        );
-
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function initialize($paymentAction, $stateObject)
-    {
-        $this->executeCommand(
-            'initialize',
-            [
-                'payment' => $this->getInfoInstance(),
-                'paymentAction' => $paymentAction,
-                'stateObject' => $stateObject,
-            ]
-        );
-
-        return $this;
-    }
-
-    /**
-     * @return bool|mixed|string|null
-     */
-    public function getConfigPaymentAction()
-    {
-        return $this->getConfiguredValue('payment_action');
     }
 
     /**
