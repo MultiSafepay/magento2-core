@@ -30,14 +30,13 @@ use Magento\Payment\Gateway\Validator\CountryValidatorFactory;
 use Magento\Payment\Gateway\Validator\ValidatorPoolInterface;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\InfoInterface;
-use Magento\Payment\Model\MethodInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidatorFactory;
 use Psr\Log\LoggerInterface;
 
-class GenericAdapter extends Adapter implements MethodInterface
+class GenericAdapter extends Adapter
 {
     /*
      * @todo: we need to check this class and delete unecessary parts or change the logic
@@ -229,7 +228,7 @@ class GenericAdapter extends Adapter implements MethodInterface
      */
     public function canRefund(): bool
     {
-        return true;
+        return $this->canPerformCommand('refund');
     }
 
     /**
@@ -237,7 +236,7 @@ class GenericAdapter extends Adapter implements MethodInterface
      */
     public function canRefundPartialPerInvoice(): bool
     {
-        return true;
+        return $this->canPerformCommand('refund_partial_per_invoice');
     }
 
     /**
@@ -253,7 +252,7 @@ class GenericAdapter extends Adapter implements MethodInterface
      */
     public function canUseInternal(): bool
     {
-        return true;
+        return (bool)$this->getConfiguredValue('can_use_internal');
     }
 
     /**
@@ -261,7 +260,7 @@ class GenericAdapter extends Adapter implements MethodInterface
      */
     public function canUseCheckout(): bool
     {
-        return true;
+        return (bool)$this->getConfiguredValue('can_use_checkout');
     }
 
     /**
@@ -293,7 +292,7 @@ class GenericAdapter extends Adapter implements MethodInterface
      */
     public function isGateway(): bool
     {
-        return true;
+        return (bool)$this->getConfiguredValue('is_gateway');
     }
 
     /**
@@ -309,7 +308,7 @@ class GenericAdapter extends Adapter implements MethodInterface
      */
     public function isInitializeNeeded(): bool
     {
-        return true;
+        return (bool)(int)$this->getConfiguredValue('can_initialize');
     }
 
     /**
@@ -386,7 +385,7 @@ class GenericAdapter extends Adapter implements MethodInterface
     private function getConfiguredValue(string $field, $storeId = null)
     {
         $this->setPaymentConfigCode($this->code);
-        $storeId = $storeId ? : $this->getStore();
+        $storeId = $storeId ?: $this->getStore();
         $configData = $this->paymentConfig->getValue($field, $storeId);
 
         if (!$configData) {
