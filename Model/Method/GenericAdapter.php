@@ -127,9 +127,9 @@ class GenericAdapter extends Adapter
      * @param CountryValidatorFactory $countryValidatorFactory
      * @param CurrencyValidatorFactory $currencyValidatorFactory
      * @param Initial $initialConfig
-     * @param $code
-     * @param $formBlockType
-     * @param $infoBlockType
+     * @param string $code
+     * @param string $formBlockType
+     * @param string $infoBlockType
      * @param CommandPoolInterface|null $commandPool
      * @param ValidatorPoolInterface|null $validatorPool
      * @param CommandManagerInterface|null $commandExecutor
