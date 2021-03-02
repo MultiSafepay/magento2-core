@@ -30,11 +30,11 @@ class CustomTotalValidator
             return false;
         }
 
-        if ($total->getTitle() === null) {
+        if (!$total->getTitle() && !$total->getLabel()) {
             return false;
         }
 
-        if (empty($total->getValue())) {
+        if (empty($total->getValue()) && empty($total->getAmount())) {
             return false;
         }
         return true;
