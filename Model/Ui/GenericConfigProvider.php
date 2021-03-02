@@ -144,7 +144,7 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function getSdk(?int $storeId = null): ?Sdk
     {
         try {
-            return $this->sdkFactory->create();
+            return $this->sdkFactory->create($storeId);
         } catch (InvalidApiKeyException $invalidApiKeyException) {
             $this->logger->logInvalidApiKeyException($invalidApiKeyException);
 
@@ -158,13 +158,17 @@ class GenericConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * @param int|null $storeId
      * @return string|null
-     * @throws ClientExceptionInterface
      */
-    public function getApiToken(): ?string
+    public function getApiToken(?int $storeId = null): ?string
     {
-        if ($multiSafepaySdk = $this->getSdk()) {
-            return $multiSafepaySdk->getApiTokenManager()->get()->getApiToken();
+        if ($multiSafepaySdk = $this->getSdk($storeId)) {
+            try {
+                return $multiSafepaySdk->getApiTokenManager()->get()->getApiToken();
+            } catch (ClientExceptionInterface $clientException) {
+                return null;
+            }
         }
 
         return null;
