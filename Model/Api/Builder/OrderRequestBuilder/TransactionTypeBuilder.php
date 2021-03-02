@@ -54,9 +54,6 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
     ): void {
         $transactionType = (string)$this->config->getValue('transaction_type');
         if (!$transactionType) {
-            /*
-             * @todo: put here default transaction type for a generic gateways methods
-             */
             $transactionType = $payment->getAdditionalInformation()['transaction_type']
                                ?? self::DEFAULT_TRANSACTION_TYPE;
         }
