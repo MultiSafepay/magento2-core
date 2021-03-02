@@ -21,7 +21,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecureToken;
@@ -34,19 +33,9 @@ class CustomReturnUrlUtil
     public const CANCEL_URL_TYPE_NAME = 'cancel';
 
     /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
      * @var Config
      */
     private $config;
-
-    /**
-     * @var UrlInterface
-     */
-    private $urlBuilder;
 
     /**
      * @var StoreRepositoryInterface
@@ -62,24 +51,18 @@ class CustomReturnUrlUtil
      * CustomReturnUrlUtil constructor.
      *
      * @param Config $config
-     * @param StoreManagerInterface $storeManager
      * @param SecureToken $secureToken
-     * @param UrlInterface $urlBuilder
      * @param StoreRepositoryInterface $storeRepository
      * @param Logger $logger
      */
     public function __construct(
         Config $config,
-        StoreManagerInterface $storeManager,
         SecureToken $secureToken,
-        UrlInterface $urlBuilder,
         StoreRepositoryInterface $storeRepository,
         Logger $logger
     ) {
-        $this->storeManager = $storeManager;
         $this->config = $config;
         $this->secureToken = $secureToken;
-        $this->urlBuilder = $urlBuilder;
         $this->storeRepository = $storeRepository;
         $this->logger = $logger;
     }
