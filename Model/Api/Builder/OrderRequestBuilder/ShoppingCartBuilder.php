@@ -30,11 +30,11 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\CustomTotalBuilder;
-use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\FoomanSurchargeTotalBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\ShippingItemBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Validator\CustomTotalValidator;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\ConnectCore\Util\ThirdPartyPluginsUtil;
 
 class ShoppingCartBuilder implements OrderRequestBuilderInterface
 {
@@ -48,11 +48,6 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
      * @var ShippingItemBuilder
      */
     private $shippingItemBuilder;
-
-    /**
-     * @var FoomanSurchargeTotalBuilder
-     */
-    private $foomanSurchargeBuilder;
 
     /**
      * @var CartRepositoryInterface
@@ -80,35 +75,40 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
     private $config;
 
     /**
+     * @var ThirdPartyPluginsUtil
+     */
+    private $thirdPartyPluginsUtil;
+
+    /**
      * ShoppingCartBuilder constructor.
      *
      * @param Config $config
      * @param CustomTotalBuilder $customTotalBuilder
      * @param CustomTotalValidator $customTotalValidator
      * @param OrderItemBuilder $orderItemBuilder
-     * @param FoomanSurchargeTotalBuilder $foomanSurchargeBuilder
      * @param ShippingItemBuilder $shippingItemBuilder
      * @param CartRepositoryInterface $quoteRepository
      * @param CurrencyUtil $currencyUtil
+     * @param ThirdPartyPluginsUtil $thirdPartyPluginsUtil
      */
     public function __construct(
         Config $config,
         CustomTotalBuilder $customTotalBuilder,
         CustomTotalValidator $customTotalValidator,
         OrderItemBuilder $orderItemBuilder,
-        FoomanSurchargeTotalBuilder $foomanSurchargeBuilder,
         ShippingItemBuilder $shippingItemBuilder,
         CartRepositoryInterface $quoteRepository,
-        CurrencyUtil $currencyUtil
+        CurrencyUtil $currencyUtil,
+        ThirdPartyPluginsUtil $thirdPartyPluginsUtil
     ) {
         $this->customTotalBuilder = $customTotalBuilder;
         $this->customTotalValidator = $customTotalValidator;
         $this->orderItemBuilder = $orderItemBuilder;
-        $this->foomanSurchargeBuilder = $foomanSurchargeBuilder;
         $this->shippingItemBuilder = $shippingItemBuilder;
         $this->quoteRepository = $quoteRepository;
         $this->currencyUtil = $currencyUtil;
         $this->config = $config;
+        $this->thirdPartyPluginsUtil = $thirdPartyPluginsUtil;
     }
 
     /**
@@ -146,12 +146,11 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
             $quote = $this->quoteRepository->get($order->getQuoteId());
         } catch (NoSuchEntityException $e) {
             $orderRequest->addShoppingCart(new ShoppingCart($items));
+
             return;
         }
 
         $items = array_merge($items, $this->getItemsFromQuote($quote, $currency));
-        $items = array_merge($items, $this->getItemsFromFoomanTotalGroup($quote, $currency));
-
         $orderRequest->addShoppingCart(new ShoppingCart($items));
     }
 
@@ -163,53 +162,24 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
     private function getItemsFromQuote(CartInterface $quote, string $currency): array
     {
         $items = [];
-
+        $storeId = $quote->getStoreId();
         // Merge excluded totals from config with predefined
         $customTotalsConfig = $this->config->getCustomTotals($quote->getStoreId());
         $customTotalList = array_map('trim', explode(';', $customTotalsConfig));
         $excludedTotals = array_merge($customTotalList, CustomTotalBuilder::EXCLUDED_TOTALS);
+        $totals = array_merge(
+            $quote->getTotals(),
+            $this->thirdPartyPluginsUtil->getThirdPartyPluginAdditionalData($quote)
+        );
 
-        foreach ($quote->getTotals() as $total) {
+        foreach ($totals as $total) {
             if (!$this->customTotalValidator->validate($total)) {
                 continue;
             }
 
             if (!in_array($total->getCode(), $excludedTotals, true)) {
-                $items[] = $this->customTotalBuilder->build($total, $currency);
+                $items[] = $this->customTotalBuilder->build($total, $currency, $storeId);
             }
-        }
-
-        return $items;
-    }
-
-    /**
-     * @param CartInterface $quote
-     * @param string $currency
-     * @return array
-     */
-    private function getItemsFromFoomanTotalGroup(CartInterface $quote, string $currency): array
-    {
-        $storeId = $quote->getStoreId();
-
-        $shippingAddress = $quote->getShippingAddress();
-        $extensionAttributes = $shippingAddress->getExtensionAttributes();
-
-        if (!is_object($extensionAttributes)) {
-            return [];
-        }
-
-        if (!method_exists($extensionAttributes, 'getFoomanTotalGroup')) {
-            return [];
-        }
-
-        $foomanTotals = $extensionAttributes->getFoomanTotalGroup();
-        if ($foomanTotals === null) {
-            return [];
-        }
-
-        $items = [];
-        foreach ($foomanTotals->getItems() as $total) {
-            $items[] = $this->foomanSurchargeBuilder->build($total, $currency, $storeId);
         }
 
         return $items;
@@ -231,7 +201,7 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
 
         // Bundled products with price type dynamic should not be added, we want the simple products instead
         if ($productType === Type::TYPE_BUNDLE
-            && (int) $product->getPriceType() === Price::PRICE_TYPE_DYNAMIC) {
+            && (int)$product->getPriceType() === Price::PRICE_TYPE_DYNAMIC) {
             return false;
         }
 
@@ -250,7 +220,7 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
         // Do not add the item if the parent is a fixed price bundle product, the bundle product is added instead
         if ($parentItemProductType === Type::TYPE_BUNDLE
             && ($parentItem->getProduct() !== null)
-            && (int) $parentItem->getProduct()->getPriceType() === Price::PRICE_TYPE_FIXED) {
+            && (int)$parentItem->getProduct()->getPriceType() === Price::PRICE_TYPE_FIXED) {
             return false;
         }
 
