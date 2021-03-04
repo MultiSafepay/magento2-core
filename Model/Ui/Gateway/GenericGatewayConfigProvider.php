@@ -126,12 +126,4 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
             return strpos($key, self::CODE . '_') === 0;
         }) : [];
     }
-
-    /**
-     * @return string
-     */
-    public function getPaymentJsComponent(): string
-    {
-        return 'MultiSafepay_ConnectFrontend/js/view/payment/gateway/genericgateway';
-    }
 }

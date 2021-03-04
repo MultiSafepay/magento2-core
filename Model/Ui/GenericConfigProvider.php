@@ -114,4 +114,12 @@ class GenericConfigProvider implements ConfigProviderInterface
     {
         return strpos($paymentCode, static::CODE . '_') !== false;
     }
+
+    /**
+     * @return string
+     */
+    public function getPaymentJsComponent(): string
+    {
+        return 'MultiSafepay_ConnectFrontend/js/view/payment/method-renderer';
+    }
 }
