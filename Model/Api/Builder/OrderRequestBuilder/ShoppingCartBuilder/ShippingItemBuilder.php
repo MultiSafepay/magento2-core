@@ -23,7 +23,7 @@ use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ConnectCore\Util\TaxUtil;
 use MultiSafepay\ValueObject\Money;
 
-class ShippingItemBuilder
+class ShippingItemBuilder implements ShoppingCartBuilderInterface
 {
     /**
      * @var PriceUtil
@@ -52,18 +52,24 @@ class ShippingItemBuilder
     /**
      * @param OrderInterface $order
      * @param string $currency
-     * @return Item
+     * @return Item[]
      */
-    public function build(OrderInterface $order, string $currency): Item
+    public function build(OrderInterface $order, string $currency): array
     {
-        $shippingPrice = $this->priceUtil->getShippingUnitPrice($order);
+        $items = [];
 
-        return (new Item())
-            ->addName($order->getShippingDescription())
-            ->addUnitPrice(new Money($shippingPrice * 100, $currency))
-            ->addQuantity(1)
-            ->addDescription('Shipping')
-            ->addMerchantItemId('msp-shipping')
-            ->addTaxRate($this->taxUtil->getShippingTaxRate($order));
+        if ($order->getShippingAmount() > 0) {
+            $shippingPrice = $this->priceUtil->getShippingUnitPrice($order);
+
+            $items[] = (new Item())
+                ->addName($order->getShippingDescription())
+                ->addUnitPrice(new Money($shippingPrice * 100, $currency))
+                ->addQuantity(1)
+                ->addDescription('Shipping')
+                ->addMerchantItemId('msp-shipping')
+                ->addTaxRate($this->taxUtil->getShippingTaxRate($order));
+        }
+
+        return $items;
     }
 }

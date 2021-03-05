@@ -7203,6 +7203,16 @@
         </arguments>
     </type>
 
+    <type name="MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder">
+        <arguments>
+            <argument name="shoppingCartBuilders" xsi:type="array">
+                <item name="order_item_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder</item>
+                <item name="shipping_item_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\ShippingItemBuilder</item>
+                <item name="custom_total_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\CustomTotalBuilder</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilderPool">
         <arguments>
             <argument name="orderRequestBuilders" xsi:type="array">
