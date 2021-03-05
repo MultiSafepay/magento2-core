@@ -165,10 +165,10 @@ class Config
 
     /**
      * @param null $storeId
-     * @return mixed
+     * @return string
      */
-    public function getPendingPaymentStatus($storeId = null)
+    public function getPendingPaymentStatus($storeId = null): string
     {
-        return $this->getValue(self::PENDING_PAYMENT_STATUS, $storeId);
+        return (string)$this->getValue(self::PENDING_PAYMENT_STATUS, $storeId);
     }
 }
