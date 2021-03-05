@@ -26,6 +26,7 @@ class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';
     public const MULTISAFEPAY_LIST_CONFIG_PATH = '';
+    public const MULTISAFEPAY_LIST_CONFIG_PATH_GIFTCARD = '';
 
     /**
      * @var AssetRepository
@@ -103,7 +104,12 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getGenericList($storeId = null): array
     {
-        return (array)$this->config->getValueByPath(static::MULTISAFEPAY_LIST_CONFIG_PATH, $storeId);
+        $genericGateways = (array)$this->config->getValueByPath(static::MULTISAFEPAY_LIST_CONFIG_PATH, $storeId);
+        $genericGiftcards = (array)$this->config->getValueByPath(
+            static::MULTISAFEPAY_LIST_CONFIG_PATH_GIFTCARD,
+            $storeId
+        );
+        return array_merge($genericGateways, $genericGiftcards);
     }
 
     /**

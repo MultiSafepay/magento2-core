@@ -19,6 +19,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
     public const CODE = 'multisafepay_genericgateway';
     public const REQUIRE_SHOPPING_CART = 'require_shopping_cart';
     public const MULTISAFEPAY_LIST_CONFIG_PATH = 'multisafepay_gateways';
+    public const MULTISAFEPAY_LIST_CONFIG_PATH_GIFTCARD = 'multisafepay_giftcards';
     public const CONFIG_IMAGE_PATH = 'multisafepay_gateways/%s/gateway_image';
 
     /**
