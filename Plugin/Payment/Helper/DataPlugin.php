@@ -17,10 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Plugin\Payment\Helper;
 
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider;
 use Magento\Payment\Helper\Data;
 use Magento\Payment\Model\MethodInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider;
 
 class DataPlugin
 {
@@ -30,22 +29,14 @@ class DataPlugin
     private $genericGatewayConfigProvider;
 
     /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    /**
      * DataPlugin constructor.
      *
      * @param GenericGatewayConfigProvider $genericGatewayConfigProvider
-     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        GenericGatewayConfigProvider $genericGatewayConfigProvider,
-        ScopeConfigInterface $scopeConfig
+        GenericGatewayConfigProvider $genericGatewayConfigProvider
     ) {
         $this->genericGatewayConfigProvider = $genericGatewayConfigProvider;
-        $this->scopeConfig = $scopeConfig;
     }
 
     /**
