@@ -21,6 +21,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
     public const MULTISAFEPAY_LIST_CONFIG_PATH = 'multisafepay_gateways';
     public const MULTISAFEPAY_LIST_CONFIG_PATH_GIFTCARD = 'multisafepay_giftcards';
     public const CONFIG_IMAGE_PATH = 'multisafepay_gateways/%s/gateway_image';
+    public const CONFIG_IMAGE_PATH_GIFTCARD = 'multisafepay_giftcards/%s/gateway_image';
 
     /**
      * The tail part of directory path for uploading the logo
@@ -110,7 +111,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      */
     public function getImagePath(string $gatewayCode): string
     {
-        $configImagePath = $this->config->getValueByPath(sprintf(self::CONFIG_IMAGE_PATH, $gatewayCode));
+        $configImagePath = $this->config->getValueByPath(sprintf(self::CONFIG_IMAGE_PATH, $gatewayCode)) ??
+                           $this->config->getValueByPath(sprintf(self::CONFIG_IMAGE_PATH_GIFTCARD, $gatewayCode));
 
         return self::UPLOAD_DIR . DIRECTORY_SEPARATOR . $configImagePath;
     }
