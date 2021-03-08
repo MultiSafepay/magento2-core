@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order\Item;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 
 class PriceUtil
@@ -53,11 +53,11 @@ class PriceUtil
     }
 
     /**
-     * @param Item $item
+     * @param OrderItemInterface $item
      * @param $storeId
      * @return float
      */
-    public function getUnitPrice(Item $item, $storeId): float
+    public function getUnitPrice(OrderItemInterface $item, $storeId): float
     {
         if ($this->config->useBaseCurrency($storeId)) {
             return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $item->getQtyOrdered()));
