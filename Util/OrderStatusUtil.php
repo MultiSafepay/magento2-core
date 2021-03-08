@@ -15,6 +15,11 @@ class OrderStatusUtil
      */
     private $config;
 
+    /**
+     * OrderStatusUtil constructor.
+     *
+     * @param Config $config
+     */
     public function __construct(
         Config $config
     ) {
