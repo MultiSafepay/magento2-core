@@ -65,7 +65,7 @@ class DataPlugin
     public function afterGetPaymentMethods(Data $subject, array $result): array
     {
         if (isset($result[GenericGatewayConfigProvider::CODE])) {
-            $genericList = $this->genericGatewayConfigProvider->getGenericGatewaysList();
+            $genericList = $this->genericGatewayConfigProvider->getGenericList();
             $genericData = $result[GenericGatewayConfigProvider::CODE];
 
             foreach ($genericList as $item) {
