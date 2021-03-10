@@ -18,8 +18,11 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_genericgateway';
     public const REQUIRE_SHOPPING_CART = 'require_shopping_cart';
-    public const MULTISAFEPAY_LIST_CONFIG_PATH = 'multisafepay_gateways';
-    public const CONFIG_IMAGE_PATH = 'multisafepay_gateways/%s/gateway_image';
+    public const GENERIC_CONFIG_IMAGE_PATH = '%s/gateway_image';
+    public const GENERIC_CONFIG_PATHS = [
+        'multisafepay_gateways',
+        'multisafepay_giftcards'
+    ];
 
     /**
      * The tail part of directory path for uploading the logo
@@ -71,7 +74,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
     {
         $configData = [];
 
-        foreach ($this->getGenericGatewaysList() as $gatewayCode) {
+        foreach ($this->getGenericList() as $gatewayCode) {
             $configData[$gatewayCode] = [
                 'image' => $this->getGenericFullImagePath($gatewayCode),
                 'is_preselected' => $this->isPreselectedByCode($gatewayCode)
@@ -109,20 +112,40 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      */
     public function getImagePath(string $gatewayCode): string
     {
-        $configImagePath = $this->config->getValueByPath(sprintf(self::CONFIG_IMAGE_PATH, $gatewayCode));
+        foreach (self::GENERIC_CONFIG_PATHS as $path) {
+            $configFullPath = $path . DS . self::GENERIC_CONFIG_IMAGE_PATH;
 
-        return self::UPLOAD_DIR . DIRECTORY_SEPARATOR . $configImagePath;
+            if ($configImagePath = $this->config->getValueByPath(sprintf($configFullPath, $gatewayCode))) {
+                return self::UPLOAD_DIR . DIRECTORY_SEPARATOR . $configImagePath;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param string $paymentCode
+     * @return bool
+     */
+    public function isMultisafepayGenericMethod(string $paymentCode): bool
+    {
+        return strpos($paymentCode, self::CODE . '_') !== false;
     }
 
     /**
      * @param null $storeId
      * @return array
      */
-    public function getGenericGatewaysList($storeId = null): array
+    public function getGenericList($storeId = null): array
     {
-        $gatewaysList = $this->getGenericList($storeId);
+        $genericList = [];
 
-        return $gatewaysList ? array_filter(array_keys($gatewaysList), function ($key) {
+        foreach (self::GENERIC_CONFIG_PATHS as $path) {
+            $genericList[] = (array)$this->config->getValueByPath($path, $storeId);
+        }
+        $genericList = array_merge(...$genericList);
+
+        return $genericList ? array_filter(array_keys($genericList), function ($key) {
             return strpos($key, self::CODE . '_') === 0;
         }) : [];
     }
