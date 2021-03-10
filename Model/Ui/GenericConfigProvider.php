@@ -95,4 +95,12 @@ class GenericConfigProvider implements ConfigProviderInterface
     {
         return $this->getCode() === $this->config->getPreselectedMethod();
     }
+
+    /**
+     * @return string
+     */
+    public function getPaymentJsComponent(): string
+    {
+        return 'MultiSafepay_ConnectFrontend/js/view/payment/method-renderer';
+    }
 }
