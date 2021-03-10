@@ -68,6 +68,20 @@ class Config
     }
 
     /**
+     * @param string $path
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getValueByPath(string $path, $storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            $path,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
      * @param string $field
      * @param null $storeId
      * @return mixed
