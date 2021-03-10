@@ -262,7 +262,7 @@
                 <gateway_code>CREDITCARD</gateway_code>
             </multisafepay_creditcard>
             <multisafepay_creditcard_recurring>
-                <active>1</active>
+                <active>0</active>
                 <model>MultiSafepayCreditCardRecurringFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
@@ -296,7 +296,7 @@
                 </instant_purchase>
             </multisafepay_creditcard_vault>
             <multisafepay_visa_recurring>
-                <active>1</active>
+                <active>0</active>
                 <model>MultiSafepayVisaRecurringFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
@@ -330,7 +330,7 @@
                 </instant_purchase>
             </multisafepay_visa_vault>
             <multisafepay_mastercard_recurring>
-                <active>1</active>
+                <active>0</active>
                 <model>MultiSafepayMastercardRecurringFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
@@ -364,7 +364,7 @@
                 </instant_purchase>
             </multisafepay_mastercard_vault>
             <multisafepay_amex_recurring>
-                <active>1</active>
+                <active>0</active>
                 <model>MultiSafepayAmexRecurringFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
