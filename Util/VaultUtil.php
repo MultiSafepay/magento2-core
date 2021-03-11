@@ -105,4 +105,13 @@ class VaultUtil
     {
         return 'MultiSafepay_ConnectCore::images/multisafepay_' . strtolower($type) . '.png';
     }
+
+    /**
+     * @param string $methodCode
+     * @return string
+     */
+    public function getConfigPath(string $methodCode): string
+    {
+        return 'payment/' . $methodCode . '_vault/active';
+    }
 }
