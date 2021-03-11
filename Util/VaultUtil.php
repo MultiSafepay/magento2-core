@@ -58,7 +58,7 @@ class VaultUtil
     public function validateVaultTokenEnabler(array $additionalInformation): bool
     {
         if (isset($additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE])) {
-            return (bool) $additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE];
+            return (bool)$additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE];
         }
 
         return false;
@@ -93,7 +93,7 @@ class VaultUtil
         return [
             PaymentTokenInterface::ICON_URL => '',
             PaymentTokenInterface::ICON_WIDTH => 0,
-            PaymentTokenInterface::ICON_HEIGHT => 0
+            PaymentTokenInterface::ICON_HEIGHT => 0,
         ];
     }
 
@@ -104,5 +104,14 @@ class VaultUtil
     private function getImagePathByType(string $type): string
     {
         return 'MultiSafepay_ConnectCore::images/multisafepay_' . strtolower($type) . '.png';
+    }
+
+    /**
+     * @param string $methodCode
+     * @return string
+     */
+    public function getActiveConfigPath(string $methodCode): string
+    {
+        return 'payment/' . $methodCode . '_vault/active';
     }
 }
