@@ -74,7 +74,7 @@ class SdkFactory
      * @param int|null $storeId
      * @return $this
      */
-    public function create(?int $storeId = null): self
+    public function create(?int $storeId = null): SdkFactory
     {
         if ($storeId) {
             $this->storeId = $storeId;
