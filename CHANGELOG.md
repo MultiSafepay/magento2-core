@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Code refactoring in the generic gateways and transaction shopping cart parts of the plugin for code improvement, readability and better performance.
+- Changed composer dependencies to support Magento 2.2.
 
 ## [2.3.0] - 2021-02-22
 ### Added
