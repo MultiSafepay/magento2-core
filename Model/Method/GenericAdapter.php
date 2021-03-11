@@ -156,7 +156,7 @@ class GenericAdapter extends Adapter
      * @param string $baseCode
      * @return $this
      */
-    public function initGeneric(string $code, string $baseCode): self
+    public function initGeneric(string $code, string $baseCode): GenericAdapter
     {
         $this->setCode($code)->setBaseMethodCode($baseCode);
         $this->baseGenericConfig = $this->getBaseGenericConfig();
@@ -536,7 +536,7 @@ class GenericAdapter extends Adapter
      * @param string $code
      * @return $this
      */
-    public function setCode(string $code): self
+    public function setCode(string $code): GenericAdapter
     {
         $this->code = $code;
 
@@ -547,7 +547,7 @@ class GenericAdapter extends Adapter
      * @param string $code
      * @return $this
      */
-    public function setBaseMethodCode(string $code): self
+    public function setBaseMethodCode(string $code): GenericAdapter
     {
         $this->baseMethodCode = $code;
 
