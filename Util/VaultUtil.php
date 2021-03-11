@@ -58,7 +58,7 @@ class VaultUtil
     public function validateVaultTokenEnabler(array $additionalInformation): bool
     {
         if (isset($additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE])) {
-            return (bool) $additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE];
+            return (bool)$additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE];
         }
 
         return false;
@@ -93,7 +93,7 @@ class VaultUtil
         return [
             PaymentTokenInterface::ICON_URL => '',
             PaymentTokenInterface::ICON_WIDTH => 0,
-            PaymentTokenInterface::ICON_HEIGHT => 0
+            PaymentTokenInterface::ICON_HEIGHT => 0,
         ];
     }
 
