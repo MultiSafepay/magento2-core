@@ -110,7 +110,7 @@ class VaultUtil
      * @param string $methodCode
      * @return string
      */
-    public function getConfigPath(string $methodCode): string
+    public function getActiveConfigPath(string $methodCode): string
     {
         return 'payment/' . $methodCode . '_vault/active';
     }
