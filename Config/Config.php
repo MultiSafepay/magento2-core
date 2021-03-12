@@ -34,7 +34,7 @@ class Config
     public const USE_BASE_CURRENCY = 'use_base_currency';
     public const PRESELECTED_METHOD = 'preselected_method';
     public const CUSTOM_TOTALS = 'custom_totals';
-
+    public const PENDING_PAYMENT_STATUS = 'pending_payment_order_status';
     public const BEFORE_TRANSACTION = 'before_transaction';
 
     /**
@@ -62,6 +62,20 @@ class Config
     {
         return $this->scopeConfig->getValue(
             sprintf(self::DEFAULT_PATH_PATTERN, $field),
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * @param string $path
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getValueByPath(string $path, $storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            $path,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -161,5 +175,14 @@ class Config
     public function getCustomTotals($storeId = null): string
     {
         return (string)$this->getAdvancedValue(self::CUSTOM_TOTALS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getPendingPaymentStatus($storeId = null): string
+    {
+        return (string)$this->getValue(self::PENDING_PAYMENT_STATUS, $storeId);
     }
 }

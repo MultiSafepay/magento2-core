@@ -7,6 +7,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\UrlInterface;
@@ -21,6 +22,11 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_genericgateway';
     public const REQUIRE_SHOPPING_CART = 'require_shopping_cart';
+    public const GENERIC_CONFIG_IMAGE_PATH = '%s/gateway_image';
+    public const GENERIC_CONFIG_PATHS = [
+        'multisafepay_gateways',
+        'multisafepay_giftcards'
+    ];
 
     /**
      * The tail part of directory path for uploading the logo
@@ -72,30 +78,88 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
     }
 
     /**
-     * @return string
+     * Retrieve assoc array of checkout configuration
+     *
+     * @return array
+     * @throws LocalizedException
      */
-    public function getCode(): string
+    public function getConfig(): array
     {
-        return self::CODE;
+        $configData = [];
+
+        foreach ($this->getGenericList() as $gatewayCode) {
+            $configData[$gatewayCode] = [
+                'image' => $this->getGenericFullImagePath($gatewayCode),
+                'is_preselected' => $this->isPreselectedByCode($gatewayCode)
+            ];
+        }
+
+        return ['payment' => $configData];
     }
 
     /**
-     * @return string
-     * @throws LocalizedException
+     * @param string $gatewayCode
+     * @return bool
      */
-    public function getImage(): string
+    public function isPreselectedByCode(string $gatewayCode): bool
     {
-        $path = $this->getImagePath();
+        return $gatewayCode === $this->config->getPreselectedMethod();
+    }
+
+    /**
+     * @param string $gatewayCode
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getGenericFullImagePath(string $gatewayCode): string
+    {
+        $path = $this->getImagePath($gatewayCode);
         $imageExists = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isFile($path);
 
         return $imageExists ? $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . $path : '';
     }
 
     /**
+     * @param string $gatewayCode
      * @return string
      */
-    public function getImagePath(): string
+    public function getImagePath(string $gatewayCode): string
     {
-        return self::UPLOAD_DIR . DIRECTORY_SEPARATOR . 'generic_image.png';
+        foreach (self::GENERIC_CONFIG_PATHS as $path) {
+            $configFullPath = $path . DS . self::GENERIC_CONFIG_IMAGE_PATH;
+
+            if ($configImagePath = $this->config->getValueByPath(sprintf($configFullPath, $gatewayCode))) {
+                return self::UPLOAD_DIR . DIRECTORY_SEPARATOR . $configImagePath;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param string $paymentCode
+     * @return bool
+     */
+    public function isMultisafepayGenericMethod(string $paymentCode): bool
+    {
+        return strpos($paymentCode, self::CODE . '_') !== false;
+    }
+
+    /**
+     * @param null $storeId
+     * @return array
+     */
+    public function getGenericList($storeId = null): array
+    {
+        $genericList = [];
+
+        foreach (self::GENERIC_CONFIG_PATHS as $path) {
+            $genericList[] = (array)$this->config->getValueByPath($path, $storeId);
+        }
+        $genericList = array_merge(...$genericList);
+
+        return $genericList ? array_filter(array_keys($genericList), function ($key) {
+            return strpos($key, self::CODE . '_') === 0;
+        }) : [];
     }
 }

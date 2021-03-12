@@ -5,6 +5,16 @@
         <plugin name="add_available_methods" type="MultiSafepay\ConnectCore\Plugin\MethodListPlugin" sortOrder="1" disabled="false"  />
     </type>
 
+    <type name="Magento\Payment\Helper\Data">
+        <plugin name="add_generic_methods_to_all_payment_methods" type="MultiSafepay\ConnectCore\Plugin\Payment\Helper\DataPlugin"
+            sortOrder="1" disabled="false"  />
+    </type>
+
+    <type name="Magento\Multishipping\Model\Payment\Method\Specification\Enabled">
+        <plugin name="add_generic_methods_to_multishipping" type="MultiSafepay\ConnectCore\Plugin\Multishipping\Model\Payment\Method\Specification\EnabledPlugin"
+            sortOrder="1" disabled="false"  />
+    </type>
+
     <preference for="MultiSafepay\ConnectCore\Api\StockReducerInterface" type="MultiSafepay\ConnectCore\Model\StockReducer" />
 
     <!-- MultiSafepay Payment Method Facade configuration -->
@@ -4902,12 +4912,11 @@
     </virtualType>
 
     <!-- MultiSafepayGenericGateway Payment Method Facade configuration -->
-    <virtualType name="MultiSafepayGenericGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
+    <virtualType name="MultiSafepayGenericGatewayFacade" type="MultiSafepay\ConnectCore\Model\Method\GenericAdapter">
         <arguments>
             <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
             <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
-            <argument name="validatorPool" xsi:type="object">MultiSafepayGenericGatewayValidatorPool</argument>
             <argument name="valueHandlerPool" xsi:type="object">MultiSafepayGenericGatewayValueHandlerPool</argument>
             <argument name="commandPool" xsi:type="object">MultiSafepayGenericGatewayCommandPool</argument>
         </arguments>
@@ -4920,34 +4929,19 @@
         </arguments>
     </virtualType>
 
-    <!-- MultiSafepayGenericGateway Config Value Handler Pool -->
-    <virtualType name="MultiSafepayGenericGatewayConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+    <!-- MultiSafepayGenericGateway Value handlers infrastructure -->
+    <virtualType name="MultiSafepayGenericGatewayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
         <arguments>
             <argument name="handlers" xsi:type="array">
                 <item name="default" xsi:type="string">MultiSafepayGenericGatewayConfigValueHandler</item>
             </argument>
         </arguments>
     </virtualType>
-
-    <!-- MultiSafepayGenericGateway Config Value Handler -->
     <virtualType name="MultiSafepayGenericGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
         <arguments>
             <argument name="configInterface" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
         </arguments>
     </virtualType>
-
-    <!-- MultiSafepayGenericGateway Logger, initialized with MultiSafepayGenericGatewayConfig -->
-    <virtualType name="MultiSafepayGenericGatewayLogger" type="Magento\Payment\Model\Method\Logger">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
-        </arguments>
-    </virtualType>
-
-    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
-        <arguments>
-            <argument name="logger" xsi:type="object">MultiSafepayGenericGatewayLogger</argument>
-        </arguments>
-    </type>
 
     <!-- MultiSafepayGenericGateway Commands infrastructure -->
     <virtualType name="MultiSafepayGenericGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
@@ -4993,40 +4987,6 @@
             <argument name="builders" xsi:type="array">
                 <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\GenericGatewayRefundTransactionBuilder</item>
             </argument>
-        </arguments>
-    </virtualType>
-
-    <!-- MultiSafepayGenericGateway Validator Pool -->
-    <virtualType name="MultiSafepayGenericGatewayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
-        <arguments>
-            <argument name="validators" xsi:type="array">
-                <item name="country" xsi:type="string">MultiSafepayGenericGatewayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGenericGatewayCurrencyValidator</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGenericGatewayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGenericGatewayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
-        </arguments>
-    </virtualType>
-
-    <!-- MultiSafepayGenericGateway Value handlers infrastructure -->
-    <virtualType name="MultiSafepayGenericGatewayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="default" xsi:type="string">MultiSafepayGenericGatewayConfigValueHandler</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGenericGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
-        <arguments>
-            <argument name="configInterface" xsi:type="object">MultiSafepayGenericGatewayConfig</argument>
         </arguments>
     </virtualType>
 

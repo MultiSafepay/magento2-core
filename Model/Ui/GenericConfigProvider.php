@@ -52,7 +52,7 @@ class GenericConfigProvider implements ConfigProviderInterface
     /**
      * @var Config
      */
-    private $config;
+    protected $config;
 
     /**
      * @var Logger
@@ -159,18 +159,26 @@ class GenericConfigProvider implements ConfigProviderInterface
 
     /**
      * @param int|null $storeId
-     * @return string|null
+     * @return string
      */
-    public function getApiToken(?int $storeId = null): ?string
+    public function getApiToken(?int $storeId = null): string
     {
         if ($multiSafepaySdk = $this->getSdk($storeId)) {
             try {
                 return $multiSafepaySdk->getApiTokenManager()->get()->getApiToken();
             } catch (ClientExceptionInterface $clientException) {
-                return null;
+                return '';
             }
         }
 
-        return null;
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentJsComponent(): string
+    {
+        return 'MultiSafepay_ConnectFrontend/js/view/payment/method-renderer';
     }
 }
