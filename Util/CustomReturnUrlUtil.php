@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -48,23 +49,31 @@ class CustomReturnUrlUtil
     private $logger;
 
     /**
+     * @var QuoteIdToMaskedQuoteIdInterface
+     */
+    private $quoteIdToMaskedQuoteId;
+
+    /**
      * CustomReturnUrlUtil constructor.
      *
      * @param Config $config
      * @param SecureToken $secureToken
      * @param StoreRepositoryInterface $storeRepository
      * @param Logger $logger
+     * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteId
      */
     public function __construct(
         Config $config,
         SecureToken $secureToken,
         StoreRepositoryInterface $storeRepository,
-        Logger $logger
+        Logger $logger,
+        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteId
     ) {
         $this->config = $config;
         $this->secureToken = $secureToken;
         $this->storeRepository = $storeRepository;
         $this->logger = $logger;
+        $this->quoteIdToMaskedQuoteId = $quoteIdToMaskedQuoteId;
     }
 
     /**
@@ -125,6 +134,8 @@ class CustomReturnUrlUtil
         $availableCustomVariables = [
             '{{order.increment_id}}' => $order->getIncrementId(),
             '{{order.order_id}}' => $order->getEntityId(),
+            '{{quote.quote_id}}' => $order->getQuoteId(),
+            '{{quote.masked_id}}' => $this->quoteIdToMaskedQuoteId->execute((int)$order->getQuoteId()),
             '{{payment.code}}' => $order->getPayment()->getMethod(),
             '{{payment.transaction_id}}' => $transactionParameters['transactionid'] ?? '',
             '{{store.unsecure_base_url}}' => $orderStore->getBaseUrl(UrlInterface::URL_TYPE_WEB),
