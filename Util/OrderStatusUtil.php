@@ -48,6 +48,7 @@ class OrderStatusUtil
         if ($orderStatus = $this->config->getValue('processing_order_status')) {
             return $orderStatus;
         }
+
         return $order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING) ?? Order::STATE_PROCESSING;
     }
 }
