@@ -38,4 +38,16 @@ class OrderStatusUtil
 
         return $order->getConfig()->getStateDefaultStatus(Order::STATE_PENDING_PAYMENT) ?? ORDER::STATE_PENDING_PAYMENT;
     }
+
+    /**
+     * @param OrderInterface $order
+     * @return string
+     */
+    public function getProcessingStatus(OrderInterface $order): string
+    {
+        if ($orderStatus = $this->config->getValue('processing_order_status')) {
+            return $orderStatus;
+        }
+        return $order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING) ?? Order::STATE_PROCESSING;
+    }
 }
