@@ -21,12 +21,12 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Meta;
-use MultiSafepay\ValueObject\BankAccount;
 use MultiSafepay\ValueObject\Customer\EmailAddress;
 use MultiSafepay\ValueObject\Customer\PhoneNumber;
 use MultiSafepay\ValueObject\Date;
+use MultiSafepay\ValueObject\Gender;
 
-class PayAfterEinvoicingGatewayInfoBuilder implements GatewayInfoBuilderInterface
+class GenderAndDateOfBirthGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
      * @var Meta
@@ -55,13 +55,18 @@ class PayAfterEinvoicingGatewayInfoBuilder implements GatewayInfoBuilderInterfac
         $billingAddress = $order->getBillingAddress();
 
         if ($billingAddress === null) {
-            $msg = __('The transaction could not be created because the billing address is missing');
-            throw new LocalizedException($msg);
+            throw new LocalizedException(
+                __('The transaction could not be created because the billing address is missing')
+            );
+        }
+
+        if ($billingAddress->getTelephone() === null) {
+            throw new LocalizedException(__('This payment gateway requires a valid telephone number'));
         }
 
         $additionalInformation = $payment->getAdditionalInformation();
 
-        return $this->meta->addBankAccount(new BankAccount($additionalInformation['account_number']))
+        return $this->meta->addGender(new Gender($additionalInformation['gender']))
             ->addBirthday(new Date($additionalInformation['date_of_birth']))
             ->addEmailAddress(new EmailAddress($order->getCustomerEmail()))
             ->addPhone(new PhoneNumber($billingAddress->getTelephone()));
