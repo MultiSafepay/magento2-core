@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed error when creating transaction without available phone number
 
+### Removed
+- Removed obsolete emandate field from Direct Debit checkout
+
 ## [2.4.0] - 2021-03-11
 ### Added
 - Added 3 generic gateways and 3 generic giftcards.

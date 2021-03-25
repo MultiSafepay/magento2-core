@@ -41,9 +41,5 @@ class DirectDebitDataAssignObserver extends AbstractDataAssignObserver
         if (isset($additionalData['account_holder_iban'])) {
             $payment->setAdditionalInformation('account_holder_iban', $additionalData['account_holder_iban']);
         }
-
-        if (isset($additionalData['emandate'])) {
-            $payment->setAdditionalInformation('emandate', $additionalData['emandate']);
-        }
     }
 }

@@ -52,7 +52,6 @@ class DirectDebitGatewayInfoBuilder implements GatewayInfoBuilderInterface
             'account_id' => $additionalInformation['account_holder_iban'],
             'account_holder_name' => $additionalInformation['account_holder_name'],
             'account_holder_iban' => $additionalInformation['account_holder_iban'],
-            'emandate' => $additionalInformation['emandate']
         ]);
     }
 }

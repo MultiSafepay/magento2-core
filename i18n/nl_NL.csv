@@ -90,7 +90,6 @@
 "The account holder city can not be empty", "Stad van rekeninghouder mag niet leeg zijn"
 "The account holder country can not be empty", "Land van rekeninghouder mag niet leeg zijn"
 "The account holder BIC can not be empty", "BIC van rekeninghouder mag niet leeg zijn"
-"The emandate can not be empty", "E-mandaat mag niet leeg zijn"
 "Request to Pay is a direct bank transfer, exclusive payment method by MultiSafepay and Deutsche Bank for instant banking. Based on the PSD2 Open banking API, it makes your bank transfers automated, faster and easier.", "Request to Pay | Direct Bank Transfer is een nieuwe, exclusieve betaalmethode van MultiSafepay en Deutsche Bank. Gebaseerd op PSD2 Open Banking API, deze manier van betalen is ideaal om uw banktransacties te automatiseren en gemakkelijker/sneller te maken."
 "Bank transfer, also known as SEPA Credit Transfer, is a trusted international and domestic payment method for online customers.", "Bank transfer, ook wel bekend als SEPA Credit Transfer, is een vertrouwde, internationale en binnenlandse betaalmethode voor online consumenten."
 "Santander Pay per Month", "Santander Betaal per Maand"

@@ -61,10 +61,6 @@ class DirectDebitValidator extends AbstractValidator
             return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
         }
 
-        if (empty($payment->getAdditionalInformation()['emandate'])) {
-            return $this->createResult(false, [__('The emandate can not be empty')]);
-        }
-
         return $this->createResult(true);
     }
 }
