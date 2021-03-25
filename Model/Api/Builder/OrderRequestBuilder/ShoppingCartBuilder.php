@@ -21,9 +21,10 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\Api\Transactions\Gateways;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart;
-use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\ShoppingCartBuilderInterface;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 
 class ShoppingCartBuilder implements OrderRequestBuilderInterface
@@ -39,16 +40,24 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
     private $currencyUtil;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * ShoppingCartBuilder constructor.
      *
      * @param CurrencyUtil $currencyUtil
-     * @param ShoppingCartBuilderInterface[] $shoppingCartBuilders
+     * @param Config $config
+     * @param array $shoppingCartBuilders
      */
     public function __construct(
         CurrencyUtil $currencyUtil,
+        Config $config,
         array $shoppingCartBuilders
     ) {
         $this->currencyUtil = $currencyUtil;
+        $this->config = $config;
         $this->shoppingCartBuilders = $shoppingCartBuilders;
     }
 
@@ -65,8 +74,11 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
         OrderPaymentInterface $payment,
         OrderRequest $orderRequest
     ): void {
-        $items = [];
+        if (!$this->isShoppingCartNeeded($orderRequest)) {
+            return;
+        }
 
+        $items = [];
         $currency = $this->currencyUtil->getCurrencyCode($order);
 
         foreach ($this->shoppingCartBuilders as $shoppingCartBuilder) {
@@ -74,5 +86,15 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
         }
 
         $orderRequest->addShoppingCart(new ShoppingCart(array_merge([], ...$items)));
+    }
+
+    /**
+     * @param OrderRequest $orderRequest
+     * @return bool
+     */
+    private function isShoppingCartNeeded(OrderRequest $orderRequest): bool
+    {
+        return !($this->config->getAdvancedValue(Config::ADVANCED_DISABLE_SHOPPING_CART)
+                 && !in_array($orderRequest->getGatewayCode(), Gateways::SHOPPING_CART_REQUIRED_GATEWAYS));
     }
 }
