@@ -49,16 +49,23 @@ class DirectDebitValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $payment = $validationSubject['payment'];
+        $payment = $validationSubject['payment'] ?? null;
 
-        if (empty($payment->getAdditionalInformation()['account_holder_name'])) {
-            return $this->createResult(false, [__('The account holder name can not be empty')]);
+        if (!$payment) {
+            return $this->createResult(false, [__('Can\'t get a payment information')]);
         }
 
-        $accountNumber = $payment->getAdditionalInformation()['account_holder_iban'];
+        if ($paymentAdditionalInformation = $payment->getAdditionalInformation()) {
+            if (empty($paymentAdditionalInformation['account_holder_name'])) {
+                return $this->createResult(false, [__('The account holder name can not be empty')]);
+            }
 
-        if (!$this->accountNumberValidator->validate($accountNumber)) {
-            return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
+            $accountNumber = $paymentAdditionalInformation['account_holder_iban'] ?? null;
+
+            if (!$accountNumber || !$this->accountNumberValidator->validate($accountNumber)) {
+                return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
+            }
+
         }
 
         return $this->createResult(true);
