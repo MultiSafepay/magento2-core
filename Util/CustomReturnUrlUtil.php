@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
@@ -49,7 +51,7 @@ class CustomReturnUrlUtil
     private $logger;
 
     /**
-     * @var QuoteIdToMaskedQuoteIdInterface
+     * @var QuoteIdToMaskedQuoteIdInterface|null
      */
     private $quoteIdToMaskedQuoteId;
 
@@ -60,20 +62,21 @@ class CustomReturnUrlUtil
      * @param SecureToken $secureToken
      * @param StoreRepositoryInterface $storeRepository
      * @param Logger $logger
-     * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteId
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         Config $config,
         SecureToken $secureToken,
         StoreRepositoryInterface $storeRepository,
         Logger $logger,
-        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteId
+        ProductMetadataInterface $productMetadata
     ) {
         $this->config = $config;
         $this->secureToken = $secureToken;
         $this->storeRepository = $storeRepository;
         $this->logger = $logger;
-        $this->quoteIdToMaskedQuoteId = $quoteIdToMaskedQuoteId;
+        $this->quoteIdToMaskedQuoteId = version_compare($productMetadata->getVersion(), '2.3', '>=')
+            ? ObjectManager::getInstance()->get(QuoteIdToMaskedQuoteIdInterface::class) : null;
     }
 
     /**
@@ -135,7 +138,6 @@ class CustomReturnUrlUtil
             '{{order.increment_id}}' => $order->getIncrementId(),
             '{{order.order_id}}' => $order->getEntityId(),
             '{{quote.quote_id}}' => $order->getQuoteId(),
-            '{{quote.masked_id}}' => $this->quoteIdToMaskedQuoteId->execute((int)$order->getQuoteId()),
             '{{payment.code}}' => $order->getPayment()->getMethod(),
             '{{payment.transaction_id}}' => $transactionParameters['transactionid'] ?? '',
             '{{store.unsecure_base_url}}' => $orderStore->getBaseUrl(UrlInterface::URL_TYPE_WEB),
@@ -145,6 +147,11 @@ class CustomReturnUrlUtil
             '{{secure_token}}' => $transactionParameters['secureToken'] ?? $this->secureToken->generate((string)
                 $order->getRealOrderId()),
         ];
+
+        if ($this->quoteIdToMaskedQuoteId) {
+            $availableCustomVariables['{{quote.masked_id}}'] =
+                $this->quoteIdToMaskedQuoteId->execute((int)$order->getQuoteId());
+        }
 
         foreach ($availableCustomVariables as $var => $value) {
             $urlString = str_replace($var, $value, $urlString);
