@@ -25,6 +25,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';
+    private const DEFAULT_CONFIG_PAYMENT_PATH = 'payment/%s';
 
     /**
      * @var AssetRepository
@@ -102,5 +103,17 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function getPaymentJsComponent(): string
     {
         return 'MultiSafepay_ConnectFrontend/js/view/payment/method-renderer';
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getPaymentConfig(int $storeId = null): array
+    {
+        return (array)$this->config->getValueByPath(
+            sprintf(self::DEFAULT_CONFIG_PAYMENT_PATH, $this->getCode()),
+            $storeId
+        );
     }
 }
