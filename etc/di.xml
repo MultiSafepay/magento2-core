@@ -7203,6 +7203,14 @@
         </arguments>
     </type>
 
+    <type name="MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder">
+        <arguments>
+            <argument name="additionalDataBuilders" xsi:type="array">
+                <item name="multisafepay_visa" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder">
         <arguments>
             <argument name="shoppingCartBuilders" xsi:type="array">
@@ -7221,6 +7229,7 @@
                 <item name="delivery_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\DeliveryBuilder</item>
                 <item name="description_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\DescriptionBuilder</item>
                 <item name="gateway_info_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder</item>
+                <item name="additional_data_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder</item>
                 <item name="payment_options_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PaymentOptionsBuilder</item>
                 <item name="plugin_data_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PluginDataBuilder</item>
                 <item name="recurring_model_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\RecurringModelBuilder</item>
