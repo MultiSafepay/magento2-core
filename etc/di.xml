@@ -7207,6 +7207,10 @@
         <arguments>
             <argument name="additionalDataBuilders" xsi:type="array">
                 <item name="multisafepay_visa" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                <item name="multisafepay_mastercard" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                <item name="multisafepay_maestro" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                <item name="multisafepay_creditcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                <item name="multisafepay_amex" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
             </argument>
         </arguments>
     </type>

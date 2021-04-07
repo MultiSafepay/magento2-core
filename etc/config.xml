@@ -186,7 +186,6 @@
                 <allow_specific_customer_group>0</allow_specific_customer_group>
                 <allow_amount>0</allow_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
-                <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>AMEX</gateway_code>
             </multisafepay_amex>
@@ -243,6 +242,7 @@
                 <model>MultiSafepayCreditCardFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
+                <payment_type>payment_request</payment_type>
                 <title>Credit Card</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
@@ -259,7 +259,6 @@
                 <allow_specific_customer_group>0</allow_specific_customer_group>
                 <allow_amount>0</allow_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
-                <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>CREDITCARD</gateway_code>
             </multisafepay_creditcard>
@@ -516,7 +515,6 @@
                 <allow_specific_customer_group>0</allow_specific_customer_group>
                 <allow_amount>0</allow_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
-                <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>MAESTRO</gateway_code>
             </multisafepay_maestro>
@@ -541,7 +539,6 @@
                 <allow_specific_customer_group>0</allow_specific_customer_group>
                 <allow_amount>0</allow_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
-                <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>MASTERCARD</gateway_code>
             </multisafepay_mastercard>
