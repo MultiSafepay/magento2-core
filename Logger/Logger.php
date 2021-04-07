@@ -26,6 +26,8 @@ use Psr\Http\Client\ClientExceptionInterface;
 
 class Logger extends CoreLogger
 {
+    public const LOGGER_INFO_TYPE = 'info';
+
     /**
      * @param string $orderId
      * @param ApiException $apiException
@@ -44,13 +46,36 @@ class Logger extends CoreLogger
     /**
      * @param string $orderId
      * @param Exception $exception
-     * @return void
+     * @param int $logLevel
      */
-    public function logGeneralErrorForOrder(string $orderId, Exception $exception): void
+    public function logExceptionForOrder(string $orderId, Exception $exception, int $logLevel = self::ERROR): void
     {
-        $this->error(
-            '(Order ID: ' . $orderId . ') Error: ' .
-            $exception->getCode() . ' ' . $exception->getMessage()
+        $this->addRecord(
+            $logLevel,
+            sprintf(
+                '(Order ID: %1$s) %2$s: %6$s (code: %3$d, line: %4$d, file: %5$s)',
+                $orderId,
+                static::getLevelName($logLevel),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile(),
+                $exception->getMessage()
+            )
+        );
+    }
+
+    /**
+     * @param string $orderId
+     * @param string $message
+     */
+    public function logInfoForOrder(string $orderId, string $message): void
+    {
+        $this->info(
+            sprintf(
+                '(Order ID: %1$s) INFO: %2$s',
+                $orderId,
+                $message
+            )
         );
     }
 
@@ -167,7 +192,7 @@ class Logger extends CoreLogger
     public function logOrderRequestBuilderException(string $orderId, Exception $exception): void
     {
         $this->error('(Order ID: ' . $orderId . ') Failed to create Order Request: '
-            . $exception->getMessage());
+                     . $exception->getMessage());
     }
 
     /**
@@ -177,7 +202,7 @@ class Logger extends CoreLogger
     public function logClientException(string $orderId, ClientExceptionInterface $clientException): void
     {
         $this->error('(Order ID: ' . $orderId . ') Client exception when trying to place transaction: '
-            . $clientException->getMessage());
+                     . $clientException->getMessage());
     }
 
     /**
@@ -187,7 +212,7 @@ class Logger extends CoreLogger
     public function logMissingVaultIcon(string $path, Exception $exception): void
     {
         $this->error('Icon with path: ' . $path . ' can not be loaded. '
-            . $exception->getMessage());
+                     . $exception->getMessage());
     }
 
     /**

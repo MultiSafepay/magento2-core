@@ -70,7 +70,9 @@ class PluginDataBuilder implements OrderRequestBuilderInterface
         OrderRequest $orderRequest
     ): void {
         $orderRequest->addPluginDetails(
-            $this->pluginDetails->addApplicationName($this->metadata->getName())
+            $this->pluginDetails->addApplicationName(
+                $this->metadata->getName() . ' ' . $this->metadata->getEdition()
+            )
                 ->addApplicationVersion($this->metadata->getVersion())
                 ->addPluginVersion($this->versionUtil->getPluginVersion())
         );

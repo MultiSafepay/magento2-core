@@ -37,6 +37,8 @@ class Config
     public const PENDING_PAYMENT_STATUS = 'pending_payment_order_status';
     public const BEFORE_TRANSACTION = 'before_transaction';
 
+    public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
+
     /**
      * @var ScopeConfigInterface
      */

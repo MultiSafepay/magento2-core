@@ -126,19 +126,20 @@ class Vault
     /**
      * @param Payment $payment
      * @param array $recurringDetails
+     * @return bool
      * @throws Exception
      */
-    public function initialize(Payment $payment, array $recurringDetails): void
+    public function initialize(Payment $payment, array $recurringDetails): bool
     {
         if (!$this->validateRecurringDetails($recurringDetails)
             || !$this->vaultUtil->validateVaultTokenEnabler($payment->getAdditionalInformation())
         ) {
-            return;
+            return false;
         }
 
         $code = $this->getVaultGatewayCode($payment->getMethod());
         if ($code === null) {
-            return;
+            return false;
         }
 
         $order = $payment->getOrder();
@@ -147,7 +148,11 @@ class Vault
         if ($paymentToken !== null) {
             $extensionAttributes = $this->getExtensionAttributes($payment);
             $extensionAttributes->setVaultPaymentToken($paymentToken);
+
+            return true;
         }
+
+        return false;
     }
 
     /**

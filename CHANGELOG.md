@@ -5,6 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fixed an error that happened during checkout when there is a custom total in the cart with float as a string value ("0.000")
+
+## [2.5.0] - 2021-03-26
+### Added
+- Added support for disabling the shopping cart on the MultiSafepay payment page
+- Added information about the Magento edition to the order request.
+- Added additional quote masked_id and entity_id parameters to the cancel and success payment urls
+
+### Fixed
+- Fixed error when creating transaction without available phone number
+- Fixed a bug where the wrong processing status was set for the notifications
+
+### Removed
+- Removed obsolete emandate field from Direct Debit checkout
+
+### Changed
+- Changed validation for direct payment methods to prevent 400 (Bad Request) errors on selecting payment method
+- Improved the logging for the notification offline actions
 
 ## [2.4.0] - 2021-03-11
 ### Added

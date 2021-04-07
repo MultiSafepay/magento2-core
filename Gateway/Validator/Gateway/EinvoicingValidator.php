@@ -58,16 +58,24 @@ class EinvoicingValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $payment = $validationSubject['payment'];
+        $payment = $validationSubject['payment'] ?? null;
 
-        if (!$this->dateOfBirthValidator->validate($payment->getAdditionalInformation()['date_of_birth'])) {
-            return $this->createResult(false, [__('Invalid Date of Birth')]);
+        if (!$payment) {
+            return $this->createResult(false, [__('Can\'t get a payment information')]);
         }
 
-        $accountNumber = $payment->getAdditionalInformation()['account_number'];
+        if ($paymentAdditionalInformation = $payment->getAdditionalInformation()) {
+            if (empty($paymentAdditionalInformation['date_of_birth'])
+                || $this->dateOfBirthValidator->validate($paymentAdditionalInformation['date_of_birth'])
+            ) {
+                return $this->createResult(false, [__('Invalid Date of Birth')]);
+            }
 
-        if (!$this->accountNumberValidator->validate($accountNumber)) {
-            return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
+            $accountNumber = $paymentAdditionalInformation['account_number'] ?? null;
+
+            if (!$accountNumber || !$this->accountNumberValidator->validate($accountNumber)) {
+                return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
+            }
         }
 
         return $this->createResult(true);

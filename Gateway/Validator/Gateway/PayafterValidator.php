@@ -67,7 +67,11 @@ class PayafterValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $payment = $validationSubject['payment'];
+        $payment = $validationSubject['payment'] ?? null;
+
+        if (!$payment) {
+            return $this->createResult(false, [__('Can\'t get a payment information')]);
+        }
 
         if (($quote = $payment->getQuote()) === null) {
             $quote = $payment->getOrder();
@@ -78,15 +82,20 @@ class PayafterValidator extends AbstractValidator
             return $this->createResult(false, [$msg]);
         }
 
-        if (!$this->dateOfBirthValidator->validate($payment->getAdditionalInformation()['date_of_birth'])) {
-            return $this->createResult(false, [__('Invalid Date of Birth')]);
+        if ($payment->getAdditionalInformation()) {
+            if (empty($payment->getAdditionalInformation()['date_of_birth'])
+                || !$this->dateOfBirthValidator->validate($payment->getAdditionalInformation()['date_of_birth'])
+            ) {
+                return $this->createResult(false, [__('Invalid Date of Birth')]);
+            }
+
+            $accountNumber = $payment->getAdditionalInformation()['account_number'] ?? null;
+
+            if (!$accountNumber || !$this->accountNumberValidator->validate($accountNumber)) {
+                return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
+            }
         }
 
-        $accountNumber = $payment->getAdditionalInformation()['account_number'];
-
-        if (!$this->accountNumberValidator->validate($accountNumber)) {
-            return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
-        }
         return $this->createResult(true);
     }
 }

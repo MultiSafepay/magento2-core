@@ -16,6 +16,7 @@
             </general>
             <advanced>
                 <custom_totals />
+                <disable_shopping_cart>0</disable_shopping_cart>
                 <use_custom_return_url>0</use_custom_return_url>
                 <custom_cancel_return_url/>
                 <custom_success_return_url/>

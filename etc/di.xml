@@ -7193,12 +7193,12 @@
         <arguments>
             <argument name="gatewayBuilders" xsi:type="array">
                 <item name="multisafepay_ideal" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\IdealGatewayInfoBuilder</item>
-                <item name="multisafepay_payafter" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\PayAfterEinvoicingGatewayInfoBuilder</item>
-                <item name="multisafepay_afterpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\AfterpayIn3GatewayInfoBuilder</item>
+                <item name="multisafepay_payafter" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\BankAccountAndDateOfBirthGatewayInfoBuilder</item>
+                <item name="multisafepay_afterpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GenderAndDateOfBirthGatewayInfoBuilder</item>
                 <item name="multisafepay_directbanktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\DirectBankTransferGatewayInfoBuilder</item>
                 <item name="multisafepay_directdebit" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\DirectDebitGatewayInfoBuilder</item>
-                <item name="multisafepay_einvoicing" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\PayAfterEinvoicingGatewayInfoBuilder</item>
-                <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\AfterpayIn3GatewayInfoBuilder</item>
+                <item name="multisafepay_einvoicing" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\BankAccountAndDateOfBirthGatewayInfoBuilder</item>
+                <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GenderAndDateOfBirthGatewayInfoBuilder</item>
             </argument>
         </arguments>
     </type>

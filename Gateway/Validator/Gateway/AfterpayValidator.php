@@ -57,23 +57,24 @@ class AfterpayValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $paymentAdditionalInformation = !empty($validationSubject['payment'])
-            ? $validationSubject['payment']->getAdditionalInformation() : [];
+        $payment = $validationSubject['payment'] ?? null;
 
-        if (!$paymentAdditionalInformation) {
+        if (!$payment) {
             return $this->createResult(false, [__('Can\'t get a payment information')]);
         }
 
-        if (!isset($paymentAdditionalInformation['date_of_birth'])
-            || !$this->dateOfBirthValidator->validate($paymentAdditionalInformation['date_of_birth'])
-        ) {
-            return $this->createResult(false, [__('Invalid Date of Birth')]);
-        }
+        if ($paymentAdditionalInformation = $payment->getAdditionalInformation()) {
+            if (!isset($paymentAdditionalInformation['date_of_birth'])
+                || !$this->dateOfBirthValidator->validate($paymentAdditionalInformation['date_of_birth'])
+            ) {
+                return $this->createResult(false, [__('Invalid Date of Birth')]);
+            }
 
-        if (!isset($paymentAdditionalInformation['gender'])
-            || !$this->genderValidator->validate($paymentAdditionalInformation['gender'])
-        ) {
-            return $this->createResult(false, [__('Please choose a gender')]);
+            if (!isset($paymentAdditionalInformation['gender'])
+                || !$this->genderValidator->validate($paymentAdditionalInformation['gender'])
+            ) {
+                return $this->createResult(false, [__('Please choose a gender')]);
+            }
         }
 
         return $this->createResult(true);

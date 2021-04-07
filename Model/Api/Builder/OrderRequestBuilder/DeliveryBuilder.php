@@ -55,14 +55,14 @@ class DeliveryBuilder implements OrderRequestBuilderInterface
     {
         /** @var Address $shippingAddress */
         $shippingAddress = $order->getShippingAddress();
-        if ($shippingAddress !== null) {
+        if ($shippingAddress !== null && $order->canShip()) {
             $address = $this->address->build($shippingAddress);
 
             $deliveryDetails = new CustomerDetails();
             $deliveryDetails->addFirstName($shippingAddress->getFirstname())
                     ->addLastName($shippingAddress->getLastname())
                     ->addAddress($address)
-                    ->addPhoneNumber(new PhoneNumber($shippingAddress->getTelephone()))
+                    ->addPhoneNumber(new PhoneNumber($shippingAddress->getTelephone() ?? ''))
                     ->addEmailAddress(new EmailAddress($shippingAddress->getEmail()));
 
             $orderRequest->addDelivery($deliveryDetails);

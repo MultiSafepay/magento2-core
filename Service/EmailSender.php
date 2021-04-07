@@ -19,8 +19,9 @@ namespace MultiSafepay\ConnectCore\Service;
 
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\MailException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Container\InvoiceIdentity;
 use Magento\Sales\Model\Order\Email\Container\OrderIdentity;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
@@ -33,6 +34,9 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 
 class EmailSender
 {
+    public const AFTER_TRANSACTION_EMAIL_TYPE = 'after_transaction';
+    public const AFTER_PAID_TRANSACTION_EMAIL_TYPE = 'after_paid_transaction';
+
     /**
      * @var OrderSender
      */
@@ -82,37 +86,21 @@ class EmailSender
     }
 
     /**
-     * @param Order $order
+     * @param OrderInterface $order
+     * @param string $emailType
      * @return bool
+     * @throws Exception
      */
-    public function sendOrderConfirmationEmailAfterTransaction(Order $order): bool
-    {
-        if ($order->getEmailSent()) {
-            return false;
-        }
-
-        if ($this->orderIdentity->isEnabled() && $this->config->getOrderConfirmationEmail() === 'after_transaction') {
+    public function sendOrderConfirmationEmail(
+        OrderInterface $order,
+        string $emailType = self::AFTER_TRANSACTION_EMAIL_TYPE
+    ): bool {
+        if (!$order->getEmailSent()
+            && $this->orderIdentity->isEnabled()
+            && $this->config->getOrderConfirmationEmail() === $emailType
+        ) {
             $this->orderSender->send($order);
-            return true;
-        }
 
-        return false;
-    }
-
-    /**
-     * @param Order $order
-     * @return bool
-     */
-    public function sendOrderConfirmationEmailAfterPaidTransaction(Order $order): bool
-    {
-        if ($order->getEmailSent()) {
-            return false;
-        }
-
-        $orderConfirmationEmail = $this->config->getOrderConfirmationEmail();
-
-        if ($orderConfirmationEmail === 'after_paid_transaction' && $this->orderIdentity->isEnabled()) {
-            $this->orderSender->send($order);
             return true;
         }
 
@@ -123,16 +111,13 @@ class EmailSender
      * @param OrderPaymentInterface $payment
      * @param Invoice $invoice
      * @return bool
+     * @throws MailException
      * @throws Exception
      */
     public function sendInvoiceEmail(OrderPaymentInterface $payment, Invoice $invoice): bool
     {
-        if ($invoice->getEmailSent()) {
-            return false;
-        }
-
         if ((bool)$this->scopeConfig->getValue(InvoiceIdentity::XML_PATH_EMAIL_ENABLED) === false) {
-            return false;
+            throw new MailException(__('Sending invoice emails disabled'));
         }
 
         $allowedMethods = [
@@ -141,8 +126,9 @@ class EmailSender
             AfterpayConfigProvider::CODE
         ];
 
-        if (!in_array($payment->getMethod(), $allowedMethods, true)) {
+        if (!$invoice->getEmailSent() && !in_array($payment->getMethod(), $allowedMethods, true)) {
             $this->invoiceSender->send($invoice);
+
             return true;
         }
 
