@@ -222,4 +222,20 @@ class Logger extends CoreLogger
     {
         $this->error('Could not convert Json data: ' . $invalidArgumentException->getMessage());
     }
+
+    /**
+     * @param Exception $exception
+     */
+    public function logPaymentRequestGetCustomerDataException(Exception $exception): void
+    {
+        $this->error(
+            sprintf(
+                '(Get Payment Request API data error): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile()
+            )
+        );
+    }
 }

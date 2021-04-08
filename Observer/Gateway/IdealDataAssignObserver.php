@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Observer\Gateway;
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 class IdealDataAssignObserver extends AbstractDataAssignObserver
 {
@@ -34,10 +35,12 @@ class IdealDataAssignObserver extends AbstractDataAssignObserver
         $payment = $this->readPaymentModelArgument($observer);
 
         if (empty($additionalData['issuer_id'])) {
+            $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::REDIRECT_TRANSACTION_TYPE);
+
             return;
         }
 
-        $payment->setAdditionalInformation('transaction_type', 'direct');
+        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::DIRECT_TRANSACTION_TYPE);
         $payment->setAdditionalInformation('issuer_id', $additionalData['issuer_id']);
     }
 }

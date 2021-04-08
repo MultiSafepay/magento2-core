@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Observer\Gateway;
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 class CreditCardDataAssignObserver extends AbstractDataAssignObserver
 {
@@ -34,10 +35,12 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
         $payment = $this->readPaymentModelArgument($observer);
 
         if (empty($additionalData['payload'])) {
+            $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::REDIRECT_TRANSACTION_TYPE);
+
             return;
         }
 
-        $payment->setAdditionalInformation('transaction_type', 'direct');
+        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::DIRECT_TRANSACTION_TYPE);
         $payment->setAdditionalInformation('payload', $additionalData['payload']);
     }
 }
