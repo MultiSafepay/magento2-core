@@ -138,6 +138,8 @@ class ThirdPartyPluginsUtil
                 if ($foomanTotal && isset($foomanTotal['code'], $foomanTotal['full_info'])) {
                     $fullTotalInfo = $foomanTotal['full_info'];
                     foreach ($fullTotalInfo as $totalInfo) {
+                        $totalInfo->setTaxAmount($total->getTaxAmount());
+                        $totalInfo->setBaseTaxAmount($total->getBaseTaxAmount() ?: $total->getTaxAmount());
                         $resultData[$totalInfo->getTypeId()] = $totalInfo;
                     }
                 }

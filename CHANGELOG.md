@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed issue related to a missed tax amount in Fooman Surcharge custom totals
 - Fixed error when choosing 'miss' gender with Afterpay
 - Fixed an error that happened during checkout when there is a custom total in the cart with float as a string value ("0.000")
+
 
 ## [2.5.0] - 2021-03-26
 ### Added
