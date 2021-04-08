@@ -21,7 +21,8 @@ class GenderValidator
 {
     public const ACCEPTED_GENDERS = [
         'mr',
-        'mrs'
+        'mrs',
+        'miss'
     ];
 
     /**
