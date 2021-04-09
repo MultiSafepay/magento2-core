@@ -152,7 +152,7 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
      */
     private function getTaxRate($total, int $storeId): float
     {
-        if (empty($total->getValue())) {
+        if (!empty($total->getValue())) {
             return round($total->getTaxAmount() / $total->getValue() * 100);
         }
 
