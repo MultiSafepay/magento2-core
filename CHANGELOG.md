@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed error when choosing 'miss' gender with Afterpay
 - Fixed an error that happened during checkout when there is a custom total in the cart with float as a string value ("0.000")
 
+### Changed
+- For bank transfer payments, the redirect to the payment page has been brought back. Like with Magento 1, customers will now get redirected to the payment page where they can see the bank transfer details.
+
 ## [2.5.0] - 2021-03-26
 ### Added
 - Added support for disabling the shopping cart on the MultiSafepay payment page
