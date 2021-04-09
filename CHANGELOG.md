@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed issue related to a missed tax amount in Fooman Surcharge custom totals
 - Fixed error when choosing 'miss' gender with Afterpay
 - Fixed an error that happened during checkout when there is a custom total in the cart with float as a string value ("0.000")
+- Fixed issue where default pending status would get used instead of the one from the MultiSafepay config
 
 ### Changed
 - For bank transfer payments, the redirect to the payment page has been brought back. Like with Magento 1, customers will now get redirected to the payment page where they can see the bank transfer details.

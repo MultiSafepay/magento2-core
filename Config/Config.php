@@ -34,6 +34,7 @@ class Config
     public const USE_BASE_CURRENCY = 'use_base_currency';
     public const PRESELECTED_METHOD = 'preselected_method';
     public const CUSTOM_TOTALS = 'custom_totals';
+    public const PENDING_STATUS = 'order_status';
     public const PENDING_PAYMENT_STATUS = 'pending_payment_order_status';
     public const BEFORE_TRANSACTION = 'before_transaction';
 
@@ -186,5 +187,14 @@ class Config
     public function getPendingPaymentStatus($storeId = null): string
     {
         return (string)$this->getValue(self::PENDING_PAYMENT_STATUS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getPendingStatus($storeId = null): string
+    {
+        return (string)$this->getValue(self::PENDING_STATUS, $storeId);
     }
 }
