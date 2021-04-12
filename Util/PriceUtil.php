@@ -59,11 +59,15 @@ class PriceUtil
      */
     public function getUnitPrice(OrderItemInterface $item, $storeId): float
     {
+        $orderedQuantity = $item->getQtyOrdered();
+
         if ($this->config->useBaseCurrency($storeId)) {
-            return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $item->getQtyOrdered()));
+            return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $orderedQuantity))
+                   + ($item->getBaseDiscountTaxCompensationAmount() / $orderedQuantity);
         }
 
-        return ($item->getPrice() - ($item->getDiscountAmount() / $item->getQtyOrdered()));
+        return ($item->getPrice() - ($item->getDiscountAmount() / $orderedQuantity))
+               + ($item->getDiscountTaxCompensationAmount() / $orderedQuantity);
     }
 
     /**
@@ -75,6 +79,7 @@ class PriceUtil
         if ($this->config->useBaseCurrency($order->getStoreId())) {
             return (float)$order->getBaseShippingAmount();
         }
+
         return (float)$order->getShippingAmount();
     }
 }
