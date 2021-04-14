@@ -113,7 +113,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
     public function getImagePath(string $gatewayCode): string
     {
         foreach (self::GENERIC_CONFIG_PATHS as $path) {
-            $configFullPath = $path . DS . self::GENERIC_CONFIG_IMAGE_PATH;
+            $configFullPath = $path . DIRECTORY_SEPARATOR . self::GENERIC_CONFIG_IMAGE_PATH;
 
             if ($configImagePath = $this->config->getValueByPath(sprintf($configFullPath, $gatewayCode))) {
                 return self::UPLOAD_DIR . DIRECTORY_SEPARATOR . $configImagePath;
