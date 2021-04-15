@@ -17,8 +17,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
+use Magento\Store\Model\ScopeInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 
 class PriceUtil
@@ -29,14 +31,22 @@ class PriceUtil
     private $config;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
      * GrandTotalUtil constructor.
      *
      * @param Config $config
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        Config $config
+        Config $config,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->config = $config;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
@@ -59,8 +69,27 @@ class PriceUtil
      */
     public function getUnitPrice(OrderItemInterface $item, $storeId): float
     {
-        $orderedQuantity = $item->getQtyOrdered();
+        $orderedQuantity = (float)$item->getQtyOrdered();
 
+        if ($this->scopeConfig->getValue(
+            'tax/calculation/price_includes_tax',
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        )) {
+            return $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity);
+        }
+
+        return $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
+    }
+
+    /**
+     * @param OrderItemInterface $item
+     * @param $storeId
+     * @param float $orderedQuantity
+     * @return float
+     */
+    public function getUnitPriceExclTax(OrderItemInterface $item, $storeId, float $orderedQuantity): float
+    {
         if ($this->config->useBaseCurrency($storeId)) {
             return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $orderedQuantity))
                    + ($item->getBaseDiscountTaxCompensationAmount() / $orderedQuantity);
@@ -68,6 +97,25 @@ class PriceUtil
 
         return ($item->getPrice() - ($item->getDiscountAmount() / $orderedQuantity))
                + ($item->getDiscountTaxCompensationAmount() / $orderedQuantity);
+    }
+
+    /**
+     * @param OrderItemInterface $item
+     * @param $storeId
+     * @param float $orderedQuantity
+     * @return float
+     */
+    public function getUnitPriceInclTax(OrderItemInterface $item, $storeId, float $orderedQuantity): float
+    {
+        $addedTaxPercentage = 1 + ($item->getTaxPercent() / 100);
+
+        if ($this->config->useBaseCurrency($storeId)) {
+            return (($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) /
+                    $orderedQuantity / ($addedTaxPercentage));
+        }
+
+        return (($item->getRowTotalInclTax() - $item->getDiscountAmount()) /
+                $orderedQuantity / ($addedTaxPercentage));
     }
 
     /**
