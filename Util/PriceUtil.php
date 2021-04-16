@@ -21,6 +21,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Model\Config as MagentoConfig;
 use MultiSafepay\ConnectCore\Config\Config;
 
 class PriceUtil
@@ -70,16 +71,14 @@ class PriceUtil
     public function getUnitPrice(OrderItemInterface $item, $storeId): float
     {
         $orderedQuantity = (float)$item->getQtyOrdered();
-
-        if ($this->scopeConfig->getValue(
-            'tax/calculation/price_includes_tax',
+        $isPriceIncludedTax = $this->scopeConfig->getValue(
+            MagentoConfig::CONFIG_XML_PATH_PRICE_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE,
             $storeId
-        )) {
-            return $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity);
-        }
+        );
 
-        return $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
+        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
+            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
     }
 
     /**
