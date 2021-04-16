@@ -23,16 +23,15 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\StatusResolver;
 use MultiSafepay\ConnectCore\Service\EmailSender;
+use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 
 class RedirectTransactionBuilder implements BuilderInterface
 {
-
     /**
-     * @var StatusResolver
+     * @var OrderStatusUtil
      */
-    private $statusResolver;
+    private $orderStatusUtil;
 
     /**
      * @var State
@@ -48,17 +47,17 @@ class RedirectTransactionBuilder implements BuilderInterface
      * RedirectTransactionBuilder constructor.
      *
      * @param EmailSender $emailSender
+     * @param OrderStatusUtil $orderStatusUtil
      * @param State $state
-     * @param StatusResolver $statusResolver
      */
     public function __construct(
         EmailSender $emailSender,
-        State $state,
-        StatusResolver $statusResolver
+        OrderStatusUtil $orderStatusUtil,
+        State $state
     ) {
-        $this->statusResolver = $statusResolver;
         $this->state = $state;
         $this->emailSender = $emailSender;
+        $this->orderStatusUtil = $orderStatusUtil;
     }
 
     /**
@@ -71,9 +70,10 @@ class RedirectTransactionBuilder implements BuilderInterface
 
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDataObject->getPayment();
+        $order = $payment->getOrder();
 
         $state = Order::STATE_NEW;
-        $orderStatus = $this->statusResolver->getOrderStatusByState($payment->getOrder(), $state);
+        $orderStatus = $this->orderStatusUtil->getPendingStatus($order);
 
         $stateObject->setState($state);
         $stateObject->setStatus($orderStatus);
@@ -86,8 +86,6 @@ class RedirectTransactionBuilder implements BuilderInterface
         // If not backend order, check when order confirmation e-mail needs to be sent
         if (!$this->emailSender->checkOrderConfirmationBeforeTransaction()) {
             $stateObject->setIsNotified(false);
-
-            $order = $payment->getOrder();
             $order->setCanSendNewEmailFlag(false);
         }
 

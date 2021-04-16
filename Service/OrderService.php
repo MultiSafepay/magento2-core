@@ -208,7 +208,7 @@ class OrderService
             $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render());
         }
 
-        if ($transactionType !== $gatewayCode && $this->paymentMethodUtil->isMultisafepayOrder($order)) {
+        if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             $this->changePaymentMethod($order, $payment, $transactionType);
         }
 
@@ -258,29 +258,31 @@ class OrderService
         OrderPaymentInterface $payment,
         string $transactionType
     ): void {
-        $logMessage = __('Payment method changed to ') . $transactionType;
-
-        $payment->setMethod($this->getDifferentPaymentMethod($transactionType));
-        $order->addCommentToStatusHistory($logMessage);
-        $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage);
-    }
-
-    /**
-     * @param string $transactionType
-     * @return string
-     */
-    private function getDifferentPaymentMethod(string $transactionType): string
-    {
         $methodList = $this->config->getValueByPath('payment');
 
         foreach ($methodList as $code => $method) {
             if (isset($method['gateway_code']) && $method['gateway_code'] === $transactionType
                 && strpos($code, '_recurring') === false) {
-                return (string)$code;
+                $payment->setMethod($code);
+
+                $logMessage = __('Payment method changed to ') . $transactionType;
+
+                $order->addCommentToStatusHistory($logMessage);
+                $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage);
             }
         }
+    }
 
-        return $transactionType;
+    /**
+     * @param string $transactionType
+     * @param string $gatewayCode
+     * @param OrderInterface $order
+     * @return bool
+     */
+    private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
+    {
+        return $transactionType && $transactionType !== $gatewayCode
+               && $this->paymentMethodUtil->isMultisafepayOrder($order);
     }
 
     /**
@@ -289,6 +291,7 @@ class OrderService
      * @param Transaction $transaction
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
+     * @throws Exception
      */
     private function completeOrderTransaction(
         OrderInterface $order,
