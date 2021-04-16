@@ -6,10 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed an issue where the shipment status update was only being done in the adminhtml scope. It will now trigger from all scopes, including REST API.
+- (dev)Fixed DS constant not being available and replaced it with DIRECTORY_SEPARATOR constant
+
+## [2.5.1] - 2021-04-09
+### Fixed
 - Fixed an error that happened when trying to open orders with an expired transaction.
 - Fixed issue related to a missed tax amount in Fooman Surcharge custom totals
 - Fixed error when choosing 'miss' gender with Afterpay
 - Fixed an error that happened during checkout when there is a custom total in the cart with float as a string value ("0.000")
+- Fixed issue where default pending status would get used instead of the one from the MultiSafepay config
 
 ### Changed
 - For bank transfer payments, the redirect to the payment page has been brought back. Like with Magento 1, customers will now get redirected to the payment page where they can see the bank transfer details.

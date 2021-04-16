@@ -30,6 +30,19 @@ class OrderStatusUtil
      * @param OrderInterface $order
      * @return string
      */
+    public function getPendingStatus(OrderInterface $order): string
+    {
+        if ($status = $this->config->getPendingStatus($order->getStoreId())) {
+            return $status;
+        }
+
+        return $order->getConfig()->getStateDefaultStatus(Order::STATE_NEW) ?? ORDER::STATE_NEW;
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return string
+     */
     public function getPendingPaymentStatus(OrderInterface $order): string
     {
         if ($status = $this->config->getPendingPaymentStatus($order->getStoreId())) {
