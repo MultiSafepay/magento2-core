@@ -60,7 +60,7 @@ class OrderRequestInitializer
      */
     public function initialize(OrderInterface $order): TransactionResponse
     {
-        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->get()->getTransactionManager();
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         return $transactionManager->create($this->orderRequestBuilder->build($order));
     }
 }

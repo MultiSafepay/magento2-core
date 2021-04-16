@@ -46,11 +46,6 @@ class SdkFactory
     private $requestFactory;
 
     /**
-     * @var int|null
-     */
-    private $storeId;
-
-    /**
      * Client constructor.
      *
      * @param Client $psrClient
@@ -72,25 +67,22 @@ class SdkFactory
 
     /**
      * @param int|null $storeId
-     * @return $this
+     * @return Sdk
      */
-    public function create(?int $storeId = null): SdkFactory
+    public function create(?int $storeId = null): Sdk
     {
-        if ($storeId) {
-            $this->storeId = $storeId;
-        }
-
-        return $this;
+        return $this->get($storeId);
     }
 
     /**
+     * @param int $storeId
      * @return Sdk
      */
-    public function get(): Sdk
+    private function get(int $storeId = null): Sdk
     {
         return new Sdk(
-            $this->config->getApiKey($this->storeId),
-            $this->config->getMode($this->storeId),
+            $this->config->getApiKey($storeId),
+            $this->config->getMode($storeId),
             $this->psrClient,
             $this->requestFactory,
             $this->streamFactory

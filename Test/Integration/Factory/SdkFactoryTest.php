@@ -30,6 +30,6 @@ class SdkFactoryTest extends AbstractTestCase
     public function testGet()
     {
         $sdkFactory = $this->getObjectManager()->get(SdkFactory::class);
-        $sdkFactory->get();
+        $sdkFactory->create();
     }
 }
