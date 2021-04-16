@@ -177,7 +177,7 @@ class OrderService
     public function processOrderTransaction(OrderInterface $order): void
     {
         $orderId = $order->getIncrementId();
-        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->get()->getTransactionManager();
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
 
         if ($this->emailSender->sendOrderConfirmationEmail($order)) {

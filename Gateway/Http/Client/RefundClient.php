@@ -53,7 +53,7 @@ class RefundClient implements ClientInterface
     {
         $request = $transferObject->getBody();
 
-        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->get()->getTransactionManager();
+        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
 
         $transaction = $transactionManager->get($request['order_id']);
 
