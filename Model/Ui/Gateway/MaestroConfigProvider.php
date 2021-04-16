@@ -17,9 +17,13 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
+use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class MaestroConfigProvider extends GenericConfigProvider
@@ -36,15 +40,30 @@ class MaestroConfigProvider extends GenericConfigProvider
      *
      * @param AssetRepository $assetRepository
      * @param Config $config
+     * @param SdkFactory $sdkFactory
+     * @param Session $checkoutSession
+     * @param Logger $logger
+     * @param ResolverInterface $localeResolver
      * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         AssetRepository $assetRepository,
         Config $config,
+        SdkFactory $sdkFactory,
+        Session $checkoutSession,
+        Logger $logger,
+        ResolverInterface $localeResolver,
         ScopeConfigInterface $scopeConfig
     ) {
         $this->scopeConfig = $scopeConfig;
-        parent::__construct($assetRepository, $config);
+        parent::__construct(
+            $assetRepository,
+            $config,
+            $sdkFactory,
+            $checkoutSession,
+            $logger,
+            $localeResolver
+        );
     }
 
     /**

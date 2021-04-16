@@ -55,7 +55,7 @@ class SdkFactoryTest extends TestCase
 
         $arguments = ['config' => $config, 'psrClient' => $psrClient];
         $sdkFactory = $this->objectManager->getObject(SdkFactory::class, $arguments);
-        $sdkFactory->get();
+        $sdkFactory->create();
     }
 
     /**
@@ -71,7 +71,7 @@ class SdkFactoryTest extends TestCase
 
         $arguments = ['config' => $config, 'psrClient' => $psrClient];
         $sdkFactory = $this->objectManager->getObject(SdkFactory::class, $arguments);
-        $result = $sdkFactory->get();
+        $result = $sdkFactory->create();
         $this->assertInstanceOf(Sdk::class, $result);
     }
 }
