@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (dev) Reduced multiple orderRepository save calls
 
 ### Fixed
-- Fixed an issue where the shipment status update was only being done in the adminhtml scope. It will now trigger from all scopes, including REST API.
+- Fixed an issue where the shipment status update was only being done in the adminhtml scope. It will now trigger from all scopes, including the REST API.
 - Fixed validators giving an error when field for choosing specific has been left empty
 - (dev) Fixed DS constant not being available and replaced it with DIRECTORY_SEPARATOR constant
 
