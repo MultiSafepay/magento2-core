@@ -35,7 +35,7 @@ class CustomerGroupValidator
         if ((int)$config->getValue('allow_specific_customer_group', $storeId) === 1) {
             $availableCustomerGroups = explode(
                 ',',
-                $config->getValue('allowed_customer_group', $storeId)
+                (string)$config->getValue('allowed_customer_group', $storeId)
             );
 
             if (!in_array($quote->getCustomerGroupId(), $availableCustomerGroups, true)) {
