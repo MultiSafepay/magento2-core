@@ -35,7 +35,7 @@ class ShippingValidator
         if ((int)$config->getValue('allow_specific_shipping_method', $storeId) === 1) {
             $availableShippingMethods = explode(
                 ',',
-                $config->getValue('allowed_shipping_method', $storeId)
+                (string)$config->getValue('allowed_shipping_method', $storeId)
             );
 
             if (!in_array($quote->getShippingAddress()->getShippingMethod(), $availableShippingMethods, true)) {

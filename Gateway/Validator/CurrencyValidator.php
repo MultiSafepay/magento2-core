@@ -53,7 +53,7 @@ class CurrencyValidator extends AbstractValidator
         if ((int)$this->config->getValue('allow_specific_currency', $storeId) === 1) {
             $availableCurrencies = explode(
                 ',',
-                $this->config->getValue('allowed_currency', $storeId)
+                (string)$this->config->getValue('allowed_currency', $storeId)
             );
 
             if (!in_array($validationSubject['currency'], $availableCurrencies, true)) {
