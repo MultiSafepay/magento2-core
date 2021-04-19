@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - (dev)Reduced multiple orderRepository save calls
 
+### Changed
+- Orders are now being retrieved with OrderRepositoryInterface instead of OrderInterfaceFactory
+
 ## [2.5.1] - 2021-04-09
 ### Fixed
 - Fixed an error that happened when trying to open orders with an expired transaction.
