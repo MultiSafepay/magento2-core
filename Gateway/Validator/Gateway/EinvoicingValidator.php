@@ -17,67 +17,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator\Gateway;
 
-use Magento\Payment\Gateway\Validator\AbstractValidator;
-use Magento\Payment\Gateway\Validator\ResultInterface;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use MultiSafepay\ConnectCore\Model\Api\Validator\AccountNumberValidator;
-use MultiSafepay\ConnectCore\Model\Api\Validator\DateOfBirthValidator;
-
-class EinvoicingValidator extends AbstractValidator
+class EinvoicingValidator extends BaseGatewayValidator
 {
-
-    /**
-     * @var AccountNumberValidator
-     */
-    private $accountNumberValidator;
-
-    /**
-     * @var DateOfBirthValidator
-     */
-    private $dateOfBirthValidator;
-
-    /**
-     * EinvoicingValidator constructor.
-     *
-     * @param AccountNumberValidator $accountNumberValidator
-     * @param DateOfBirthValidator $dateOfBirthValidator
-     * @param ResultInterfaceFactory $resultFactory
-     */
-    public function __construct(
-        AccountNumberValidator $accountNumberValidator,
-        DateOfBirthValidator $dateOfBirthValidator,
-        ResultInterfaceFactory $resultFactory
-    ) {
-        $this->dateOfBirthValidator = $dateOfBirthValidator;
-        $this->accountNumberValidator = $accountNumberValidator;
-        parent::__construct($resultFactory);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function validate(array $validationSubject): ResultInterface
-    {
-        $payment = $validationSubject['payment'] ?? null;
-
-        if (!$payment) {
-            return $this->createResult(false, [__('Can\'t get a payment information')]);
-        }
-
-        if ($paymentAdditionalInformation = $payment->getAdditionalInformation()) {
-            if (empty($paymentAdditionalInformation['date_of_birth'])
-                || $this->dateOfBirthValidator->validate($paymentAdditionalInformation['date_of_birth'])
-            ) {
-                return $this->createResult(false, [__('Invalid Date of Birth')]);
-            }
-
-            $accountNumber = $paymentAdditionalInformation['account_number'] ?? null;
-
-            if (!$accountNumber || !$this->accountNumberValidator->validate($accountNumber)) {
-                return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
-            }
-        }
-
-        return $this->createResult(true);
-    }
+    public const AVAILABLE_VALIDATORS = [
+        'date_of_birth',
+        'bank_account_number',
+    ];
 }

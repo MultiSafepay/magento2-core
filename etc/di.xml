@@ -7245,6 +7245,17 @@
         </arguments>
     </type>
 
+    <type name="MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\GatewayFieldValidatorPool">
+        <arguments>
+            <argument name="gatewayFieldValidators" xsi:type="array">
+                <item name="date_of_birth" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\DateOfBirthFieldValidator</item>
+                <item name="bank_account_number" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\BankAccountNumberFieldValidator</item>
+                <item name="gender" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\GenderFieldValidator</item>
+                <item name="empty_field" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\EmptyFieldValidator</item>
+            </argument>
+        </arguments>
+    </type>
+
     <type name="MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool">
         <arguments>
             <argument name="configProviders" xsi:type="array">

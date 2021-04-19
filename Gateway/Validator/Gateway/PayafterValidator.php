@@ -17,20 +17,17 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator\Gateway;
 
-use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use MultiSafepay\ConnectCore\Model\Api\Validator\AccountNumberValidator;
+use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\GatewayFieldValidatorPool;
 use MultiSafepay\ConnectCore\Model\Api\Validator\AddressValidator;
-use MultiSafepay\ConnectCore\Model\Api\Validator\DateOfBirthValidator;
 
-class PayafterValidator extends AbstractValidator
+class PayafterValidator extends BaseGatewayValidator
 {
-
-    /**
-     * @var AccountNumberValidator
-     */
-    private $accountNumberValidator;
+    public const AVAILABLE_VALIDATORS = [
+        'date_of_birth',
+        'bank_account_number',
+    ];
 
     /**
      * @var AddressValidator
@@ -38,32 +35,27 @@ class PayafterValidator extends AbstractValidator
     private $addressValidator;
 
     /**
-     * @var DateOfBirthValidator
-     */
-    private $dateOfBirthValidator;
-
-    /**
      * PayafterValidator constructor.
      *
-     * @param AccountNumberValidator $accountNumberValidator
-     * @param AddressValidator $addressValidator
-     * @param DateOfBirthValidator $dateOfBirthValidator
      * @param ResultInterfaceFactory $resultFactory
+     * @param GatewayFieldValidatorPool $gatewayFieldValidatorPool
+     * @param AddressValidator $addressValidator
      */
     public function __construct(
-        AccountNumberValidator $accountNumberValidator,
-        AddressValidator $addressValidator,
-        DateOfBirthValidator $dateOfBirthValidator,
-        ResultInterfaceFactory $resultFactory
+        ResultInterfaceFactory $resultFactory,
+        GatewayFieldValidatorPool $gatewayFieldValidatorPool,
+        AddressValidator $addressValidator
     ) {
         $this->addressValidator = $addressValidator;
-        $this->accountNumberValidator = $accountNumberValidator;
-        $this->dateOfBirthValidator = $dateOfBirthValidator;
-        parent::__construct($resultFactory);
+        parent::__construct(
+            $resultFactory,
+            $gatewayFieldValidatorPool
+        );
     }
 
     /**
-     * @inheritDoc
+     * @param array $validationSubject
+     * @return ResultInterface
      */
     public function validate(array $validationSubject): ResultInterface
     {
@@ -79,23 +71,10 @@ class PayafterValidator extends AbstractValidator
 
         if (!$this->addressValidator->validate($quote)) {
             $msg = __('This gateway does not allow a different billing and shipping address');
+
             return $this->createResult(false, [$msg]);
         }
 
-        if ($payment->getAdditionalInformation()) {
-            if (empty($payment->getAdditionalInformation()['date_of_birth'])
-                || !$this->dateOfBirthValidator->validate($payment->getAdditionalInformation()['date_of_birth'])
-            ) {
-                return $this->createResult(false, [__('Invalid Date of Birth')]);
-            }
-
-            $accountNumber = $payment->getAdditionalInformation()['account_number'] ?? null;
-
-            if (!$accountNumber || !$this->accountNumberValidator->validate($accountNumber)) {
-                return $this->createResult(false, [$accountNumber . __(' is not a valid IBAN number')]);
-            }
-        }
-
-        return $this->createResult(true);
+        return parent::validate($validationSubject);
     }
 }

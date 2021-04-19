@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Code refactored for gateway additional data validators.
+
 ### Fixed
 - Fixed an issue where the shipment status update was only being done in the adminhtml scope. It will now trigger from all scopes, including REST API.
 - Fixed validators giving an error when field for choosing specific has been left empty
