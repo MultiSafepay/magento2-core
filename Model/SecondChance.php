@@ -19,7 +19,6 @@ namespace MultiSafepay\ConnectCore\Model;
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\StatusResolver;
 use MultiSafepay\ConnectCore\Api\StockReducerInterface;
@@ -30,11 +29,6 @@ class SecondChance
      * @var OrderItemRepositoryInterface
      */
     private $orderItemRepository;
-
-    /**
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
 
     /**
      * @var StockReducerInterface
@@ -50,18 +44,15 @@ class SecondChance
      * SecondChance constructor.
      *
      * @param OrderItemRepositoryInterface $orderItemRepository
-     * @param OrderRepositoryInterface $orderRepository
      * @param StatusResolver $statusResolver
      * @param StockReducerInterface $stockReducer
      */
     public function __construct(
         OrderItemRepositoryInterface $orderItemRepository,
-        OrderRepositoryInterface $orderRepository,
         StatusResolver $statusResolver,
         StockReducerInterface $stockReducer
     ) {
         $this->orderItemRepository = $orderItemRepository;
-        $this->orderRepository = $orderRepository;
         $this->statusResolver = $statusResolver;
         $this->stockReducer = $stockReducer;
     }
@@ -72,15 +63,15 @@ class SecondChance
     public function reopenOrder(OrderInterface $order): void
     {
         $order->setBaseDiscountCanceled(0)
-                ->setBaseShippingCanceled(0)
-                ->setBaseSubtotalCanceled(0)
-                ->setBaseTaxCanceled(0)
-                ->setBaseTotalCanceled(0)
-                ->setDiscountCanceled(0)
-                ->setShippingCanceled(0)
-                ->setSubtotalCanceled(0)
-                ->setTaxCanceled(0)
-                ->setTotalCanceled(0);
+            ->setBaseShippingCanceled(0)
+            ->setBaseSubtotalCanceled(0)
+            ->setBaseTaxCanceled(0)
+            ->setBaseTotalCanceled(0)
+            ->setDiscountCanceled(0)
+            ->setShippingCanceled(0)
+            ->setSubtotalCanceled(0)
+            ->setTaxCanceled(0)
+            ->setTotalCanceled(0);
 
         $this->stockReducer->reduce($order);
 
@@ -95,11 +86,10 @@ class SecondChance
         $orderStatus = $this->statusResolver->getOrderStatusByState($order, $state);
 
         $order->setState($state)
-                ->setStatus($orderStatus)
-                ->addCommentToStatusHistory(
-                    __('The order has been reopened because a new transaction was started by the customer'),
-                    $orderStatus
-                );
-        $this->orderRepository->save($order);
+            ->setStatus($orderStatus)
+            ->addCommentToStatusHistory(
+                __('The order has been reopened because a new transaction was started by the customer'),
+                $orderStatus
+            );
     }
 }
