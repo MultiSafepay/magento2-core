@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\AdminNotification\Model\InboxFactory;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Escaper;
 use Magento\Framework\FlagManager;
 
@@ -42,11 +41,6 @@ class NotificationUtil
     private $inboxFactory;
 
     /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    /**
      * @var FlagManager
      */
     private $flagManager;
@@ -57,20 +51,17 @@ class NotificationUtil
      * @param VersionUtil $versionUtil
      * @param Escaper $escaper
      * @param InboxFactory $inboxFactory
-     * @param ScopeConfigInterface $scopeConfig
      * @param FlagManager $flagManager
      */
     public function __construct(
         VersionUtil $versionUtil,
         Escaper $escaper,
         InboxFactory $inboxFactory,
-        ScopeConfigInterface $scopeConfig,
         FlagManager $flagManager
     ) {
         $this->versionUtil = $versionUtil;
         $this->escaper = $escaper;
         $this->inboxFactory = $inboxFactory;
-        $this->scopeConfig = $scopeConfig;
         $this->flagManager = $flagManager;
     }
 
@@ -79,11 +70,14 @@ class NotificationUtil
      */
     public function addNewReleaseNotification(): void
     {
-        $lastNotifiedVersion = (string)$this->flagManager
-            ->getFlagData(self::MULTISAFEPAY_LAST_RELEASE_NOTIFICATION_CONFIG_PATH);
         $newReleaseData = $this->versionUtil->getNewVersionsDataIfExist();
 
-        if ($newReleaseData && version_compare($newReleaseData['version'], $lastNotifiedVersion)) {
+        if ($newReleaseData
+            && version_compare(
+                $newReleaseData['version'],
+                (string)$this->flagManager->getFlagData(self::MULTISAFEPAY_LAST_RELEASE_NOTIFICATION_CONFIG_PATH)
+            )
+        ) {
             $inbox = $this->inboxFactory->create();
             $inbox->addNotice(
                 $this->getReleaseNotificationTitle($newReleaseData['version']),
@@ -104,7 +98,7 @@ class NotificationUtil
      */
     private function getReleaseNotificationTitle(string $newVersion): string
     {
-        return __('MultiSafepay: New version of plugin %1 was released', $newVersion)->render();
+        return __('MultiSafepay: A new version of payment module %1 has been released', $newVersion)->render();
     }
 
     /**
@@ -114,11 +108,10 @@ class NotificationUtil
     private function getReleaseNotificationDescription(array $newReleaseData): string
     {
         return __(
-            'Please, upgrade to the last version: %1. Here is list of changes: %2.'
+            'Please, upgrade to the last version: %1. Click "Read Details" for more information about this release'
             . 'If you have any questions regarding the plugin, feel free to contact our Integration'
-            . ' Team at: %3',
+            . ' Team at: %2',
             $newReleaseData['version'],
-            $this->escaper->escapeUrl($newReleaseData['url']),
             'integration@multisafepay.com'
         )->render();
     }
