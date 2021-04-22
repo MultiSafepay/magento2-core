@@ -628,6 +628,10 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
+                <can_authorize>1</can_authorize>
+                <can_authorize_3d>1</can_authorize_3d>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>

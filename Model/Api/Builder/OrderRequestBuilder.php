@@ -28,6 +28,7 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ValueObject\Money;
+use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
 
 class OrderRequestBuilder
 {
@@ -114,6 +115,14 @@ class OrderRequestBuilder
 
         foreach ($this->orderRequestBuilderPool->getOrderRequestBuilders() as $orderRequestBuilder) {
             $orderRequestBuilder->build($order, $payment, $orderRequest);
+        }
+
+        if ($payment->getMethod() === 'multisafepay_visa'
+            && $payment->getMethodInstance()->getConfigPaymentAction() === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY
+        ) {
+            $orderRequest->addData(
+                ['capture' => 'manual']
+            );
         }
 
         $this->eventManager->dispatch(
