@@ -96,6 +96,7 @@ class VersionUtil
                 }
             }
         } catch (Exception $exception) {
+            return [];
         }
 
         return [];
