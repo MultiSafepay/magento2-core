@@ -23,7 +23,6 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 class AfterpayDataAssignObserver extends AbstractDataAssignObserver
 {
-
     /**
      * @inheritDoc
      */
@@ -39,6 +38,9 @@ class AfterpayDataAssignObserver extends AbstractDataAssignObserver
         }
         if (isset($additionalData['gender'])) {
             $payment->setAdditionalInformation('gender', $additionalData['gender']);
+        }
+        if (isset($additionalData['telephone'])) {
+            $payment->setAdditionalInformation('telephone', $additionalData['telephone']);
         }
     }
 }
