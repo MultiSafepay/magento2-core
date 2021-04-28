@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added separate phone number field for Afterpay & in3, which will already be filled in if the phone number is present in the billing address
 - Added notification about new versions of plugin in admin panel.
 
 ## [2.5.2] - 2021-04-19
