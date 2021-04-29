@@ -33,7 +33,7 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
     private $config;
 
     /**
-     * SecondsActiveBuilder constructor.
+     * TransactionTypeBuilder constructor.
      *
      * @param Config $config
      */
