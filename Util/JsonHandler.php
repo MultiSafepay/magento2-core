@@ -36,7 +36,7 @@ class JsonHandler
     /**
      * JsonHandler constructor.
      *
-     * @param Json   $serializer
+     * @param Json $serializer
      * @param Logger $logger
      */
     public function __construct(
@@ -44,7 +44,7 @@ class JsonHandler
         Logger $logger
     ) {
         $this->serializer = $serializer;
-        $this->logger     = $logger;
+        $this->logger = $logger;
     }
 
     /**
@@ -81,5 +81,27 @@ class JsonHandler
         }
 
         return $json;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function convertToPrettyJSON(array $data): string
+    {
+        try {
+            $prettyJson = (string)json_encode($data, JSON_PRETTY_PRINT);
+
+            if (!$prettyJson) {
+                throw new InvalidArgumentException(
+                    "Unable to serialize value. Error: " . json_last_error_msg()
+                );
+            }
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            $this->logger->logJsonHandlerException($invalidArgumentException);
+            $prettyJson = '{}';
+        }
+
+        return $prettyJson;
     }
 }

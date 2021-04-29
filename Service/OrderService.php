@@ -41,6 +41,7 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
@@ -119,6 +120,11 @@ class OrderService
     private $invoiceRepository;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -135,6 +141,7 @@ class OrderService
      * @param Config $config
      * @param SdkFactory $sdkFactory
      * @param OrderStatusUtil $orderStatusUtil
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -150,7 +157,8 @@ class OrderService
         InvoiceRepositoryInterface $invoiceRepository,
         Config $config,
         SdkFactory $sdkFactory,
-        OrderStatusUtil $orderStatusUtil
+        OrderStatusUtil $orderStatusUtil,
+        JsonHandler $jsonHandler
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -166,6 +174,7 @@ class OrderService
         $this->config = $config;
         $this->sdkFactory = $sdkFactory;
         $this->orderStatusUtil = $orderStatusUtil;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -179,6 +188,14 @@ class OrderService
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __(
+                'Transaction data was retrieved: %1',
+                $this->jsonHandler->convertToPrettyJSON($transaction->getData())
+            )->render(),
+            Logger::DEBUG
+        );
 
         if ($this->emailSender->sendOrderConfirmationEmail($order)) {
             $this->logger->logInfoForOrder(

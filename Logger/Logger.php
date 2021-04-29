@@ -67,10 +67,12 @@ class Logger extends CoreLogger
     /**
      * @param string $orderId
      * @param string $message
+     * @param int $logLevel
      */
-    public function logInfoForOrder(string $orderId, string $message): void
+    public function logInfoForOrder(string $orderId, string $message, int $logLevel = self::INFO): void
     {
-        $this->info(
+        $this->addRecord(
+            $logLevel,
             sprintf(
                 '(Order ID: %1$s) INFO: %2$s',
                 $orderId,
