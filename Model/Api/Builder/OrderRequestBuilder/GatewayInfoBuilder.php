@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
@@ -45,12 +46,18 @@ class GatewayInfoBuilder implements OrderRequestBuilderInterface
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
+     * @throws LocalizedException
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment, OrderRequest $orderRequest): void
     {
         $paymentCode = $payment->getMethod();
 
         if (!isset($this->gatewayBuilders[$paymentCode])) {
+            return;
+        }
+
+        // If transaction type is set to 'redirect' then do not add gateway info
+        if ($payment->getMethodInstance()->getConfigData('transaction_type') === 'redirect') {
             return;
         }
 
