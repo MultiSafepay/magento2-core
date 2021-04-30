@@ -48,7 +48,7 @@ class Logger extends CoreLogger
      * @param Exception $exception
      * @param int $logLevel
      */
-    public function logExceptionForOrder(string $orderId, Exception $exception, int $logLevel = self::ERROR): void
+    public function logExceptionForOrder(string $orderId, Exception $exception, int $logLevel = self::DEBUG): void
     {
         $this->addRecord(
             $logLevel,
@@ -142,7 +142,7 @@ class Logger extends CoreLogger
      */
     public function logPaymentRedirectInfo($orderId, $paymentUrl): void
     {
-        $this->info('(Order ID: ' . $orderId . ') User redirected to the following page: ' . $paymentUrl);
+        $this->debug('(Order ID: ' . $orderId . ') User redirected to the following page: ' . $paymentUrl);
     }
 
     /**
@@ -150,7 +150,7 @@ class Logger extends CoreLogger
      */
     public function logPaymentSuccessInfo($orderId): void
     {
-        $this->info('(Order ID: ' . $orderId . ') User redirected to the success page.');
+        $this->debug('(Order ID: ' . $orderId . ') User redirected to the success page.');
     }
 
     /**
