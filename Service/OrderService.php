@@ -213,6 +213,8 @@ class OrderService
         }
 
         $transactionStatus = $transaction->getStatus();
+        $financialStatus = $transaction->getFinancialStatus();
+        $order->addCommentToStatusHistory( __('MultiSafepay Transaction status: ') . $financialStatus);
 
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
@@ -300,6 +302,8 @@ class OrderService
         TransactionManager $transactionManager
     ): void {
         $orderId = $order->getIncrementId();
+        $paymentDetails = $transaction->getPaymentDetails();
+        $financialStatus = $transaction->getFinancialStatus();
         $this->logger->logInfoForOrder(
             $orderId,
             __('MultiSafepay order transaction complete process has been started.')->render()
@@ -321,25 +325,11 @@ class OrderService
         }
 
         if ($order->canInvoice()) {
-            $payment->setTransactionId($transaction->getData()['transaction_id'])
-                ->setAdditionalInformation(
-                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
-                )->setShouldCloseParentTransaction(false)
-                ->setIsTransactionClosed(0)
-                ->registerCaptureNotification($order->getBaseTotalDue(), true);
-
-            $payment->setParentTransactionId($transaction->getData()['transaction_id']);
-            $payment->setIsTransactionApproved(true);
-            $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Invoice created');
-            $paymentTransaction = $payment->addTransaction(PaymentTransaction::TYPE_CAPTURE, null, true);
-
-            if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
+            if (!($financialStatus === TransactionStatus::INITIALIZED
+                && $paymentDetails->getCapture() === 'manual' && $paymentDetails->getCaptureRemain())
+            ) {
+                $this->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
             }
-
-            $paymentTransaction->setIsClosed(1);
-            $this->transactionRepository->save($paymentTransaction);
 
             // Set order processing
             $status = $this->orderStatusUtil->getProcessingStatus($order);
@@ -385,10 +375,50 @@ class OrderService
      * @param string $orderId
      * @return InvoiceInterface[]
      */
-    private function getInvoicesByOrderId(string $orderId): array
+    public function getInvoicesByOrderId(string $orderId): array
     {
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
 
         return $this->invoiceRepository->getList($searchCriteria)->getItems();
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param Transaction $transaction
+     * @param $invoiceAmount
+     * @return bool
+     */
+    public function invoiceByAmount(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        Transaction $transaction,
+        $invoiceAmount
+    ): bool {
+        if ($order->canInvoice()) {
+            $payment->setTransactionId($transaction->getData()['transaction_id'])
+                ->setAdditionalInformation(
+                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
+                )->setShouldCloseParentTransaction(false)
+                ->setIsTransactionClosed(0)
+                ->registerCaptureNotification($invoiceAmount, true);
+
+            $payment->setParentTransactionId($transaction->getData()['transaction_id']);
+            $payment->setIsTransactionApproved(true);
+            $this->orderPaymentRepository->save($payment);
+            $this->logger->logInfoForOrder($order->getIncrementId(), 'Invoice created');
+            $paymentTransaction = $payment->addTransaction(PaymentTransaction::TYPE_CAPTURE, null, true);
+
+            if ($paymentTransaction !== null) {
+                $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
+            }
+
+            $paymentTransaction->setIsClosed(1);
+            $this->transactionRepository->save($paymentTransaction);
+
+            return true;
+        }
+
+        return false;
     }
 }

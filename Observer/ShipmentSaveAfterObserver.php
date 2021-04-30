@@ -34,13 +34,19 @@ use MultiSafepay\ConnectCore\Util\PriceUtil;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Framework\Locale\ResolverInterface;
-use Magento\Framework\DataObject;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Framework\Reflection\DataObjectProcessor;
-use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory;
+use Magento\Sales\Api\TransactionRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use MultiSafepay\ConnectCore\Service\OrderService;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\InvoiceManagementInterface;
+use Magento\Framework\DB\TransactionFactory;
 
 class ShipmentSaveAfterObserver implements ObserverInterface
 {
@@ -120,6 +126,46 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      */
     private $addressInterfaceFactory;
 
+    /**
+     * @var TransactionRepositoryInterface
+     */
+    private $transactionRepository;
+
+    /**
+     * @var OrderPaymentRepositoryInterface
+     */
+    private $orderPaymentRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    /**
+     * @var OrderService
+     */
+    private $orderService;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @var InvoiceManagementInterface
+     */
+    private $invoiceManagement;
+
+    /**
+     * @var TransactionFactory
+     */
+    private $transactionFactory;
+
     public function __construct(
         SdkFactory $sdkFactory,
         Logger $logger,
@@ -135,7 +181,15 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         TotalsCollector $totalsCollector,
         ShippingMethodConverter $shippingMethodConverter,
         DataObjectProcessor $dataObjectProcessor,
-        AddressInterfaceFactory $addressInterfaceFactory
+        AddressInterfaceFactory $addressInterfaceFactory,
+        TransactionRepositoryInterface $transactionRepository,
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        InvoiceRepositoryInterface $invoiceRepository,
+        OrderService $orderService,
+        OrderRepositoryInterface $orderRepository,
+        InvoiceManagementInterface $invoiceManagement,
+        TransactionFactory $transactionFactory
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->logger = $logger;
@@ -152,6 +206,14 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->dataObjectProcessor = $dataObjectProcessor;
         $this->addressInterfaceFactory = $addressInterfaceFactory;
+        $this->transactionRepository = $transactionRepository;
+        $this->orderPaymentRepository = $orderPaymentRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->orderService = $orderService;
+        $this->orderRepository = $orderRepository;
+        $this->invoiceManagement = $invoiceManagement;
+        $this->transactionFactory = $transactionFactory;
     }
 
     /**
@@ -181,16 +243,44 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
             $payment = $order->getPayment();
             $orderId = $order->getIncrementId();
+            $transaction = $transactionManager->get($orderId);
 
             if ($payment->getMethod() === 'multisafepay_visa'
                 && $payment->getMethodInstance()->getConfigPaymentAction() === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY
             ) {
-                $shippingAmount = $this->getShippingAmount($shipment, $order);
+                if ((float)$order->getTotalQtyOrdered() === (float)$shipment->getTotalQty()) {
+                    $amount = $order->getTotalDue();
+                } else {
+                    $amount = $this->captureAmount($shipment, $order);
+                    $invoiceData = [];
+
+                    foreach ($shipment->getItems() as $item) {
+                        $invoiceData[$item->getOrderItemId()] = $item->getQty();
+                    }
+
+                    $invoice = $this->invoiceManagement->prepareInvoice($order, $invoiceData);
+                    $invoice->register();
+                    $invoice->getOrder()->setIsInProcess(true);
+
+                    $transactionSave = $this->transactionFactory->create()->addObject(
+                        $invoice
+                    )->addObject(
+                        $invoice->getOrder()
+                    );
+
+                    $transactionSave->save();
+                }
+
+                //$this->orderService->invoiceByAmount($order, $payment, $transaction, $amount);
+                $this->orderRepository->save($order);
+                $array = $this->orderService->getInvoicesByOrderId($order->getId());
+                $invoice = reset($array);
+
                 $captureRequest = $this->captureRequest->addData(
                     [
-                        "amount" => (int)$shippingAmount,
+                        "amount" => round($amount * 100, 10),
                         "new_order_status" => "completed",
-                        "invoice_id" => "",
+                        "invoice_id" => $invoice ? $invoice->getIncrementId() : "",
                         "carrier" => $order->getShippingDescription(),
                         "reason" => "Shipped",
                         "memo" => "",
@@ -225,86 +315,21 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         }
     }
 
-    public function getShippingAmount($shipping, $order): float
+    public function captureAmount($shipping, $order): float
     {
-        //$currency = (string)$order->getOrderCurrencyCode();
-        $storeId = $order->getStoreId();
-        $items = [];
-        $shippingItems = $shipping->getItems();
-        $amount = 0;
-        $quote = $this->cartRepository->get($order->getQuoteId());
-        $shippingAddress = $quote->getShippingAddress();
+        $unitPrice = 0;
 
-        foreach ($shippingItems as $item) {
+        foreach ($shipping->getItems() as $item) {
             $orderItem = $this->orderItemRepository->get($item->getOrderItemId());
-            $shippingAmount = $this->calculateShippingAmountPerItem($orderItem, $item->getQty(), $shippingAddress,
-                $storeId, $order->getShippingMethod());
+            $unitPrice += ($orderItem->getPrice() + ($orderItem->getTaxAmount() / $orderItem->getQtyOrdered()) -
+                           ($orderItem->getDiscountAmount() / $orderItem->getQtyOrdered())) * $item->getQty();
 
-            $unitPrice = $orderItem->getPrice() + $orderItem->getTaxAmount() - $orderItem->getDiscountAmount() + $shippingAmount;
-            $amount += round($unitPrice * 100, 10);
-        }
-
-        return (float)$amount;
-    }
-
-    /**
-     * @param $orderItem
-     * @param $qty
-     * @param $shippingAddress
-     * @return array
-     */
-    private function calculateShippingAmountPerItem($orderItem, $qty, $shippingAddress, $storeId, $shippingMethod)
-    {
-        $params = [];
-
-        if ($qty) {
-            //$filter = new \Zend_Filter_LocalizedToNormalized(
-            //    ['locale' => $this->resolver->getLocale()]
-            //);
-
-            //$params['qty'] = $filter->filter($qty);
-            $params['qty'] = $qty;
-        }
-
-        $requestData = new DataObject($params);
-
-        $quote = $this->quoteFactory->create();
-        $quote->addProduct($orderItem->getProduct(), $requestData);
-        $quote->setStoreId($storeId);
-        $newAddress = $this->addressInterfaceFactory->create()
-            ->setPostcode($shippingAddress->getPostcode())
-            ->setCountryId($shippingAddress->getCountryId())
-            ->setRegion($shippingAddress->getRegion())
-            ->setRegionId($shippingAddress->getRegionId());
-
-        $shippingAddress = $quote->getShippingAddress();
-        $shippingAddress->addData($this->extractAddress($newAddress));
-        $shippingAddress->setCollectShippingRates(true);
-
-        $this->totalsCollector->collectAddressTotals($quote, $shippingAddress);
-        $shippingRates = $shippingAddress->getGroupedAllShippingRates();
-
-        foreach ($shippingRates as $carrierRates) {
-            foreach ($carrierRates as $rate) {
-                if ($rate->getCode() === $shippingMethod) {
-                    return $rate->getPrice();
-                }
+            if ($this->isFirstShpment($order)) {
+                $unitPrice += $order->getShippingInclTax();
             }
         }
 
-        return $params;
-    }
-
-    /**
-     * @param $address
-     * @return array
-     */
-    private function extractAddress($address)
-    {
-        return $this->dataObjectProcessor->buildOutputDataArray(
-            $address,
-            AddressInterface::class
-        );
+        return (float)$unitPrice;
     }
 
     /**
@@ -318,5 +343,14 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         }
 
         return $shipment->getTracks()[0]->getTrackNumber();
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return bool
+     */
+    public function isFirstShpment(OrderInterface $order): bool
+    {
+        return $order->getShipmentsCollection()->getSize() <= 1;
     }
 }
