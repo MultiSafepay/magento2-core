@@ -25,6 +25,25 @@ class PayafterConfigProvider extends GenericConfigProvider
     public const CODE = 'multisafepay_payafter';
 
     /**
+     * Retrieve assoc array of checkout configuration
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getConfig(): array
+    {
+        return [
+            'payment' => [
+                $this->getCode() => [
+                    'image' => $this->getImage(),
+                    'is_preselected' => $this->isPreselected(),
+                    'transaction_type' => $this->getTransactionType(),
+                ]
+            ]
+        ];
+    }
+
+    /**
      * @return string
      * @throws LocalizedException
      */
