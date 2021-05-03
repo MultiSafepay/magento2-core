@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 class HandlerTest extends TestCase
 {
     /**
-     * Test handling logs to the regular log
+     * @magentoConfigFixture default_store multisafepay/general/debug 1
      */
     public function testIsHandling()
     {
@@ -33,9 +33,27 @@ class HandlerTest extends TestCase
         $handler = ObjectManager::getInstance()->get(Handler::class);
 
         $dummyRecord = ['level' => Logger::DEBUG];
-        $this->assertFalse($handler->isHandling($dummyRecord));
+        $this->assertTrue($handler->isHandling($dummyRecord));
 
         $dummyRecord = ['level' => Logger::INFO];
         $this->assertTrue($handler->isHandling($dummyRecord));
+        
+        $dummyRecord = ['level' => Logger::ERROR];
+        $this->assertTrue($handler->isHandling($dummyRecord));
+    }
+    
+    /**
+     * @magentoConfigFixture default_store multisafepay/general/debug 0
+     */
+    public function testIsHandlingWhenDebugIsDisabled()
+    {
+        /** @var DebugHandler $handler */
+        $handler = ObjectManager::getInstance()->get(Handler::class);
+
+        $dummyRecord = ['level' => Logger::DEBUG];
+        $this->assertFalse($handler->isHandling($dummyRecord));
+
+        $dummyRecord = ['level' => Logger::INFO];
+        $this->assertFalse($handler->isHandling($dummyRecord));
     }
 }
