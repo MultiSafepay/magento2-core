@@ -118,15 +118,36 @@ class PriceUtil
     }
 
     /**
+     * @param OrderItemInterface $item
+     * @param $storeId
+     * @return float
+     */
+    public function getUnitRowItemPriceWithTax(OrderItemInterface $item, $storeId): float
+    {
+        if ($this->config->useBaseCurrency($storeId)) {
+            return $this->getUnitPrice($item, $storeId) + ($item->getBaseTaxAmount() / $item->getQtyOrdered());
+        }
+
+        return $this->getUnitPrice($item, $storeId) + ($item->getTaxAmount() / $item->getQtyOrdered());
+    }
+
+    /**
      * @param OrderInterface $order
      * @return float
      */
     public function getShippingUnitPrice(OrderInterface $order): float
     {
+        $isShippingPriceIncludedTax = $this->scopeConfig->getValue(
+            MagentoConfig::CONFIG_XML_PATH_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $order->getStoreId()
+        );
+
         if ($this->config->useBaseCurrency($order->getStoreId())) {
-            return (float)$order->getBaseShippingAmount();
+            return (float)($isShippingPriceIncludedTax ?
+                $order->getBaseShippingInclTax() : $order->getBaseShippingAmount());
         }
 
-        return (float)$order->getShippingAmount();
+        return (float)($isShippingPriceIncludedTax ? $order->getShippingInclTax() : $order->getShippingAmount());
     }
 }

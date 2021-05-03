@@ -3284,6 +3284,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayVisaInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayVisaRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\Capture</item>
             </argument>
         </arguments>
     </virtualType>

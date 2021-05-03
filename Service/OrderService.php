@@ -18,19 +18,13 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service;
 
 use Exception;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
-use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
@@ -79,16 +73,6 @@ class OrderService
     private $logger;
 
     /**
-     * @var OrderPaymentRepositoryInterface
-     */
-    private $orderPaymentRepository;
-
-    /**
-     * @var TransactionRepositoryInterface
-     */
-    private $transactionRepository;
-
-    /**
      * @var OrderStatusUtil
      */
     private $orderStatusUtil;
@@ -97,11 +81,6 @@ class OrderService
      * @var UpdateRequest
      */
     private $updateRequest;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
 
     /**
      * @var Config
@@ -114,28 +93,10 @@ class OrderService
     private $sdkFactory;
 
     /**
-     * @var InvoiceRepositoryInterface
+     * @var InvoiceService
      */
-    private $invoiceRepository;
+    private $invoiceService;
 
-    /**
-     * OrderService constructor.
-     *
-     * @param OrderRepositoryInterface $orderRepository
-     * @param EmailSender $emailSender
-     * @param Vault $vault
-     * @param PaymentMethodUtil $paymentMethodUtil
-     * @param SecondChance $secondChance
-     * @param Logger $logger
-     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
-     * @param TransactionRepositoryInterface $transactionRepository
-     * @param UpdateRequest $updateRequest
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param Config $config
-     * @param SdkFactory $sdkFactory
-     * @param OrderStatusUtil $orderStatusUtil
-     */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         EmailSender $emailSender,
@@ -143,14 +104,11 @@ class OrderService
         PaymentMethodUtil $paymentMethodUtil,
         SecondChance $secondChance,
         Logger $logger,
-        OrderPaymentRepositoryInterface $orderPaymentRepository,
-        TransactionRepositoryInterface $transactionRepository,
         UpdateRequest $updateRequest,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        InvoiceRepositoryInterface $invoiceRepository,
         Config $config,
         SdkFactory $sdkFactory,
-        OrderStatusUtil $orderStatusUtil
+        OrderStatusUtil $orderStatusUtil,
+        InvoiceService $invoiceService
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -158,14 +116,11 @@ class OrderService
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->secondChance = $secondChance;
         $this->logger = $logger;
-        $this->orderPaymentRepository = $orderPaymentRepository;
-        $this->transactionRepository = $transactionRepository;
         $this->updateRequest = $updateRequest;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->invoiceRepository = $invoiceRepository;
         $this->config = $config;
         $this->sdkFactory = $sdkFactory;
         $this->orderStatusUtil = $orderStatusUtil;
+        $this->invoiceService = $invoiceService;
     }
 
     /**
@@ -214,7 +169,7 @@ class OrderService
 
         $transactionStatus = $transaction->getStatus();
         $financialStatus = $transaction->getFinancialStatus();
-        $order->addCommentToStatusHistory( __('MultiSafepay Transaction status: ') . $financialStatus);
+        $order->addCommentToStatusHistory(__('MultiSafepay Transaction status: ') . $financialStatus);
 
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
@@ -328,7 +283,7 @@ class OrderService
             if (!($financialStatus === TransactionStatus::INITIALIZED
                 && $paymentDetails->getCapture() === 'manual' && $paymentDetails->getCaptureRemain())
             ) {
-                $this->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
+                $this->invoiceService->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
             }
 
             // Set order processing
@@ -339,7 +294,7 @@ class OrderService
             $this->logger->logInfoForOrder($orderId, 'Order status has been changed to: ' . $status);
         }
 
-        foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
+        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
 
             try {
@@ -369,56 +324,5 @@ class OrderService
             $orderId,
             __('MultiSafepay order transaction complete process has been finished successfully.')->render()
         );
-    }
-
-    /**
-     * @param string $orderId
-     * @return InvoiceInterface[]
-     */
-    public function getInvoicesByOrderId(string $orderId): array
-    {
-        $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
-
-        return $this->invoiceRepository->getList($searchCriteria)->getItems();
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
-     * @param $invoiceAmount
-     * @return bool
-     */
-    public function invoiceByAmount(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        Transaction $transaction,
-        $invoiceAmount
-    ): bool {
-        if ($order->canInvoice()) {
-            $payment->setTransactionId($transaction->getData()['transaction_id'])
-                ->setAdditionalInformation(
-                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
-                )->setShouldCloseParentTransaction(false)
-                ->setIsTransactionClosed(0)
-                ->registerCaptureNotification($invoiceAmount, true);
-
-            $payment->setParentTransactionId($transaction->getData()['transaction_id']);
-            $payment->setIsTransactionApproved(true);
-            $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($order->getIncrementId(), 'Invoice created');
-            $paymentTransaction = $payment->addTransaction(PaymentTransaction::TYPE_CAPTURE, null, true);
-
-            if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
-            }
-
-            $paymentTransaction->setIsClosed(1);
-            $this->transactionRepository->save($paymentTransaction);
-
-            return true;
-        }
-
-        return false;
     }
 }
