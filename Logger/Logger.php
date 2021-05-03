@@ -74,7 +74,7 @@ class Logger extends CoreLogger
         $this->addRecord(
             $logLevel,
             sprintf(
-                '(Order ID: %1$s) INFO: %2$s',
+                '(Order ID: %1$s): %2$s',
                 $orderId,
                 $message
             )

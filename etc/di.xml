@@ -7184,7 +7184,6 @@
             <argument name="name" xsi:type="string">MultiSafepay</argument>
             <argument name="handlers"  xsi:type="array">
                 <item name="default" xsi:type="object">MultiSafepay\ConnectCore\Logger\Handler</item>
-                <item name="debug" xsi:type="object">MultiSafepay\ConnectCore\Logger\DebugHandler</item>
             </argument>
         </arguments>
     </type>
