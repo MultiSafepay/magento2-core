@@ -2639,6 +2639,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayMaestroInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMaestroRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\Capture</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2768,6 +2769,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayMastercardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\Capture</item>
             </argument>
         </arguments>
     </virtualType>
@@ -7229,6 +7231,7 @@
                 <item name="second_chance_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondChanceBuilder</item>
                 <item name="seconds_active_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondsActiveBuilder</item>
                 <item name="shopping_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder</item>
+                <item name="capture_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CaptureBuilder</item>
             </argument>
         </arguments>
     </type>

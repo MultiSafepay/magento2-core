@@ -19,15 +19,16 @@ namespace MultiSafepay\ConnectCore\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use MultiSafepay\Api\Transactions\UpdateRequest;
-use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\InvoiceService;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -71,6 +72,11 @@ class ShipmentSaveAfterObserver implements ObserverInterface
     private $invoiceService;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
      * ShipmentSaveAfterObserver constructor.
      *
      * @param SdkFactory $sdkFactory
@@ -80,6 +86,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      * @param PaymentMethodUtil $paymentMethodUtil
      * @param OrderRepositoryInterface $orderRepository
      * @param InvoiceService $invoiceService
+     * @param CaptureUtil $captureUtil
      */
     public function __construct(
         SdkFactory $sdkFactory,
@@ -88,7 +95,8 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         UpdateRequest $updateRequest,
         PaymentMethodUtil $paymentMethodUtil,
         OrderRepositoryInterface $orderRepository,
-        InvoiceService $invoiceService
+        InvoiceService $invoiceService,
+        CaptureUtil $captureUtil
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->logger = $logger;
@@ -97,6 +105,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->orderRepository = $orderRepository;
         $this->invoiceService = $invoiceService;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -117,6 +126,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      * @param ShipmentInterface $shipment
      * @param OrderInterface $order
      * @throws ClientExceptionInterface
+     * @throws LocalizedException
      */
     public function addShippingToTransaction(
         ShipmentInterface $shipment,
@@ -127,12 +137,8 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             $payment = $order->getPayment();
             $orderId = $order->getIncrementId();
 
-            if (
-                $payment->getMethodInstance()->getConfigPaymentAction() === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY
-            ) {
-                $needOrderUpdate = $this->invoiceService->createInvoiceAfterShipment($order, $shipment);
-
-                if ($needOrderUpdate) {
+            if ($this->captureUtil->isCaptureManualPayment($payment)) {
+                if ($this->invoiceService->createInvoiceAfterShipment($order, $shipment, $payment)) {
                     $this->orderRepository->save($order);
                 }
             }

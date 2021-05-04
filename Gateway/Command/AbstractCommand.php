@@ -85,25 +85,4 @@ abstract class AbstractCommand extends DataObject implements CommandInterface
     {
         return $this->sdkFactory->create((int)$storeId)->getTransactionManager();
     }
-
-    /**
-     * @param $response
-     * @param $errorMessage
-     * @param $type
-     * @return Phrase
-     */
-    public function getFullErrorMessage($response, $errorMessage, $type): Phrase
-    {
-        $apiMessage = implode(',', $response->getErrorMessages());
-        if (!empty($apiMessage)) {
-            $errorMessage = __(
-                '%1 %2 api error messages: %3',
-                $errorMessage,
-                $type,
-                $apiMessage
-            );
-        }
-
-        return $errorMessage;
-    }
 }

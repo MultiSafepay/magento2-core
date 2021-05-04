@@ -18,11 +18,11 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Gateway\Command;
 
 use Exception;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\CaptureRequest;
+use MultiSafepay\Api\Transactions\Transaction;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Service\InvoiceService;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
@@ -31,10 +31,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 
 class Capture extends AbstractCommand
 {
-    /**
-     * @var RequestInterface
-     */
-    private $request;
+    public const CAPTURE_DATA_FIELD_NAME = "capture_data";
 
     /**
      * @var CaptureRequest
@@ -48,7 +45,6 @@ class Capture extends AbstractCommand
      * @param MessageManager $messageManager
      * @param SdkFactory $sdkFactory
      * @param AmountUtil $amountUtil
-     * @param RequestInterface $request
      * @param CaptureRequest $captureRequest
      * @param InvoiceService $invoiceService
      * @param array $data
@@ -58,12 +54,10 @@ class Capture extends AbstractCommand
         MessageManager $messageManager,
         SdkFactory $sdkFactory,
         AmountUtil $amountUtil,
-        RequestInterface $request,
         CaptureRequest $captureRequest,
         InvoiceService $invoiceService,
         array $data = []
     ) {
-        $this->request = $request;
         $this->captureRequest = $captureRequest;
         parent::__construct($captureUtil, $messageManager, $sdkFactory, $amountUtil, $invoiceService, $data);
     }
@@ -75,7 +69,6 @@ class Capture extends AbstractCommand
      */
     public function execute(array $commandSubject): bool
     {
-        $requestData = $this->request->getPost();
         $amount = (float)$commandSubject['amount'];
         /** @var InfoInterface $payment */
         $payment = $commandSubject['payment']->getPayment();
@@ -89,37 +82,46 @@ class Capture extends AbstractCommand
             return false;
         }
 
-        if ($this->captureUtil->isManualCapturePossibleForAmount($transaction, $amount)) {
-            if (isset($requestData['tracking']) && !$this->isTrackingInfoValid($requestData['tracking'])) {
-                return false;
-            }
-
-            $captureRequest = $this->captureRequest->addData(
-                $this->prepareCaptureRequestData($amount, $order, $payment)
-            );
-
-            $response = $transactionManager->capture($orderIncrementId, $captureRequest)->getResponseData();
-
-            //if (!$response->getIsSuccessful()) {
-            //    $errorMessage = __('Payment capture failed, please try again.');
-            //    if ($response->getErrorCode() === 'CAPTURE_NOT_ALLOWED') {
-            //        $errorMessage = __('Payment capture not allowed.');
-            //    }
-            //
-            //    $errorMessage = $this->getFullErrorMessage($response, $errorMessage, 'capture');
-            //    throw new Exception($errorMessage);
-            //}
-
-            if (!isset($response['transaction_id'])) {
-                return false;
-            }
-
-            $payment->setTransactionId($response['transaction_id']);
-
-            return true;
+        if (
+        !$this->captureUtil->isManualCapturePossibleForAmount($transaction, round($amount * 100, 10))
+        ) {
+            throw new Exception(__('Payment capture amount is not valid, please try again.')->render());
         }
 
-        return false;
+        $captureRequest = $this->captureRequest->addData(
+            $this->prepareCaptureRequestData($amount, $order, $payment)
+        );
+
+        $response = $transactionManager->capture($orderIncrementId, $captureRequest)->getResponseData();
+
+        if (!isset($response['transaction_id'], $response['order_id'])) {
+            throw new Exception(__('Response API data is not valid.')->render());
+        }
+
+        $payment->setTransactionId($response['transaction_id']);
+        $payment->setAdditionalInformation(
+            self::CAPTURE_DATA_FIELD_NAME,
+            array_merge(
+                (array)$payment->getAdditionalInformation(self::CAPTURE_DATA_FIELD_NAME),
+                [$this->prepareCaptureDataFromResponse($response, $amount)]
+            )
+        );
+
+        return true;
+    }
+
+    /**
+     * @param array $response
+     * @param float $amount
+     * @return array[]
+     */
+    private function prepareCaptureDataFromResponse(array $response, float $amount): array
+    {
+        return [
+            'transaction_id' => $response['transaction_id'],
+            'order_id' => $response['order_id'],
+            'amount' => $amount,
+        ];
     }
 
     /**
@@ -132,30 +134,28 @@ class Capture extends AbstractCommand
     {
         $invoice = $payment->getInvoice();
 
-        return [
-            "amount" => round($this->amountUtil->getAmount($amount, $order) * 100, 10),
-            "new_order_status" => "completed",
-            "invoice_id" => $invoice ? $invoice->getIncrementId() : "",
-            "carrier" => $order->getShippingDescription(),
-            "reason" => "Shipped",
-            "memo" => "",
-        ];
+        return array_merge(
+            [
+                "amount" => round($this->amountUtil->getAmount($amount, $order) * 100, 10),
+                "invoice_id" => $invoice ? $invoice->getIncrementId() : "",
+            ],
+            $this->captureStatusResolve($order, $payment)
+        );
     }
 
     /**
-     * vaidate tracking info
-     *
-     * @param array $trackingInfo
-     * @return bool
+     * @param OrderInterface $order
+     * @param InfoInterface $payment
+     * @return array
      */
-    private function isTrackingInfoValid($trackingInfo)
+    private function captureStatusResolve(OrderInterface $order, InfoInterface $payment): array
     {
-        foreach ($trackingInfo as $var) {
-            if (empty($var['carrier_code']) || empty($var['title']) || empty($var['number'])) {
-                return false;
-            }
-        }
+        $shipment = $payment->getShipment();
 
-        return true;
+        return [
+            "new_order_status" => $shipment ? Transaction::SHIPPED : Transaction::COMPLETED,
+            "carrier" => $order->getShippingDescription(),
+            "reason" => $shipment ? "Shipped" : "Invoice created manually",
+        ];
     }
 }

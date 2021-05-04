@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service;
 
+use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
@@ -29,7 +30,6 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Operations\ProcessInvoiceOperation;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\Api\Transactions\CaptureRequest;
@@ -140,12 +140,16 @@ class InvoiceService
     /**
      * @param OrderInterface $order
      * @param ShipmentInterface $shipment
+     * @param OrderPaymentInterface $payment
      * @return bool
-     * @throws LocalizedException
      * @throws ClientExceptionInterface
+     * @throws LocalizedException
      */
-    public function createInvoiceAfterShipment(OrderInterface $order, ShipmentInterface $shipment): bool
-    {
+    public function createInvoiceAfterShipment(
+        OrderInterface $order,
+        ShipmentInterface $shipment,
+        OrderPaymentInterface $payment
+    ): bool {
         $orderIncrementId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderIncrementId);
@@ -155,77 +159,50 @@ class InvoiceService
             $invoiceData[$item->getOrderItemId()] = $item->getQty();
         }
 
-        $this->createInvoiceByInvoiceData($order, $transaction, $invoiceData);
-
-        $invoice = $this->getLastCreatedInvoiceByOrderId($order->getId());
-
-        //$captureRequest = $this->captureRequest->addData(
-        //    [
-        //        "amount" => round($this->amountUtil->getAmount($amount, $order) * 100, 10),
-        //        "new_order_status" => "completed",
-        //        "invoice_id" => $invoice ? $invoice->getIncrementId() : "",
-        //        "carrier" => $order->getShippingDescription(),
-        //        "reason" => "Shipped",
-        //        "memo" => "",
-        //    ]
-        //);
-        //
-        //$transactionManager->capture($orderIncrementId, $captureRequest)->getResponseData();
+        if ($order->canInvoice()) {
+            $payment->setShipment($shipment);
+            $this->createInvoiceByInvoiceData($order, $payment, $transaction, $invoiceData);
+        }
 
         return true;
     }
 
     /**
      * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
      * @param Transaction $transaction
      * @param array $invoiceData
      * @return bool
-     * @throws LocalizedException
+     * @throws Exception
      */
-    public function createInvoiceByInvoiceData(OrderInterface $order, Transaction $transaction, array $invoiceData): bool
-    {
-        $payment = $order->getPayment();
-
-        if ($order->canInvoice()) {
-            $payment->setTransactionId($transaction->getData()['transaction_id'])
-                ->setAdditionalInformation(
-                    [
-                        PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()
-                    ]
-                );
-
-            $invoice = $this->invoiceManagement->prepareInvoice($order, $invoiceData);
-            $invoice->register();
-            $invoice->getOrder()->setIsInProcess(true);
-            $payment->setInvoice($invoice);
-
-            if ($payment->canCapturePartial()) {
-                $this->processInvoiceOperation->execute($payment, $invoice, 'capture');
-            }
-
-            if ($invoice->getIsPaid()) {
-                $invoice->pay();
-            }
-
-            $payment->getOrder()->addRelatedObject($invoice);
-            $payment->setCreatedInvoice($invoice);
-
-            if ($payment->getIsFraudDetected()) {
-                $payment->getOrder()->setStatus(Order::STATUS_FRAUD);
-            }
-
-            $transactionSave = $this->transactionFactory->create()->addObject(
-                $invoice
-            )->addObject(
-                $invoice->getOrder()
-            );
-
-            $transactionSave->save();
-
-            return true;
+    public function createInvoiceByInvoiceData(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        Transaction $transaction,
+        array $invoiceData
+    ): bool {
+        if (!$payment->canCapture() || !$payment->canCapturePartial()) {
+            throw new Exception("Invoice can't be created");
         }
 
-        return false;
+        /** @var InvoiceInterface $invoice */
+        $invoice = $this->invoiceManagement->prepareInvoice($order, $invoiceData);
+        $invoice->register();
+        $invoice->getOrder()->setIsInProcess(true);
+        $payment->capture($invoice);
+
+        if ($invoice->getIsPaid()) {
+            $invoice->pay();
+        }
+
+        $payment->getOrder()->addRelatedObject($invoice);
+        $payment->setCreatedInvoice($invoice);
+        $this->transactionFactory->create()
+            ->addObject($invoice)
+            ->addObject($invoice->getOrder())
+            ->save();
+
+        return true;
     }
 
     /**

@@ -117,14 +117,6 @@ class OrderRequestBuilder
             $orderRequestBuilder->build($order, $payment, $orderRequest);
         }
 
-        if ($payment->getMethod() === 'multisafepay_visa'
-            && $payment->getMethodInstance()->getConfigPaymentAction() === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY
-        ) {
-            $orderRequest->addData(
-                ['capture' => 'manual']
-            );
-        }
-
         $this->eventManager->dispatch(
             'before_send_multisafepay_order_request',
             ['order' => $order, 'orderRequest' => $orderRequest]

@@ -39,6 +39,7 @@ use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
 class OrderService
 {
@@ -97,6 +98,11 @@ class OrderService
      */
     private $invoiceService;
 
+    /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         EmailSender $emailSender,
@@ -108,7 +114,8 @@ class OrderService
         Config $config,
         SdkFactory $sdkFactory,
         OrderStatusUtil $orderStatusUtil,
-        InvoiceService $invoiceService
+        InvoiceService $invoiceService,
+        CaptureUtil $captureUtil
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -121,6 +128,7 @@ class OrderService
         $this->sdkFactory = $sdkFactory;
         $this->orderStatusUtil = $orderStatusUtil;
         $this->invoiceService = $invoiceService;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -257,8 +265,6 @@ class OrderService
         TransactionManager $transactionManager
     ): void {
         $orderId = $order->getIncrementId();
-        $paymentDetails = $transaction->getPaymentDetails();
-        $financialStatus = $transaction->getFinancialStatus();
         $this->logger->logInfoForOrder(
             $orderId,
             __('MultiSafepay order transaction complete process has been started.')->render()
@@ -280,9 +286,7 @@ class OrderService
         }
 
         if ($order->canInvoice()) {
-            if (!($financialStatus === TransactionStatus::INITIALIZED
-                && $paymentDetails->getCapture() === 'manual' && $paymentDetails->getCaptureRemain())
-            ) {
+            if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
                 $this->invoiceService->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
             }
 
