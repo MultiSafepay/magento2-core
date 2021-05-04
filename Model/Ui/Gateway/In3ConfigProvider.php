@@ -23,23 +23,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class In3ConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_in3';
-
-    /**
-     * Retrieve assoc array of checkout configuration
-     *
-     * @return array
-     * @throws LocalizedException
-     */
-    public function getConfig(): array
-    {
-        return [
-            'payment' => [
-                $this->getCode() => [
-                    'image' => $this->getImage(),
-                    'is_preselected' => $this->isPreselected(),
-                    'transaction_type' => $this->getTransactionType(),
-                ]
-            ]
-        ];
-    }
 }

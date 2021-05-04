@@ -114,6 +114,7 @@ class GenericConfigProvider implements ConfigProviderInterface
                 $this->getCode() => [
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
+                    'transaction_type' => $this->getTransactionType(),
                 ],
             ],
         ];
