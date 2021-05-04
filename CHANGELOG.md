@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added notification about new versions of plugin in admin panel.
 
+### Fixed
+- Fixed bug where 'File not found' error would occur when trying to download log files with ROOT path set to 'pub'.
+
+### Changed
+- Changed zip file to be stored temporarily inside var/tmp directory instead of root directory.
+
 ## [2.5.2] - 2021-04-19
 ### Changed
 - Code refactored for gateway additional data validators.

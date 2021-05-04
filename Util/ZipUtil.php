@@ -90,6 +90,7 @@ class ZipUtil
         }
 
         $directory = $this->directoryList->getPath(DirectoryList::LOG);
+        chdir($this->directoryList->getPath(DirectoryList::TMP));
 
         $zipFile = new ZipArchive();
         $zipFile->open(
@@ -114,7 +115,7 @@ class ZipUtil
                 'value' => self::ZIP_ARCHIVE_NAME,
                 'rm' => true,
             ],
-            DirectoryList::ROOT,
+            DirectoryList::TMP,
             'application/zip'
         );
     }
