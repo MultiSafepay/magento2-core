@@ -90,11 +90,11 @@ class ZipUtil
         }
 
         $directory = $this->directoryList->getPath(DirectoryList::LOG);
-        chdir($this->directoryList->getPath(DirectoryList::TMP));
+        $path = $this->directoryList->getPath(DirectoryList::TMP);
 
         $zipFile = new ZipArchive();
         $zipFile->open(
-            self::ZIP_ARCHIVE_NAME,
+            $path . DIRECTORY_SEPARATOR . self::ZIP_ARCHIVE_NAME,
             ZipArchive::CREATE | ZipArchive::OVERWRITE
         );
 
