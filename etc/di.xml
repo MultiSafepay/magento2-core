@@ -10,6 +10,12 @@
             sortOrder="1" disabled="false"  />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Payment">
+        <plugin name="can_cancel_capture_manual_payments" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\Order\PaymentPlugin"
+            sortOrder="1" disabled="false"  />
+    </type>
+
+
     <type name="Magento\Multishipping\Model\Payment\Method\Specification\Enabled">
         <plugin name="add_generic_methods_to_multishipping" type="MultiSafepay\ConnectCore\Plugin\Multishipping\Model\Payment\Method\Specification\EnabledPlugin"
             sortOrder="1" disabled="false"  />
@@ -3325,6 +3331,8 @@
                 <item name="initialize" xsi:type="string">MultiSafepayVisaInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayVisaRefundCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayVisaCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayVisaCancelCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3363,6 +3371,25 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Visa Cancel command -->
+    <virtualType name="MultiSafepayVisaCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayVisaCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Visa Cancel Request -->
+    <virtualType name="MultiSafepayVisaCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
             </argument>
         </arguments>
     </virtualType>

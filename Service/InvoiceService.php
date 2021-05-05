@@ -165,10 +165,13 @@ class InvoiceService
 
         foreach ($shipment->getItems() as $item) {
             $orderItemId = (int)$item->getOrderItemId();
-            $shippedQty = $item->getQty();
+            $shippedQty = (float)$item->getQty();
+            $orderItem = $this->orderItemRepository->get($orderItemId);
+            $orderQtyToInvoice = $orderItem->getQtyToInvoice();
+            $canInvoiceQty = ($shippedQty <= $orderQtyToInvoice) ? $shippedQty : $orderQtyToInvoice;
 
-            if ($this->canItemInvoice($orderItemId, $shippedQty)) {
-                $invoiceData[$orderItemId] = $shippedQty;
+            if ($canInvoiceQty) {
+                $invoiceData[$orderItemId] = $item->getQty();
             }
         }
 
@@ -300,18 +303,6 @@ class InvoiceService
         }
 
         return null;
-    }
-
-    /**
-     * @param int $orderId
-     * @param $shippedQty
-     * @return bool
-     */
-    public function canItemInvoice(int $orderId, $shippedQty): bool
-    {
-        $orderItem = $this->orderItemRepository->get($orderId);
-
-        return $orderItem->canInvoice();
     }
 
     /**
