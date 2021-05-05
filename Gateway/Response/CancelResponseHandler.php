@@ -31,24 +31,18 @@ class CancelResponseHandler implements HandlerInterface
      */
     public function handle(array $handlingSubject, array $response)
     {
-        $paymentDataObject = SubjectReader::readPayment($handlingSubject);
-        $amount = (float)SubjectReader::readAmount($handlingSubject);
-
-        /** @var OrderPaymentInterface $payment */
-        $payment = $paymentDataObject->getPayment();
-
-        if (!isset($response['transaction_id'], $response['order_id'])) {
-            throw new Exception(__('Response API data is not valid.')->render());
+        if (isset($response['success']) && $response['success']) {
+            /*throw new Exception(__('Response API data is not valid.')->render());*/
         }
 
-        $payment->setTransactionId($response['transaction_id']);
-        $payment->setAdditionalInformation(
-            self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
-            array_merge(
-                (array)$payment->getAdditionalInformation(self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME),
-                [$this->prepareCaptureDataFromResponse($response, $amount)]
-            )
-        );
+        //$payment->setTransactionId($response['transaction_id']);
+        //$payment->setAdditionalInformation(
+        //    self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
+        //    array_merge(
+        //        (array)$payment->getAdditionalInformation(self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME),
+        //        [$this->prepareCaptureDataFromResponse($response, $amount)]
+        //    )
+        //);
 
         return $this;
     }

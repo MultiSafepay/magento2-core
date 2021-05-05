@@ -54,7 +54,7 @@ class PaymentPlugin
      */
     public function afterCanVoid(Payment $subject, bool $result): bool
     {
-        $paymentMethodInstance = $this->getMethodInstance();
+        $paymentMethodInstance = $subject->getMethodInstance();
 
         if ($this->paymentMethodUtil->checkIsMultisafepayMethodByPayment($paymentMethodInstance)) {
             return $paymentMethodInstance->canVoid() && $this->captureUtil->isCaptureManualPayment($subject);

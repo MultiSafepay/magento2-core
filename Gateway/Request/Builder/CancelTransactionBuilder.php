@@ -99,14 +99,6 @@ class CancelTransactionBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $amount = (float)SubjectReader::readAmount($buildSubject);
-
-        if ($amount <= 0) {
-            throw new CouldNotInvoiceException(
-                __('Invoices with 0 amount can not be processed. Please set a different amount')
-            );
-        }
-
         $payment = $paymentDataObject->getPayment();
 
         /** @var OrderInterface $order */
@@ -115,14 +107,17 @@ class CancelTransactionBuilder implements BuilderInterface
         $storeId = (int)$order->getStoreId();
         $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
         $transaction = $transactionManager->get($orderIncrementId);
-
-        if (!$this->captureUtil->isManualCapturePossibleForAmount($transaction, round($amount * 100, 10))
-        ) {
-            throw new CouldNotInvoiceException(__('Payment capture amount is not valid, please try again.'));
-        }
+        //
+        //if (!$this->captureUtil->isManualCapturePossibleForAmount($transaction, round($amount * 100, 10))
+        //) {
+        //    throw new CouldNotInvoiceException(__('Payment capture amount is not valid, please try again.'));
+        //}
 
         $captureRequest = $this->captureRequest->addData(
-            $this->prepareCaptureRequestData($amount, $order, $payment)
+            [
+                "status" => Transaction::CANCELLED,
+                "reason" => "Order cancelled"
+            ]
         );
 
         return [
@@ -130,35 +125,5 @@ class CancelTransactionBuilder implements BuilderInterface
             'order_id' => $orderIncrementId,
             Store::STORE_ID => $storeId,
         ];
-    }
-
-    /**
-     * @param float $amount
-     * @param OrderInterface $order
-     * @param InfoInterface $payment
-     * @return array
-     */
-    private function prepareCaptureRequestData(float $amount, OrderInterface $order, InfoInterface $payment): array
-    {
-        $invoice = $payment->getInvoice() ?: $order->getInvoiceCollection()->getLastItem();
-
-        if ($invoice && !$invoice->getIncrementId()) {
-            $invoice->setIncrementId(
-                $this->sequenceManager->getSequence(
-                    $invoice->getEntityType(),
-                    $order->getStoreId()
-                )->getNextValue()
-            );
-        }
-
-        $shipment = $payment->getShipment();
-        $result = [
-            "amount" => round($this->amountUtil->getAmount($amount, $order) * 100, 10),
-            "invoice_id" => $invoice ? $invoice->getIncrementId() : "",
-            "new_order_status" => $shipment ? Transaction::SHIPPED : Transaction::COMPLETED,
-        ];
-
-        return $shipment ? array_merge($result, $this->shipmentUtil->getShipmentApiRequestData($order, $shipment))
-            : $result;
     }
 }

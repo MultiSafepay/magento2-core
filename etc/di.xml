@@ -15,7 +15,6 @@
             sortOrder="1" disabled="false"  />
     </type>
 
-
     <type name="Magento\Multishipping\Model\Payment\Method\Specification\Enabled">
         <plugin name="add_generic_methods_to_multishipping" type="MultiSafepay\ConnectCore\Plugin\Multishipping\Model\Payment\Method\Specification\EnabledPlugin"
             sortOrder="1" disabled="false"  />
