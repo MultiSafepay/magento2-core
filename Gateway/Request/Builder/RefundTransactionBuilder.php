@@ -28,7 +28,7 @@ use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
-use MultiSafepay\ConnectCore\Gateway\Command\Capture;
+use MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
@@ -151,7 +151,7 @@ class RefundTransactionBuilder implements BuilderInterface
      */
     private function getCaptureDataByTransactionId(string $transactionId, InfoInterface $payment): ?array
     {
-        $captureData = $payment->getAdditionalInformation(Capture::CAPTURE_DATA_FIELD_NAME);
+        $captureData = $payment->getAdditionalInformation(CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME);
 
         foreach ($captureData as $captureDataItem) {
             if (isset($captureDataItem['transaction_id'])

@@ -21,6 +21,7 @@ use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\MailException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -107,6 +108,11 @@ class InvoiceService
      */
     private $orderItemRepository;
 
+    /**
+     * @var EmailSender
+     */
+    private $emailSender;
+
     public function __construct(
         SearchCriteriaBuilder $searchCriteriaBuilder,
         InvoiceRepositoryInterface $invoiceRepository,
@@ -120,7 +126,8 @@ class InvoiceService
         PriceUtil $priceUtil,
         CaptureRequest $captureRequest,
         AmountUtil $amountUtil,
-        OrderItemRepositoryInterface $orderItemRepository
+        OrderItemRepositoryInterface $orderItemRepository,
+        EmailSender $emailSender
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->invoiceRepository = $invoiceRepository;
@@ -135,6 +142,7 @@ class InvoiceService
         $this->captureRequest = $captureRequest;
         $this->amountUtil = $amountUtil;
         $this->orderItemRepository = $orderItemRepository;
+        $this->emailSender = $emailSender;
     }
 
     /**
@@ -156,15 +164,35 @@ class InvoiceService
         $invoiceData = [];
 
         foreach ($shipment->getItems() as $item) {
-            $invoiceData[$item->getOrderItemId()] = $item->getQty();
+            $orderItemId = (int)$item->getOrderItemId();
+            $shippedQty = $item->getQty();
+
+            if ($this->canItemInvoice($orderItemId, $shippedQty)) {
+                $invoiceData[$orderItemId] = $shippedQty;
+            }
         }
 
-        if ($order->canInvoice()) {
+        if ($order->canInvoice() && $invoiceData) {
             $payment->setShipment($shipment);
-            $this->createInvoiceByInvoiceData($order, $payment, $transaction, $invoiceData);
+            $invoice = $this->createInvoiceByInvoiceData($order, $payment, $transaction, $invoiceData);
+            $invoiceId = $invoice->getIncrementId();
+            $this->logger->logInfoForOrder($orderIncrementId, __('Invoice %1 was created.', $invoiceId)->render());
+
+            try {
+                if ($this->emailSender->sendInvoiceEmail($payment, $invoice)) {
+                    $this->logger->logInfoForOrder(
+                        $orderIncrementId,
+                        __('Email for invoice %1 was sent.', $invoiceId)->render()
+                    );
+                }
+            } catch (MailException $mailException) {
+                $this->logger->logExceptionForOrder($orderIncrementId, $mailException, Logger::INFO);
+            }
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -172,7 +200,7 @@ class InvoiceService
      * @param OrderPaymentInterface $payment
      * @param Transaction $transaction
      * @param array $invoiceData
-     * @return bool
+     * @return InvoiceInterface
      * @throws Exception
      */
     public function createInvoiceByInvoiceData(
@@ -180,15 +208,16 @@ class InvoiceService
         OrderPaymentInterface $payment,
         Transaction $transaction,
         array $invoiceData
-    ): bool {
+    ): InvoiceInterface {
         if (!$payment->canCapture() || !$payment->canCapturePartial()) {
             throw new Exception("Invoice can't be created");
         }
 
         /** @var InvoiceInterface $invoice */
-        $invoice = $this->invoiceManagement->prepareInvoice($order, $invoiceData);
+        $invoice = $order->prepareInvoice($invoiceData);
         $invoice->register();
         $invoice->getOrder()->setIsInProcess(true);
+        $payment->setInvoice($invoice);
         $payment->capture($invoice);
 
         if ($invoice->getIsPaid()) {
@@ -202,7 +231,7 @@ class InvoiceService
             ->addObject($invoice->getOrder())
             ->save();
 
-        return true;
+        return $invoice;
     }
 
     /**
@@ -230,7 +259,11 @@ class InvoiceService
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
             $this->logger->logInfoForOrder($order->getIncrementId(), 'Invoice created');
-            $paymentTransaction = $payment->addTransaction(PaymentTransaction::TYPE_CAPTURE, null, true);
+            $paymentTransaction = $payment->addTransaction(
+                PaymentTransaction::TYPE_CAPTURE,
+                null,
+                true
+            );
 
             if ($paymentTransaction !== null) {
                 $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
@@ -270,25 +303,15 @@ class InvoiceService
     }
 
     /**
-     * @param ShipmentInterface $shipment
-     * @param OrderInterface $order
-     * @return float
+     * @param int $orderId
+     * @param $shippedQty
+     * @return bool
      */
-    public function getInvoiceAmountAfterShipping(ShipmentInterface $shipment, OrderInterface $order): float
+    public function canItemInvoice(int $orderId, $shippedQty): bool
     {
-        $unitPrice = 0;
-        $storeId = $order->getStoreId();
+        $orderItem = $this->orderItemRepository->get($orderId);
 
-        foreach ($shipment->getItems() as $item) {
-            $orderItem = $this->orderItemRepository->get($item->getOrderItemId());
-            $unitPrice += (float)($this->priceUtil->getUnitRowItemPriceWithTax($orderItem, $storeId) * $item->getQty());
-
-            if ($this->isFirstShipmentForOrder($order)) {
-                $unitPrice += $this->priceUtil->getShippingUnitPrice($order);
-            }
-        }
-
-        return (float)$unitPrice;
+        return $orderItem->canInvoice();
     }
 
     /**

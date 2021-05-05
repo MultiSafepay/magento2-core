@@ -24,12 +24,14 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\InvoiceService;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
+use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -77,6 +79,11 @@ class ShipmentSaveAfterObserver implements ObserverInterface
     private $captureUtil;
 
     /**
+     * @var ShipmentUtil
+     */
+    private $shipmentUtil;
+
+    /**
      * ShipmentSaveAfterObserver constructor.
      *
      * @param SdkFactory $sdkFactory
@@ -87,6 +94,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param InvoiceService $invoiceService
      * @param CaptureUtil $captureUtil
+     * @param ShipmentUtil $shipmentUtil
      */
     public function __construct(
         SdkFactory $sdkFactory,
@@ -96,7 +104,8 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         PaymentMethodUtil $paymentMethodUtil,
         OrderRepositoryInterface $orderRepository,
         InvoiceService $invoiceService,
-        CaptureUtil $captureUtil
+        CaptureUtil $captureUtil,
+        ShipmentUtil $shipmentUtil
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->logger = $logger;
@@ -106,11 +115,13 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         $this->orderRepository = $orderRepository;
         $this->invoiceService = $invoiceService;
         $this->captureUtil = $captureUtil;
+        $this->shipmentUtil = $shipmentUtil;
     }
 
     /**
      * @param Observer $observer
      * @throws ClientExceptionInterface
+     * @throws LocalizedException
      */
     public function execute(Observer $observer): void
     {
@@ -119,36 +130,42 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         /** @var ShipmentInterface $shipment */
         $shipment = $event->getShipment();
         $order = $shipment->getOrder();
-        $this->addShippingToTransaction($shipment, $order);
-    }
 
-    /**
-     * @param ShipmentInterface $shipment
-     * @param OrderInterface $order
-     * @throws ClientExceptionInterface
-     * @throws LocalizedException
-     */
-    public function addShippingToTransaction(
-        ShipmentInterface $shipment,
-        OrderInterface $order
-    ): void {
         if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
             $payment = $order->getPayment();
-            $orderId = $order->getIncrementId();
 
             if ($this->captureUtil->isCaptureManualPayment($payment)) {
                 if ($this->invoiceService->createInvoiceAfterShipment($order, $shipment, $payment)) {
                     $this->orderRepository->save($order);
                 }
+
+                if (!$this->shipmentUtil->isOrderShipped($order)) {
+                    return;
+                }
             }
 
-            $updateRequest = $this->updateRequest->addData([
-                "tracktrace_code" => $this->getTrackingNumber($shipment),
-                "carrier" => $order->getShippingDescription(),
-                "ship_date" => $shipment->getCreatedAt(),
-                "reason" => 'Shipped',
-            ]);
+            $this->addShippingToTransaction($shipment, $order, $transactionManager);
+        }
+    }
+
+    /**
+     * @param ShipmentInterface $shipment
+     * @param OrderInterface $order
+     * @param TransactionManager $transactionManager
+     * @throws ClientExceptionInterface
+     */
+    public function addShippingToTransaction(
+        ShipmentInterface $shipment,
+        OrderInterface $order,
+        TransactionManager $transactionManager
+    ): void {
+        if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
+            $orderId = $order->getIncrementId();
+
+            $updateRequest = $this->updateRequest->addData(
+                $this->shipmentUtil->getShipmentApiRequestData($order, $shipment)
+            );
 
             try {
                 $transactionManager->update($orderId, $updateRequest)->getResponseData();
@@ -166,18 +183,5 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             $msg = __('The order status has succesfully been updated at MultiSafepay');
             $this->messageManager->addSuccessMessage($msg);
         }
-    }
-
-    /**
-     * @param ShipmentInterface $shipment
-     * @return string
-     */
-    public function getTrackingNumber(ShipmentInterface $shipment): string
-    {
-        if (empty($shipment->getTracks())) {
-            return '';
-        }
-
-        return $shipment->getTracks()[0]->getTrackNumber();
     }
 }
