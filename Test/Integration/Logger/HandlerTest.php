@@ -33,27 +33,27 @@ class HandlerTest extends TestCase
         $handler = ObjectManager::getInstance()->get(Handler::class);
 
         $dummyRecord = ['level' => Logger::DEBUG];
-        $this->assertTrue($handler->isHandling($dummyRecord));
+        self::assertTrue($handler->isHandling($dummyRecord));
 
         $dummyRecord = ['level' => Logger::INFO];
-        $this->assertTrue($handler->isHandling($dummyRecord));
-        
+        self::assertTrue($handler->isHandling($dummyRecord));
+
         $dummyRecord = ['level' => Logger::ERROR];
-        $this->assertTrue($handler->isHandling($dummyRecord));
+        self::assertTrue($handler->isHandling($dummyRecord));
     }
-    
+
     /**
      * @magentoConfigFixture default_store multisafepay/general/debug 0
      */
     public function testIsHandlingWhenDebugIsDisabled()
     {
-        /** @var DebugHandler $handler */
+        /** @var Handler $handler */
         $handler = ObjectManager::getInstance()->get(Handler::class);
 
         $dummyRecord = ['level' => Logger::DEBUG];
-        $this->assertFalse($handler->isHandling($dummyRecord));
+        self::assertFalse($handler->isHandling($dummyRecord));
 
         $dummyRecord = ['level' => Logger::INFO];
-        $this->assertFalse($handler->isHandling($dummyRecord));
+        self::assertFalse($handler->isHandling($dummyRecord));
     }
 }
