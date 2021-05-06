@@ -51,9 +51,8 @@ class CaptureClient implements ClientInterface
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
-        $orderId = $request['order_id'];
-        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
 
-        return $transactionManager->capture($orderId, $request['payload'])->getResponseData();
+        return $this->sdkFactory->create($request[Store::STORE_ID] ?? null)
+            ->getTransactionManager()->capture($request['order_id'], $request['payload'])->getResponseData();
     }
 }

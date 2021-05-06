@@ -19,26 +19,17 @@ namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Payment\Model\InfoInterface;
-use Magento\SalesSequence\Model\Manager;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Exception\CouldNotInvoiceException;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
-use MultiSafepay\ConnectCore\Util\AmountUtil;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
-use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class CancelTransactionBuilder implements BuilderInterface
 {
-    /**
-     * @var AmountUtil
-     */
-    private $amountUtil;
-
     /**
      * @var CaptureUtil
      */
@@ -55,75 +46,70 @@ class CancelTransactionBuilder implements BuilderInterface
     private $captureRequest;
 
     /**
-     * @var ShipmentUtil
+     * @var Logger
      */
-    private $shipmentUtil;
+    private $logger;
 
     /**
-     * @var Manager
-     */
-    private $sequenceManager;
-
-    /**
-     * CaptureTransactionBuilder constructor.
+     * CancelTransactionBuilder constructor.
      *
-     * @param AmountUtil $amountUtil
      * @param CaptureUtil $captureUtil
      * @param SdkFactory $sdkFactory
      * @param CaptureRequest $captureRequest
-     * @param ShipmentUtil $shipmentUtil
-     * @param Manager $sequenceManager
+     * @param Logger $logger
      */
     public function __construct(
-        AmountUtil $amountUtil,
         CaptureUtil $captureUtil,
         SdkFactory $sdkFactory,
         CaptureRequest $captureRequest,
-        ShipmentUtil $shipmentUtil,
-        Manager $sequenceManager
+        Logger $logger
     ) {
-        $this->amountUtil = $amountUtil;
         $this->captureUtil = $captureUtil;
         $this->sdkFactory = $sdkFactory;
         $this->captureRequest = $captureRequest;
-        $this->shipmentUtil = $shipmentUtil;
-        $this->sequenceManager = $sequenceManager;
+        $this->logger = $logger;
     }
 
     /**
      * @param array $buildSubject
      * @return array
-     * @throws ClientExceptionInterface
-     * @throws CouldNotInvoiceException
      */
     public function build(array $buildSubject): array
     {
-        $paymentDataObject = SubjectReader::readPayment($buildSubject);
-        $payment = $paymentDataObject->getPayment();
-
         /** @var OrderInterface $order */
-        $order = $payment->getOrder();
+        $order = SubjectReader::readPayment($buildSubject)->getPayment()->getOrder();
         $orderIncrementId = $order->getIncrementId();
         $storeId = (int)$order->getStoreId();
-        $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
-        $transaction = $transactionManager->get($orderIncrementId);
-        //
-        //if (!$this->captureUtil->isManualCapturePossibleForAmount($transaction, round($amount * 100, 10))
-        //) {
-        //    throw new CouldNotInvoiceException(__('Payment capture amount is not valid, please try again.'));
-        //}
-
-        $captureRequest = $this->captureRequest->addData(
-            [
-                "status" => Transaction::CANCELLED,
-                "reason" => "Order cancelled"
-            ]
-        );
-
-        return [
-            'payload' => $captureRequest,
+        $result = [
             'order_id' => $orderIncrementId,
             Store::STORE_ID => $storeId,
         ];
+
+        try {
+            $transaction = $this->sdkFactory->create($storeId)->getTransactionManager()->get($orderIncrementId);
+
+            if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
+
+                if ($this->captureUtil->isCaptureManualReservationExpired($transaction)) {
+                    $this->logger->logInfoForOrder($orderIncrementId, 'Capture reservation is expired.');
+
+                    return $result;
+                }
+
+                $captureRequest = $this->captureRequest->addData(
+                    [
+                        "status" => Transaction::CANCELLED,
+                        "reason" => "Order cancelled",
+                    ]
+                );
+                $result['payload'] = $captureRequest;
+
+                return $result;
+            }
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
+        }
+
+        return $result;
     }
 }

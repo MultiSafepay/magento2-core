@@ -17,16 +17,18 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Model\InfoInterface;
-use Magento\SalesSequence\Model\Manager;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotInvoiceException;
+use Magento\SalesSequence\Model\Manager;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
@@ -65,6 +67,11 @@ class CaptureTransactionBuilder implements BuilderInterface
     private $sequenceManager;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * CaptureTransactionBuilder constructor.
      *
      * @param AmountUtil $amountUtil
@@ -73,6 +80,7 @@ class CaptureTransactionBuilder implements BuilderInterface
      * @param CaptureRequest $captureRequest
      * @param ShipmentUtil $shipmentUtil
      * @param Manager $sequenceManager
+     * @param Logger $logger
      */
     public function __construct(
         AmountUtil $amountUtil,
@@ -80,7 +88,8 @@ class CaptureTransactionBuilder implements BuilderInterface
         SdkFactory $sdkFactory,
         CaptureRequest $captureRequest,
         ShipmentUtil $shipmentUtil,
-        Manager $sequenceManager
+        Manager $sequenceManager,
+        Logger $logger
     ) {
         $this->amountUtil = $amountUtil;
         $this->captureUtil = $captureUtil;
@@ -88,13 +97,14 @@ class CaptureTransactionBuilder implements BuilderInterface
         $this->captureRequest = $captureRequest;
         $this->shipmentUtil = $shipmentUtil;
         $this->sequenceManager = $sequenceManager;
+        $this->logger = $logger;
     }
 
     /**
      * @param array $buildSubject
      * @return array
-     * @throws ClientExceptionInterface
      * @throws CouldNotInvoiceException
+     * @throws LocalizedException
      */
     public function build(array $buildSubject): array
     {
@@ -103,33 +113,67 @@ class CaptureTransactionBuilder implements BuilderInterface
 
         if ($amount <= 0) {
             throw new CouldNotInvoiceException(
-                __('Invoices with 0 amount can not be processed. Please set a different amount')
+                __('Invoices with 0 or negative amount can not be processed. Please set a different amount')
             );
         }
 
         $payment = $paymentDataObject->getPayment();
-
         /** @var OrderInterface $order */
         $order = $payment->getOrder();
         $orderIncrementId = $order->getIncrementId();
         $storeId = (int)$order->getStoreId();
-        $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
-        $transaction = $transactionManager->get($orderIncrementId);
-
-        if (!$this->captureUtil->isManualCapturePossibleForAmount($transaction, round($amount * 100, 10))
-        ) {
-            throw new CouldNotInvoiceException(__('Payment capture amount is not valid, please try again.'));
-        }
-
-        $captureRequest = $this->captureRequest->addData(
-            $this->prepareCaptureRequestData($amount, $order, $payment)
-        );
+        $this->validateManualCapture($amount, $orderIncrementId, $storeId);
 
         return [
-            'payload' => $captureRequest,
+            'payload' => $this->captureRequest->addData(
+                $this->prepareCaptureRequestData($amount, $order, $payment)
+            ),
             'order_id' => $orderIncrementId,
             Store::STORE_ID => $storeId,
         ];
+    }
+
+    /**
+     * @param float $invoiceAmount
+     * @param string $orderIncrementId
+     * @param int $storeId
+     * @throws CouldNotInvoiceException
+     */
+    private function validateManualCapture(
+        float $invoiceAmount,
+        string $orderIncrementId,
+        int $storeId
+    ): void {
+        try {
+            $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
+            $transaction = $transactionManager->get($orderIncrementId);
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
+
+            throw new CouldNotInvoiceException(__($clientException->getMessage()));
+        }
+
+        $exceptionMessage = __('Manual MultiSafepay online capture can\'t be processed for non manual capture orders');
+
+        if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
+            $this->logger->logInfoForOrder($orderIncrementId, $exceptionMessage->render());
+
+            throw new CouldNotInvoiceException($exceptionMessage);
+        }
+
+        if ($this->captureUtil->isCaptureManualReservationExpired($transaction)) {
+            $exceptionMessage = __('Reservation has been expired for current online capture.');
+            $this->logger->logInfoForOrder($orderIncrementId, $exceptionMessage->render());
+
+            throw new CouldNotInvoiceException($exceptionMessage);
+        }
+
+        if (!$this->captureUtil->isManualCapturePossibleForAmount($transaction, $invoiceAmount)) {
+            $exceptionMessage = __('Manual payment capture amount is can\'t be processed,  please try again.');
+            $this->logger->logInfoForOrder($orderIncrementId, $exceptionMessage->render());
+
+            throw new CouldNotInvoiceException($exceptionMessage);
+        }
     }
 
     /**
@@ -137,6 +181,7 @@ class CaptureTransactionBuilder implements BuilderInterface
      * @param OrderInterface $order
      * @param InfoInterface $payment
      * @return array
+     * @throws LocalizedException
      */
     private function prepareCaptureRequestData(float $amount, OrderInterface $order, InfoInterface $payment): array
     {

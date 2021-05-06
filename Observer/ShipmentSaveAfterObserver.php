@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Observer;
 
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
@@ -37,7 +37,6 @@ use Psr\Http\Client\ClientExceptionInterface;
 
 class ShipmentSaveAfterObserver implements ObserverInterface
 {
-
     /**
      * @var SdkFactory
      */
@@ -121,28 +120,50 @@ class ShipmentSaveAfterObserver implements ObserverInterface
     /**
      * @param Observer $observer
      * @throws ClientExceptionInterface
-     * @throws LocalizedException
      */
     public function execute(Observer $observer): void
     {
         $event = $observer->getEvent();
-
         /** @var ShipmentInterface $shipment */
         $shipment = $event->getShipment();
         $order = $shipment->getOrder();
 
         if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
+            $orderIncrementId = $order->getIncrementId();
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+            $transaction = $transactionManager->get($order->getIncrementId());
             $payment = $order->getPayment();
 
-            if ($this->captureUtil->isCaptureManualPayment($payment)) {
-                if ($this->invoiceService->createInvoiceAfterShipment($order, $shipment, $payment)) {
-                    $this->orderRepository->save($order);
-                }
+            try {
+                if ($this->captureUtil->isCaptureManualPayment($payment)
+                    && $this->captureUtil->isCaptureManualTransaction($transaction)
+                ) {
+                    if ($this->invoiceService->createInvoiceAfterShipment($order, $shipment, $payment)) {
+                        $this->orderRepository->save($order);
 
-                if (!$this->shipmentUtil->isOrderShipped($order)) {
-                    return;
+                        if ($lastCreatedInvoice = $this->invoiceService->getLastCreatedInvoiceByOrderId($order->getId())
+                        ) {
+                            $this->invoiceService->sendInvoiceEmail($payment, $lastCreatedInvoice);
+                            $successMessage = __(
+                                'The manual capture invoice %1 was created at MultiSafepay',
+                                $lastCreatedInvoice->getIncrementId()
+                            );
+                            $this->logger->logInfoForOrder($orderIncrementId, $successMessage->render());
+                            $this->messageManager->addSuccessMessage($successMessage);
+                        }
+                    }
+
+                    if ($this->shipmentUtil->isOrderShippedPartially($order)) {
+                        return;
+                    }
                 }
+            } catch (Exception $exception) {
+                $this->logger->logExceptionForOrder($orderIncrementId, $exception);
+                $this->messageManager->addErrorMessage(
+                    __('The manual capture invoice could not be created at MultiSafepay, please check the logs.')
+                );
+
+                return;
             }
 
             $this->addShippingToTransaction($shipment, $order, $transactionManager);
@@ -160,28 +181,24 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         OrderInterface $order,
         TransactionManager $transactionManager
     ): void {
-        if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
-            $orderId = $order->getIncrementId();
+        $orderId = $order->getIncrementId();
+        $updateRequest = $this->updateRequest->addData(
+            $this->shipmentUtil->getShipmentApiRequestData($order, $shipment)
+        );
 
-            $updateRequest = $this->updateRequest->addData(
-                $this->shipmentUtil->getShipmentApiRequestData($order, $shipment)
-            );
-
-            try {
-                $transactionManager->update($orderId, $updateRequest)->getResponseData();
-            } catch (ApiException $apiException) {
-                $this->logger->logUpdateRequestApiException($orderId, $apiException);
-
-                $msg = __('The order status could not be updated at MultiSafepay.
+        try {
+            $transactionManager->update($orderId, $updateRequest)->getResponseData();
+        } catch (ApiException $apiException) {
+            $this->logger->logUpdateRequestApiException($orderId, $apiException);
+            $msg = __('The order status could not be updated at MultiSafepay.
                 It can be manually updated in MultiSafepay Control');
 
-                $this->messageManager->addErrorMessage($msg);
+            $this->messageManager->addErrorMessage($msg);
 
-                return;
-            }
-
-            $msg = __('The order status has succesfully been updated at MultiSafepay');
-            $this->messageManager->addSuccessMessage($msg);
+            return;
         }
+
+        $msg = __('The order status has succesfully been updated at MultiSafepay');
+        $this->messageManager->addSuccessMessage($msg);
     }
 }

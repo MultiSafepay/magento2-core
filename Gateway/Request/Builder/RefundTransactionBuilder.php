@@ -29,6 +29,7 @@ use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
@@ -67,6 +68,11 @@ class RefundTransactionBuilder implements BuilderInterface
     private $captureUtil;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * RefundTransactionBuilder constructor.
      *
      * @param AmountUtil $amountUtil
@@ -75,6 +81,7 @@ class RefundTransactionBuilder implements BuilderInterface
      * @param CurrencyUtil $currencyUtil
      * @param Description $description
      * @param CaptureUtil $captureUtil
+     * @param Logger $logger
      */
     public function __construct(
         AmountUtil $amountUtil,
@@ -82,7 +89,8 @@ class RefundTransactionBuilder implements BuilderInterface
         Config $config,
         CurrencyUtil $currencyUtil,
         Description $description,
-        CaptureUtil $captureUtil
+        CaptureUtil $captureUtil,
+        Logger $logger
     ) {
         $this->refundRequest = $refundRequest;
         $this->description = $description;
@@ -90,6 +98,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $this->currencyUtil = $currencyUtil;
         $this->amountUtil = $amountUtil;
         $this->captureUtil = $captureUtil;
+        $this->logger = $logger;
     }
 
     /**
@@ -109,20 +118,24 @@ class RefundTransactionBuilder implements BuilderInterface
         }
 
         $payment = $paymentDataObject->getPayment();
-
         /** @var OrderInterface $order */
         $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
 
         if ($this->captureUtil->isCaptureManualPayment($payment)) {
             if (!$captureData = $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment)) {
-                throw new CouldNotRefundException(__('Can\'t find manual capture data'));
+                $exceptionMessage = __('Can\'t find manual capture data');
+                $this->logger->logInfoForOrder($orderId, $exceptionMessage->render());
+
+                throw new CouldNotRefundException($exceptionMessage);
             }
 
             if ($amount > $captureData['amount']) {
-                throw new CouldNotRefundException(
-                    __('Refund amount is not valid. Please set a different amount')
-                );
+                $exceptionMessage =
+                    __('Refund amount for manual captured invoice is not valid. Please set a different amount');
+                $this->logger->logInfoForOrder($orderId, $exceptionMessage->render());
+
+                throw new CouldNotRefundException($exceptionMessage);
             }
 
             $orderId = $captureData['order_id'];
@@ -151,7 +164,9 @@ class RefundTransactionBuilder implements BuilderInterface
      */
     private function getCaptureDataByTransactionId(string $transactionId, InfoInterface $payment): ?array
     {
-        $captureData = $payment->getAdditionalInformation(CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME);
+        $captureData = $payment->getAdditionalInformation(
+            CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME
+        );
 
         foreach ($captureData as $captureDataItem) {
             if (isset($captureDataItem['transaction_id'])

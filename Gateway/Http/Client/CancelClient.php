@@ -42,19 +42,21 @@ class CancelClient implements ClientInterface
     }
 
     /**
-     * Places request to gateway. Returns result as ENV array
-     *
      * @param TransferInterface $transferObject
-     * @return array
+     * @return array|null
      * @throws ClientExceptionInterface
      */
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
 
-        return $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager()->captureReservationCancel(
-            $request['order_id'],
-            $request['payload']
-        )->getResponseData();
+        if (!isset($request['order_id'], $request['payload'])) {
+            return null;
+        }
+
+        $responseData = $this->sdkFactory->create($request[Store::STORE_ID] ?? null)->getTransactionManager()
+            ->captureReservationCancel($request['order_id'], $request['payload'])->getResponseData();
+
+        return array_merge($responseData, $request);
     }
 }

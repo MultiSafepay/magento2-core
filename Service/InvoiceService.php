@@ -20,26 +20,18 @@ namespace MultiSafepay\ConnectCore\Service;
 use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DB\TransactionFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
-use Magento\Sales\Api\InvoiceManagementInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Model\Order\Payment\Operations\ProcessInvoiceOperation;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
-use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
-use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Util\AmountUtil;
-use MultiSafepay\ConnectCore\Util\PriceUtil;
-use Psr\Http\Client\ClientExceptionInterface;
 
 class InvoiceService
 {
@@ -64,16 +56,6 @@ class InvoiceService
     private $transactionRepository;
 
     /**
-     * @var ProcessInvoiceOperation
-     */
-    private $processInvoiceOperation;
-
-    /**
-     * @var InvoiceManagementInterface
-     */
-    private $invoiceManagement;
-
-    /**
      * @var TransactionFactory
      */
     private $transactionFactory;
@@ -82,26 +64,6 @@ class InvoiceService
      * @var Logger
      */
     private $logger;
-
-    /**
-     * @var SdkFactory
-     */
-    private $sdkFactory;
-
-    /**
-     * @var PriceUtil
-     */
-    private $priceUtil;
-
-    /**
-     * @var CaptureRequest
-     */
-    private $captureRequest;
-
-    /**
-     * @var AmountUtil
-     */
-    private $amountUtil;
 
     /**
      * @var OrderItemRepositoryInterface
@@ -113,19 +75,25 @@ class InvoiceService
      */
     private $emailSender;
 
+    /**
+     * InvoiceService constructor.
+     *
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param TransactionFactory $transactionFactory
+     * @param Logger $logger
+     * @param OrderItemRepositoryInterface $orderItemRepository
+     * @param EmailSender $emailSender
+     */
     public function __construct(
         SearchCriteriaBuilder $searchCriteriaBuilder,
         InvoiceRepositoryInterface $invoiceRepository,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         TransactionRepositoryInterface $transactionRepository,
-        ProcessInvoiceOperation $processInvoiceOperation,
-        InvoiceManagementInterface $invoiceManagement,
         TransactionFactory $transactionFactory,
         Logger $logger,
-        SdkFactory $sdkFactory,
-        PriceUtil $priceUtil,
-        CaptureRequest $captureRequest,
-        AmountUtil $amountUtil,
         OrderItemRepositoryInterface $orderItemRepository,
         EmailSender $emailSender
     ) {
@@ -133,14 +101,8 @@ class InvoiceService
         $this->invoiceRepository = $invoiceRepository;
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->transactionRepository = $transactionRepository;
-        $this->processInvoiceOperation = $processInvoiceOperation;
-        $this->invoiceManagement = $invoiceManagement;
         $this->transactionFactory = $transactionFactory;
         $this->logger = $logger;
-        $this->sdkFactory = $sdkFactory;
-        $this->priceUtil = $priceUtil;
-        $this->captureRequest = $captureRequest;
-        $this->amountUtil = $amountUtil;
         $this->orderItemRepository = $orderItemRepository;
         $this->emailSender = $emailSender;
     }
@@ -150,8 +112,7 @@ class InvoiceService
      * @param ShipmentInterface $shipment
      * @param OrderPaymentInterface $payment
      * @return bool
-     * @throws ClientExceptionInterface
-     * @throws LocalizedException
+     * @throws Exception
      */
     public function createInvoiceAfterShipment(
         OrderInterface $order,
@@ -159,38 +120,14 @@ class InvoiceService
         OrderPaymentInterface $payment
     ): bool {
         $orderIncrementId = $order->getIncrementId();
-        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-        $transaction = $transactionManager->get($orderIncrementId);
-        $invoiceData = [];
-
-        foreach ($shipment->getItems() as $item) {
-            $orderItemId = (int)$item->getOrderItemId();
-            $shippedQty = (float)$item->getQty();
-            $orderItem = $this->orderItemRepository->get($orderItemId);
-            $orderQtyToInvoice = $orderItem->getQtyToInvoice();
-            $canInvoiceQty = ($shippedQty <= $orderQtyToInvoice) ? $shippedQty : $orderQtyToInvoice;
-
-            if ($canInvoiceQty) {
-                $invoiceData[$orderItemId] = $item->getQty();
-            }
-        }
+        $invoiceData = $this->getInvoiceItemsQtyDataFromShipment($shipment);
 
         if ($order->canInvoice() && $invoiceData) {
             $payment->setShipment($shipment);
-            $invoice = $this->createInvoiceByInvoiceData($order, $payment, $transaction, $invoiceData);
+            $invoice = $this->createInvoiceByInvoiceData($order, $payment, $invoiceData);
             $invoiceId = $invoice->getIncrementId();
-            $this->logger->logInfoForOrder($orderIncrementId, __('Invoice %1 was created.', $invoiceId)->render());
-
-            try {
-                if ($this->emailSender->sendInvoiceEmail($payment, $invoice)) {
-                    $this->logger->logInfoForOrder(
-                        $orderIncrementId,
-                        __('Email for invoice %1 was sent.', $invoiceId)->render()
-                    );
-                }
-            } catch (MailException $mailException) {
-                $this->logger->logExceptionForOrder($orderIncrementId, $mailException, Logger::INFO);
-            }
+            $this->logger->logInfoForOrder($orderIncrementId, __('Manual capture invoice %1 was created.', $invoiceId)
+                ->render());
 
             return true;
         }
@@ -201,7 +138,6 @@ class InvoiceService
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
      * @param array $invoiceData
      * @return InvoiceInterface
      * @throws Exception
@@ -209,11 +145,10 @@ class InvoiceService
     public function createInvoiceByInvoiceData(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction,
         array $invoiceData
     ): InvoiceInterface {
         if (!$payment->canCapture() || !$payment->canCapturePartial()) {
-            throw new Exception("Invoice can't be created");
+            throw new Exception("Invoice can't be captured");
         }
 
         /** @var InvoiceInterface $invoice */
@@ -241,14 +176,14 @@ class InvoiceService
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param Transaction $transaction
-     * @param $invoiceAmount
+     * @param float|null $invoiceAmount
      * @return bool
      */
     public function invoiceByAmount(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         Transaction $transaction,
-        $invoiceAmount
+        ?float $invoiceAmount
     ): bool {
         if ($order->canInvoice()) {
             $payment->setTransactionId($transaction->getData()['transaction_id'])
@@ -282,6 +217,26 @@ class InvoiceService
     }
 
     /**
+     * @param OrderPaymentInterface $payment
+     * @param InvoiceInterface $invoice
+     * @throws Exception
+     */
+    public function sendInvoiceEmail(OrderPaymentInterface $payment, InvoiceInterface $invoice): void
+    {
+        try {
+            $orderIncrementId = $invoice->getOrder()->getIncrementId();
+            if ($this->emailSender->sendInvoiceEmail($payment, $invoice)) {
+                $this->logger->logInfoForOrder(
+                    $orderIncrementId,
+                    __('Email for invoice %1 was sent.', $invoice->getIncrementId())->render()
+                );
+            }
+        } catch (MailException $mailException) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $mailException, Logger::INFO);
+        }
+    }
+
+    /**
      * @param string $orderId
      * @return InvoiceInterface[]
      */
@@ -299,18 +254,32 @@ class InvoiceService
     public function getLastCreatedInvoiceByOrderId(string $orderId): ?InvoiceInterface
     {
         if ($invoices = $this->getInvoicesByOrderId($orderId)) {
-            return reset($invoices);
+            return end($invoices);
         }
 
         return null;
     }
 
     /**
-     * @param OrderInterface $order
-     * @return bool
+     * @param ShipmentInterface $shipment
+     * @return array
      */
-    public function isFirstShipmentForOrder(OrderInterface $order): bool
+    private function getInvoiceItemsQtyDataFromShipment(ShipmentInterface $shipment): array
     {
-        return (bool)($order->getShipmentsCollection()->getSize() <= 1);
+        $invoiceData = [];
+
+        foreach ($shipment->getItems() as $item) {
+            $orderItemId = (int)$item->getOrderItemId();
+            $shippedQty = (float)$item->getQty();
+            $orderItem = $this->orderItemRepository->get($orderItemId);
+            $orderQtyToInvoice = $orderItem->getQtyToInvoice();
+            $canInvoiceQty = ($shippedQty <= $orderQtyToInvoice) ? $shippedQty : $orderQtyToInvoice;
+
+            if ($canInvoiceQty) {
+                $invoiceData[$orderItemId] = $item->getQty();
+            }
+        }
+
+        return $invoiceData;
     }
 }

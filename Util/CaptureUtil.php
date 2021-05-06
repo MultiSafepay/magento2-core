@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
@@ -35,6 +36,21 @@ class CaptureUtil
     ];
 
     /**
+     * @var DateTime
+     */
+    private $dateTime;
+
+    /**
+     * CaptureUtil constructor.
+     *
+     * @param DateTime $dateTime
+     */
+    public function __construct(DateTime $dateTime)
+    {
+        $this->dateTime = $dateTime;
+    }
+
+    /**
      * @param Transaction $transaction
      * @param float $amount
      * @return bool
@@ -43,8 +59,8 @@ class CaptureUtil
     {
         $paymentDetails = $transaction->getPaymentDetails();
 
-        return $this->isCaptureManualTransaction($transaction) && $paymentDetails->getCaptureRemain()
-               && (float)$paymentDetails->getCaptureRemain() >= $amount;
+        return $paymentDetails->getCaptureRemain()
+               && (float)$paymentDetails->getCaptureRemain() >= round($amount * 100, 10);
     }
 
     /**
@@ -57,6 +73,21 @@ class CaptureUtil
 
         return $transaction->getFinancialStatus() === TransactionStatus::INITIALIZED && $paymentDetails->getCapture()
                && $paymentDetails->getCapture() === CaptureRequest::CAPTURE_MANUAL_TYPE;
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @return bool
+     */
+    public function isCaptureManualReservationExpired(Transaction $transaction): bool
+    {
+        $paymentDetails = $transaction->getPaymentDetails();
+
+        if (!($reservationExpirationData = $paymentDetails->getCaptureExpiry())) {
+            return true;
+        }
+
+        return $this->dateTime->timestamp($reservationExpirationData) < $this->dateTime->timestamp();
     }
 
     /**

@@ -22,7 +22,6 @@ use Magento\Sales\Api\Data\ShipmentInterface;
 
 class ShipmentUtil
 {
-
     /**
      * @param OrderInterface $order
      * @param ShipmentInterface $shipment
@@ -49,6 +48,15 @@ class ShipmentUtil
         }
 
         return $shipment->getTracks()[0]->getTrackNumber();
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return bool
+     */
+    public function isOrderShippedPartially(OrderInterface $order): bool
+    {
+        return !($this->isOrderShipped($order) && (int)$order->getShipmentsCollection()->getSize() === 1);
     }
 
     /**

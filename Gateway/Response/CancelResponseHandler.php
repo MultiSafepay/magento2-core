@@ -17,47 +17,37 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Response;
 
-use Exception;
-use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\ConnectCore\Logger\Logger;
 
 class CancelResponseHandler implements HandlerInterface
 {
-    public const MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME = "multisafepay_capture_data";
+    /**
+     * @var Logger
+     */
+    private $logger;
 
     /**
-     * @inheritDoc
+     * CancelResponseHandler constructor.
+     *
+     * @param Logger $logger
      */
-    public function handle(array $handlingSubject, array $response)
+    public function __construct(Logger $logger)
     {
-        if (isset($response['success']) && $response['success']) {
-            /*throw new Exception(__('Response API data is not valid.')->render());*/
-        }
-
-        //$payment->setTransactionId($response['transaction_id']);
-        //$payment->setAdditionalInformation(
-        //    self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
-        //    array_merge(
-        //        (array)$payment->getAdditionalInformation(self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME),
-        //        [$this->prepareCaptureDataFromResponse($response, $amount)]
-        //    )
-        //);
-
-        return $this;
+        $this->logger = $logger;
     }
 
     /**
-     * @param array $response
-     * @param float $amount
-     * @return array[]
+     * @param array $handlingSubject
+     * @param array|null $response
      */
-    private function prepareCaptureDataFromResponse(array $response, float $amount): array
+    public function handle(array $handlingSubject, ?array $response): void
     {
-        return [
-            'transaction_id' => $response['transaction_id'],
-            'order_id' => $response['order_id'],
-            'amount' => $amount,
-        ];
+        if ($response && isset($response['success']) && $response['success']) {
+            $this->logger->logInfoForOrder(
+                $response['order_id'] ? $response['order_id'] : '',
+                'Reservation for MultiSafepay order was canceled.'
+            );
+        }
     }
 }
