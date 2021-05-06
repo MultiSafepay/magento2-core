@@ -21,6 +21,11 @@ class AfterpayValidator extends BaseGatewayValidator
 {
     public const AVAILABLE_VALIDATORS = [
         'date_of_birth',
-        'gender'
+        'gender',
+        'empty_field'
+    ];
+
+    public const EMPTY_VALIDATOR_FIELDS = [
+        'phone_number'
     ];
 }
