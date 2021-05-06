@@ -17,43 +17,74 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use MultiSafepay\ConnectCore\Config\Config;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Model\Calculation;
+use Magento\Tax\Model\Config as taxConfig;
 
 class TaxUtil
 {
     /**
-     * @var Config
+     * @var Calculation
      */
-    private $config;
+    private $calculation;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    private $quoteRepository;
 
     /**
      * GrandTotalUtil constructor.
      *
-     * @param Config $config
+     * @param CartRepositoryInterface $quoteRepository
+     * @param Calculation $calculation
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
-        Config $config
+        CartRepositoryInterface $quoteRepository,
+        Calculation $calculation,
+        ScopeConfigInterface $scopeConfig
     ) {
-        $this->config = $config;
+        $this->quoteRepository = $quoteRepository;
+        $this->calculation = $calculation;
+        $this->scopeConfig = $scopeConfig;
     }
 
     /**
      * @param OrderInterface $order
      * @return float
+     * @throws NoSuchEntityException
      */
     public function getShippingTaxRate(OrderInterface $order): float
     {
-        if ($this->config->useBaseCurrency($order->getStoreId())) {
-            $shippingTaxAmount = $order->getBaseShippingTaxAmount();
-            $originalShippingAmount = $order->getBaseShippingInclTax() - $shippingTaxAmount;
+        {
+            $store = $order->getStore();
 
-            return (float) $shippingTaxAmount / $originalShippingAmount * 100;
+            $quote = $this->quoteRepository->get($order->getQuoteId());
+
+            $request = $this->calculation->getRateRequest(
+                $order->getShippingAddress(),
+                $order->getBillingAddress(),
+                $quote->getCustomerTaxClassId(),
+                $store
+            );
+
+            $taxRateId = $this->scopeConfig->getValue(
+                TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+                ScopeInterface::SCOPE_STORES,
+                $order->getStoreId()
+            );
+
+            return $this->calculation->getRate($request->setProductClassId($taxRateId));
         }
-
-        $shippingTaxAmount = $order->getShippingTaxAmount();
-        $originalShippingAmount = $order->getShippingInclTax() - $shippingTaxAmount;
-
-        return (float) $shippingTaxAmount / $originalShippingAmount * 100;
     }
 }
