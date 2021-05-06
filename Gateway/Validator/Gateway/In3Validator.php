@@ -17,12 +17,15 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator\Gateway;
 
-use Magento\Payment\Gateway\Validator\ResultInterface;
-
 class In3Validator extends BaseGatewayValidator
 {
     public const AVAILABLE_VALIDATORS = [
         'date_of_birth',
-        'gender'
+        'gender',
+        'empty_field'
+    ];
+
+    public const EMPTY_VALIDATOR_FIELDS = [
+        'phone_number'
     ];
 }
