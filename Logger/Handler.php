@@ -17,7 +17,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Logger;
 
+use Exception;
+use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Logger\Handler\Base;
+use MultiSafepay\ConnectCore\Config\Config;
 
 class Handler extends Base
 {
@@ -33,11 +36,39 @@ class Handler extends Base
     protected $level = Logger::INFO;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * Handler constructor.
+     *
+     * @param Config $config
+     * @param DriverInterface $filesystem
+     * @param null $filePath
+     * @param null $fileName
+     * @throws Exception
+     */
+    public function __construct(
+        Config $config,
+        DriverInterface $filesystem,
+        $filePath = null,
+        $fileName = null
+    ) {
+        $this->config = $config;
+        parent::__construct($filesystem, $filePath, $fileName);
+    }
+
+    /**
      * @param array $record
      * @return bool
      */
     public function isHandling(array $record)
     {
-        return $record['level'] !== Logger::DEBUG;
+        if ($this->config->isDebug()) {
+            return true;
+        }
+
+        return $record['level'] >= Logger::WARNING;
     }
 }

@@ -23,7 +23,6 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 class In3DataAssignObserver extends AbstractDataAssignObserver
 {
-
     /**
      * @inheritDoc
      */
@@ -33,12 +32,8 @@ class In3DataAssignObserver extends AbstractDataAssignObserver
 
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
-
-        if (isset($additionalData['date_of_birth'])) {
-            $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth']);
-        }
-        if (isset($additionalData['gender'])) {
-            $payment->setAdditionalInformation('gender', $additionalData['gender']);
-        }
+        $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth'] ?? null);
+        $payment->setAdditionalInformation('gender', $additionalData['gender'] ?? null);
+        $payment->setAdditionalInformation('telephone', $additionalData['telephone'] ?? null);
     }
 }
