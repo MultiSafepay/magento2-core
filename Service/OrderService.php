@@ -41,6 +41,7 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
@@ -119,6 +120,11 @@ class OrderService
     private $invoiceRepository;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -135,6 +141,7 @@ class OrderService
      * @param Config $config
      * @param SdkFactory $sdkFactory
      * @param OrderStatusUtil $orderStatusUtil
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -150,7 +157,8 @@ class OrderService
         InvoiceRepositoryInterface $invoiceRepository,
         Config $config,
         SdkFactory $sdkFactory,
-        OrderStatusUtil $orderStatusUtil
+        OrderStatusUtil $orderStatusUtil,
+        JsonHandler $jsonHandler
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -166,6 +174,7 @@ class OrderService
         $this->config = $config;
         $this->sdkFactory = $sdkFactory;
         $this->orderStatusUtil = $orderStatusUtil;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -179,11 +188,20 @@ class OrderService
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __(
+                'Transaction data was retrieved: %1',
+                $this->jsonHandler->convertToPrettyJSON($transaction->getData())
+            )->render(),
+            Logger::DEBUG
+        );
 
         if ($this->emailSender->sendOrderConfirmationEmail($order)) {
             $this->logger->logInfoForOrder(
                 $orderId,
-                __('Order confirmation email after transaction has been sent')->render()
+                __('Order confirmation email after transaction has been sent')->render(),
+                Logger::DEBUG
             );
         }
 
@@ -205,7 +223,7 @@ class OrderService
         ]);
 
         if ($isVaultInitialized) {
-            $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render());
+            $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render(), Logger::DEBUG);
         }
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
@@ -213,10 +231,9 @@ class OrderService
         }
 
         $transactionStatus = $transaction->getStatus();
-
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
-        $this->logger->logInfoForOrder($orderId, $transactionStatusMessage);
+        $this->logger->logInfoForOrder($orderId, $transactionStatusMessage, Logger::DEBUG);
 
         switch ($transactionStatus) {
             case TransactionStatus::COMPLETED:
@@ -264,11 +281,9 @@ class OrderService
             if (isset($method['gateway_code']) && $method['gateway_code'] === $transactionType
                 && strpos($code, '_recurring') === false) {
                 $payment->setMethod($code);
-
                 $logMessage = __('Payment method changed to ') . $transactionType;
-
                 $order->addCommentToStatusHistory($logMessage);
-                $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage);
+                $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage, Logger::DEBUG);
             }
         }
     }
@@ -302,12 +317,13 @@ class OrderService
         $orderId = $order->getIncrementId();
         $this->logger->logInfoForOrder(
             $orderId,
-            __('MultiSafepay order transaction complete process has been started.')->render()
+            __('MultiSafepay order transaction complete process has been started.')->render(),
+            Logger::DEBUG
         );
 
         if ($order->getState() === Order::STATE_CANCELED) {
             $this->secondChance->reopenOrder($order);
-            $this->logger->logInfoForOrder($order->getIncrementId(), __('The order has been reopened.')->render());
+            $this->logger->logInfoForOrder($orderId, __('The order has been reopened.')->render(), Logger::DEBUG);
         }
 
         if ($this->emailSender->sendOrderConfirmationEmail(
@@ -316,7 +332,8 @@ class OrderService
         )) {
             $this->logger->logInfoForOrder(
                 $orderId,
-                __('Order confirmation email after paid transaction has been sent')->render()
+                __('Order confirmation email after paid transaction has been sent')->render(),
+                Logger::DEBUG
             );
         }
 
@@ -331,8 +348,12 @@ class OrderService
             $payment->setParentTransactionId($transaction->getData()['transaction_id']);
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Invoice created');
-            $paymentTransaction = $payment->addTransaction(PaymentTransaction::TYPE_CAPTURE, null, true);
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $paymentTransaction = $payment->addTransaction(
+                PaymentTransaction::TYPE_CAPTURE,
+                null,
+                true
+            );
 
             if ($paymentTransaction !== null) {
                 $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
@@ -346,7 +367,11 @@ class OrderService
             $order->setState(Order::STATE_PROCESSING);
             $order->setStatus($status);
             $this->orderRepository->save($order);
-            $this->logger->logInfoForOrder($orderId, 'Order status has been changed to: ' . $status);
+            $this->logger->logInfoForOrder(
+                $orderId,
+                'Order status has been changed to: ' . $status,
+                Logger::DEBUG
+            );
         }
 
         foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
@@ -354,7 +379,7 @@ class OrderService
 
             try {
                 if ($this->emailSender->sendInvoiceEmail($payment, $invoice)) {
-                    $this->logger->logInfoForOrder($orderId, __('Invoice email was sent.')->render());
+                    $this->logger->logInfoForOrder($orderId, __('Invoice email was sent.')->render(), Logger::DEBUG);
                 }
             } catch (MailException $mailException) {
                 $this->logger->logExceptionForOrder($orderId, $mailException, Logger::INFO);
@@ -377,7 +402,8 @@ class OrderService
 
         $this->logger->logInfoForOrder(
             $orderId,
-            __('MultiSafepay order transaction complete process has been finished successfully.')->render()
+            __('MultiSafepay order transaction complete process has been finished successfully.')->render(),
+            Logger::DEBUG
         );
     }
 
