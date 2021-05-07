@@ -102,17 +102,22 @@ abstract class AbstractTestCase extends TestCase
         $paymentDataObjectFactory = $this->getObjectManager()->get(PaymentDataObjectFactoryInterface::class);
         $paymentDataObject = $paymentDataObjectFactory->create($order->getPayment());
         $paymentDataObject->getPayment()->setAdditionalInformation('transaction_type', $type);
+
         return $paymentDataObject;
     }
 
     /**
      * @param string $reservedOrderId
+     * @param bool $lastQuote
      * @return Quote
      * @throws Exception
      */
-    protected function getQuote(string $reservedOrderId): Quote
+    protected function getQuote(string $reservedOrderId, bool $lastQuote = false): Quote
     {
-        $this->includeFixtureFile('quote_with_multiple_products');
+        if (!$lastQuote) {
+            $this->includeFixtureFile('quote_with_multiple_products');
+        }
+
         $configResource = $this->getObjectManager()->get(ConfigResourceModel::class);
         $configResource->saveConfig(
             'general/country/allow',
@@ -123,8 +128,8 @@ abstract class AbstractTestCase extends TestCase
 
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->getObjectManager()->get(SearchCriteriaBuilder::class);
-        $searchCriteria = $searchCriteriaBuilder->addFilter('reserved_order_id', $reservedOrderId)
-            ->create();
+        $searchCriteria = $lastQuote ? $searchCriteriaBuilder->create()
+            : $searchCriteriaBuilder->addFilter('reserved_order_id', $reservedOrderId)->create();
 
         /** @var CartRepositoryInterface $quoteRepository */
         $quoteRepository = $this->getObjectManager()->get(CartRepositoryInterface::class);
