@@ -29,10 +29,14 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Tax\Api\TaxCalculationInterface;
+use Magento\Tax\Model\Config;
+use Magento\Tax\Model\Sales\Total\Quote\SetupUtil;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 
@@ -108,16 +112,12 @@ abstract class AbstractTestCase extends TestCase
 
     /**
      * @param string $reservedOrderId
-     * @param bool $lastQuote
      * @return Quote
      * @throws Exception
      */
-    protected function getQuote(string $reservedOrderId, bool $lastQuote = false): Quote
+    protected function getQuote(string $reservedOrderId): Quote
     {
-        if (!$lastQuote) {
-            $this->includeFixtureFile('quote_with_multiple_products');
-        }
-
+        $this->includeFixtureFile('quote_with_multiple_products');
         $configResource = $this->getObjectManager()->get(ConfigResourceModel::class);
         $configResource->saveConfig(
             'general/country/allow',
@@ -128,8 +128,7 @@ abstract class AbstractTestCase extends TestCase
 
         /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
         $searchCriteriaBuilder = $this->getObjectManager()->get(SearchCriteriaBuilder::class);
-        $searchCriteria = $lastQuote ? $searchCriteriaBuilder->create()
-            : $searchCriteriaBuilder->addFilter('reserved_order_id', $reservedOrderId)->create();
+        $searchCriteria = $searchCriteriaBuilder->addFilter('reserved_order_id', $reservedOrderId)->create();
 
         /** @var CartRepositoryInterface $quoteRepository */
         $quoteRepository = $this->getObjectManager()->get(CartRepositoryInterface::class);
@@ -169,5 +168,80 @@ abstract class AbstractTestCase extends TestCase
         chdir($rootPath . '/dev/tests/integration/testsuite/');
         require($fixturePath);
         chdir($cwd);
+    }
+
+    /**
+     * @param array $taxAdditionalData
+     * @return CartInterface
+     */
+    protected function getQuoteWithTaxesAndDiscount(array $taxAdditionalData = []): CartInterface
+    {
+        $setupUtil = new SetupUtil($this->getObjectManager());
+        $taxData = $taxAdditionalData ? array_merge_recursive($taxAdditionalData, $this->getSampleTaxDataWithDiscount())
+            : $this->getSampleTaxDataWithDiscount();
+        $setupUtil->setupTax($taxData['config_data']);
+        $quote = $setupUtil->setupQuote($taxData['quote_data']);
+        $quote->collectTotals();
+
+        return $quote;
+    }
+
+    /**
+     * @return array[]
+     */
+    protected function getSampleTaxDataWithDiscount(): array
+    {
+        return [
+            'config_data' => [
+                'config_overrides' => [
+                    Config::CONFIG_XML_PATH_APPLY_AFTER_DISCOUNT => 1,
+                    Config::CONFIG_XML_PATH_DISCOUNT_TAX => 1,
+                    Config::XML_PATH_ALGORITHM => TaxCalculationInterface::CALC_ROW_BASE,
+                    Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS => SetupUtil::SHIPPING_TAX_CLASS,
+                ],
+                'tax_rate_overrides' => [
+                    SetupUtil::TAX_RATE_TX => 18,
+                    SetupUtil::TAX_RATE_SHIPPING => 0,
+                ],
+                'tax_rule_overrides' => [
+                    [
+                        'code' => 'Product Tax Rule',
+                        'product_tax_class_ids' => [
+                            SetupUtil::PRODUCT_TAX_CLASS_1,
+                        ],
+                    ],
+                    [
+                        'code' => 'Shipping Tax Rule',
+                        'product_tax_class_ids' => [
+                            SetupUtil::SHIPPING_TAX_CLASS,
+                        ],
+                        'tax_rate_ids' => [
+                            SetupUtil::TAX_RATE_SHIPPING,
+                        ],
+                    ],
+                ],
+            ],
+            'quote_data' => [
+                'billing_address' => [
+                    'region_id' => SetupUtil::REGION_TX,
+                ],
+                'shipping_address' => [
+                    'region_id' => SetupUtil::REGION_TX,
+                ],
+                'items' => [
+                    [
+                        'sku' => 'simple1',
+                        'price' => 2542.37,
+                        'qty' => 2,
+                    ],
+                ],
+                'shipping_method' => 'flatrate_flatrate',
+                'shopping_cart_rules' => [
+                    [
+                        'discount_amount' => 20,
+                    ],
+                ],
+            ],
+        ];
     }
 }
