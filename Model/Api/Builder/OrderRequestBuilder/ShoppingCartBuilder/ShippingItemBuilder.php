@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
@@ -53,6 +54,7 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
      * @param OrderInterface $order
      * @param string $currency
      * @return Item[]
+     * @throws NoSuchEntityException
      */
     public function build(OrderInterface $order, string $currency): array
     {
