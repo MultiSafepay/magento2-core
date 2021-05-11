@@ -100,8 +100,6 @@ class ZipUtil
         $directory = $this->directoryList->getPath(DirectoryList::LOG);
         $path = $this->directoryList->getPath(DirectoryList::TMP);
 
-        $this->systemReportUtil->createSystemReport();
-
         $zipFile = new ZipArchive();
         $zipFile->open(
             $path . DIRECTORY_SEPARATOR . self::ZIP_ARCHIVE_NAME,
@@ -116,7 +114,21 @@ class ZipUtil
             }
         }
 
+        try {
+            $this->systemReportUtil->createSystemReport();
+            $systemReportFilePath = $path . DIRECTORY_SEPARATOR . SystemReportUtil::SYSTEM_REPORT_FILE_NAME;
+            $zipFile->addFile($systemReportFilePath, $this->file->getPathInfo($systemReportFilePath)['basename']);
+        } catch (FileSystemException $fileSystemException) {
+            $this->logger->logFileSystemException($fileSystemException);
+        }
+
         $zipFile->close();
+
+        try {
+            $this->systemReportUtil->flushSystemReport();
+        } catch (FileSystemException $fileSystemException) {
+            $this->logger->logFileSystemException($fileSystemException);
+        }
 
         return $this->fileFactory->create(
             self::ZIP_ARCHIVE_NAME,

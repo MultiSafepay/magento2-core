@@ -17,13 +17,19 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\State;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File;
+use Magento\Framework\Module\FullModuleList;
+use Magento\Payment\Model\Config;
 
 class SystemReportUtil
 {
+    public const SYSTEM_REPORT_FILE_NAME = 'multisafepay_system_report.json';
+
     /**
      * @var State
      */
@@ -39,15 +45,61 @@ class SystemReportUtil
      */
     private $driverFile;
 
+    /**
+     * @var ProductMetadataInterface
+     */
+    private $productMetaData;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
+     * @var Config
+     */
+    private $paymentConfig;
+
+    /**
+     * @var FullModuleList
+     */
+    private $moduleList;
+
+    /**
+     * SystemReportUtil constructor.
+     *
+     * @param DirectoryList $directoryList
+     * @param File $driverFile
+     * @param FullModuleList $moduleList
+     * @param JsonHandler $jsonHandler
+     * @param ProductMetadataInterface $productMetadata
+     * @param State $appState
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Config $paymentConfig
+     */
     public function __construct(
         DirectoryList $directoryList,
         File $driverFile,
-        State $appState
-    )
-    {
+        FullModuleList $moduleList,
+        JsonHandler $jsonHandler,
+        ProductMetadataInterface $productMetadata,
+        State $appState,
+        ScopeConfigInterface $scopeConfig,
+        Config $paymentConfig
+    ) {
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
+        $this->jsonHandler = $jsonHandler;
+        $this->moduleList = $moduleList;
         $this->appState = $appState;
+        $this->productMetaData = $productMetadata;
+        $this->scopeConfig = $scopeConfig;
+        $this->paymentConfig = $paymentConfig;
     }
 
     /**
@@ -55,14 +107,56 @@ class SystemReportUtil
      */
     public function createSystemReport(): void
     {
-        $file = $this->driverFile->fileOpen($this->directoryList->getPath(DirectoryList::TMP) . DIRECTORY_SEPARATOR .
-                                            'multisafepay_system_report.json',
-            'w+');
+        $file = $this->openSystemReport();
 
-        $text = 'this is a test';
+        $systemReport = [
+            'magento_info' => [
+                'magento_version' => $this->getMagentoVersion(),
+                'magento_mode' => $this->getMagentoMode(),
+            ],
+            'server_info' => [
+                'root_path' => $this->getRootServerPath(),
+                'magento_server_user' => $this->getServerUser(),
+                'php_version' => $this->getPhpVersion(),
+                'operating_system' => $this->getSystemInfo(),
+                'web_server' => $this->getWebServerInfo(),
+            ],
+            'configuration_info' => [
+                'tax_calculation' => $this->getTaxConfig(),
+                'multisafepay_configuration' => [
+                    'multisafepay_general_config' => $this->getMultiSafepayGeneralConfig(),
+                    'multisafepay_advanced_config' => $this->getMultiSafepayAdvancedConfig(),
+                ],
+            ],
+            'active_payment_methods' => $this->getActivePaymentMethods(),
+            'third_party_modules' => $this->getThirdPartyModules(),
+        ];
 
-        $this->driverFile->fileWrite($file, $text);
+        $this->driverFile->fileWrite($file, $this->jsonHandler->convertToPrettyJSON($systemReport));
         $this->driverFile->fileClose($file);
+    }
+
+    /**
+     * @throws FileSystemException
+     */
+    public function flushSystemReport(): void
+    {
+        $file = $this->openSystemReport();
+
+        $this->driverFile->fileFlush($file);
+    }
+
+    /**
+     * @return resource
+     * @throws FileSystemException
+     */
+    public function openSystemReport()
+    {
+        return $this->driverFile->fileOpen(
+            $this->directoryList->getPath(DirectoryList::TMP)
+            . DIRECTORY_SEPARATOR . self::SYSTEM_REPORT_FILE_NAME,
+            'w+'
+        );
     }
 
     /**
@@ -79,5 +173,110 @@ class SystemReportUtil
     private function getRootServerPath(): string
     {
         return $this->directoryList->getRoot();
+    }
+
+    /**
+     * @return string
+     */
+    private function getMagentoVersion(): string
+    {
+        return $this->productMetaData->getName() . ' ' . $this->productMetaData->getEdition() . ' ' .
+               $this->productMetaData->getVersion();
+    }
+
+    /**
+     * @return array
+     */
+    private function getTaxConfig(): array
+    {
+        return (array)$this->scopeConfig->getValue('tax/calculation');
+    }
+
+    /**
+     * @return array
+     */
+    private function getMultiSafepayGeneralConfig(): array
+    {
+        return (array)$this->scopeConfig->getValue('multisafepay/general');
+    }
+
+    /**
+     * @return array
+     */
+    private function getMultiSafepayAdvancedConfig(): array
+    {
+        return (array)$this->scopeConfig->getValue('multisafepay/advanced');
+    }
+
+    /**
+     * @return array
+     */
+    private function getActivePaymentMethods(): array
+    {
+        return $this->paymentConfig->getActiveMethods();
+    }
+
+    /**
+     * @return array
+     */
+    private function getThirdPartyModules(): array
+    {
+        $allModules = $this->moduleList->getAll();
+        $thirdPartyModules = [];
+
+        foreach ($allModules as $module) {
+            if (strpos($module['name'], 'Magento_') !== false) {
+                continue;
+            }
+            $thirdPartyModules[] = $module['name'];
+        }
+
+        return $thirdPartyModules;
+    }
+
+    /**
+     * @return string
+     */
+    private function getServerUser(): string
+    {
+        if (function_exists('get_current_user')) {
+            return get_current_user();
+        }
+
+        return 'unknown';
+    }
+
+    /**
+     * @return string
+     */
+    private function getPhpVersion(): string
+    {
+        return PHP_VERSION;
+    }
+
+    /**
+     * @return array
+     */
+    private function getSystemInfo(): array
+    {
+        if (function_exists('php_uname')) {
+            return [
+                'name' => PHP_OS,
+                'host_name' => php_uname('n'),
+                'release_name' => php_uname('r'),
+                'version_info' => php_uname('v'),
+                'machine_type' => php_uname('m'),
+            ];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return string
+     */
+    private function getWebServerInfo(): string
+    {
+        return $_SERVER['SERVER_SOFTWARE'];
     }
 }
