@@ -23,7 +23,7 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
-use Magento\Tax\Model\Config as taxConfig;
+use Magento\Tax\Model\Config as TaxConfig;
 
 class TaxUtil
 {
@@ -66,25 +66,22 @@ class TaxUtil
      */
     public function getShippingTaxRate(OrderInterface $order): float
     {
-        {
-            $store = $order->getStore();
+        $store = $order->getStore();
+        $quote = $this->quoteRepository->get($order->getQuoteId());
 
-            $quote = $this->quoteRepository->get($order->getQuoteId());
+        $request = $this->calculation->getRateRequest(
+            $order->getShippingAddress(),
+            $order->getBillingAddress(),
+            $quote->getCustomerTaxClassId(),
+            $store
+        );
 
-            $request = $this->calculation->getRateRequest(
-                $order->getShippingAddress(),
-                $order->getBillingAddress(),
-                $quote->getCustomerTaxClassId(),
-                $store
-            );
+        $taxRateId = $this->scopeConfig->getValue(
+            TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+            ScopeInterface::SCOPE_STORES,
+            $order->getStoreId()
+        );
 
-            $taxRateId = $this->scopeConfig->getValue(
-                TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-                ScopeInterface::SCOPE_STORES,
-                $order->getStoreId()
-            );
-
-            return $this->calculation->getRate($request->setProductClassId($taxRateId));
-        }
+        return $this->calculation->getRate($request->setProductClassId($taxRateId));
     }
 }
