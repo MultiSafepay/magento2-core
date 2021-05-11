@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Changed zip file to be stored temporarily inside var/tmp directory instead of root directory.
+- Changed the retrieval of the shipping tax from a calculation based method on the amount to retrieving it via a rate request to improve the accuracy.
 
 ## [2.5.2] - 2021-04-19
 ### Changed
