@@ -12,6 +12,7 @@ use Magento\Framework\Filesystem;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use Magento\Payment\Gateway\Config\Config as PaymentConfig;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
@@ -54,6 +55,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param ResolverInterface $localeResolver
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
+     * @param PaymentConfig $paymentConfig
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -62,6 +64,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         Session $checkoutSession,
         Logger $logger,
         ResolverInterface $localeResolver,
+        PaymentConfig $paymentConfig,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager
     ) {
@@ -73,7 +76,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
             $sdkFactory,
             $checkoutSession,
             $logger,
-            $localeResolver
+            $localeResolver,
+            $paymentConfig
         );
     }
 

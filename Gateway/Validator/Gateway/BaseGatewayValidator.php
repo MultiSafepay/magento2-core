@@ -22,6 +22,7 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\EmptyFieldValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\GatewayFieldValidatorPool;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 class BaseGatewayValidator extends AbstractValidator
 {
@@ -56,6 +57,13 @@ class BaseGatewayValidator extends AbstractValidator
 
         if (!$payment) {
             return $this->createResult(false, [__('Can\'t get a payment information')]);
+        }
+
+        // If transaction type is set to 'redirect' then do not validate additional fields
+        if ($payment->getMethodInstance()->getConfigData('transaction_type') ===
+            TransactionTypeBuilder::DEFAULT_TRANSACTION_TYPE
+        ) {
+            return $this->createResult(true);
         }
 
         if ($paymentAdditionalInformation = $payment->getAdditionalInformation()) {
