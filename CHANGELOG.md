@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added separate phone number field for Afterpay & in3, which will already be filled in if the phone number is present in the billing address
 - Added notification about new versions of plugin in admin panel.
+- Added System report to downloadable log archive for improved debugging.
 
 ### Fixed
 - Fixed bug where 'File not found' error would occur when trying to download log files with ROOT path set to 'pub'.
