@@ -231,8 +231,7 @@ class Logger extends CoreLogger
      */
     public function logFileSystemException(FileSystemException $fileSystemException): void
     {
-        $this->error(sprintf(
-        'FileSystemException occured. message: %1$d, code: %2$d, line: %3$d, file: %4$d)',
+        $this->error(sprintf('FileSystemException occured. message: %1$d, code: %2$d, line: %3$d, file: %4$d)',
             $fileSystemException->getMessage(),
             $fileSystemException->getCode(),
             $fileSystemException->getLine(),
