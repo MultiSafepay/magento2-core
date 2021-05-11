@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
+use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class EinvoicingConfigProvider extends GenericConfigProvider
