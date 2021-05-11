@@ -180,7 +180,18 @@ class OrderService
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
 
-        if ($this->emailSender->sendOrderConfirmationEmail($order)) {
+        $transactionStatus = $transaction->getStatus();
+
+        if (
+            in_array($transactionStatus,
+                [
+                    TransactionStatus::COMPLETED,
+                    TransactionStatus::INITIALIZED,
+                    TransactionStatus::RESERVED,
+                    TransactionStatus::SHIPPED
+                ]
+            )
+            && $this->emailSender->sendOrderConfirmationEmail($order)) {
             $this->logger->logInfoForOrder(
                 $orderId,
                 __('Order confirmation email after transaction has been sent')->render()
@@ -211,8 +222,6 @@ class OrderService
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             $this->changePaymentMethod($order, $payment, $transactionType);
         }
-
-        $transactionStatus = $transaction->getStatus();
 
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
