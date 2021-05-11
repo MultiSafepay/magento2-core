@@ -18,11 +18,12 @@ declare(strict_types=1);
 namespace MultiSafepay\Test\Integration\Util;
 
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Pricing\PriceCurrencyInterface as PriceRounder;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Tax\Model\Config;
+use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
-use Magento\Sales\Api\Data\OrderItemInterface;
-use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 
 class PriceUtilTest extends AbstractTestCase
 {
@@ -38,14 +39,26 @@ class PriceUtilTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
      * @throws LocalizedException
      */
     public function testGetGrandTotal(): void
     {
         $order = $this->getOrder();
 
-        self::assertEquals($this->priceUtil->getGrandTotal($order), (float)$order->getGrandTotal());
+        self::assertEquals((float)$order->getBaseGrandTotal(), $this->priceUtil->getGrandTotal($order));
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
+     * @throws LocalizedException
+     */
+    public function testGetBaseShippingUnitPrice(): void
+    {
+        $order = $this->getOrder();
+
+        self::assertEquals((float)$order->getBaseShippingAmount(), $this->priceUtil->getShippingUnitPrice($order));
     }
 
     /**
@@ -54,10 +67,12 @@ class PriceUtilTest extends AbstractTestCase
      */
     public function testGetBaseUnitPriceWithCatalogPriceIncludeTaxSetting(): void
     {
-        $this->checkCalculationEquals(1878.89, [
+        $this->checkCalculationEquals([
             'config_data' => [
                 'config_overrides' => [
                     Config::CONFIG_XML_PATH_PRICE_INCLUDES_TAX => 1,
+                    Config::CONFIG_XML_PATH_DISCOUNT_TAX => 1,
+                    Config::CONFIG_XML_PATH_APPLY_AFTER_DISCOUNT => 1,
                     sprintf(
                         MultiSafepayConfig::DEFAULT_PATH_PATTERN,
                         MultiSafepayConfig::USE_BASE_CURRENCY
@@ -73,10 +88,12 @@ class PriceUtilTest extends AbstractTestCase
      */
     public function testGetBaseUnitPriceWithCatalogPriceExcludedTaxSetting(): void
     {
-        $this->checkCalculationEquals(1942.37, [
+        $this->checkCalculationEquals([
             'config_data' => [
                 'config_overrides' => [
                     Config::CONFIG_XML_PATH_PRICE_INCLUDES_TAX => 0,
+                    Config::CONFIG_XML_PATH_DISCOUNT_TAX => 0,
+                    Config::CONFIG_XML_PATH_APPLY_AFTER_DISCOUNT => 1,
                     sprintf(
                         MultiSafepayConfig::DEFAULT_PATH_PATTERN,
                         MultiSafepayConfig::USE_BASE_CURRENCY
@@ -87,24 +104,23 @@ class PriceUtilTest extends AbstractTestCase
     }
 
     /**
-     * @param float $expectedUnitPrice
      * @param array $additionalTaxConfigs
      */
-    private function checkCalculationEquals(float $expectedUnitPrice, array $additionalTaxConfigs = []): void
+    private function checkCalculationEquals(array $additionalTaxConfigs = []): void
     {
+        $objectManager = $this->getObjectManager();
+        $priceRounder = $objectManager->create(PriceRounder::class);
         $quote = $this->getQuoteWithTaxesAndDiscount($additionalTaxConfigs);
         $quoteItem = $quote->getAllItems()[0];
-        $orderItem = $this->getObjectManager()
-            ->create(OrderItemInterface::class)
-            ->setData($quoteItem->getData())
+        $orderItem = $objectManager->create(OrderItemInterface::class)->setData($quoteItem->getData())
             ->setQtyOrdered($quoteItem->getQty());
-        $unitPrice = round($this->priceUtil->getUnitPrice($orderItem, $quote->getStoreId()), 2);
+        $unitPrice = $this->priceUtil->getUnitPrice($orderItem, $quote->getStoreId());
 
-        self::assertEquals($unitPrice, $expectedUnitPrice);
-
-        $grandTotal = $unitPrice * $quote->getItemsQty() + $quoteItem->getBaseTaxAmount() +
-                      $quote->getBaseShippingAmount();
-
-        self::assertEquals(round($grandTotal, 2), (float)$quote->getBaseGrandTotal());
+        self::assertEquals(
+            $priceRounder->roundPrice($quote->getBaseGrandTotal()),
+            $priceRounder->roundPrice(
+                $unitPrice * $quote->getItemsQty() + $quoteItem->getBaseTaxAmount() + $quote->getBaseShippingAmount()
+            ),
+        );
     }
 }

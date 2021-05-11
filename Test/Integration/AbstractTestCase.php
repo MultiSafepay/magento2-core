@@ -194,8 +194,6 @@ abstract class AbstractTestCase extends TestCase
         return [
             'config_data' => [
                 'config_overrides' => [
-                    Config::CONFIG_XML_PATH_APPLY_AFTER_DISCOUNT => 1,
-                    Config::CONFIG_XML_PATH_DISCOUNT_TAX => 1,
                     Config::XML_PATH_ALGORITHM => TaxCalculationInterface::CALC_ROW_BASE,
                     Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS => SetupUtil::SHIPPING_TAX_CLASS,
                 ],
