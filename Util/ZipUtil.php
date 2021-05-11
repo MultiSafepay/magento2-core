@@ -57,6 +57,11 @@ class ZipUtil
     private $fileFactory;
 
     /**
+     * @var SystemReportUtil
+     */
+    private $systemReportUtil;
+
+    /**
      * ZipUtil constructor.
      *
      * @param DirectoryList $directoryList
@@ -64,19 +69,22 @@ class ZipUtil
      * @param IoFile $file
      * @param File $driverFile
      * @param Logger $logger
+     * @param SystemReportUtil $systemReportUtil
      */
     public function __construct(
         DirectoryList $directoryList,
         FileFactory $fileFactory,
         IoFile $file,
         File $driverFile,
-        Logger $logger
+        Logger $logger,
+        SystemReportUtil $systemReportUtil
     ) {
         $this->fileFactory = $fileFactory;
         $this->logger = $logger;
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
         $this->file = $file;
+        $this->systemReportUtil = $systemReportUtil;
     }
 
     /**
@@ -91,6 +99,8 @@ class ZipUtil
 
         $directory = $this->directoryList->getPath(DirectoryList::LOG);
         $path = $this->directoryList->getPath(DirectoryList::TMP);
+
+        $this->systemReportUtil->createSystemReport();
 
         $zipFile = new ZipArchive();
         $zipFile->open(
