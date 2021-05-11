@@ -277,6 +277,7 @@ class SystemReportUtil
      */
     private function getWebServerInfo(): string
     {
+        // phpcs:ignore Magento2.Security.Superglobal.SuperglobalUsageWarning
         return $_SERVER['SERVER_SOFTWARE'];
     }
 }
