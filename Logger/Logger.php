@@ -236,6 +236,7 @@ class Logger extends CoreLogger
             $fileSystemException->getMessage(),
             $fileSystemException->getCode(),
             $fileSystemException->getLine(),
-            $fileSystemException->getFile()));
+            $fileSystemException->getFile())
+        );
     }
 }
