@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Directory\Model\PriceCurrency;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
@@ -37,7 +38,7 @@ class PriceUtil
     private $scopeConfig;
 
     /**
-     * GrandTotalUtil constructor.
+     * PriceUtil constructor.
      *
      * @param Config $config
      * @param ScopeConfigInterface $scopeConfig
@@ -71,6 +72,7 @@ class PriceUtil
     public function getUnitPrice(OrderItemInterface $item, $storeId): float
     {
         $orderedQuantity = (float)$item->getQtyOrdered();
+
         $isPriceIncludedTax = $this->scopeConfig->getValue(
             MagentoConfig::CONFIG_XML_PATH_PRICE_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE,
