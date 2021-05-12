@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed the logs zip archive to be stored temporarily inside the var/tmp directory instead of the root directory.
 - Changed the retrieval of the shipping tax from a calculation based method on the amount to retrieving it via a rate request to improve the accuracy.
-- Changed the info logs into debug and added log the transaction data. Also deleted unnecessary multisafepay-debug.log file.
+- Changed the info logs into debug and added transaction data to the log. Also deleted unnecessary multisafepay-debug.log file.
 
 ## [2.5.2] - 2021-04-19
 ### Changed
