@@ -67,14 +67,14 @@ class JsonHandler
     /**
      * Convert array into JSON
      *
-     * @param array $details
+     * @param array $data
      *
      * @return string
      */
-    public function convertToJSON(array $details): string
+    public function convertToJSON(array $data): string
     {
         try {
-            $json = $this->serializer->serialize($details);
+            $json = $this->serializer->serialize($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
             $this->logger->logJsonHandlerException($invalidArgumentException);
             $json = '{}';
