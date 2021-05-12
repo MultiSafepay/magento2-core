@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.6.0] - 2021-05-12
 ### Added
 - Added separate phone number field for Afterpay & in3, which will already be filled in if the phone number is present in the billing address.
 - Added notification about new versions of plugin in admin panel.
 - Added System report to downloadable log archive for improved debugging.
+- Added the possibility to change direct gateways method to redirect.
 
 ### Fixed
 - Fixed a bug where 'File not found' error would occur when trying to download log files with ROOT path set to 'pub'.
@@ -17,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed the logs zip archive to be stored temporarily inside the var/tmp directory instead of the root directory.
 - Changed the retrieval of the shipping tax from a calculation based method on the amount to retrieving it via a rate request to improve the accuracy.
+- Changed the info logs into debug and added log the transaction data. Also deleted unnecessary multisafepay-debug.log file.
 
 ## [2.5.2] - 2021-04-19
 ### Changed
