@@ -6,14 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added separate phone number field for Afterpay & in3, which will already be filled in if the phone number is present in the billing address
+- Added separate phone number field for Afterpay & in3, which will already be filled in if the phone number is present in the billing address.
 - Added notification about new versions of plugin in admin panel.
 
 ### Fixed
-- Fixed bug where 'File not found' error would occur when trying to download log files with ROOT path set to 'pub'.
+- Fixed a bug where 'File not found' error would occur when trying to download log files with ROOT path set to 'pub'.
+- Fixed a bug where in some cases the order confirmation e-mail would be sent when a transaction is expired. (Thanks to @basvanpoppel)
 
 ### Changed
-- Changed zip file to be stored temporarily inside var/tmp directory instead of root directory.
+- Changed the logs zip archive to be stored temporarily inside the var/tmp directory instead of the root directory.
 - Changed the retrieval of the shipping tax from a calculation based method on the amount to retrieving it via a rate request to improve the accuracy.
 
 ## [2.5.2] - 2021-04-19
