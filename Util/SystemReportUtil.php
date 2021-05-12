@@ -18,12 +18,13 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\State;
-use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Module\FullModuleList;
+use Magento\Framework\Module\Manager;
 use Magento\Payment\Model\Config;
 
 class SystemReportUtil
@@ -71,6 +72,11 @@ class SystemReportUtil
     private $moduleList;
 
     /**
+     * @var Manager
+     */
+    private $moduleManager;
+
+    /**
      * SystemReportUtil constructor.
      *
      * @param DirectoryList $directoryList
@@ -81,6 +87,7 @@ class SystemReportUtil
      * @param State $appState
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $paymentConfig
+     * @param Manager $moduleManager
      */
     public function __construct(
         DirectoryList $directoryList,
@@ -90,7 +97,8 @@ class SystemReportUtil
         ProductMetadataInterface $productMetadata,
         State $appState,
         ScopeConfigInterface $scopeConfig,
-        Config $paymentConfig
+        Config $paymentConfig,
+        Manager $moduleManager
     ) {
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
@@ -100,6 +108,7 @@ class SystemReportUtil
         $this->productMetaData = $productMetadata;
         $this->scopeConfig = $scopeConfig;
         $this->paymentConfig = $paymentConfig;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -213,7 +222,7 @@ class SystemReportUtil
      */
     private function getActivePaymentMethods(): array
     {
-        return $this->paymentConfig->getActiveMethods();
+        return array_keys($this->paymentConfig->getActiveMethods());
     }
 
     /**
@@ -222,16 +231,25 @@ class SystemReportUtil
     private function getThirdPartyModules(): array
     {
         $allModules = $this->moduleList->getAll();
-        $thirdPartyModules = [];
+        $enabledThirdPartyModules = [];
+        $disabledThirdPartyModules = [];
 
         foreach ($allModules as $module) {
-            if (strpos($module['name'], 'Magento_') !== false) {
+            $moduleName = $module['name'];
+
+            if (strpos($moduleName, 'Magento_') !== false) {
                 continue;
             }
-            $thirdPartyModules[] = $module['name'];
+
+            if ($this->moduleManager->isEnabled($moduleName)) {
+                $enabledThirdPartyModules[] = $moduleName;
+                continue;
+            }
+
+            $disabledThirdPartyModules[] = $moduleName;
         }
 
-        return $thirdPartyModules;
+        return ['enabled_modules' => $enabledThirdPartyModules, 'disabled_modules' => $disabledThirdPartyModules];
     }
 
     /**
@@ -239,11 +257,7 @@ class SystemReportUtil
      */
     private function getServerUser(): string
     {
-        if (function_exists('get_current_user')) {
-            return get_current_user();
-        }
-
-        return 'unknown';
+        return function_exists('get_current_user') ? get_current_user() : 'unknown';
     }
 
     /**
@@ -259,17 +273,13 @@ class SystemReportUtil
      */
     private function getSystemInfo(): array
     {
-        if (function_exists('php_uname')) {
-            return [
-                'name' => PHP_OS,
-                'host_name' => php_uname('n'),
-                'release_name' => php_uname('r'),
-                'version_info' => php_uname('v'),
-                'machine_type' => php_uname('m'),
-            ];
-        }
-
-        return [];
+        return function_exists('php_uname') ? [
+            'name' => PHP_OS,
+            'host_name' => php_uname('n'),
+            'release_name' => php_uname('r'),
+            'version_info' => php_uname('v'),
+            'machine_type' => php_uname('m'),
+        ] : [];
     }
 
     /**
