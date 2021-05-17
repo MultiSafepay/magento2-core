@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Logger;
 
 use Exception;
+use Magento\Framework\Exception\FileSystemException;
 use Monolog\Logger as CoreLogger;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
@@ -223,5 +224,19 @@ class Logger extends CoreLogger
     public function logJsonHandlerException(\InvalidArgumentException $invalidArgumentException): void
     {
         $this->error('Could not convert Json data: ' . $invalidArgumentException->getMessage());
+    }
+
+    /**
+     * @param FileSystemException $fileSystemException
+     */
+    public function logFileSystemException(FileSystemException $fileSystemException): void
+    {
+        $this->error(sprintf(
+            'FileSystemException occured. message: %1$d, code: %2$d, line: %3$d, file: %4$d)',
+            $fileSystemException->getMessage(),
+            $fileSystemException->getCode(),
+            $fileSystemException->getLine(),
+            $fileSystemException->getFile()
+        ));
     }
 }
