@@ -120,7 +120,7 @@ class PriceUtilTest extends AbstractTestCase
             $priceRounder->roundPrice($quote->getBaseGrandTotal()),
             $priceRounder->roundPrice(
                 $unitPrice * $quote->getItemsQty() + $quoteItem->getBaseTaxAmount() + $quote->getBaseShippingAmount()
-            ),
+            )
         );
     }
 }
