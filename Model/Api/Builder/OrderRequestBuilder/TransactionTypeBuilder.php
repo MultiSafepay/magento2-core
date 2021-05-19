@@ -24,6 +24,7 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 
 class TransactionTypeBuilder implements OrderRequestBuilderInterface
 {
+    public const DEFAULT_TRANSACTION_TYPE = 'redirect';
     public const REDIRECT_TRANSACTION_TYPE = 'redirect';
     public const DIRECT_TRANSACTION_TYPE = 'direct';
 
