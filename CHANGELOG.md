@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.6.1] - 2021-05-19
 ### Fixed
 - Fixed a bug in payment validation transaction type constant scope, changed it from private to public.
+- Fixed a bug in Afterpay and in3 payment methods related to phone_number field name.
 
 ## [2.6.0] - 2021-05-12
 ### Added
