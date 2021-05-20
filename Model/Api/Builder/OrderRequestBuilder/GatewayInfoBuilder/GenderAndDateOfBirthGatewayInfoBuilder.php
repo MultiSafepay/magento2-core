@@ -62,13 +62,13 @@ class GenderAndDateOfBirthGatewayInfoBuilder implements GatewayInfoBuilderInterf
 
         $additionalInformation = $payment->getAdditionalInformation();
 
-        if (empty($additionalInformation['telephone'])) {
+        if (empty($additionalInformation['phone_number'])) {
             throw new LocalizedException(__('This payment gateway requires a valid telephone number'));
         }
 
         return $this->meta->addGender(new Gender($additionalInformation['gender']))
             ->addBirthday(new Date($additionalInformation['date_of_birth']))
             ->addEmailAddress(new EmailAddress($order->getCustomerEmail()))
-            ->addPhone(new PhoneNumber($additionalInformation['telephone']));
+            ->addPhone(new PhoneNumber($additionalInformation['phone_number']));
     }
 }
