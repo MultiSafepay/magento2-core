@@ -17,30 +17,30 @@ declare(strict_types=1);
 
 namespace MultiSafepay\Test\Integration\Util;
 
+use Exception;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
-use MultiSafepay\ConnectCore\Util\IpAddressUtil;
+use MultiSafepay\ConnectCore\Util\ZipUtil;
 
-class IpAddressUtilTest extends AbstractTestCase
+class ZipUtilTest extends AbstractTestCase
 {
     /**
-     * @var IpAddressUtil
+     * @var ZipUtil
      */
-    private $ipAddressUtil;
+    private $zipUtil;
 
     /**
      * {@inheritdoc}
      */
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->ipAddressUtil = $this->getObjectManager()->create(IpAddressUtil::class);
+        $this->zipUtil = $this->getObjectManager()->create(ZipUtil::class);
     }
 
-    public function testGetAmountWithBaseCurrencySetting(): void
+    public function testZipLogFiles(): void
     {
-        $ip = '127.0.0.1';
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('File not found');
 
-        self::assertEquals($ip, $this->ipAddressUtil->validateIpAddress($ip));
-        self::assertNotEquals($ip, $this->ipAddressUtil->validateIpAddress($ip . ':2020, 123123'));
+        $this->zipUtil->zipLogFiles();
     }
 }
