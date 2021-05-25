@@ -25,7 +25,7 @@ use Magento\Sales\Api\Data\ShipmentInterface;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Util\PaymentMethodUtilTest;
+use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -53,7 +53,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
     private $messageManager;
 
     /**
-     * @var PaymentMethodUtilTest
+     * @var PaymentMethodUtil
      */
     private $paymentMethodUtil;
 
@@ -64,14 +64,14 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      * @param Logger $logger
      * @param ManagerInterface $messageManager
      * @param UpdateRequest $updateRequest
-     * @param PaymentMethodUtilTest $paymentMethodUtil
+     * @param PaymentMethodUtil $paymentMethodUtil
      */
     public function __construct(
         SdkFactory $sdkFactory,
         Logger $logger,
         ManagerInterface $messageManager,
         UpdateRequest $updateRequest,
-        PaymentMethodUtilTest $paymentMethodUtil
+        PaymentMethodUtil $paymentMethodUtil
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->logger = $logger;

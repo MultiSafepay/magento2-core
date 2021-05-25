@@ -43,7 +43,7 @@ use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
-use MultiSafepay\ConnectCore\Util\PaymentMethodUtilTest;
+use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -65,7 +65,7 @@ class OrderService
     private $vault;
 
     /**
-     * @var PaymentMethodUtilTest
+     * @var PaymentMethodUtil
      */
     private $paymentMethodUtil;
 
@@ -130,7 +130,7 @@ class OrderService
      * @param OrderRepositoryInterface $orderRepository
      * @param EmailSender $emailSender
      * @param Vault $vault
-     * @param PaymentMethodUtilTest $paymentMethodUtil
+     * @param PaymentMethodUtil $paymentMethodUtil
      * @param SecondChance $secondChance
      * @param Logger $logger
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
@@ -147,7 +147,7 @@ class OrderService
         OrderRepositoryInterface $orderRepository,
         EmailSender $emailSender,
         Vault $vault,
-        PaymentMethodUtilTest $paymentMethodUtil,
+        PaymentMethodUtil $paymentMethodUtil,
         SecondChance $secondChance,
         Logger $logger,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
