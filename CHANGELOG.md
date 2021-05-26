@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
+
 ## [2.6.1] - 2021-05-19
 ### Fixed
 - Fixed a bug in payment validation transaction type constant scope, changed it from private to public.
