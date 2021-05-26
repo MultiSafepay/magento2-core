@@ -78,7 +78,6 @@ class ZipUtilTest extends AbstractTestCase
         $response = $this->zipUtil->zipLogFiles();
         $contentDispositionHeader = $response->getHeader('content_disposition');
 
-        self::assertIsObject($contentDispositionHeader);
         self::assertEquals(
             'attachment; filename="multisafepay_logs.zip"',
             $contentDispositionHeader->getFieldValue()
