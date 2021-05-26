@@ -19,32 +19,61 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\SalesRule\Model\Rule;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
 class OrderRequestBuilderTest extends AbstractTestCase
 {
     /**
-     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/general/live_api_key livekey
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @throws LocalizedException
      */
-    public function testSimpleOrder()
+    public function testOrderRequestAmountIdAndCurrency()
     {
         $order = $this->getOrder();
-        $orderRequest = $this->getOrderRequestBuilder()->build($order);
-        $data = $orderRequest->getData();
+        $payment = $order->getPayment();
+        $payment->setMethod(IdealConfigProvider::CODE);
+        $order->setPayment($payment);
 
-        $this->assertSame((float)$order->getGrandTotal(), (float)$data['amount'] / 100);
+        $orderRequestData = $this->getOrderRequestBuilderPreparedData($order);
+
+        self::assertSame((float)$order->getGrandTotal(), (float)$orderRequestData['amount'] / 100);
+        self::assertSame($order->getRealOrderId(), $orderRequestData['order_id']);
+        self::assertSame(
+            $order->getPayment()->getMethodInstance()->getConfigData(
+                'gateway_code'
+            ),
+            $orderRequestData['gateway']
+        );
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @magentoConfigFixture default_store multisafepay/general/live_api_key livekey
+     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
+     * @throws LocalizedException
+     */
+    public function testOrderRequestCurrency()
+    {
+        $order = $this->getOrder();
+        $order->setOrderCurrencyCode('EUR');
+
+        self::assertSame($order->getOrderCurrencyCode(), $this->getOrderRequestBuilderPreparedData($order)['currency']);
     }
 
     /**
      * @magentoConfigFixture default_store multisafepay/general/live_api_key livekey
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
+     * @magentoDbIsolation   enabled
+     * @magentoAppIsolation  enabled
      * @throws LocalizedException
      * @throws Exception
      */
@@ -52,13 +81,10 @@ class OrderRequestBuilderTest extends AbstractTestCase
     {
         $quote = $this->getQuote('tableRate');
         $items = $quote->getAllItems();
-        $this->assertTrue(count($items) > 1);
+        self::assertTrue(count($items) > 1);
 
         $couponCode = '1234567890';
-        try {
-            $this->createCouponCode($couponCode);
-        } catch (\Magento\Framework\Exception\AlreadyExistsException $exception) {
-        }
+        $this->createCouponCode($couponCode);
 
         $quote->setCouponCode($couponCode);
 
@@ -79,29 +105,19 @@ class OrderRequestBuilderTest extends AbstractTestCase
         /** @var QuoteManagement $quoteManagement */
         $quoteManagement = $this->getObjectManager()->get(QuoteManagement::class);
         $order = $quoteManagement->submit($quote);
-        $this->assertInstanceOf(OrderInterface::class, $order);
+        self::assertInstanceOf(OrderInterface::class, $order);
 
         $payment = $order->getPayment();
-        $payment->setAdditionalInformation('transaction_type', 'direct');
+        $payment->setAdditionalInformation(['transaction_type', 'direct']);
         $order->setPayment($payment);
 
-        $this->assertNotEmpty($order->getId());
-        $this->assertNotEmpty($order->getIncrementId());
+        self::assertNotEmpty($order->getId());
+        self::assertNotEmpty($order->getIncrementId());
 
         $orderRequest = $this->getOrderRequestBuilder()->build($order);
         $data = $orderRequest->getData();
 
-        $this->assertEquals((float)$order->getGrandTotal(), (float)$data['amount'] / 100);
-
-        /*
-        @todo: How is this currently being solved?
-        $calculatedTotal = 0;
-        foreach ($order->getItems() as $orderItem) {
-            $calculatedTotal += $orderItem->getRowTotal();
-        }
-
-        $this->assertEquals($data['amount'], $calculatedTotal * 100);
-        */
+        self::assertEquals((float)$order->getGrandTotal(), (float)$data['amount'] / 100);
     }
 
     /**
@@ -113,7 +129,19 @@ class OrderRequestBuilderTest extends AbstractTestCase
     }
 
     /**
+     * @param OrderInterface $order
+     * @return array
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    private function getOrderRequestBuilderPreparedData(OrderInterface $order): array
+    {
+        return $this->getOrderRequestBuilder()->build($order)->getData();
+    }
+
+    /**
      * @param string $couponCode
+     * @throws Exception
      */
     private function createCouponCode(string $couponCode)
     {
