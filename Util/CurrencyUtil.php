@@ -67,7 +67,7 @@ class CurrencyUtil
     /**
      * Check if the Base Currency Code can be retrieved from the order, if not then retrieve it from the Store Manager
      *
-     * @param $orderBaseCurrencyCode
+     * @param string $orderBaseCurrencyCode
      * @return string
      * @throws NoSuchEntityException
      */
