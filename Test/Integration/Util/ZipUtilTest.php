@@ -43,7 +43,7 @@ class ZipUtilTest extends AbstractTestCase
     private $fileDriver;
 
     /**
-     * {@inheritdoc}
+     * @throws FileSystemException
      */
     protected function setUp(): void
     {
@@ -85,7 +85,7 @@ class ZipUtilTest extends AbstractTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * @throws FileSystemException
      */
     protected function tearDown(): void
     {
