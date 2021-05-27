@@ -30,7 +30,7 @@ use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 class ShoppingCartBuilderTest extends AbstractTestCase
 {
     /**
-     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/advanced/disable_shopping_cart 0
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
@@ -46,7 +46,7 @@ class ShoppingCartBuilderTest extends AbstractTestCase
     }
 
     /**
-     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/advanced/disable_shopping_cart 1
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
@@ -59,11 +59,10 @@ class ShoppingCartBuilderTest extends AbstractTestCase
         $orderRequest->addGatewayCode(AfterpayConfigProvider::CODE);
 
         self::assertArrayNotHasKey('shopping_cart', $orderRequest->getData());
-
     }
 
     /**
-     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/advanced/disable_shopping_cart 1
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
@@ -76,11 +75,10 @@ class ShoppingCartBuilderTest extends AbstractTestCase
         $orderRequest->addGatewayCode(IdealConfigProvider::CODE);
 
         self::assertArrayNotHasKey('shopping_cart', $orderRequest->getData());
-
     }
 
     /**
-     * @magentoDataFixture Magento/Sales/_files/order_with_two_simple_products.php
+     * @magentoDataFixture   Magento/Sales/_files/order_with_two_simple_products.php
      * @magentoConfigFixture default_store multisafepay/advanced/disable_shopping_cart 0
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
@@ -100,7 +98,6 @@ class ShoppingCartBuilderTest extends AbstractTestCase
         }
 
         self::assertSame(['simple', 'simple-2'], $merchantItemIds);
-
     }
 
     /**
