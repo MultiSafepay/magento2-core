@@ -229,7 +229,7 @@ class OrderService
 
         $paymentDetails = $transaction->getPaymentDetails();
         $transactionType = $paymentDetails->getType();
-        $gatewayCode = $payment->getMethodInstance()->getConfigData('gateway_code');
+        $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
 
         //Check if Vault needs to be initialized
         $isVaultInitialized = $this->vault->initialize($payment, [
