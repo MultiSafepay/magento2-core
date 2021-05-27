@@ -188,11 +188,14 @@ class OrderService
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
+        $transactionData = $transaction->getData();
+        unset($transactionData['payment_details'], $transactionData['payment_methods']);
+
         $this->logger->logInfoForOrder(
             $orderId,
             __(
                 'Transaction data was retrieved: %1',
-                $this->jsonHandler->convertToPrettyJSON($transaction->getData())
+                $this->jsonHandler->convertToPrettyJSON($transactionData)
             )->render(),
             Logger::DEBUG
         );
@@ -220,7 +223,7 @@ class OrderService
 
         $paymentDetails = $transaction->getPaymentDetails();
         $transactionType = $paymentDetails->getType();
-        $gatewayCode = $payment->getMethodInstance()->getConfigData('gateway_code');
+        $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
 
         //Check if Vault needs to be initialized
         $isVaultInitialized = $this->vault->initialize($payment, [
