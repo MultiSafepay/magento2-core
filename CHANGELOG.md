@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added translations for some checkout fields. (Thanks to @Davie82)
+- Added integration test coverage for all the plugin utils
+
+### Fixed
+- Fixed TypeError for MultiSafepay payment method on notification
 
 ## [2.6.1] - 2021-05-19
 ### Fixed
