@@ -41,4 +41,3 @@ return [
         'address_type' => 'shipping'
     ]
 ];
-
