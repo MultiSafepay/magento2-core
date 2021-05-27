@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\Test\Integration\Util;
 
+use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\OfflinePayments\Model\Checkmo;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -40,6 +42,8 @@ class PaymentMethodUtilTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture Magento/Sales/_files/order.php
+     *
+     * @throws LocalizedException
      */
     public function testIsMultisafepayOrder(): void
     {
@@ -49,6 +53,9 @@ class PaymentMethodUtilTest extends AbstractTestCase
         self::assertTrue($this->paymentMethodUtil->isMultisafepayOrder($order));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testIsMultisafepayCart(): void
     {
         $quote = $this->getQuote('tableRate');

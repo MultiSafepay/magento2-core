@@ -39,6 +39,8 @@ class OrderUtilTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture Magento/Sales/_files/order.php
+     *
+     * @throws NoSuchEntityException
      */
     public function testGetOrderByIncrementId(): void
     {
@@ -46,7 +48,7 @@ class OrderUtilTest extends AbstractTestCase
         $order = $this->orderUtil->getOrderByIncrementId($incrementId);
 
         self::assertEquals($incrementId, $order->getRealOrderId());
-        self::expectException(NoSuchEntityException::class);
+        $this->expectException(NoSuchEntityException::class);
 
         $this->orderUtil->getOrderByIncrementId($incrementId . '_test_fail');
     }

@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\Test\Integration\Util;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote\Address\ToOrderAddress;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\TaxUtil;
@@ -38,6 +40,9 @@ class TaxUtilTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture Magento/Sales/_files/order.php
+     *
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function testGetShippingTaxRate(): void
     {

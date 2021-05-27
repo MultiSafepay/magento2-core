@@ -1,4 +1,19 @@
 <?php
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2020 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+
+declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Util;
 
@@ -24,45 +39,15 @@ class AddressFormatterTest extends AbstractTestCase
     }
 
     /**
+     * @param string $type
      * @return Address
      */
-    private function getShippingAddress(): Address
+    private function getAddressByType(string $type = 'shipping'): Address
     {
         /** @var $address Address */
         $address = $this->getObjectManager()->create(Address::class);
-
-        $address->setRegion('NL')
-            ->setPostcode('1033SC')
-            ->setFirstname('MultiSafepayFirstName')
-            ->setLastname('MultiSafepayLastName')
-            ->setStreet('Kraanspoor 39')
-            ->setCity('Amsterdam')
-            ->setEmail('test@example.com')
-            ->setTelephone('0208500500')
-            ->setCountryId('NL')
-            ->setAddressType('shipping');
-
-        return $address;
-    }
-
-    /**
-     * @return Address
-     */
-    private function getBillingAddress(): Address
-    {
-        /** @var $address Address */
-        $address = $this->getObjectManager()->create(Address::class);
-
-        $address->setRegion('CA')
-            ->setPostcode('90210')
-            ->setFirstname('TestFirstName')
-            ->setLastname('TestLastName')
-            ->setStreet('teststreet 50')
-            ->setCity('Beverly Hills')
-            ->setEmail('admin@example.com')
-            ->setTelephone('1111111111')
-            ->setCountryId('US')
-            ->setAddressType('billing');
+        $addressData = include __DIR__ . '/../_files/address_data.php';
+        $address->setData($addressData[$type]);
 
         return $address;
     }
@@ -76,30 +61,30 @@ class AddressFormatterTest extends AbstractTestCase
         return $this->getObjectManager()->create(SerializerInterface::class)->unserialize($string) !== false;
     }
 
-    public function testSerializeAddressShouldReturnSerializedAddress()
+    public function testSerializeAddressShouldReturnSerializedAddress(): void
     {
-        $result = $this->addressFormatter->serializeAddress($this->getShippingAddress());
+        $result = $this->addressFormatter->serializeAddress($this->getAddressByType());
 
         self::assertTrue($this->isSerialized($result));
     }
 
-    public function testIsSameAddressShouldReturnFalseIfDifferentBillingAndShipping()
+    public function testIsSameAddressShouldReturnFalseIfDifferentBillingAndShipping(): void
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->addressFormatter->isSameAddress(
-                $this->getShippingAddress(),
-                $this->getBillingAddress()
+                $this->getAddressByType(),
+                $this->getAddressByType('billing')
             )
         );
     }
 
-    public function testIsSameAddressShouldReturnTrueIfSameBillingAndShipping()
+    public function testIsSameAddressShouldReturnTrueIfSameBillingAndShipping(): void
     {
-        $billingAddress = $this->getBillingAddress()
+        $billingAddress = $this->getAddressByType('billing')
             ->setStreet('Kraanspoor 39')
             ->setPostcode('1033SC')
             ->setCity('Amsterdam');
 
-        $this->assertTrue($this->addressFormatter->isSameAddress($this->getShippingAddress(), $billingAddress));
+        self::assertTrue($this->addressFormatter->isSameAddress($this->getAddressByType(), $billingAddress));
     }
 }
