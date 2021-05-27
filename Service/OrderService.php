@@ -197,11 +197,14 @@ class OrderService
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
+        $transactionData = $transaction->getData();
+        unset($transactionData['payment_details'], $transactionData['payment_methods']);
+
         $this->logger->logInfoForOrder(
             $orderId,
             __(
                 'Transaction data was retrieved: %1',
-                $this->jsonHandler->convertToPrettyJSON($transaction->getData())
+                $this->jsonHandler->convertToPrettyJSON($transactionData)
             )->render(),
             Logger::DEBUG
         );
