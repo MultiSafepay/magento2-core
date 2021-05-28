@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added translations for some checkout fields. (Thanks to @Davie82)
 
 ### Fixed
+- Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
 - Fixed TypeError for MultiSafepay payment method on notification
 
 
