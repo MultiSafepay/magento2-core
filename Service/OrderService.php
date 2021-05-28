@@ -197,11 +197,14 @@ class OrderService
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
         $transaction = $transactionManager->get($orderId);
+        $transactionData = $transaction->getData();
+        unset($transactionData['payment_details'], $transactionData['payment_methods']);
+
         $this->logger->logInfoForOrder(
             $orderId,
             __(
                 'Transaction data was retrieved: %1',
-                $this->jsonHandler->convertToPrettyJSON($transaction->getData())
+                $this->jsonHandler->convertToPrettyJSON($transactionData)
             )->render(),
             Logger::DEBUG
         );
@@ -229,7 +232,7 @@ class OrderService
 
         $paymentDetails = $transaction->getPaymentDetails();
         $transactionType = $paymentDetails->getType();
-        $gatewayCode = $payment->getMethodInstance()->getConfigData('gateway_code');
+        $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
 
         //Check if Vault needs to be initialized
         $isVaultInitialized = $this->vault->initialize($payment, [
@@ -271,15 +274,14 @@ class OrderService
                 break;
 
             case TransactionStatus::EXPIRED:
+                if (in_array($order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)) {
+                    $this->cancelOrder($order, $transactionStatusMessage);
+                }
+                break;
             case TransactionStatus::DECLINED:
             case TransactionStatus::CANCELLED:
             case TransactionStatus::VOID:
-                $order->cancel();
-                $order->addCommentToStatusHistory($transactionStatusMessage);
-                $this->logger->logInfoForOrder(
-                    $orderId,
-                    'Order has been canceled. ' . $transactionStatusMessage
-                );
+                $this->cancelOrder($order, $transactionStatusMessage);
                 break;
         }
 
@@ -446,5 +448,19 @@ class OrderService
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
 
         return $this->invoiceRepository->getList($searchCriteria)->getItems();
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param string $transactionStatusMessage
+     */
+    private function cancelOrder(OrderInterface $order, string $transactionStatusMessage): void
+    {
+        $order->cancel();
+        $order->addCommentToStatusHistory($transactionStatusMessage);
+        $this->logger->logInfoForOrder(
+            $order->getIncrementId(),
+            'Order has been canceled. ' . $transactionStatusMessage
+        );
     }
 }

@@ -34,6 +34,6 @@ class In3DataAssignObserver extends AbstractDataAssignObserver
         $payment = $this->readPaymentModelArgument($observer);
         $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth'] ?? null);
         $payment->setAdditionalInformation('gender', $additionalData['gender'] ?? null);
-        $payment->setAdditionalInformation('telephone', $additionalData['telephone'] ?? null);
+        $payment->setAdditionalInformation('phone_number', $additionalData['phone_number'] ?? null);
     }
 }
