@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed a bug related to combined payment filters.
 - Fixed a bug where in some cases the customer group id would retrieve wrong value.
+- Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
 - Fixed TypeError for MultiSafepay payment method on notification
 
 ## [2.6.1] - 2021-05-19
