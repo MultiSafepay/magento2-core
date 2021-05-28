@@ -138,10 +138,10 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      */
     public function getTrackingNumber(ShipmentInterface $shipment): string
     {
-        if (empty($shipment->getTracks())) {
+        if (!($tracks = $shipment->getTracks())) {
             return '';
         }
 
-        return $shipment->getTracks()[0]->getTrackNumber();
+        return is_array($tracks) ? reset($tracks)->getTrackNumber() : '';
     }
 }
