@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
 - Fixed TypeError for MultiSafepay payment method on notification
 
 ## [2.6.1] - 2021-05-19
