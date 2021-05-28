@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 
@@ -28,14 +29,22 @@ class AmountUtil
     private $config;
 
     /**
+     * @var PriceCurrencyInterface
+     */
+    private $priceCurrency;
+
+    /**
      * AmountUtil constructor.
      *
      * @param Config $config
+     * @param PriceCurrencyInterface $priceCurrency
      */
     public function __construct(
-        Config $config
+        Config $config,
+        PriceCurrencyInterface $priceCurrency
     ) {
         $this->config = $config;
+        $this->priceCurrency = $priceCurrency;
     }
 
     /**
@@ -52,5 +61,22 @@ class AmountUtil
         }
 
         return round($amount * $order->getBaseToOrderRate(), 2);
+    }
+
+    /**
+     * @param float $amount
+     * @param int|null $scope
+     * @param string|null $currency
+     * @return string
+     */
+    public function getFormattedPriceFromAmount(float $amount, int $scope = null, string $currency = null): string
+    {
+        return $this->priceCurrency->format(
+            $amount / 100,
+            true,
+            PriceCurrencyInterface::DEFAULT_PRECISION,
+            $scope,
+            $currency
+        );
     }
 }
