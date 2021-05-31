@@ -41,6 +41,7 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Util\GiftcardUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
@@ -125,6 +126,11 @@ class OrderService
     private $jsonHandler;
 
     /**
+     * @var GiftcardUtil
+     */
+    private $giftcardUtil;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -142,6 +148,7 @@ class OrderService
      * @param SdkFactory $sdkFactory
      * @param OrderStatusUtil $orderStatusUtil
      * @param JsonHandler $jsonHandler
+     * @param GiftcardUtil $giftcardUtil
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -158,7 +165,8 @@ class OrderService
         Config $config,
         SdkFactory $sdkFactory,
         OrderStatusUtil $orderStatusUtil,
-        JsonHandler $jsonHandler
+        JsonHandler $jsonHandler,
+        GiftcardUtil $giftcardUtil
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -175,6 +183,7 @@ class OrderService
         $this->sdkFactory = $sdkFactory;
         $this->orderStatusUtil = $orderStatusUtil;
         $this->jsonHandler = $jsonHandler;
+        $this->giftcardUtil = $giftcardUtil;
     }
 
     /**
@@ -238,6 +247,11 @@ class OrderService
         }
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
+            if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
+                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ?:
+                    $transactionType;
+            }
+
             $this->changePaymentMethod($order, $payment, $transactionType);
         }
 
@@ -271,6 +285,13 @@ class OrderService
                 break;
         }
 
+        if ($giftcardData = $this->giftcardUtil->getGiftcardPaymentDataFromTransaction($transaction)) {
+            $payment->setAdditionalInformation(
+                GiftcardUtil::MULTISAFEPAY_GIFTCARD_PAYMENT_ADDITIONAL_DATA_PARAM_NAME,
+                $giftcardData
+            );
+        }
+
         $this->orderRepository->save($order);
     }
 
@@ -293,6 +314,8 @@ class OrderService
                 $logMessage = __('Payment method changed to ') . $transactionType;
                 $order->addCommentToStatusHistory($logMessage);
                 $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage, Logger::DEBUG);
+
+                return;
             }
         }
     }
