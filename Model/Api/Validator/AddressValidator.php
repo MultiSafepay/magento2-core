@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Validator;
 
+use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Util\AddressFormatter;
 
 class AddressValidator
@@ -38,10 +39,10 @@ class AddressValidator
     }
 
     /**
-     * @param $quote
+     * @param CartInterface $quote
      * @return bool
      */
-    public function validate($quote): bool
+    public function validate(CartInterface $quote): bool
     {
         return $this->addressFormatter->isSameAddress($quote->getShippingAddress(), $quote->getBillingAddress());
     }
