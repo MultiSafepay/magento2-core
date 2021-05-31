@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Added check if order was paid by gifcard, then will change payment method to one of giftcard payment methods.
+- Added possibility to translate description phrase on MultiSafepay payment page.
 
 ### Fixed
 - Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
