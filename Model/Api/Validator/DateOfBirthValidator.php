@@ -25,11 +25,6 @@ class DateOfBirthValidator
      */
     public function validate(string $dateOfBirth): bool
     {
-        $pattern = '/([0-2]\d|(3)[0-1])[-|\/](((0)\d)|((1)[0-2]))[-|\/]\d{4}/';
-
-        if (preg_match($pattern, $dateOfBirth)) {
-            return true;
-        }
-        return false;
+        return (bool)preg_match('/([0-2]\d|(3)[0-1])[-|\/](((0)\d)|((1)[0-2]))[-|\/]\d{4}/', $dateOfBirth);
     }
 }
