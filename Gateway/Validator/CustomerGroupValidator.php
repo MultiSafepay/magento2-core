@@ -17,11 +17,26 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator;
 
+use Magento\Customer\Model\Session;
 use Magento\Payment\Gateway\Config\Config;
 use Magento\Quote\Api\Data\CartInterface;
 
 class CustomerGroupValidator
 {
+    /**
+     * @var Session
+     */
+    private $customerSession;
+
+    /**
+     * CustomerGroupValidator constructor.
+     *
+     * @param Session $customerSession
+     */
+    public function __construct(Session $customerSession)
+    {
+        $this->customerSession = $customerSession;
+    }
 
     /**
      * @param CartInterface $quote
@@ -38,10 +53,13 @@ class CustomerGroupValidator
                 (string)$config->getValue('allowed_customer_group', $storeId)
             );
 
-            if (!in_array($quote->getCustomerGroupId(), $availableCustomerGroups, true)) {
-                return true;
-            }
+            return !in_array(
+                $this->customerSession->getCustomer()->getGroupId() ?: $quote->getCustomerGroupId(),
+                $availableCustomerGroups,
+                true
+            );
         }
+
         return false;
     }
 }
