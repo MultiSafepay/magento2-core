@@ -65,7 +65,7 @@ class DescriptionBuilder implements OrderRequestBuilderInterface
         $customDescription = (string)$this->config->getValue('transaction_custom_description');
 
         if (empty($customDescription)) {
-            $this->description->addDescription('Payment for order #' . $orderId);
+            $this->description->addDescription(__('Payment for order #%1', $orderId)->render());
         } else {
             $filteredDescription = str_replace('{{order.increment_id}}', $orderId, $customDescription);
             $this->description->addDescription($filteredDescription);

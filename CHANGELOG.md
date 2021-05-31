@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added check if order was paid by gifcard, then will change payment method to one of giftcard payment methods.
 - Added translations for some checkout fields. (Thanks to @Davie82)
+- Added possibility to translate description phrase on MultiSafepay payment page.
+- Added new logo for Bancontact payment method.
 
 ### Fixed
 - Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
