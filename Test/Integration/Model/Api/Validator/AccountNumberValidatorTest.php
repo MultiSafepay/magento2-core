@@ -41,7 +41,7 @@ class AccountNumberValidatorTest extends AbstractTestCase
      * @param string $accountNumber
      * @param bool $expected
      */
-    public function testOrderRequestAmountIdAndCurrency(string $accountNumber, bool $expected)
+    public function testAccountNumberValidatorWithDifferentValues(string $accountNumber, bool $expected): void
     {
         self::assertEquals($expected, $this->accountNumberValidator->validate($accountNumber));
     }
