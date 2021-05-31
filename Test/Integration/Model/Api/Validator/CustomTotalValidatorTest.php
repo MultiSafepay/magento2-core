@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Validator;
 
+use Magento\Quote\Api\Data\TotalsInterface;
 use MultiSafepay\ConnectCore\Model\Api\Validator\CustomTotalValidator;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
-use Magento\Quote\Api\Data\TotalsInterface;
 
 class CustomTotalValidatorTest extends AbstractTestCase
 {
@@ -39,7 +39,7 @@ class CustomTotalValidatorTest extends AbstractTestCase
     /**
      * @magentoDataFixture Magento/Sales/_files/quote_with_multiple_products.php
      */
-    public function testAccountNumberValidatorWithDifferentValues(): void
+    public function testCustomTotalValidator(): void
     {
         $grandTotal = $this->getQuote('tableRate')->getTotals()[TotalsInterface::KEY_GRAND_TOTAL];
 
