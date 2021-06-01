@@ -55,19 +55,21 @@ class OrderItemBuilderTest extends AbstractTestCase
 
         $unitPrice = $this->convertObjectToArray($item['unitPrice']);
 
-        self::assertSame($this->getPriceUtil()->getUnitPrice($expectedItem, $order->getStoreId()) * 100,
-            $unitPrice['amount']);
+        self::assertSame(
+            $this->getPriceUtil()->getUnitPrice($expectedItem, $order->getStoreId()) * 100,
+            $unitPrice['amount']
+        );
         self::assertSame($currency, $unitPrice['currency']);
     }
 
     /**
-     * @magentoDataFixture   Magento/Sales/_files/order_with_bundle.php
+     * @magentoDataFixture   Magento/Sales/_files/order_with_different_types_of_product.php
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      *
      * @throws LocalizedException
      */
-    public function testOrderItemsWithSimpleAndBundledProducts(): void
+    public function testOrderItemsWithMultipleProducts(): void
     {
         $order = $this->getObjectManager()->create(Order::class);
         $order->loadByIncrementId('100000001');
@@ -76,7 +78,7 @@ class OrderItemBuilderTest extends AbstractTestCase
 
         $items = $this->getOrderItemBuilder()->build($order, $currency);
 
-        self::assertCount(2, $items);
+        self::assertCount(4, $items);
     }
 
     /**
