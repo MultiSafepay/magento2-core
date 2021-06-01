@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Validator;
 
+use Exception;
 use MultiSafepay\ConnectCore\Model\Api\Validator\AddressValidator;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
@@ -37,6 +38,8 @@ class AddressValidatorTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture Magento/Sales/_files/quote_with_multiple_products.php
+     *
+     * @throws Exception
      */
     public function testQuoteAddressValidatorWithDifferentValues(): void
     {

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Validator;
 
+use Exception;
 use Magento\Quote\Api\Data\TotalsInterface;
 use MultiSafepay\ConnectCore\Model\Api\Validator\CustomTotalValidator;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -38,6 +39,8 @@ class CustomTotalValidatorTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture Magento/Sales/_files/quote_with_multiple_products.php
+     *
+     * @throws Exception
      */
     public function testCustomTotalValidator(): void
     {
