@@ -105,8 +105,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
         }
 
         // Do not add the item if the parent is a fixed price bundle product, the bundle product is added instead
-        if ($parentItemProductType === Type::TYPE_BUNDLE
-            && ($parentItem->getProduct() !== null)
+        if (($parentItem->getProduct() !== null)
             && (int)$parentItem->getProduct()->getPriceType() === Price::PRICE_TYPE_FIXED
         ) {
             return false;

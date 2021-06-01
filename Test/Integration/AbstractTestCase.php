@@ -39,6 +39,8 @@ use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Sales\Total\Quote\SetupUtil;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
+use ReflectionObject;
 
 /**
  * Class AbstractTestCase to serve as parent for other tests
@@ -168,6 +170,25 @@ abstract class AbstractTestCase extends TestCase
         chdir($rootPath . '/dev/tests/integration/testsuite/');
         require($fixturePath);
         chdir($cwd);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    protected function convertObjectToArray($object): array
+    {
+        $result = [];
+
+        $reflector = new ReflectionObject($object);
+        $properties = $reflector->getProperties();
+
+        foreach ($properties as $property) {
+            $node = $reflector->getProperty($property->getName());
+            $node->setAccessible(true);
+            $result[$property->getName()] = $node->getValue($object);
+        }
+
+        return $result;
     }
 
     /**
