@@ -39,10 +39,10 @@ class AddressValidator
     }
 
     /**
-     * @param CartInterface $quote
+     * @param  $quote
      * @return bool
      */
-    public function validate(CartInterface $quote): bool
+    public function validate($quote): bool
     {
         return $this->addressFormatter->isSameAddress($quote->getShippingAddress(), $quote->getBillingAddress());
     }
