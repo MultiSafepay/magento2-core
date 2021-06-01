@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderRequestBuilder;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
@@ -37,7 +38,7 @@ class ShoppingCartBuilderTest extends AbstractTestCase
      *
      * @throws LocalizedException
      */
-    public function testIsShoppingCartNeededReturnsTrueIfDisabledWithShoppingCartMethod(): void
+    public function testIsShoppingCartNeededReturnsTrueIfEnabledWithShoppingCartMethod(): void
     {
         $orderRequest = $this->prepareOrderRequest();
         $orderRequest->addGatewayCode(AfterpayConfigProvider::CODE);
@@ -53,7 +54,7 @@ class ShoppingCartBuilderTest extends AbstractTestCase
      *
      * @throws LocalizedException
      */
-    public function testIsShoppingCartNeededReturnsFalseIfEnabledWithShoppingCartMethod(): void
+    public function testIsShoppingCartNeededReturnsTrueIfDisabledWithShoppingCartMethod(): void
     {
         $orderRequest = $this->prepareOrderRequest();
         $orderRequest->addGatewayCode(AfterpayConfigProvider::CODE);
@@ -78,15 +79,19 @@ class ShoppingCartBuilderTest extends AbstractTestCase
     }
 
     /**
-     * @magentoDataFixture   Magento/Sales/_files/order_with_two_simple_products.php
+     * @magentoDataFixture   Magento/Customer/_files/customer.php
+     * @magentoDataFixture   Magento/Catalog/_files/product_simple.php
      * @magentoConfigFixture default_store multisafepay/advanced/disable_shopping_cart 0
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      *
      * @throws LocalizedException
+     * @throws Exception
      */
     public function testShoppingCartBuilderPutsAllItemsInOrderRequest(): void
     {
+        $this->includeFixtureFile('product_simple_without_custom_options');
+        $this->includeFixtureFile('order_with_two_simple_products');
         $orderRequest = $this->prepareOrderRequest();
 
         self::assertArrayHasKey('shopping_cart', $orderRequest->getData());
