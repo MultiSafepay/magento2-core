@@ -63,7 +63,7 @@ class OrderItemBuilderTest extends AbstractTestCase
     }
 
     /**
-     * @magentoDataFixture   Magento/Sales/_files/order_with_different_types_of_product.php
+     * @magentoDataFixture   Magento/Sales/_files/order_with_two_order_items_with_simple_product.php
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      *
@@ -78,7 +78,7 @@ class OrderItemBuilderTest extends AbstractTestCase
 
         $items = $this->getOrderItemBuilder()->build($order, $currency);
 
-        self::assertCount(4, $items);
+        self::assertCount(2, $items);
     }
 
     /**
