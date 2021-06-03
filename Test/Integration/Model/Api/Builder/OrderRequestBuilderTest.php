@@ -35,7 +35,7 @@ class OrderRequestBuilderTest extends AbstractTestCase
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @throws LocalizedException
      */
-    public function testOrderRequestAmountIdAndCurrency()
+    public function testOrderRequestAmountIdAndCurrency(): void
     {
         $order = $this->getOrder();
         $payment = $order->getPayment();
@@ -61,7 +61,7 @@ class OrderRequestBuilderTest extends AbstractTestCase
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
      * @throws LocalizedException
      */
-    public function testOrderRequestCurrency()
+    public function testOrderRequestCurrency(): void
     {
         $order = $this->getOrder();
         $order->setOrderCurrencyCode('EUR');
@@ -77,7 +77,7 @@ class OrderRequestBuilderTest extends AbstractTestCase
      * @throws LocalizedException
      * @throws Exception
      */
-    public function testOrderWithDiscountCoupon()
+    public function testOrderWithDiscountCoupon(): void
     {
         $quote = $this->getQuote('tableRate');
         $items = $quote->getAllItems();
