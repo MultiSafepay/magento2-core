@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Validator;
 
+use Exception;
 use Magento\Payment\Gateway\Config\Config as PaymentGatewayConfig;
 use MultiSafepay\ConnectCore\Gateway\Validator\ShippingValidator;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -26,6 +27,8 @@ class ShippingValidatorTest extends AbstractTestCase
     /**
      * @magentoDataFixture Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store payment/multisafepay_boekenbon/allow_specific_shipping_method 0
+     *
+     * @throws Exception
      */
     public function testValidateWithAllowShippingMethodDisabled()
     {
@@ -42,6 +45,8 @@ class ShippingValidatorTest extends AbstractTestCase
     /**
      * @magentoConfigFixture default_store payment/multisafepay_boekenbon/allow_specific_shipping_method 1
      * @magentoConfigFixture default_store payment/multisafepay_boekenbon/allowed_shipping_method tableRate
+     *
+     * @throws Exception
      */
     public function testValidateWithAllowShippingMethodEnabled()
     {

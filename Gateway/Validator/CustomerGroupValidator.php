@@ -55,8 +55,7 @@ class CustomerGroupValidator
 
             return !in_array(
                 $this->customerSession->getCustomer()->getGroupId() ?: $quote->getCustomerGroupId(),
-                $availableCustomerGroups,
-                true
+                $availableCustomerGroups
             );
         }
 
