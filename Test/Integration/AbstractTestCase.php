@@ -32,12 +32,15 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Api\TaxCalculationInterface;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Sales\Total\Quote\SetupUtil;
 use Magento\TestFramework\Helper\Bootstrap;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use ReflectionObject;
@@ -262,5 +265,22 @@ abstract class AbstractTestCase extends TestCase
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return OrderInterface
+     * @throws LocalizedException
+     */
+    protected function getOrderWithVisaPaymentMethod(): OrderInterface
+    {
+        $order = $this->getObjectManager()->get(OrderInterfaceFactory::class)->create()->loadByIncrementId('100000001');
+        /** @var Payment $payment */
+        $payment = $this->getObjectManager()->create(Payment::class);
+        $payment->setMethod(VisaConfigProvider::CODE);
+        $payment->setAdditionalInformation('transaction_type', 'redirect');
+        $payment->setOrder($order);
+        $order->setPayment($payment);
+
+        return $order;
     }
 }
