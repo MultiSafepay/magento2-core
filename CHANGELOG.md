@@ -5,10 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.7.0] - 2021-06-03
+### Added
+- (dev) Added integration test coverage for all the plugin utils, services and order request builders.
+- Added check if order was paid by gifcard, then will change payment method to one of giftcard payment methods.
+- Added translations for some checkout fields. (Thanks to @Davie82)
+- Added possibility to translate description phrase on MultiSafepay payment page.
+- Added new logo for Bancontact payment method.
+
 ### Fixed
 - Fixed a bug related to combined payment filters.
 - Fixed a bug where in some cases the customer group id would retrieve wrong value.
+- Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
+- Fixed TypeError for MultiSafepay payment method on notification.
 
+### Changed
+- Deleted sensitive payment data from the transaction logs.
 
 ## [2.6.1] - 2021-05-19
 ### Fixed
