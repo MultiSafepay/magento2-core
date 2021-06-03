@@ -296,6 +296,18 @@ class OrderService
     }
 
     /**
+     * @param string $transactionType
+     * @param string $gatewayCode
+     * @param OrderInterface $order
+     * @return bool
+     */
+    private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
+    {
+        return $transactionType && $transactionType !== $gatewayCode
+               && $this->paymentMethodUtil->isMultisafepayOrder($order);
+    }
+
+    /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param string $transactionType
@@ -318,18 +330,6 @@ class OrderService
                 return;
             }
         }
-    }
-
-    /**
-     * @param string $transactionType
-     * @param string $gatewayCode
-     * @param OrderInterface $order
-     * @return bool
-     */
-    private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
-    {
-        return $transactionType && $transactionType !== $gatewayCode
-               && $this->paymentMethodUtil->isMultisafepayOrder($order);
     }
 
     /**
@@ -369,7 +369,29 @@ class OrderService
             );
         }
 
+        $this->payOrder($order, $payment, $transaction);
+        $this->addInvoicesDataToTransactionAndSendEmail($order, $payment, $transactionManager);
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay order transaction complete process has been finished successfully.')->render(),
+            Logger::DEBUG
+        );
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param Transaction $transaction
+     * @throws LocalizedException
+     */
+    private function payOrder(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        Transaction $transaction
+    ): void {
         if ($order->canInvoice()) {
+            $orderId = $order->getIncrementId();
             $payment->setTransactionId($transaction->getData()['transaction_id'])
                 ->setAdditionalInformation(
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
@@ -405,6 +427,21 @@ class OrderService
                 Logger::DEBUG
             );
         }
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param TransactionManager $transactionManager
+     * @throws ClientExceptionInterface
+     * @throws Exception
+     */
+    private function addInvoicesDataToTransactionAndSendEmail(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        TransactionManager $transactionManager
+    ): void {
+        $orderId = $order->getIncrementId();
 
         foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
@@ -431,12 +468,6 @@ class OrderService
                 $this->logger->logUpdateRequestApiException($orderId, $e);
             }
         }
-
-        $this->logger->logInfoForOrder(
-            $orderId,
-            __('MultiSafepay order transaction complete process has been finished successfully.')->render(),
-            Logger::DEBUG
-        );
     }
 
     /**
