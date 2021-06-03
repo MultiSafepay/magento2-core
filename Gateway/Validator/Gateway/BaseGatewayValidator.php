@@ -61,7 +61,7 @@ class BaseGatewayValidator extends AbstractValidator
 
         // If transaction type is set to 'redirect' then do not validate additional fields
         if ($payment->getMethodInstance()->getConfigData('transaction_type') ===
-            TransactionTypeBuilder::DEFAULT_TRANSACTION_TYPE
+            TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
         ) {
             return $this->createResult(true);
         }
