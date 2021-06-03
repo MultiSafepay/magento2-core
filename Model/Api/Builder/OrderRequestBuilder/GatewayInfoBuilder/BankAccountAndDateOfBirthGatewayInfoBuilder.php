@@ -60,7 +60,7 @@ class BankAccountAndDateOfBirthGatewayInfoBuilder implements GatewayInfoBuilderI
             );
         }
 
-        if ($billingAddress->getTelephone() === null) {
+        if ($billingAddress->getTelephone() == null) {
             throw new LocalizedException(__('This payment gateway requires a valid telephone number'));
         }
 
