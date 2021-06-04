@@ -229,7 +229,7 @@ class Logger extends CoreLogger
     /**
      * @param FileSystemException $fileSystemException
      */
-    public function logFileSystemException(FileSystemException $fileSystemException): void
+    public function logFileSystemExcepmagtion(FileSystemException $fileSystemException): void
     {
         $this->error(sprintf(
             'FileSystemException occured. message: %1$d, code: %2$d, line: %3$d, file: %4$d)',

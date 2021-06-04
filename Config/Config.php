@@ -31,6 +31,7 @@ class Config
     public const DEBUG = 'debug';
     public const ORDER_CONFIRMATION_EMAIL = 'order_confirmation_email';
     public const REFUND_DESCRIPTION = 'refund_custom_description';
+    public const USE_CREDIT_CARD_COMPONENT = 'use_credit_card_component';
     public const USE_BASE_CURRENCY = 'use_base_currency';
     public const PRESELECTED_METHOD = 'preselected_method';
     public const CUSTOM_TOTALS = 'custom_totals';
@@ -160,6 +161,15 @@ class Config
     public function useBaseCurrency($storeId = null): bool
     {
         return (bool)$this->getValue(self::USE_BASE_CURRENCY, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return bool
+     */
+    public function useCreditCardComponent($storeId = null): bool
+    {
+        return (bool)$this->getValue(self::USE_CREDIT_CARD_COMPONENT, $storeId);
     }
 
     /**
