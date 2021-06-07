@@ -193,7 +193,7 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
     }
 
     /**
-     * @param $order
+     * @param OrderInterface $order
      * @return CartInterface|null
      */
     private function getQuoteFromOrder(OrderInterface $order): ?CartInterface
