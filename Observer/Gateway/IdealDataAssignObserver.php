@@ -35,12 +35,15 @@ class IdealDataAssignObserver extends AbstractDataAssignObserver
         $payment = $this->readPaymentModelArgument($observer);
 
         if (empty($additionalData['issuer_id'])) {
-            $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::REDIRECT_TRANSACTION_TYPE);
+            $payment->setAdditionalInformation(
+                'transaction_type',
+                TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
+            );
 
             return;
         }
 
-        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::DIRECT_TRANSACTION_TYPE);
+        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
         $payment->setAdditionalInformation('issuer_id', $additionalData['issuer_id']);
     }
 }

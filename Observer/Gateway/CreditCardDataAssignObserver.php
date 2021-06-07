@@ -35,12 +35,15 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
         $payment = $this->readPaymentModelArgument($observer);
 
         if (empty($additionalData['payload'])) {
-            $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::REDIRECT_TRANSACTION_TYPE);
+            $payment->setAdditionalInformation(
+                'transaction_type',
+                TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
+            );
 
             return;
         }
 
-        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::DIRECT_TRANSACTION_TYPE);
+        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
         $payment->setAdditionalInformation('payload', $additionalData['payload']);
     }
 }
