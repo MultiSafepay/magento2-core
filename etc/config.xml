@@ -171,7 +171,7 @@
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>American Express</title>
-                <payment_type>payment_request</payment_type>
+                <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
@@ -242,7 +242,7 @@
                 <model>MultiSafepayCreditCardFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
-                <payment_type>payment_request</payment_type>
+                <payment_type>redirect</payment_type>
                 <title>Credit Card</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
@@ -500,7 +500,7 @@
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Maestro</title>
-                <payment_type>payment_request</payment_type>
+                <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
@@ -524,7 +524,7 @@
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Mastercard</title>
-                <payment_type>payment_request</payment_type>
+                <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
@@ -620,7 +620,7 @@
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Visa</title>
-                <payment_type>payment_request</payment_type>
+                <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
