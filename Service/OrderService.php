@@ -188,28 +188,28 @@ class OrderService
 
     /**
      * @param OrderInterface $order
+     * @param array $transaction
      * @throws ClientExceptionInterface
      * @throws LocalizedException
      * @throws Exception
      */
-    public function processOrderTransaction(OrderInterface $order): void
+    public function processOrderTransaction(OrderInterface $order, array $transaction): void
     {
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-        $transaction = $transactionManager->get($orderId);
-        $transactionData = $transaction->getData();
-        unset($transactionData['payment_details'], $transactionData['payment_methods']);
+        $transactionLog = $transaction;
+        unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
 
         $this->logger->logInfoForOrder(
             $orderId,
             __(
                 'Transaction data was retrieved: %1',
-                $this->jsonHandler->convertToPrettyJSON($transactionData)
+                $this->jsonHandler->convertToPrettyJSON($transactionLog)
             )->render(),
             Logger::DEBUG
         );
 
-        $transactionStatus = $transaction->getStatus();
+        $transactionStatus = $transaction['status'];
 
         if (in_array($transactionStatus, [
                 TransactionStatus::COMPLETED,
@@ -230,16 +230,16 @@ class OrderService
             throw new LocalizedException(__('Can\'t get the payment from Order.'));
         }
 
-        $paymentDetails = $transaction->getPaymentDetails();
-        $transactionType = $paymentDetails->getType();
+        $paymentDetails = $transaction['payment_details'];
+        $transactionType = $paymentDetails['type'] ?? '';
         $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
 
         //Check if Vault needs to be initialized
         $isVaultInitialized = $this->vault->initialize($payment, [
-            RecurringDetailsInterface::RECURRING_ID => $paymentDetails->getRecurringId(),
+            RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
             RecurringDetailsInterface::TYPE => $transactionType,
-            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails->getCardExpiryDate(),
-            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails->getLast4(),
+            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails['card_expiry_date'] ?? '',
+            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails['last4'] ?? '',
         ]);
 
         if ($isVaultInitialized) {
@@ -335,15 +335,15 @@ class OrderService
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
+     * @param array $transaction
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
-     * @throws Exception
+     * @throws LocalizedException
      */
     private function completeOrderTransaction(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction,
+        array $transaction,
         TransactionManager $transactionManager
     ): void {
         $orderId = $order->getIncrementId();
@@ -382,24 +382,24 @@ class OrderService
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
+     * @param array $transaction
      * @throws LocalizedException
      */
     private function payOrder(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction
+        array $transaction
     ): void {
         if ($order->canInvoice()) {
             $orderId = $order->getIncrementId();
-            $payment->setTransactionId($transaction->getData()['transaction_id'])
+            $payment->setTransactionId($transaction['transaction_id'])
                 ->setAdditionalInformation(
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
                 ->registerCaptureNotification($order->getBaseTotalDue(), true);
 
-            $payment->setParentTransactionId($transaction->getData()['transaction_id']);
+            $payment->setParentTransactionId($transaction['transaction_id']);
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
             $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
@@ -410,7 +410,7 @@ class OrderService
             );
 
             if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
+                $paymentTransaction->setParentTxnId($transaction['transaction_id']);
             }
 
             $paymentTransaction->setIsClosed(1);

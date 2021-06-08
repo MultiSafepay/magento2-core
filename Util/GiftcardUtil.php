@@ -17,25 +17,23 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
-
 class GiftcardUtil
 {
     public const MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE = 'COUPON';
     public const MULTISAFEPAY_GIFTCARD_PAYMENT_ADDITIONAL_DATA_PARAM_NAME = 'multisafepay_coupon_data';
 
     /**
-     * @param Transaction $transaction
+     * @param array $transaction
      * @return array
      */
-    public function getGiftcardPaymentDataFromTransaction(Transaction $transaction): array
+    public function getGiftcardPaymentDataFromTransaction(array $transaction): array
     {
-        $transactionPaymentMethods = $transaction->getPaymentMethods();
+        $transactionPaymentMethods = $transaction['payment_methods'];
         $result = [];
 
         foreach ($transactionPaymentMethods as $paymentMethod) {
-            if ($paymentMethod->getType() === self::MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE) {
-                $result[] = $paymentMethod->getData();
+            if ($paymentMethod['type'] === self::MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE) {
+                $result[] = $paymentMethod;
             }
         }
 
@@ -43,22 +41,20 @@ class GiftcardUtil
     }
 
     /**
-     * @param Transaction $transaction
+     * @param array $transaction
      * @return bool
      */
-    public function isFullGiftcardTransaction(Transaction $transaction): bool
+    public function isFullGiftcardTransaction(array $transaction): bool
     {
-        return strpos($transaction->getPaymentDetails()->getType(), 'Coupon::') !== false;
+        return strpos($transaction['payment_details']['type'], 'Coupon::') !== false;
     }
 
     /**
-     * @param Transaction $transaction
+     * @param array $transaction
      * @return string
      */
-    public function getGiftcardGatewayCodeFromTransaction(Transaction $transaction): string
+    public function getGiftcardGatewayCodeFromTransaction(array $transaction): string
     {
-        $paymentDetails = $transaction->getPaymentDetails()->getData();
-
-        return $paymentDetails['coupon_brand'] ?? '';
+        return $transaction['payment_details']['coupon_brand'] ?? '';
     }
 }
