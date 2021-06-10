@@ -24,8 +24,8 @@ use Magento\Framework\App\RequestInterface;
 
 class CsrfValidatorSkip
 {
-    public const MODULE_NAME = 'multisafepay';
-    public const ACTION_NAME = 'notification';
+    private const MODULE_NAME = 'multisafepay';
+    private const ACTION_NAME = 'notification';
 
     /**
      * @param CsrfValidator $subject
@@ -34,7 +34,7 @@ class CsrfValidatorSkip
      * @param ActionInterface $action
      */
     public function aroundValidate(
-        $subject,
+        CsrfValidator $subject,
         Closure $proceed,
         RequestInterface $request,
         ActionInterface $action
@@ -42,6 +42,7 @@ class CsrfValidatorSkip
         if ($request->getModuleName() === self::MODULE_NAME && $request->getActionName() === self::ACTION_NAME) {
             return;
         }
+
         $proceed($request, $action);
     }
 }

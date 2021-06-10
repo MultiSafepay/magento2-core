@@ -33,7 +33,6 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -197,7 +196,7 @@ class OrderService
     {
         $orderId = $order->getIncrementId();
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-        $transactionLog = $transaction;
+        $transactionLog = $transaction ?? [];
         unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
 
         $this->logger->logInfoForOrder(
@@ -209,7 +208,7 @@ class OrderService
             Logger::DEBUG
         );
 
-        $transactionStatus = $transaction['status'];
+        $transactionStatus = $transaction['status'] ?? '';
 
         if (in_array($transactionStatus, [
                 TransactionStatus::COMPLETED,
@@ -230,7 +229,7 @@ class OrderService
             throw new LocalizedException(__('Can\'t get the payment from Order.'));
         }
 
-        $paymentDetails = $transaction['payment_details'];
+        $paymentDetails = $transaction['payment_details'] ?? [];
         $transactionType = $paymentDetails['type'] ?? '';
         $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
 
@@ -339,6 +338,7 @@ class OrderService
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
      * @throws LocalizedException
+     * @throws Exception
      */
     private function completeOrderTransaction(
         OrderInterface $order,
@@ -392,14 +392,14 @@ class OrderService
     ): void {
         if ($order->canInvoice()) {
             $orderId = $order->getIncrementId();
-            $payment->setTransactionId($transaction['transaction_id'])
+            $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
                 ->registerCaptureNotification($order->getBaseTotalDue(), true);
 
-            $payment->setParentTransactionId($transaction['transaction_id']);
+            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
             $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
@@ -410,7 +410,7 @@ class OrderService
             );
 
             if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction['transaction_id']);
+                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
             }
 
             $paymentTransaction->setIsClosed(1);

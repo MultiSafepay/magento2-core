@@ -28,11 +28,11 @@ class GiftcardUtil
      */
     public function getGiftcardPaymentDataFromTransaction(array $transaction): array
     {
-        $transactionPaymentMethods = $transaction['payment_methods'];
+        $transactionPaymentMethods = $transaction['payment_methods'] ?? [];
         $result = [];
 
         foreach ($transactionPaymentMethods as $paymentMethod) {
-            if ($paymentMethod['type'] === self::MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE) {
+            if ($paymentMethod['type'] ?? '' === self::MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE) {
                 $result[] = $paymentMethod;
             }
         }
@@ -46,7 +46,7 @@ class GiftcardUtil
      */
     public function isFullGiftcardTransaction(array $transaction): bool
     {
-        return strpos($transaction['payment_details']['type'], 'Coupon::') !== false;
+        return strpos($transaction['payment_details']['type'] ?? '', 'Coupon::') !== false;
     }
 
     /**
