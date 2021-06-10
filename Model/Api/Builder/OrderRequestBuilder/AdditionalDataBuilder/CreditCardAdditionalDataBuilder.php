@@ -31,7 +31,7 @@ class CreditCardAdditionalDataBuilder implements AdditionalDataBuilderInterface
     {
         $additionalInformation = $payment->getAdditionalInformation();
 
-        return isset($additionalInformation['payload'])
+        return isset($additionalInformation['payload']) && $additionalInformation['payload']
             ? [
                 'payment_data' => [
                     'payload' => $payment->getAdditionalInformation()['payload'] ?? '',

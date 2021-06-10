@@ -53,6 +53,12 @@ class AdditionalDataBuilder implements OrderRequestBuilderInterface
             return;
         }
 
-        $orderRequest->addData($this->additionalDataBuilders[$paymentCode]->build($order, $payment));
+        $additionalData = [];
+
+        foreach ($this->additionalDataBuilders[$paymentCode] as $additionalDataBuilder) {
+            $additionalData[] = $additionalDataBuilder->build($order, $payment);
+        }
+
+        $orderRequest->addData(array_merge([], ...$additionalData));
     }
 }
