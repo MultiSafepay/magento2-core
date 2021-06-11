@@ -285,7 +285,8 @@ class OrderService
             $this->changePaymentMethod($order, $payment, $transactionType);
         }
 
-        $this->logger->logInfoForOrder($orderId,
+        $this->logger->logInfoForOrder(
+            $orderId,
             __('MultiSafepay change payment process has ended')->render(),
             Logger::DEBUG
         );
@@ -417,7 +418,8 @@ class OrderService
 
         $this->payOrder($order, $payment, $transaction);
 
-        $this->logger->logInfoForOrder($orderId,
+        $this->logger->logInfoForOrder(
+            $orderId,
             __('MultiSafepay pay order process has ended.')->render(),
             Logger::DEBUG
         );
