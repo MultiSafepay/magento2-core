@@ -22,7 +22,9 @@ use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 
@@ -72,11 +74,12 @@ class RedirectTransactionBuilder implements BuilderInterface
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 
-        $state = Order::STATE_NEW;
-        $orderStatus = $this->orderStatusUtil->getPendingStatus($order);
+        $paymentMethod = $payment->getMethod() ?? $payment->getMethodInstance()->getCode();
 
-        $stateObject->setState($state);
-        $stateObject->setStatus($orderStatus);
+        $orderStateAndStatus = $this->getOrderStateAndStatus($order, $paymentMethod);
+
+        $stateObject->setState($orderStateAndStatus[0]);
+        $stateObject->setStatus($orderStateAndStatus[1]);
 
         // Early return on backend order
         if ($this->state->getAreaCode() === Area::AREA_ADMINHTML) {
@@ -90,5 +93,19 @@ class RedirectTransactionBuilder implements BuilderInterface
         }
 
         return [];
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param string $paymentMethod
+     * @return array
+     */
+    private function getOrderStateAndStatus(OrderInterface $order, string $paymentMethod): array
+    {
+        if ($paymentMethod === BankTransferConfigProvider::CODE) {
+            return [Order::STATE_NEW, $this->orderStatusUtil->getPendingStatus($order)];
+        }
+
+        return [Order::STATE_PENDING_PAYMENT, $this->orderStatusUtil->getPendingPaymentStatus($order)];
     }
 }
