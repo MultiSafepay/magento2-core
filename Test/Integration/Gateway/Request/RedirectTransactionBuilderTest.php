@@ -45,7 +45,7 @@ class RedirectTransactionBuilderTest extends AbstractTestCase
 
         $modifiedStateObject = $buildSubject['stateObject'];
         self::assertEquals('pending_payment', $modifiedStateObject->getStatus());
-        self::assertEquals(Order::STATE_NEW, $modifiedStateObject->getState());
+        self::assertEquals(Order::STATE_PENDING_PAYMENT, $modifiedStateObject->getState());
         self::assertEquals(false, $modifiedStateObject->getIsNotified());
     }
 }
