@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Request;
 
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder;
@@ -28,8 +29,9 @@ class RedirectTransactionBuilderTest extends AbstractTestCase
      * Test to see if this could be build
      *
      * @magentoDataFixture Magento/Sales/_files/order.php
+     * @throws LocalizedException
      */
-    public function testBuild()
+    public function testBuild(): void
     {
         /** @var RedirectTransactionBuilder $genericTransactionBuilder */
         $genericTransactionBuilder = $this->getObjectManager()->get(RedirectTransactionBuilder::class);
@@ -37,13 +39,13 @@ class RedirectTransactionBuilderTest extends AbstractTestCase
         $stateObject = new DataObject();
         $buildSubject = [
             'payment' => $this->getPaymentDataObject(),
-            'stateObject' => $stateObject
+            'stateObject' => $stateObject,
         ];
         $genericTransactionBuilder->build($buildSubject);
 
         $modifiedStateObject = $buildSubject['stateObject'];
-        $this->assertEquals('pending', $modifiedStateObject->getStatus());
-        $this->assertEquals(Order::STATE_NEW, $modifiedStateObject->getState());
-        $this->assertEquals(false, $modifiedStateObject->getIsNotified());
+        self::assertEquals('pending_payment', $modifiedStateObject->getStatus());
+        self::assertEquals(Order::STATE_NEW, $modifiedStateObject->getState());
+        self::assertEquals(false, $modifiedStateObject->getIsNotified());
     }
 }
