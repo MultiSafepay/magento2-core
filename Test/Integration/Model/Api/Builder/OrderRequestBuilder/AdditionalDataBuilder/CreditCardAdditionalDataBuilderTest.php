@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderReque
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
+// phpcs:ignore
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
