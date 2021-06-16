@@ -30,6 +30,9 @@ use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 
 class RedirectTransactionBuilder implements BuilderInterface
 {
+    private const ORDER_STATE = 'state';
+    private const ORDER_STATUS = 'status';
+
     /**
      * @var OrderStatusUtil
      */
@@ -74,12 +77,12 @@ class RedirectTransactionBuilder implements BuilderInterface
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 
-        $paymentMethod = $payment->getMethod() ?? $payment->getMethodInstance()->getCode();
-
+        $paymentMethod = $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()
+            ->getCode();
         $orderStateAndStatus = $this->getOrderStateAndStatus($order, $paymentMethod);
 
-        $stateObject->setState($orderStateAndStatus[0]);
-        $stateObject->setStatus($orderStateAndStatus[1]);
+        $stateObject->setState($orderStateAndStatus[self::ORDER_STATE]);
+        $stateObject->setStatus($orderStateAndStatus[self::ORDER_STATUS]);
 
         // Early return on backend order
         if ($this->state->getAreaCode() === Area::AREA_ADMINHTML) {
@@ -103,9 +106,15 @@ class RedirectTransactionBuilder implements BuilderInterface
     private function getOrderStateAndStatus(OrderInterface $order, string $paymentMethod): array
     {
         if ($paymentMethod === BankTransferConfigProvider::CODE) {
-            return [Order::STATE_NEW, $this->orderStatusUtil->getPendingStatus($order)];
+            return [
+                self::ORDER_STATE => Order::STATE_NEW,
+                self::ORDER_STATUS => $this->orderStatusUtil->getPendingStatus($order)
+            ];
         }
 
-        return [Order::STATE_PENDING_PAYMENT, $this->orderStatusUtil->getPendingPaymentStatus($order)];
+        return [
+            self::ORDER_STATE => Order::STATE_PENDING_PAYMENT,
+            self::ORDER_STATUS => $this->orderStatusUtil->getPendingPaymentStatus($order)
+        ];
     }
 }

@@ -27,50 +27,62 @@ use MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder;
 class RedirectTransactionBuilderTest extends AbstractTestCase
 {
     /**
-     * Test to see if this could be build
-     *
      * @magentoDataFixture Magento/Sales/_files/order.php
+     * @dataProvider builderDataProvider
+     *
+     * @param string $paymentMethod
+     * @param string $status
+     * @param string $state
+     * @param bool $isNotified
      * @throws LocalizedException
      */
-    public function testBuild(): void
+    public function testBuildBankTransfer(string $paymentMethod, string $status, string $state, bool $isNotified): void
     {
-        $redirectTransactionBuilder = $this->getRedirectTransactionBuilder();
+        if ($paymentMethod) {
+            $this->getOrder()->getPayment()->setMethod($paymentMethod);
+        }
 
-        $stateObject = new DataObject();
-        $buildSubject = [
-            'payment' => $this->getPaymentDataObject(),
-            'stateObject' => $stateObject,
-        ];
-        $redirectTransactionBuilder->build($buildSubject);
+        $modifiedStateObject = $this->prepareRedirectTransactionBuilder();
 
-        $modifiedStateObject = $buildSubject['stateObject'];
-        self::assertEquals('pending_payment', $modifiedStateObject->getStatus());
-        self::assertEquals(Order::STATE_PENDING_PAYMENT, $modifiedStateObject->getState());
-        self::assertEquals(false, $modifiedStateObject->getIsNotified());
+        self::assertEquals($status, $modifiedStateObject->getStatus());
+        self::assertEquals($state, $modifiedStateObject->getState());
+        self::assertEquals($isNotified, $modifiedStateObject->getIsNotified());
     }
 
     /**
-     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @return DataObject
      * @throws LocalizedException
      */
-    public function testBuildBankTransfer(): void
+    private function prepareRedirectTransactionBuilder(): DataObject
     {
-        $redirectTransactionBuilder = $this->getRedirectTransactionBuilder();
-
-        $order = $this->getOrder();
-        $order->getPayment()->setMethod(BankTransferConfigProvider::CODE);
-
-        $stateObject = new DataObject();
         $buildSubject = [
             'payment' => $this->getPaymentDataObject(),
-            'stateObject' => $stateObject,
+            'stateObject' => new DataObject(),
         ];
-        $redirectTransactionBuilder->build($buildSubject);
+        $this->getRedirectTransactionBuilder()->build($buildSubject);
 
-        $modifiedStateObject = $buildSubject['stateObject'];
-        self::assertEquals('pending', $modifiedStateObject->getStatus());
-        self::assertEquals(Order::STATE_NEW, $modifiedStateObject->getState());
-        self::assertEquals(false, $modifiedStateObject->getIsNotified());
+        return $buildSubject['stateObject'];
+    }
+
+    /**
+     * @return array[]
+     */
+    public function builderDataProvider(): array
+    {
+        return [
+            [
+                '',
+                'pending_payment',
+                Order::STATE_PENDING_PAYMENT,
+                false
+            ],
+            [
+                BankTransferConfigProvider::CODE,
+                'pending',
+                Order::STATE_NEW,
+                false
+            ]
+        ];
     }
 
     /**
