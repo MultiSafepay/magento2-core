@@ -52,7 +52,7 @@ class AdditionalDataBuilderTest extends AbstractTransactionTestCase
      *
      * @param string $paymentCode
      * @param array $additionalData
-     * @param bool $expected
+     * @param array $expected
      * @throws LocalizedException
      */
     public function testAdditionalDataBuildersWithDifferentPaymentMethods(
@@ -66,7 +66,7 @@ class AdditionalDataBuilderTest extends AbstractTransactionTestCase
         $orderRequestData = $this->getBuildedOrderRequest($order, $payment)->getData();
 
         if (!$expected) {
-            self::assertTrue(!isset($orderRequestData['payment_data']));
+            self::assertNotTrue(isset($orderRequestData['payment_data']));
         } else {
             self::assertEquals($expected, $orderRequestData['payment_data']);
         }
