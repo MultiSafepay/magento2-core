@@ -92,7 +92,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
                 ->addRedirectUrl($redirectUrl)
                 ->addCancelUrl($cancelUrl)
                 ->addCloseWindow(false)
-                ->addNotificationMethod('GET')
+                ->addNotificationMethod()
         );
     }
 }
