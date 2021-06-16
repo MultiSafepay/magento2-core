@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Fixed a bug related to some invoice which skip order payment method.
+- Fixed a bug related to special cases where some invoices skip the order payment method.
 
 ## [2.7.0] - 2021-06-03
 ### Added
