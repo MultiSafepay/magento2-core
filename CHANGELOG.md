@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Changed the notification method from 'GET' to 'POST'
+- Changed the notification method from 'GET' to 'POST'.
+- Updated the PHP-SDK version to version 5.
+- Dropped support for PHP 7.1. Because of this, Magento versions up to version 2.2.9 are not supported anymore.
 
 ## [2.7.0] - 2021-06-03
 ### Added
