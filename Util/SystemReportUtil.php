@@ -26,6 +26,7 @@ use Magento\Framework\Filesystem\Driver\File;
 use Magento\Framework\Module\FullModuleList;
 use Magento\Framework\Module\Manager;
 use Magento\Payment\Model\Config;
+use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 
 class SystemReportUtil
 {
@@ -206,7 +207,10 @@ class SystemReportUtil
      */
     private function getMultiSafepayGeneralConfig(): array
     {
-        return (array)$this->scopeConfig->getValue('multisafepay/general');
+        $config = (array)$this->scopeConfig->getValue('multisafepay/general');
+        unset($config[MultiSafepayConfig::LIVE_API_KEY]);
+
+        return $config;
     }
 
     /**

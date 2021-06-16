@@ -446,6 +446,7 @@ class OrderService
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
+                ->setIsTransactionPending(false)
                 ->registerCaptureNotification($order->getBaseTotalDue(), true);
 
             $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
