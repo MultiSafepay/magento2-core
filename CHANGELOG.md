@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug related to special cases where some invoices skip the order payment method.
 
 ### Changed
+- Moved setting pending_payment status from Redirect controller to Gateway Request Builder
 - Changed the notification method from 'GET' to 'POST'.
 - Updated the PHP-SDK version to version 5.
 - Dropped support for PHP 7.1. Because of this, Magento versions up to version 2.2.9 are not supported anymore.

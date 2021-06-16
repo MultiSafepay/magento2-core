@@ -36,6 +36,7 @@ class Config
     public const CUSTOM_TOTALS = 'custom_totals';
     public const PENDING_STATUS = 'order_status';
     public const PENDING_PAYMENT_STATUS = 'pending_payment_order_status';
+    public const PROCESSING_ORDER_STATUS = 'processing_order_status';
     public const BEFORE_TRANSACTION = 'before_transaction';
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
@@ -178,6 +179,15 @@ class Config
     public function getCustomTotals($storeId = null): string
     {
         return (string)$this->getAdvancedValue(self::CUSTOM_TOTALS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getProcessingStatus($storeId = null): string
+    {
+        return (string)$this->getValue(self::PROCESSING_ORDER_STATUS, $storeId);
     }
 
     /**
