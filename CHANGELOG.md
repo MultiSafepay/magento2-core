@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fixed a bug related to special cases where some invoices skip the order payment method.
+- Fixed a bug related to wrong showing qty on the payment page for items with decimal qty
 
 ### Changed
 - Moved setting pending_payment status from Redirect controller to Gateway Request Builder

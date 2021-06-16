@@ -63,7 +63,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
             $items[] = (new TransactionItem())
                 ->addName($item->getName())
                 ->addUnitPrice(new Money(round($unitPrice * 100, 10), $currency))
-                ->addQuantity((int)$item->getQtyOrdered())
+                ->addQuantity((float)$item->getQtyOrdered())
                 ->addDescription($item->getDescription() ?? '')
                 ->addMerchantItemId($item->getSku())
                 ->addTaxRate((float)$item->getTaxPercent());
