@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed a bug related to special cases where some invoices skip the order payment method.
 - Fixed a bug related to wrong showing qty on the payment page for items with decimal qty
 
 ### Changed
@@ -13,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed the notification method from 'GET' to 'POST'.
 - Updated the PHP-SDK version to version 5.
 - Dropped support for PHP 7.1. Because of this, Magento versions up to version 2.2.9 are not supported anymore.
+
 
 ## [2.7.0] - 2021-06-03
 ### Added
