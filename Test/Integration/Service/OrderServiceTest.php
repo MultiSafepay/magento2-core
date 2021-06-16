@@ -146,7 +146,7 @@ class OrderServiceTest extends AbstractTestCase
 
         $payOrderMethod = $this->reflector->getMethod('payOrder');
         $payOrderMethod->setAccessible(true);
-        $payOrderMethod->invoke($this->orderService, $order, $payment, $transaction);
+        $payOrderMethod->invoke($this->orderService, $order, $payment, $transaction->getData());
 
         self::assertEquals($fakeTransactionId, $payment->getLastTransId());
         self::assertTrue($payment->getIsTransactionApproved());
