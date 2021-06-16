@@ -58,7 +58,7 @@ class OrderStatusUtil
      */
     public function getProcessingStatus(OrderInterface $order): string
     {
-        if ($orderStatus = $this->config->getValue('processing_order_status')) {
+        if ($orderStatus = $this->config->getProcessingStatus($order->getStoreId())) {
             return $orderStatus;
         }
 

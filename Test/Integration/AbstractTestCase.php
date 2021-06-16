@@ -100,6 +100,7 @@ abstract class AbstractTestCase extends TestCase
     }
 
     /**
+     * @param string $type
      * @return PaymentDataObjectInterface
      * @throws LocalizedException
      */
