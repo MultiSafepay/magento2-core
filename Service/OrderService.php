@@ -33,7 +33,6 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -188,28 +187,35 @@ class OrderService
 
     /**
      * @param OrderInterface $order
+     * @param array $transaction
      * @throws ClientExceptionInterface
      * @throws LocalizedException
      * @throws Exception
      */
-    public function processOrderTransaction(OrderInterface $order): void
+    public function processOrderTransaction(OrderInterface $order, array $transaction): void
     {
         $orderId = $order->getIncrementId();
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('Order ID has been retrieved from the order')->render(),
+            Logger::DEBUG
+        );
+
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-        $transaction = $transactionManager->get($orderId);
-        $transactionData = $transaction->getData();
-        unset($transactionData['payment_details'], $transactionData['payment_methods']);
+
+        $transactionLog = $transaction ?? [];
+        unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
 
         $this->logger->logInfoForOrder(
             $orderId,
             __(
                 'Transaction data was retrieved: %1',
-                $this->jsonHandler->convertToPrettyJSON($transactionData)
+                $this->jsonHandler->convertToPrettyJSON($transactionLog)
             )->render(),
             Logger::DEBUG
         );
 
-        $transactionStatus = $transaction->getStatus();
+        $transactionStatus = $transaction['status'] ?? '';
 
         if (in_array($transactionStatus, [
                 TransactionStatus::COMPLETED,
@@ -227,24 +233,42 @@ class OrderService
 
         /** @var Payment $payment */
         if (!($payment = $order->getPayment())) {
-            throw new LocalizedException(__('Can\'t get the payment from Order.'));
+            throw new LocalizedException(__('Can\'t get the payment from the order.'));
         }
 
-        $paymentDetails = $transaction->getPaymentDetails();
-        $transactionType = $paymentDetails->getType();
+        $paymentDetails = $transaction['payment_details'] ?? [];
+        $transactionType = $paymentDetails['type'] ?? '';
         $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay initialize Vault process has been started')->render(),
+            Logger::DEBUG
+        );
 
         //Check if Vault needs to be initialized
         $isVaultInitialized = $this->vault->initialize($payment, [
-            RecurringDetailsInterface::RECURRING_ID => $paymentDetails->getRecurringId(),
+            RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
             RecurringDetailsInterface::TYPE => $transactionType,
-            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails->getCardExpiryDate(),
-            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails->getLast4(),
+            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails['card_expiry_date'] ?? '',
+            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails['last4'] ?? '',
         ]);
 
         if ($isVaultInitialized) {
             $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render(), Logger::DEBUG);
         }
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay initialize Vault process has ended')->render(),
+            Logger::DEBUG
+        );
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay change payment process has been started')->render(),
+            Logger::DEBUG
+        );
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
@@ -254,6 +278,12 @@ class OrderService
 
             $this->changePaymentMethod($order, $payment, $transactionType);
         }
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay change payment process has ended')->render(),
+            Logger::DEBUG
+        );
 
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
@@ -293,6 +323,11 @@ class OrderService
         }
 
         $this->orderRepository->save($order);
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('Order has been saved.')->render(),
+            Logger::DEBUG
+        );
     }
 
     /**
@@ -335,15 +370,16 @@ class OrderService
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
+     * @param array $transaction
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
+     * @throws LocalizedException
      * @throws Exception
      */
     private function completeOrderTransaction(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction,
+        array $transaction,
         TransactionManager $transactionManager
     ): void {
         $orderId = $order->getIncrementId();
@@ -369,7 +405,20 @@ class OrderService
             );
         }
 
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay pay order process has been started.')->render(),
+            Logger::DEBUG
+        );
+
         $this->payOrder($order, $payment, $transaction);
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay pay order process has ended.')->render(),
+            Logger::DEBUG
+        );
+
         $this->addInvoicesDataToTransactionAndSendEmail($order, $payment, $transactionManager);
 
         $this->logger->logInfoForOrder(
@@ -382,27 +431,29 @@ class OrderService
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
+     * @param array $transaction
      * @throws LocalizedException
      */
     private function payOrder(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction
+        array $transaction
     ): void {
         if ($order->canInvoice()) {
             $orderId = $order->getIncrementId();
-            $payment->setTransactionId($transaction->getData()['transaction_id'])
+            $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
+                ->setIsTransactionPending(false)
                 ->registerCaptureNotification($order->getBaseTotalDue(), true);
 
-            $payment->setParentTransactionId($transaction->getData()['transaction_id']);
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
             $paymentTransaction = $payment->addTransaction(
                 PaymentTransaction::TYPE_CAPTURE,
                 null,
@@ -410,11 +461,12 @@ class OrderService
             );
 
             if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
+                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
             }
 
             $paymentTransaction->setIsClosed(1);
             $this->transactionRepository->save($paymentTransaction);
+            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
             // Set order processing
             $status = $this->orderStatusUtil->getProcessingStatus($order);
