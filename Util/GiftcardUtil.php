@@ -32,7 +32,7 @@ class GiftcardUtil
         $result = [];
 
         foreach ($transactionPaymentMethods as $paymentMethod) {
-            if ($paymentMethod['type'] ?? '' === self::MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE) {
+            if (($paymentMethod['type'] ?? '') === self::MULTISAFEPAY_GIFTCARD_PAYMENT_TYPE) {
                 $result[] = $paymentMethod;
             }
         }

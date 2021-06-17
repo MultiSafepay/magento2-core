@@ -201,6 +201,16 @@ class OrderService
             Logger::DEBUG
         );
 
+        if (!$transaction) {
+            $this->logger->logInfoForOrder(
+                $orderId,
+                __('Transaction data is empty. Order transaction process was stoped.')->render(),
+                Logger::DEBUG
+            );
+
+            return;
+        }
+
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
 
         $transactionLog = $transaction ?? [];
