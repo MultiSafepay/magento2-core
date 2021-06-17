@@ -1,12 +1,13 @@
 name: Integration Tests
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
     types: [opened]
-    branches: 
+    branches:
       - 'master'
+      - 'release/**'
 
 jobs:
   integration-tests:
