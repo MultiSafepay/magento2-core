@@ -35,6 +35,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';
+    private const DEFAULT_CONFIG_PAYMENT_PATH = 'payment/%s';
 
     /**
      * @var AssetRepository
@@ -205,6 +206,18 @@ class GenericConfigProvider implements ConfigProviderInterface
         return (string)$this->paymentConfig->getValue(
             'transaction_type',
             $this->checkoutSession->getQuote()->getStoreId()
+        );
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getPaymentConfig(int $storeId = null): array
+    {
+        return (array)$this->config->getValueByPath(
+            sprintf(self::DEFAULT_CONFIG_PAYMENT_PATH, $this->getCode()),
+            $storeId
         );
     }
 }

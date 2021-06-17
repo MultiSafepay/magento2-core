@@ -239,4 +239,20 @@ class Logger extends CoreLogger
             $fileSystemException->getFile()
         ));
     }
+
+    /**
+     * @param Exception $exception
+     */
+    public function logPaymentRequestGetCustomerDataException(Exception $exception): void
+    {
+        $this->debug(
+            sprintf(
+                '(Get Payment Request API data error): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile()
+            )
+        );
+    }
 }

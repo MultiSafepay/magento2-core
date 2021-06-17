@@ -22,7 +22,7 @@ use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
-class IdealDataAssignObserver extends AbstractDataAssignObserver
+class CreditCardDataAssignObserver extends AbstractDataAssignObserver
 {
 
     /**
@@ -34,7 +34,7 @@ class IdealDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
-        if (empty($additionalData['issuer_id'])) {
+        if (empty($additionalData['payload'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
                 TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
@@ -44,6 +44,6 @@ class IdealDataAssignObserver extends AbstractDataAssignObserver
         }
 
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
-        $payment->setAdditionalInformation('issuer_id', $additionalData['issuer_id']);
+        $payment->setAdditionalInformation('payload', $additionalData['payload']);
     }
 }
