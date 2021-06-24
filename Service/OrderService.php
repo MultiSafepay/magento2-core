@@ -213,7 +213,7 @@ class OrderService
 
         $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
 
-        $transactionLog = $transaction ?? [];
+        $transactionLog = $transaction;
         unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
 
         $this->logger->logInfoForOrder(
