@@ -82,7 +82,7 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         }
 
         $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
-        if ($amount === 0) {
+        if ($amount === 0.0) {
             throw new CouldNotRefundException(__($msg));
         }
 
