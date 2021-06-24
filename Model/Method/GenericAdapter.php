@@ -587,7 +587,7 @@ class GenericAdapter extends Adapter
      */
     public function sale(InfoInterface $payment, float $amount): ?ResultInterface
     {
-        $this->executeCommand(
+        return $this->executeCommand(
             'sale',
             ['payment' => $payment, 'amount' => $amount]
         );
