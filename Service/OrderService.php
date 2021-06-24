@@ -217,8 +217,6 @@ class OrderService
             );
         }
 
-
-
         $transactionLog = $transaction ?? [];
         unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
 
