@@ -192,7 +192,7 @@ class OrderService
      * @throws LocalizedException
      * @throws Exception
      */
-    public function processOrderTransaction(OrderInterface $order, array $transaction): void
+    public function processOrderTransaction(OrderInterface $order, array $transaction = []): void
     {
         $orderId = $order->getIncrementId();
         $this->logger->logInfoForOrder(
@@ -204,14 +204,20 @@ class OrderService
         if (!$transaction) {
             $this->logger->logInfoForOrder(
                 $orderId,
-                __('Transaction data is empty. Order transaction process was stoped.')->render(),
+                __('Transaction data is empty. Trying to retrieve transaction.')->render(),
                 Logger::DEBUG
             );
-
-            return;
+            $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+            $transactionResponse = $transactionManager->get($orderId);
+            $transaction = $transactionResponse->getData();
+            $this->logger->logInfoForOrder(
+                $orderId,
+                __('Transaction data retrieved through API call')->render(),
+                Logger::DEBUG
+            );
         }
 
-        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+
 
         $transactionLog = $transaction ?? [];
         unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
