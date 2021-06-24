@@ -201,13 +201,14 @@ class OrderService
             Logger::DEBUG
         );
 
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+
         if (!$transaction) {
             $this->logger->logInfoForOrder(
                 $orderId,
                 __('Transaction data is empty. Trying to retrieve transaction.')->render(),
                 Logger::DEBUG
             );
-            $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
             $transactionResponse = $transactionManager->get($orderId);
             $transaction = $transactionResponse->getData();
             $this->logger->logInfoForOrder(
