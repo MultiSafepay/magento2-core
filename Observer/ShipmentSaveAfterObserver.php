@@ -142,6 +142,6 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             return '';
         }
 
-        return is_array($tracks) ? reset($tracks)->getTrackNumber() : '';
+        return is_array($tracks) ? (string)reset($tracks)->getTrackNumber() : '';
     }
 }
