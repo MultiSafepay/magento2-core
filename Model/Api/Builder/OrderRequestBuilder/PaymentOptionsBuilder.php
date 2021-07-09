@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -43,11 +42,6 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     private $secureToken;
 
     /**
-     * @var UrlInterface
-     */
-    private $urlBuilder;
-
-    /**
      * @var StoreManagerInterface
      */
     private $storeManager;
@@ -57,18 +51,15 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      *
      * @param PaymentOptions $paymentOptions
      * @param SecureToken $secureToken
-     * @param UrlInterface $urlBuilder
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         PaymentOptions $paymentOptions,
         SecureToken $secureToken,
-        UrlInterface $urlBuilder,
         StoreManagerInterface $storeManager
     ) {
         $this->secureToken = $secureToken;
         $this->paymentOptions = $paymentOptions;
-        $this->urlBuilder = $urlBuilder;
         $this->storeManager = $storeManager;
     }
 
@@ -105,7 +96,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     /**
      * @throws NoSuchEntityException
      */
-    public function getUrl(string $endPoint, $storeId = null, array $params = null): string
+    private function getUrl(string $endPoint, $storeId = null, array $params = null): string
     {
         if ($params) {
             return $this->storeManager->getStore($storeId)->getBaseUrl() . $endPoint . "?" . http_build_query($params);
