@@ -17,9 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
 use MultiSafepay\ConnectCore\Model\SecureToken;
@@ -46,20 +48,28 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     private $urlBuilder;
 
     /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * PaymentOptions constructor.
      *
      * @param PaymentOptions $paymentOptions
      * @param SecureToken $secureToken
      * @param UrlInterface $urlBuilder
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         PaymentOptions $paymentOptions,
         SecureToken $secureToken,
-        UrlInterface $urlBuilder
+        UrlInterface $urlBuilder,
+        StoreManagerInterface $storeManager
     ) {
         $this->secureToken = $secureToken;
         $this->paymentOptions = $paymentOptions;
         $this->urlBuilder = $urlBuilder;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -67,25 +77,21 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
      * @return void
+     * @throws NoSuchEntityException
      */
     public function build(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         OrderRequest $orderRequest
     ): void {
-        $orderId = (string) $order->getRealOrderId();
-        $secureToken = $this->secureToken->generate($orderId);
-
-        $parameters = [
-            '_nosid' => true,
-            '_query' => [
-                'secureToken' => $secureToken
-            ]
+        $storeId = $order->getStoreId();
+        $params = [
+            'secureToken' => $this->secureToken->generate((string)$order->getRealOrderId()),
         ];
 
-        $notificationUrl = $this->urlBuilder->getDirectUrl(self::NOTIFICATION_URL);
-        $redirectUrl = $this->urlBuilder->getDirectUrl(self::REDIRECT_URL, $parameters);
-        $cancelUrl = $this->urlBuilder->getDirectUrl(self::CANCEL_URL, $parameters);
+        $notificationUrl = $this->getUrl(self::NOTIFICATION_URL, $storeId);
+        $redirectUrl = $this->getUrl(self::REDIRECT_URL, $storeId, $params);
+        $cancelUrl = $this->getUrl(self::CANCEL_URL, $storeId, $params);
 
         $orderRequest->addPaymentOptions(
             $this->paymentOptions->addNotificationUrl($notificationUrl)
@@ -94,5 +100,17 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
                 ->addCloseWindow(false)
                 ->addNotificationMethod()
         );
+    }
+
+    /**
+     * @throws NoSuchEntityException
+     */
+    public function getUrl(string $endPoint, $storeId = null, array $params = null): string
+    {
+        if ($params) {
+            return $this->storeManager->getStore($storeId)->getBaseUrl() . $endPoint . "?" . http_build_query($params);
+        }
+
+        return $this->storeManager->getStore($storeId)->getBaseUrl() . $endPoint;
     }
 }
