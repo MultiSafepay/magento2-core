@@ -98,6 +98,8 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      */
     private function getUrl(string $endPoint, $storeId = null, array $params = null): string
     {
-        return $this->storeManager->getStore($storeId)->getBaseUrl() . $endPoint . ($params ? "?" . http_build_query($params) : '');
+        return $this->storeManager->getStore($storeId)->getBaseUrl()
+               . $endPoint
+               . ($params ? "?" . http_build_query($params) : '');
     }
 }
