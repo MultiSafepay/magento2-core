@@ -12,6 +12,7 @@ on:
 jobs:
   integration-tests:
     name: Magento 2 Integration Tests
+    if: ${{!contains(github.head_ref, 'release/')}}
     runs-on: ubuntu-latest
     services:
       mysql:
