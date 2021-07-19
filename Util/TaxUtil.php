@@ -21,7 +21,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config as TaxConfig;
@@ -84,19 +83,5 @@ class TaxUtil
         );
 
         return $this->calculation->getRate($request->setProductClassId($taxRateId));
-    }
-
-    /**
-     * @param OrderItemInterface $item
-     * @param $storeId
-     * @return float
-     */
-    public function applyWeeTaxRate(OrderItemInterface $item, $storeId): float
-    {
-        if ($this->scopeConfig->getValue('tax/weee/apply_vat', ScopeInterface::SCOPE_STORES, $storeId)) {
-            return (float)$item->getTaxPercent();
-        }
-
-        return (float)0;
     }
 }

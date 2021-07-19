@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
-use Magento\Directory\Model\PriceCurrency;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
@@ -38,17 +37,25 @@ class PriceUtil
     private $scopeConfig;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * PriceUtil constructor.
      *
      * @param Config $config
      * @param ScopeConfigInterface $scopeConfig
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         Config $config,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        JsonHandler $jsonHandler
     ) {
         $this->config = $config;
         $this->scopeConfig = $scopeConfig;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -79,8 +86,16 @@ class PriceUtil
             $storeId
         );
 
-        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
-            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
+        $weeTaxUnitPrice = 0;
+
+        if (!empty($weeeTaxData = $this->jsonHandler->readJSON($item->getWeeeTaxApplied()))) {
+            foreach ($weeeTaxData as $weeTax) {
+                $weeTaxUnitPrice = $this->getWeeeTaxUnitPrice($weeTax, $storeId);
+            }
+        }
+
+        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity) + $weeTaxUnitPrice
+            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity) + $weeTaxUnitPrice;
     }
 
     /**
@@ -140,9 +155,9 @@ class PriceUtil
     public function getWeeeTaxUnitPrice(array $weeTax, $storeId): float
     {
         if ($this->config->useBaseCurrency($storeId)) {
-            return $weeTax['base_amount'];
+            return (float)$weeTax['base_amount'];
         }
 
-        return $weeTax['amount'];
+        return (float)$weeTax['amount'];
     }
 }
