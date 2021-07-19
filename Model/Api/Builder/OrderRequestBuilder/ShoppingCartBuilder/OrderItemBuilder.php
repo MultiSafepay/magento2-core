@@ -22,7 +22,9 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item as TransactionItem;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
+use MultiSafepay\ConnectCore\Util\TaxUtil;
 use MultiSafepay\ValueObject\Money;
 
 class OrderItemBuilder implements ShoppingCartBuilderInterface
@@ -33,14 +35,30 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
     private $priceUtil;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
+     * @var TaxUtil
+     */
+    private $taxUtil;
+
+    /**
      * OrderItemBuilder constructor.
      *
      * @param PriceUtil $priceUtil
+     * @param JsonHandler $jsonHandler
+     * @param TaxUtil $taxUtil
      */
     public function __construct(
-        PriceUtil $priceUtil
+        PriceUtil $priceUtil,
+        JsonHandler $jsonHandler,
+        TaxUtil $taxUtil
     ) {
         $this->priceUtil = $priceUtil;
+        $this->jsonHandler = $jsonHandler;
+        $this->taxUtil = $taxUtil;
     }
 
     /**
@@ -53,6 +71,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
         $storeId = $order->getStoreId();
         $items = [];
         $orderItems = $order->getItems();
+        $weeTaxIdentifier = 0;
 
         foreach ($orderItems as $item) {
             if (!$this->canAddToShoppingCart($item)) {
@@ -67,6 +86,19 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
                 ->addDescription($item->getDescription() ?? '')
                 ->addMerchantItemId($item->getSku())
                 ->addTaxRate((float)$item->getTaxPercent());
+
+            if (!empty($weeeTaxData = $this->jsonHandler->readJSON($item->getWeeeTaxApplied()))) {
+                foreach ($weeeTaxData as $weeTax) {
+                    $weeTaxUnitPrice = $this->priceUtil->getWeeeTaxUnitPrice($weeTax, $storeId);
+                    $items[] = (new TransactionItem())
+                        ->addName($weeTax['title'])
+                        ->addUnitPrice(new Money(round($weeTaxUnitPrice * 100, 10), $currency))
+                        ->addQuantity((float)$item->getQtyOrdered())
+                        ->addDescription($weeTax['title'] ?? '')
+                        ->addMerchantItemId($weeTax['title'] . ($weeTaxIdentifier++))
+                        ->addTaxRate($this->taxUtil->applyWeeTaxRate($item, $storeId));
+                }
+            }
         }
 
         return $items;

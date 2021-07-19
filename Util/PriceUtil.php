@@ -131,4 +131,18 @@ class PriceUtil
 
         return (float)$order->getShippingAmount();
     }
+
+    /**
+     * @param array $weeTax
+     * @param $storeId
+     * @return float
+     */
+    public function getWeeeTaxUnitPrice(array $weeTax, $storeId): float
+    {
+        if ($this->config->useBaseCurrency($storeId)) {
+            return $weeTax['base_amount'];
+        }
+
+        return $weeTax['amount'];
+    }
 }
