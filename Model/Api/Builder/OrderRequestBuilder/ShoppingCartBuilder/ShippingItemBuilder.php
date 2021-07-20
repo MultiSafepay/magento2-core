@@ -66,7 +66,7 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
             $shippingPrice = $this->priceUtil->getShippingUnitPrice($order);
 
             $items[] = (new Item())
-                ->addName($order->getShippingDescription())
+                ->addName($order->getShippingDescription() ?: 'shipment')
                 ->addUnitPrice(new Money($shippingPrice * 100, $currency))
                 ->addQuantity(1)
                 ->addDescription('Shipping')
