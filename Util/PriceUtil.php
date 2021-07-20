@@ -22,6 +22,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Config as MagentoConfig;
+use Magento\Tax\Model\Sales\Order\Tax;
 use MultiSafepay\ConnectCore\Config\Config;
 
 class PriceUtil
@@ -86,14 +87,12 @@ class PriceUtil
             $storeId
         );
 
-        $weeTaxUnitPrice = 0;
+        $weeeTaxData = $this->jsonHandler->readJSON($item->getWeeeTaxApplied());
+        $weeeTaxUnitPrice = $this->getWeeeTaxUnitPrice($weeeTaxData, $storeId) ? : 0.0;
 
-        if (!empty($weeeTaxData = $this->jsonHandler->readJSON($item->getWeeeTaxApplied()))) {
-            $weeTaxUnitPrice = $this->getWeeeTaxUnitPrice($weeeTaxData[0], $storeId);
-        }
-
-        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity) + $weeTaxUnitPrice
-            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity) + $weeTaxUnitPrice;
+        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity) +
+                                     $weeeTaxUnitPrice
+            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity) + $weeeTaxUnitPrice;
     }
 
     /**
@@ -146,16 +145,20 @@ class PriceUtil
     }
 
     /**
-     * @param array $weeTax
+     * @param array $weeeTaxData
      * @param $storeId
      * @return float
      */
-    public function getWeeeTaxUnitPrice(array $weeTax, $storeId): float
+    public function getWeeeTaxUnitPrice(array $weeeTaxData, $storeId): float
     {
-        if ($this->config->useBaseCurrency($storeId)) {
-            return (float)$weeTax['base_amount'];
+        if (!array_key_exists(0, $weeeTaxData)) {
+            return 0.0;
         }
 
-        return (float)$weeTax['amount'];
+        if ($this->config->useBaseCurrency($storeId)) {
+            return $weeeTaxData[0][Tax::KEY_BASE_AMOUNT] ?? 0.0;
+        }
+
+        return $weeeTaxData[0][Tax::KEY_AMOUNT] ?? 0.0;
     }
 }
