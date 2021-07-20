@@ -59,6 +59,10 @@ class SecureToken
             throw new InvalidArgumentException('No API key configured');
         }
 
+        if (empty($originalValue)) {
+            throw new InvalidArgumentException('Original value param can\'t be empty');
+        }
+
         $hash = $this->encryptor->getHash($apiKey, $originalValue);
         $secureToken = explode(':', $hash);
 
