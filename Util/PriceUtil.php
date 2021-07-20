@@ -151,14 +151,11 @@ class PriceUtil
      */
     public function getWeeeTaxUnitPrice(array $weeeTaxData, $storeId): float
     {
-        if (!array_key_exists(0, $weeeTaxData)) {
+        if (!isset($weeeTaxData[0][Tax::KEY_BASE_AMOUNT], $weeeTaxData[0][Tax::KEY_AMOUNT])) {
             return 0.0;
         }
 
-        if ($this->config->useBaseCurrency($storeId)) {
-            return $weeeTaxData[0][Tax::KEY_BASE_AMOUNT] ?? 0.0;
-        }
-
-        return $weeeTaxData[0][Tax::KEY_AMOUNT] ?? 0.0;
+        return $this->config->useBaseCurrency($storeId) ? $weeeTaxData[0][Tax::KEY_BASE_AMOUNT] :
+            $weeeTaxData[0][Tax::KEY_AMOUNT];
     }
 }
