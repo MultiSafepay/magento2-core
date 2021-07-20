@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fixed a bug where the default store url was being used for payment links in backend orders.
+- Fixed a bug related to generating secure token in Magento Open Source 2.4.2
 
 ## [2.8.1] - 2021-06-25
 ### Fixed

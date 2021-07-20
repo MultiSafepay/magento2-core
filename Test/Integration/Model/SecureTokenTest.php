@@ -49,6 +49,10 @@ class SecureTokenTest extends AbstractTestCase
         $token = $this->secureToken->generate(self::TEST_ORIGINAL_VALUE);
 
         self::assertSame(self::TEST_ORIGINAL_VALUE_RESULT_TOKEN, $token);
+
+        $this->expectExceptionMessage('Original value param can\'t be empty');
+        $this->expectException(InvalidArgumentException::class);
+
         self::assertNotEmpty($this->secureToken->generate(''));
     }
 
