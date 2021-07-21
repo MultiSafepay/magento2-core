@@ -49,13 +49,13 @@
         <!--Go to Checkout-->
         <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
 
-        <actionGroup ref="GuestCheckoutFillingShippingSectionActionGroup" stepKey="guestCheckoutFillingShippingSection">
+        <actionGroup ref="GuestCheckoutFillingShippingSectionWithCountryActionGroup" stepKey="guestCheckoutFillingShippingSectionWithCountry">
             <argument name="customerVar" value="CustomerEntityOne"/>
-            <argument name="customerAddressVar" value="CustomerAddressSimple"/>
+            <argument name="customerAddressVar" value="PayAfterDeliveryAddress"/>
         </actionGroup>
 
-        <!-- Checkout select Check/Money Order payment -->
-        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyPayment"/>
+        <!-- Checkout select Pay After Delivery Order payment -->
+        <actionGroup ref="CheckoutSelectPayAfterDeliveryPaymentActionGroup" stepKey="selectPayAfterDeliveryPayment"/>
 
         <!--Click Place Order button-->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2021 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="PayAfterDeliveryAddress" type="address">
+        <data key="firstname">MultiSafepayTEST</data>
+        <data key="lastname">MultiSafepayTEST</data>
+        <data key="company">MultiSafepay</data>
+        <array key="street">
+            <item>Kraanspoor 39C</item>
+        </array>
+        <data key="city">Amsterdam</data>
+        <data key="state">Noord Holland</data>
+        <data key="country_id">NL</data>
+        <data key="country">The Netherlands</data>
+        <data key="postcode">1033SC</data>
+        <data key="telephone">0208500500</data>
+    </entity>
+</entities>
