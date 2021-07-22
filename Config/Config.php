@@ -217,5 +217,4 @@ class Config
     {
         return (bool)$this->getValue(self::CREATE_INVOICE_AUTOMATICALLY, $storeId);
     }
-
 }
