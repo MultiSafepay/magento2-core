@@ -37,6 +37,7 @@ class Config
     public const PENDING_STATUS = 'order_status';
     public const PENDING_PAYMENT_STATUS = 'pending_payment_order_status';
     public const PROCESSING_ORDER_STATUS = 'processing_order_status';
+    public const CREATE_INVOICE_AUTOMATICALLY = 'create_invoice';
     public const BEFORE_TRANSACTION = 'before_transaction';
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
@@ -207,4 +208,14 @@ class Config
     {
         return (string)$this->getValue(self::PENDING_STATUS, $storeId);
     }
+
+    /**
+     * @param null $storeId
+     * @return bool
+     */
+    public function isCreateOrderInvoiceAutomatically($storeId = null): bool
+    {
+        return (bool)$this->getValue(self::CREATE_INVOICE_AUTOMATICALLY, $storeId);
+    }
+
 }

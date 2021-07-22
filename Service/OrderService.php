@@ -49,6 +49,8 @@ use Psr\Http\Client\ClientExceptionInterface;
 
 class OrderService
 {
+    public const INVOICE_CREATE_AFTER_PARAM_NAME = 'multisaepay_create_inovice_after';
+
     /**
      * @var OrderRepositoryInterface
      */
@@ -455,14 +457,28 @@ class OrderService
         array $transaction
     ): void {
         if ($order->canInvoice()) {
+            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
+            $captureAmount = $order->getBaseTotalDue();
             $orderId = $order->getIncrementId();
             $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
-                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
+                    [
+                        PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
+                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically
+                    ]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
-                ->setIsTransactionPending(false)
-                ->registerCaptureNotification($order->getBaseTotalDue(), true);
+                ->setIsTransactionPending(false);
+
+            if ($isCreateOrderAutomatically) {
+                $payment->registerCaptureNotification($captureAmount, true);
+            } else {
+                $this->logger->logInfoForOrder(
+                    $orderId,
+                    'Invoice creation process was skipped by selected setting.',
+                    Logger::DEBUG
+                );
+            }
 
             $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
@@ -482,6 +498,16 @@ class OrderService
             $paymentTransaction->setIsClosed(1);
             $this->transactionRepository->save($paymentTransaction);
             $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
+
+            if (!$isCreateOrderAutomatically) {
+                $order->addCommentToStatusHistory(
+                    __(
+                        'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                        $order->getBaseCurrency()->formatTxt($captureAmount),
+                        $paymentTransaction->getTxnId()
+                    )
+                );
+            }
 
             // Set order processing
             $status = $this->orderStatusUtil->getProcessingStatus($order);
@@ -503,7 +529,7 @@ class OrderService
      * @throws ClientExceptionInterface
      * @throws Exception
      */
-    private function addInvoicesDataToTransactionAndSendEmail(
+    public function addInvoicesDataToTransactionAndSendEmail(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         TransactionManager $transactionManager
