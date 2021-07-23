@@ -218,7 +218,7 @@ class OrderService
             );
         }
 
-        $transactionLog = $transaction ?? [];
+        $transactionLog = $transaction;
         unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
 
         $this->logger->logInfoForOrder(
