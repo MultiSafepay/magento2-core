@@ -18,11 +18,17 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use InvalidArgumentException;
+use Magento\Framework\Serialize\JsonValidator;
 use Magento\Framework\Serialize\Serializer\Json;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class JsonHandler
 {
+    /**
+     * @var JsonValidator
+     */
+    protected $validator;
+
     /**
      * @var Json
      */
@@ -37,14 +43,17 @@ class JsonHandler
      * JsonHandler constructor.
      *
      * @param Json $serializer
+     * @param JsonValidator $validator
      * @param Logger $logger
      */
     public function __construct(
         Json $serializer,
+        JsonValidator $validator,
         Logger $logger
     ) {
         $this->serializer = $serializer;
         $this->logger = $logger;
+        $this->validator = $validator;
     }
 
     /**
@@ -54,14 +63,15 @@ class JsonHandler
      */
     public function readJSON($json): array
     {
-        try {
-            $jsonDetails = (array)$this->serializer->unserialize($json);
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            $this->logger->logJsonHandlerException($invalidArgumentException);
-            $jsonDetails = [];
+        if ($this->validator->isValid((string)$json)) {
+            try {
+                return (array)$this->serializer->unserialize($json);
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                $this->logger->logJsonHandlerException($invalidArgumentException);
+            }
         }
 
-        return $jsonDetails;
+        return [];
     }
 
     /**
