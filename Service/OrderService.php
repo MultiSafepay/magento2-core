@@ -289,7 +289,7 @@ class OrderService
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
-                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ?:
+                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ? :
                     $transactionType;
             }
 
@@ -464,23 +464,13 @@ class OrderService
                 ->setAdditionalInformation(
                     [
                         PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically
+                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
                     ]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
                 ->setIsTransactionPending(false);
 
-            if ($isCreateOrderAutomatically) {
-                $payment->registerCaptureNotification($captureAmount, true);
-            } else {
-                $this->logger->logInfoForOrder(
-                    $orderId,
-                    'Invoice creation process was skipped by selected setting.',
-                    Logger::DEBUG
-                );
-            }
-
-            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
@@ -520,6 +510,32 @@ class OrderService
                 Logger::DEBUG
             );
         }
+    }
+
+    /**
+     * @param bool $isCreateOrderAutomatically
+     * @param OrderPaymentInterface $payment
+     * @param float $captureAmount
+     * @param string $orderId
+     */
+    private function createInvoice(
+        bool $isCreateOrderAutomatically,
+        OrderPaymentInterface $payment,
+        float $captureAmount,
+        string $orderId
+    ): void {
+        if ($isCreateOrderAutomatically) {
+            $payment->registerCaptureNotification($captureAmount, true);
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+
+            return;
+        }
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            'Invoice creation process was skipped by selected setting.',
+            Logger::DEBUG
+        );
     }
 
     /**
