@@ -35,16 +35,15 @@ class AmountValidator
         if ((int)$config->getValue('allow_amount', $storeId) === 1) {
             $baseGrandTotal = $quote->getBaseGrandTotal();
 
-            $minAmount = $config->getValue('min_amount', $storeId);
-            if (($minAmount !== null) && $baseGrandTotal < $minAmount) {
+            if (($minAmount = $config->getValue('min_amount', $storeId)) && $baseGrandTotal < $minAmount) {
                 return true;
             }
 
-            $maxAmount = $config->getValue('max_amount', $storeId);
-            if (($maxAmount !== null) && $baseGrandTotal > $maxAmount) {
+            if (($maxAmount = $config->getValue('max_amount', $storeId)) && $baseGrandTotal > $maxAmount) {
                 return true;
             }
         }
+
         return false;
     }
 }

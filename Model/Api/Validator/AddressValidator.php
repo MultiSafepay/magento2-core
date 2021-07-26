@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Validator;
 
+use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Util\AddressFormatter;
 
 class AddressValidator
@@ -38,7 +39,7 @@ class AddressValidator
     }
 
     /**
-     * @param $quote
+     * @param  $quote
      * @return bool
      */
     public function validate($quote): bool

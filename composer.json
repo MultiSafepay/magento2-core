@@ -1,9 +1,9 @@
 {
     "name": "multisafepay/magento2-core",
     "description": "MultiSafepay module for Magento 2",
-    "version": "2.5.2",
+    "version": "2.8.2",
     "require": {
-        "multisafepay/php-sdk": "^4.1",
+        "multisafepay/php-sdk": "^5.1",
         "php-http/guzzle6-adapter": "*",
         "guzzlehttp/psr7": "*",
         "http-interop/http-factory-guzzle": "^1.0",
@@ -15,7 +15,8 @@
         "magento/module-store": "^100.0|^101.0",
         "magento/module-vault": "^100.1|^101.0",
         "php": ">=7.1",
-        "ext-pcre": "*"
+        "ext-pcre": "*",
+        "ext-json": "*"
     },
     "require-dev": {
         "object-calisthenics/phpcs-calisthenics-rules": "^3.5 || ^2.0",

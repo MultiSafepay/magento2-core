@@ -20,8 +20,10 @@ namespace MultiSafepay\ConnectCore\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use Magento\Payment\Gateway\Config\Config as PaymentConfig;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -33,6 +35,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';
+    private const DEFAULT_CONFIG_PAYMENT_PATH = 'payment/%s';
 
     /**
      * @var AssetRepository
@@ -62,7 +65,12 @@ class GenericConfigProvider implements ConfigProviderInterface
     /**
      * @var Session
      */
-    private $checkoutSession;
+    protected $checkoutSession;
+
+    /**
+     * @var PaymentConfig
+     */
+    private $paymentConfig;
 
     /**
      * GenericConfigProvider constructor.
@@ -73,6 +81,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param Session $checkoutSession
      * @param Logger $logger
      * @param ResolverInterface $localeResolver
+     * @param PaymentConfig $paymentConfig
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -80,7 +89,8 @@ class GenericConfigProvider implements ConfigProviderInterface
         SdkFactory $sdkFactory,
         Session $checkoutSession,
         Logger $logger,
-        ResolverInterface $localeResolver
+        ResolverInterface $localeResolver,
+        PaymentConfig $paymentConfig
     ) {
         $this->assetRepository = $assetRepository;
         $this->config = $config;
@@ -88,6 +98,7 @@ class GenericConfigProvider implements ConfigProviderInterface
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
         $this->localeResolver = $localeResolver;
+        $this->paymentConfig = $paymentConfig;
     }
 
     /**
@@ -103,6 +114,7 @@ class GenericConfigProvider implements ConfigProviderInterface
                 $this->getCode() => [
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
+                    'transaction_type' => $this->getTransactionType(),
                 ],
             ],
         ];
@@ -180,5 +192,32 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function getPaymentJsComponent(): string
     {
         return 'MultiSafepay_ConnectFrontend/js/view/payment/method-renderer';
+    }
+
+    /**
+     * @return string
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getTransactionType(): string
+    {
+        $this->paymentConfig->setMethodCode($this->getCode());
+
+        return (string)$this->paymentConfig->getValue(
+            'transaction_type',
+            $this->checkoutSession->getQuote()->getStoreId()
+        );
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getPaymentConfig(int $storeId = null): array
+    {
+        return (array)$this->config->getValueByPath(
+            sprintf(self::DEFAULT_CONFIG_PAYMENT_PATH, $this->getCode()),
+            $storeId
+        );
     }
 }

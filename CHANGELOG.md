@@ -5,8 +5,76 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fixed a bug where filling in certain wrong values for the Date of birth field for AfterPay and in3 caused an error
+- Fixed a bug where "Unable to unserialize value" errors were logged for every product.
+
+## [2.8.2] - 2021-07-20
+### Fixed
+- Fixed a bug where the default store url was being used for payment links in backend orders.
+- Fixed a bug related to generating secure token in Magento Open Source 2.4.2
+- Fixed a bug where shopping cart refunds with 0 amounts would not throw an error. (Thanks to @reense)
+- Fixed a bug where if an FPT is used, it in some cases wouldn't get picked up
+
+## [2.8.1] - 2021-06-25
+### Fixed
+- Fixed a bug related to TypeError in ShipmentSaveAfterObserver. (Thanks to @Davie82)
+- Fixed a bug related to GET notifications where orders would stay in pending_payment status
+
+## [2.8.0] - 2021-06-17
 ### Added
+- Added support MultiSafepay Credit Card component support for credit card payment methods.
+- (dev) Added integration test coverage for secure token class, custom total builder and additional data builders.
+
+### Fixed
+- Fixed a bug related to special cases where some invoices skip the order payment method.
+- Fixed a bug related to wrong showing qty on the payment page for items with decimal qty
+- Fixed issue related to preselected customer group id for customer session
+
+### Changed
+- Moved setting pending_payment status from Redirect controller to Gateway Request Builder
+- Changed the notification method from 'GET' to 'POST'.
+- Updated the PHP-SDK version to version 5.
+- Dropped support for PHP 7.1. Because of this, Magento versions up to version 2.2.9 are not supported anymore.
+- Improved the logging for the notification actions
+
+## [2.7.0] - 2021-06-03
+### Added
+- (dev) Added integration test coverage for all the plugin utils, services and order request builders.
+- Added check if order was paid by gifcard, then will change payment method to one of giftcard payment methods.
+- Added translations for some checkout fields. (Thanks to @Davie82)
+- Added possibility to translate description phrase on MultiSafepay payment page.
+- Added new logo for Bancontact payment method.
+
+### Fixed
+- Fixed a bug related to combined payment filters.
+- Fixed a bug where in some cases the customer group id would retrieve wrong value.
+- Fixed a bug where in some cases the shipping tracks array can't contain 0 index.
+- Fixed TypeError for MultiSafepay payment method on notification.
+
+### Changed
+- Deleted sensitive payment data from the transaction logs.
+
+## [2.6.1] - 2021-05-19
+### Fixed
+- Fixed a bug in payment validation transaction type constant scope, changed it from private to public.
+- Fixed a bug in Afterpay and in3 payment methods related to phone_number field name.
+
+## [2.6.0] - 2021-05-12
+### Added
+- Added separate phone number field for Afterpay & in3, which will already be filled in if the phone number is present in the billing address.
 - Added notification about new versions of plugin in admin panel.
+- Added System report to downloadable log archive for improved debugging.
+- Added the possibility to change direct gateway methods to redirect.
+
+### Fixed
+- Fixed a bug where 'File not found' error would occur when trying to download log files with ROOT path set to 'pub'.
+- Fixed a bug where in some cases the order confirmation e-mail would be sent when a transaction is expired. (Thanks to @basvanpoppel)
+
+### Changed
+- Changed the logs zip archive to be stored temporarily inside the var/tmp directory instead of the root directory.
+- Changed the retrieval of the shipping tax from a calculation based method on the amount to retrieving it via a rate request to improve the accuracy.
+- Changed the info logs into debug and added transaction data to the log. Also deleted unnecessary multisafepay-debug.log file.
 
 ## [2.5.2] - 2021-04-19
 ### Changed

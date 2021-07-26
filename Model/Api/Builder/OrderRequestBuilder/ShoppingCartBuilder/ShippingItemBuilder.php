@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
@@ -25,6 +26,8 @@ use MultiSafepay\ValueObject\Money;
 
 class ShippingItemBuilder implements ShoppingCartBuilderInterface
 {
+    public const SHIPPING_ITEM_MERCHANT_ITEM_ID = 'msp-shipping';
+
     /**
      * @var PriceUtil
      */
@@ -53,6 +56,7 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
      * @param OrderInterface $order
      * @param string $currency
      * @return Item[]
+     * @throws NoSuchEntityException
      */
     public function build(OrderInterface $order, string $currency): array
     {
@@ -66,7 +70,7 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
                 ->addUnitPrice(new Money($shippingPrice * 100, $currency))
                 ->addQuantity(1)
                 ->addDescription('Shipping')
-                ->addMerchantItemId('msp-shipping')
+                ->addMerchantItemId(self::SHIPPING_ITEM_MERCHANT_ITEM_ID)
                 ->addTaxRate($this->taxUtil->getShippingTaxRate($order));
         }
 

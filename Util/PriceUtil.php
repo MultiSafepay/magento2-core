@@ -22,6 +22,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Config as MagentoConfig;
+use Magento\Tax\Model\Sales\Order\Tax;
 use MultiSafepay\ConnectCore\Config\Config;
 
 class PriceUtil
@@ -37,17 +38,25 @@ class PriceUtil
     private $scopeConfig;
 
     /**
-     * GrandTotalUtil constructor.
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
+     * PriceUtil constructor.
      *
      * @param Config $config
      * @param ScopeConfigInterface $scopeConfig
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         Config $config,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        JsonHandler $jsonHandler
     ) {
         $this->config = $config;
         $this->scopeConfig = $scopeConfig;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -71,14 +80,19 @@ class PriceUtil
     public function getUnitPrice(OrderItemInterface $item, $storeId): float
     {
         $orderedQuantity = (float)$item->getQtyOrdered();
+
         $isPriceIncludedTax = $this->scopeConfig->getValue(
             MagentoConfig::CONFIG_XML_PATH_PRICE_INCLUDES_TAX,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
 
-        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
-            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
+        $weeeTaxData = $this->jsonHandler->readJSON($item->getWeeeTaxApplied());
+        $weeeTaxUnitPrice = $this->getWeeeTaxUnitPrice($weeeTaxData, $storeId) ? : 0.0;
+
+        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity) +
+                                     $weeeTaxUnitPrice
+            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity) + $weeeTaxUnitPrice;
     }
 
     /**
@@ -149,5 +163,20 @@ class PriceUtil
         }
 
         return (float)($isShippingPriceIncludedTax ? $order->getShippingInclTax() : $order->getShippingAmount());
+    }
+
+    /**
+     * @param array $weeeTaxData
+     * @param $storeId
+     * @return float
+     */
+    public function getWeeeTaxUnitPrice(array $weeeTaxData, $storeId): float
+    {
+        if (!isset($weeeTaxData[0][Tax::KEY_BASE_AMOUNT], $weeeTaxData[0][Tax::KEY_AMOUNT])) {
+            return 0.0;
+        }
+
+        return $this->config->useBaseCurrency($storeId) ? $weeeTaxData[0][Tax::KEY_BASE_AMOUNT] :
+            $weeeTaxData[0][Tax::KEY_AMOUNT];
     }
 }

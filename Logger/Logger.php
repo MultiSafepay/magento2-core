@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Logger;
 
 use Exception;
+use Magento\Framework\Exception\FileSystemException;
 use Monolog\Logger as CoreLogger;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
@@ -48,7 +49,7 @@ class Logger extends CoreLogger
      * @param Exception $exception
      * @param int $logLevel
      */
-    public function logExceptionForOrder(string $orderId, Exception $exception, int $logLevel = self::ERROR): void
+    public function logExceptionForOrder(string $orderId, Exception $exception, int $logLevel = self::DEBUG): void
     {
         $this->addRecord(
             $logLevel,
@@ -67,12 +68,14 @@ class Logger extends CoreLogger
     /**
      * @param string $orderId
      * @param string $message
+     * @param int $logLevel
      */
-    public function logInfoForOrder(string $orderId, string $message): void
+    public function logInfoForOrder(string $orderId, string $message, int $logLevel = self::INFO): void
     {
-        $this->info(
+        $this->addRecord(
+            $logLevel,
             sprintf(
-                '(Order ID: %1$s) INFO: %2$s',
+                '(Order ID: %1$s): %2$s',
                 $orderId,
                 $message
             )
@@ -140,7 +143,7 @@ class Logger extends CoreLogger
      */
     public function logPaymentRedirectInfo($orderId, $paymentUrl): void
     {
-        $this->info('(Order ID: ' . $orderId . ') User redirected to the following page: ' . $paymentUrl);
+        $this->debug('(Order ID: ' . $orderId . ') User redirected to the following page: ' . $paymentUrl);
     }
 
     /**
@@ -148,7 +151,7 @@ class Logger extends CoreLogger
      */
     public function logPaymentSuccessInfo($orderId): void
     {
-        $this->info('(Order ID: ' . $orderId . ') User redirected to the success page.');
+        $this->debug('(Order ID: ' . $orderId . ') User redirected to the success page.');
     }
 
     /**
@@ -221,5 +224,35 @@ class Logger extends CoreLogger
     public function logJsonHandlerException(\InvalidArgumentException $invalidArgumentException): void
     {
         $this->error('Could not convert Json data: ' . $invalidArgumentException->getMessage());
+    }
+
+    /**
+     * @param FileSystemException $fileSystemException
+     */
+    public function logFileSystemException(FileSystemException $fileSystemException): void
+    {
+        $this->error(sprintf(
+            'FileSystemException occured. message: %1$d, code: %2$d, line: %3$d, file: %4$d)',
+            $fileSystemException->getMessage(),
+            $fileSystemException->getCode(),
+            $fileSystemException->getLine(),
+            $fileSystemException->getFile()
+        ));
+    }
+
+    /**
+     * @param Exception $exception
+     */
+    public function logPaymentRequestGetCustomerDataException(Exception $exception): void
+    {
+        $this->debug(
+            sprintf(
+                '(Get Payment Request API data error): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile()
+            )
+        );
     }
 }

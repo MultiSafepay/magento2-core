@@ -18,11 +18,17 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use InvalidArgumentException;
+use Magento\Framework\Serialize\JsonValidator;
 use Magento\Framework\Serialize\Serializer\Json;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class JsonHandler
 {
+    /**
+     * @var JsonValidator
+     */
+    protected $validator;
+
     /**
      * @var Json
      */
@@ -36,15 +42,18 @@ class JsonHandler
     /**
      * JsonHandler constructor.
      *
-     * @param Json   $serializer
+     * @param Json $serializer
+     * @param JsonValidator $validator
      * @param Logger $logger
      */
     public function __construct(
         Json $serializer,
+        JsonValidator $validator,
         Logger $logger
     ) {
         $this->serializer = $serializer;
-        $this->logger     = $logger;
+        $this->logger = $logger;
+        $this->validator = $validator;
     }
 
     /**
@@ -54,32 +63,55 @@ class JsonHandler
      */
     public function readJSON($json): array
     {
-        try {
-            $jsonDetails = (array)$this->serializer->unserialize($json);
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            $this->logger->logJsonHandlerException($invalidArgumentException);
-            $jsonDetails = [];
+        if ($this->validator->isValid((string)$json)) {
+            try {
+                return (array)$this->serializer->unserialize($json);
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                $this->logger->logJsonHandlerException($invalidArgumentException);
+            }
         }
 
-        return $jsonDetails;
+        return [];
     }
 
     /**
      * Convert array into JSON
      *
-     * @param array $details
+     * @param array $data
      *
      * @return string
      */
-    public function convertToJSON(array $details): string
+    public function convertToJSON(array $data): string
     {
         try {
-            $json = $this->serializer->serialize($details);
+            $json = $this->serializer->serialize($data);
         } catch (InvalidArgumentException $invalidArgumentException) {
             $this->logger->logJsonHandlerException($invalidArgumentException);
             $json = '{}';
         }
 
         return $json;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    public function convertToPrettyJSON(array $data): string
+    {
+        try {
+            $prettyJson = (string)json_encode($data, JSON_PRETTY_PRINT);
+
+            if (!$prettyJson) {
+                throw new InvalidArgumentException(
+                    "Unable to serialize value. Error: " . json_last_error_msg()
+                );
+            }
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            $this->logger->logJsonHandlerException($invalidArgumentException);
+            $prettyJson = '{}';
+        }
+
+        return $prettyJson;
     }
 }

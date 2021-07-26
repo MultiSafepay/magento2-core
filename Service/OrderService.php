@@ -18,16 +18,21 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service;
 
 use Exception;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
+use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -35,11 +40,12 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Util\GiftcardUtil;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
-use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
 class OrderService
 {
@@ -74,6 +80,16 @@ class OrderService
     private $logger;
 
     /**
+     * @var OrderPaymentRepositoryInterface
+     */
+    private $orderPaymentRepository;
+
+    /**
+     * @var TransactionRepositoryInterface
+     */
+    private $transactionRepository;
+
+    /**
      * @var OrderStatusUtil
      */
     private $orderStatusUtil;
@@ -82,6 +98,11 @@ class OrderService
      * @var UpdateRequest
      */
     private $updateRequest;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
 
     /**
      * @var Config
@@ -94,15 +115,40 @@ class OrderService
     private $sdkFactory;
 
     /**
-     * @var InvoiceService
+     * @var InvoiceRepositoryInterface
      */
-    private $invoiceService;
+    private $invoiceRepository;
 
     /**
-     * @var CaptureUtil
+     * @var JsonHandler
      */
-    private $captureUtil;
+    private $jsonHandler;
 
+    /**
+     * @var GiftcardUtil
+     */
+    private $giftcardUtil;
+
+    /**
+     * OrderService constructor.
+     *
+     * @param OrderRepositoryInterface $orderRepository
+     * @param EmailSender $emailSender
+     * @param Vault $vault
+     * @param PaymentMethodUtil $paymentMethodUtil
+     * @param SecondChance $secondChance
+     * @param Logger $logger
+     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param UpdateRequest $updateRequest
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param Config $config
+     * @param SdkFactory $sdkFactory
+     * @param OrderStatusUtil $orderStatusUtil
+     * @param JsonHandler $jsonHandler
+     * @param GiftcardUtil $giftcardUtil
+     */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         EmailSender $emailSender,
@@ -110,12 +156,16 @@ class OrderService
         PaymentMethodUtil $paymentMethodUtil,
         SecondChance $secondChance,
         Logger $logger,
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        TransactionRepositoryInterface $transactionRepository,
         UpdateRequest $updateRequest,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        InvoiceRepositoryInterface $invoiceRepository,
         Config $config,
         SdkFactory $sdkFactory,
         OrderStatusUtil $orderStatusUtil,
-        InvoiceService $invoiceService,
-        CaptureUtil $captureUtil
+        JsonHandler $jsonHandler,
+        GiftcardUtil $giftcardUtil
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -123,65 +173,136 @@ class OrderService
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->secondChance = $secondChance;
         $this->logger = $logger;
+        $this->orderPaymentRepository = $orderPaymentRepository;
+        $this->transactionRepository = $transactionRepository;
         $this->updateRequest = $updateRequest;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->invoiceRepository = $invoiceRepository;
         $this->config = $config;
         $this->sdkFactory = $sdkFactory;
         $this->orderStatusUtil = $orderStatusUtil;
-        $this->invoiceService = $invoiceService;
-        $this->captureUtil = $captureUtil;
+        $this->jsonHandler = $jsonHandler;
+        $this->giftcardUtil = $giftcardUtil;
     }
 
     /**
      * @param OrderInterface $order
+     * @param array $transaction
      * @throws ClientExceptionInterface
      * @throws LocalizedException
      * @throws Exception
      */
-    public function processOrderTransaction(OrderInterface $order): void
+    public function processOrderTransaction(OrderInterface $order, array $transaction = []): void
     {
         $orderId = $order->getIncrementId();
-        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-        $transaction = $transactionManager->get($orderId);
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('Order ID has been retrieved from the order')->render(),
+            Logger::DEBUG
+        );
 
-        if ($this->emailSender->sendOrderConfirmationEmail($order)) {
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+
+        if (!$transaction) {
             $this->logger->logInfoForOrder(
                 $orderId,
-                __('Order confirmation email after transaction has been sent')->render()
+                __('Transaction data is empty. Trying to retrieve transaction.')->render(),
+                Logger::DEBUG
+            );
+            $transactionResponse = $transactionManager->get($orderId);
+            $transaction = $transactionResponse->getData();
+            $this->logger->logInfoForOrder(
+                $orderId,
+                __('Transaction data retrieved through API call')->render(),
+                Logger::DEBUG
+            );
+        }
+
+        $transactionLog = $transaction;
+        unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __(
+                'Transaction data was retrieved: %1',
+                $this->jsonHandler->convertToPrettyJSON($transactionLog)
+            )->render(),
+            Logger::DEBUG
+        );
+
+        $transactionStatus = $transaction['status'] ?? '';
+
+        if (in_array($transactionStatus, [
+                TransactionStatus::COMPLETED,
+                TransactionStatus::INITIALIZED,
+                TransactionStatus::RESERVED,
+                TransactionStatus::SHIPPED,
+            ], true)
+            && $this->emailSender->sendOrderConfirmationEmail($order)) {
+            $this->logger->logInfoForOrder(
+                $orderId,
+                __('Order confirmation email after transaction has been sent')->render(),
+                Logger::DEBUG
             );
         }
 
         /** @var Payment $payment */
         if (!($payment = $order->getPayment())) {
-            throw new LocalizedException(__('Can\'t get the payment from Order.'));
+            throw new LocalizedException(__('Can\'t get the payment from the order.'));
         }
 
-        $paymentDetails = $transaction->getPaymentDetails();
-        $transactionType = $paymentDetails->getType();
-        $gatewayCode = $payment->getMethodInstance()->getConfigData('gateway_code');
+        $paymentDetails = $transaction['payment_details'] ?? [];
+        $transactionType = $paymentDetails['type'] ?? '';
+        $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay initialize Vault process has been started')->render(),
+            Logger::DEBUG
+        );
 
         //Check if Vault needs to be initialized
         $isVaultInitialized = $this->vault->initialize($payment, [
-            RecurringDetailsInterface::RECURRING_ID => $paymentDetails->getRecurringId(),
+            RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
             RecurringDetailsInterface::TYPE => $transactionType,
-            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails->getCardExpiryDate(),
-            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails->getLast4(),
+            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails['card_expiry_date'] ?? '',
+            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails['last4'] ?? '',
         ]);
 
         if ($isVaultInitialized) {
-            $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render());
+            $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render(), Logger::DEBUG);
         }
 
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay initialize Vault process has ended')->render(),
+            Logger::DEBUG
+        );
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay change payment process has been started')->render(),
+            Logger::DEBUG
+        );
+
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
+            if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
+                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ?:
+                    $transactionType;
+            }
+
             $this->changePaymentMethod($order, $payment, $transactionType);
         }
 
-        $transactionStatus = $transaction->getStatus();
-        $financialStatus = $transaction->getFinancialStatus();
-        $order->addCommentToStatusHistory(__('MultiSafepay Transaction status: ') . $financialStatus);
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay change payment process has ended')->render(),
+            Logger::DEBUG
+        );
 
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
-        $this->logger->logInfoForOrder($orderId, $transactionStatusMessage);
+        $this->logger->logInfoForOrder($orderId, $transactionStatusMessage, Logger::DEBUG);
 
         switch ($transactionStatus) {
             case TransactionStatus::COMPLETED:
@@ -198,19 +319,42 @@ class OrderService
                 break;
 
             case TransactionStatus::EXPIRED:
+                if (in_array($order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)) {
+                    $this->cancelOrder($order, $transactionStatusMessage);
+                }
+                break;
             case TransactionStatus::DECLINED:
             case TransactionStatus::CANCELLED:
             case TransactionStatus::VOID:
-                $order->cancel();
-                $order->addCommentToStatusHistory($transactionStatusMessage);
-                $this->logger->logInfoForOrder(
-                    $orderId,
-                    'Order has been canceled. ' . $transactionStatusMessage
-                );
+                $this->cancelOrder($order, $transactionStatusMessage);
                 break;
         }
 
+        if ($giftcardData = $this->giftcardUtil->getGiftcardPaymentDataFromTransaction($transaction)) {
+            $payment->setAdditionalInformation(
+                GiftcardUtil::MULTISAFEPAY_GIFTCARD_PAYMENT_ADDITIONAL_DATA_PARAM_NAME,
+                $giftcardData
+            );
+        }
+
         $this->orderRepository->save($order);
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('Order has been saved.')->render(),
+            Logger::DEBUG
+        );
+    }
+
+    /**
+     * @param string $transactionType
+     * @param string $gatewayCode
+     * @param OrderInterface $order
+     * @return bool
+     */
+    private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
+    {
+        return $transactionType && $transactionType !== $gatewayCode
+               && $this->paymentMethodUtil->isMultisafepayOrder($order);
     }
 
     /**
@@ -229,50 +373,40 @@ class OrderService
             if (isset($method['gateway_code']) && $method['gateway_code'] === $transactionType
                 && strpos($code, '_recurring') === false) {
                 $payment->setMethod($code);
-
                 $logMessage = __('Payment method changed to ') . $transactionType;
-
                 $order->addCommentToStatusHistory($logMessage);
-                $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage);
+                $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage, Logger::DEBUG);
+
+                return;
             }
         }
     }
 
     /**
-     * @param string $transactionType
-     * @param string $gatewayCode
-     * @param OrderInterface $order
-     * @return bool
-     */
-    private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
-    {
-        return $transactionType && $transactionType !== $gatewayCode
-               && $this->paymentMethodUtil->isMultisafepayOrder($order);
-    }
-
-    /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
+     * @param array $transaction
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
+     * @throws LocalizedException
      * @throws Exception
      */
     private function completeOrderTransaction(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction,
+        array $transaction,
         TransactionManager $transactionManager
     ): void {
         $orderId = $order->getIncrementId();
         $this->logger->logInfoForOrder(
             $orderId,
-            __('MultiSafepay order transaction complete process has been started.')->render()
+            __('MultiSafepay order transaction complete process has been started.')->render(),
+            Logger::DEBUG
         );
 
         if ($order->getState() === Order::STATE_CANCELED) {
             $this->secondChance->reopenOrder($order);
-            $this->logger->logInfoForOrder($order->getIncrementId(), __('The order has been reopened.')->render());
+            $this->logger->logInfoForOrder($orderId, __('The order has been reopened.')->render(), Logger::DEBUG);
         }
 
         if ($this->emailSender->sendOrderConfirmationEmail(
@@ -281,29 +415,107 @@ class OrderService
         )) {
             $this->logger->logInfoForOrder(
                 $orderId,
-                __('Order confirmation email after paid transaction has been sent')->render()
+                __('Order confirmation email after paid transaction has been sent')->render(),
+                Logger::DEBUG
             );
         }
 
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay pay order process has been started.')->render(),
+            Logger::DEBUG
+        );
+
+        $this->payOrder($order, $payment, $transaction);
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay pay order process has ended.')->render(),
+            Logger::DEBUG
+        );
+
+        $this->addInvoicesDataToTransactionAndSendEmail($order, $payment, $transactionManager);
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __('MultiSafepay order transaction complete process has been finished successfully.')->render(),
+            Logger::DEBUG
+        );
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param array $transaction
+     * @throws LocalizedException
+     */
+    private function payOrder(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        array $transaction
+    ): void {
         if ($order->canInvoice()) {
-            if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
-                $this->invoiceService->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
+            $orderId = $order->getIncrementId();
+            $payment->setTransactionId($transaction['transaction_id'] ?? '')
+                ->setAdditionalInformation(
+                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
+                )->setShouldCloseParentTransaction(false)
+                ->setIsTransactionClosed(0)
+                ->setIsTransactionPending(false)
+                ->registerCaptureNotification($order->getBaseTotalDue(), true);
+
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
+            $payment->setIsTransactionApproved(true);
+            $this->orderPaymentRepository->save($payment);
+            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
+            $paymentTransaction = $payment->addTransaction(
+                PaymentTransaction::TYPE_CAPTURE,
+                null,
+                true
+            );
+
+            if ($paymentTransaction !== null) {
+                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
             }
+
+            $paymentTransaction->setIsClosed(1);
+            $this->transactionRepository->save($paymentTransaction);
+            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
             // Set order processing
             $status = $this->orderStatusUtil->getProcessingStatus($order);
             $order->setState(Order::STATE_PROCESSING);
             $order->setStatus($status);
             $this->orderRepository->save($order);
-            $this->logger->logInfoForOrder($orderId, 'Order status has been changed to: ' . $status);
+            $this->logger->logInfoForOrder(
+                $orderId,
+                'Order status has been changed to: ' . $status,
+                Logger::DEBUG
+            );
         }
+    }
 
-        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param TransactionManager $transactionManager
+     * @throws ClientExceptionInterface
+     * @throws Exception
+     */
+    private function addInvoicesDataToTransactionAndSendEmail(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        TransactionManager $transactionManager
+    ): void {
+        $orderId = $order->getIncrementId();
+
+        foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
 
             try {
                 if ($this->emailSender->sendInvoiceEmail($payment, $invoice)) {
-                    $this->logger->logInfoForOrder($orderId, __('Invoice email was sent.')->render());
+                    $this->logger->logInfoForOrder($orderId, __('Invoice email was sent.')->render(), Logger::DEBUG);
                 }
             } catch (MailException $mailException) {
                 $this->logger->logExceptionForOrder($orderId, $mailException, Logger::INFO);
@@ -323,10 +535,30 @@ class OrderService
                 $this->logger->logUpdateRequestApiException($orderId, $e);
             }
         }
+    }
 
+    /**
+     * @param string $orderId
+     * @return InvoiceInterface[]
+     */
+    private function getInvoicesByOrderId(string $orderId): array
+    {
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
+
+        return $this->invoiceRepository->getList($searchCriteria)->getItems();
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param string $transactionStatusMessage
+     */
+    private function cancelOrder(OrderInterface $order, string $transactionStatusMessage): void
+    {
+        $order->cancel();
+        $order->addCommentToStatusHistory($transactionStatusMessage);
         $this->logger->logInfoForOrder(
-            $orderId,
-            __('MultiSafepay order transaction complete process has been finished successfully.')->render()
+            $order->getIncrementId(),
+            'Order has been canceled. ' . $transactionStatusMessage
         );
     }
 }

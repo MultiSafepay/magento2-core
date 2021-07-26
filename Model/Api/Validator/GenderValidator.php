@@ -31,9 +31,6 @@ class GenderValidator
      */
     public function validate(string $gender): bool
     {
-        if (in_array($gender, self::ACCEPTED_GENDERS)) {
-            return true;
-        }
-        return false;
+        return in_array($gender, self::ACCEPTED_GENDERS);
     }
 }

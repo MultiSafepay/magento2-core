@@ -57,6 +57,11 @@ class ZipUtil
     private $fileFactory;
 
     /**
+     * @var SystemReportUtil
+     */
+    private $systemReportUtil;
+
+    /**
      * ZipUtil constructor.
      *
      * @param DirectoryList $directoryList
@@ -64,19 +69,22 @@ class ZipUtil
      * @param IoFile $file
      * @param File $driverFile
      * @param Logger $logger
+     * @param SystemReportUtil $systemReportUtil
      */
     public function __construct(
         DirectoryList $directoryList,
         FileFactory $fileFactory,
         IoFile $file,
         File $driverFile,
-        Logger $logger
+        Logger $logger,
+        SystemReportUtil $systemReportUtil
     ) {
         $this->fileFactory = $fileFactory;
         $this->logger = $logger;
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
         $this->file = $file;
+        $this->systemReportUtil = $systemReportUtil;
     }
 
     /**
@@ -90,10 +98,11 @@ class ZipUtil
         }
 
         $directory = $this->directoryList->getPath(DirectoryList::LOG);
+        $path = $this->directoryList->getPath(DirectoryList::TMP);
 
         $zipFile = new ZipArchive();
         $zipFile->open(
-            self::ZIP_ARCHIVE_NAME,
+            $path . DIRECTORY_SEPARATOR . self::ZIP_ARCHIVE_NAME,
             ZipArchive::CREATE | ZipArchive::OVERWRITE
         );
 
@@ -105,7 +114,21 @@ class ZipUtil
             }
         }
 
+        try {
+            $this->systemReportUtil->createSystemReport();
+            $systemReportFilePath = $path . DIRECTORY_SEPARATOR . SystemReportUtil::SYSTEM_REPORT_FILE_NAME;
+            $zipFile->addFile($systemReportFilePath, $this->file->getPathInfo($systemReportFilePath)['basename']);
+        } catch (FileSystemException $fileSystemException) {
+            $this->logger->logFileSystemException($fileSystemException);
+        }
+
         $zipFile->close();
+
+        try {
+            $this->systemReportUtil->flushSystemReport();
+        } catch (FileSystemException $fileSystemException) {
+            $this->logger->logFileSystemException($fileSystemException);
+        }
 
         return $this->fileFactory->create(
             self::ZIP_ARCHIVE_NAME,
@@ -114,7 +137,7 @@ class ZipUtil
                 'value' => self::ZIP_ARCHIVE_NAME,
                 'rm' => true,
             ],
-            DirectoryList::ROOT,
+            DirectoryList::TMP,
             'application/zip'
         );
     }

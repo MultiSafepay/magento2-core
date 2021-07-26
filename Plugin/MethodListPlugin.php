@@ -26,7 +26,6 @@ use MultiSafepay\ConnectCore\Gateway\Validator\ShippingValidator;
 
 class MethodListPlugin
 {
-
     /**
      * @var Config
      */
@@ -78,21 +77,19 @@ class MethodListPlugin
         $availableMethods,
         CartInterface $quote
     ) {
+        $availableValidators = [$this->shippingValidator, $this->customerGroupValidator, $this->amountValidator];
+
         foreach ($availableMethods as $key => $method) {
             $this->config->setMethodCode($method->getCode());
-            if ($this->shippingValidator->validate($quote, $this->config)) {
-                unset($availableMethods[$key]);
-                return $availableMethods;
-            }
-            if ($this->customerGroupValidator->validate($quote, $this->config)) {
-                unset($availableMethods[$key]);
-                return $availableMethods;
-            }
-            if ($this->amountValidator->validate($quote, $this->config)) {
-                unset($availableMethods[$key]);
-                return $availableMethods;
+
+            foreach ($availableValidators as $validator) {
+                if ($validator->validate($quote, $this->config)) {
+                    unset($availableMethods[$key]);
+                    continue 2;
+                }
             }
         }
+
         return $availableMethods;
     }
 }

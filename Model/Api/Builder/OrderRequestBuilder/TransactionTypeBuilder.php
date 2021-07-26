@@ -24,7 +24,8 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 
 class TransactionTypeBuilder implements OrderRequestBuilderInterface
 {
-    private const DEFAULT_TRANSACTION_TYPE = 'redirect';
+    public const TRANSACTION_TYPE_DIRECT_VALUE = 'direct';
+    public const TRANSACTION_TYPE_REDIRECT_VALUE = 'redirect';
 
     /**
      * @var Config
@@ -32,7 +33,7 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
     private $config;
 
     /**
-     * SecondsActiveBuilder constructor.
+     * TransactionTypeBuilder constructor.
      *
      * @param Config $config
      */
@@ -55,7 +56,7 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
         $transactionType = (string)$this->config->getValue('transaction_type');
         if (!$transactionType) {
             $transactionType = $payment->getAdditionalInformation()['transaction_type']
-                               ?? self::DEFAULT_TRANSACTION_TYPE;
+                               ?? self::TRANSACTION_TYPE_REDIRECT_VALUE;
         }
 
         $orderRequest->addType($transactionType);
