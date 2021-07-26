@@ -46,6 +46,7 @@ use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
 class OrderService
 {
@@ -130,6 +131,16 @@ class OrderService
     private $giftcardUtil;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
+     * @var InvoiceService
+     */
+    private $invoiceService;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -148,6 +159,8 @@ class OrderService
      * @param OrderStatusUtil $orderStatusUtil
      * @param JsonHandler $jsonHandler
      * @param GiftcardUtil $giftcardUtil
+     * @param InvoiceService $invoiceService
+     * @param CaptureUtil $captureUtil
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -165,7 +178,9 @@ class OrderService
         SdkFactory $sdkFactory,
         OrderStatusUtil $orderStatusUtil,
         JsonHandler $jsonHandler,
-        GiftcardUtil $giftcardUtil
+        GiftcardUtil $giftcardUtil,
+        InvoiceService $invoiceService,
+        CaptureUtil $captureUtil
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -183,6 +198,8 @@ class OrderService
         $this->orderStatusUtil = $orderStatusUtil;
         $this->jsonHandler = $jsonHandler;
         $this->giftcardUtil = $giftcardUtil;
+        $this->invoiceService = $invoiceService;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -455,33 +472,9 @@ class OrderService
         array $transaction
     ): void {
         if ($order->canInvoice()) {
-            $orderId = $order->getIncrementId();
-            $payment->setTransactionId($transaction['transaction_id'] ?? '')
-                ->setAdditionalInformation(
-                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
-                )->setShouldCloseParentTransaction(false)
-                ->setIsTransactionClosed(0)
-                ->setIsTransactionPending(false)
-                ->registerCaptureNotification($order->getBaseTotalDue(), true);
-
-            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
-            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
-            $payment->setIsTransactionApproved(true);
-            $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
-            $paymentTransaction = $payment->addTransaction(
-                PaymentTransaction::TYPE_CAPTURE,
-                null,
-                true
-            );
-
-            if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
+            if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
+                $this->invoiceService->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
             }
-
-            $paymentTransaction->setIsClosed(1);
-            $this->transactionRepository->save($paymentTransaction);
-            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
             // Set order processing
             $status = $this->orderStatusUtil->getProcessingStatus($order);
@@ -489,7 +482,7 @@ class OrderService
             $order->setStatus($status);
             $this->orderRepository->save($order);
             $this->logger->logInfoForOrder(
-                $orderId,
+                $order->getIncrementId(),
                 'Order status has been changed to: ' . $status,
                 Logger::DEBUG
             );
@@ -510,7 +503,7 @@ class OrderService
     ): void {
         $orderId = $order->getIncrementId();
 
-        foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
+        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
 
             try {
@@ -535,17 +528,6 @@ class OrderService
                 $this->logger->logUpdateRequestApiException($orderId, $e);
             }
         }
-    }
-
-    /**
-     * @param string $orderId
-     * @return InvoiceInterface[]
-     */
-    private function getInvoicesByOrderId(string $orderId): array
-    {
-        $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
-
-        return $this->invoiceRepository->getList($searchCriteria)->getItems();
     }
 
     /**

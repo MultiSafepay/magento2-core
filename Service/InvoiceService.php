@@ -175,28 +175,31 @@ class InvoiceService
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @param Transaction $transaction
+     * @param array $transaction
      * @param float|null $invoiceAmount
      * @return bool
      */
     public function invoiceByAmount(
         OrderInterface $order,
         OrderPaymentInterface $payment,
-        Transaction $transaction,
+        array $transaction,
         ?float $invoiceAmount
     ): bool {
         if ($order->canInvoice()) {
-            $payment->setTransactionId($transaction->getData()['transaction_id'])
+            $orderId = $order->getIncrementId();
+            $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
+                ->setIsTransactionPending(false)
                 ->registerCaptureNotification($invoiceAmount, true);
 
-            $payment->setParentTransactionId($transaction->getData()['transaction_id']);
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($order->getIncrementId(), 'Invoice created');
+            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
             $paymentTransaction = $payment->addTransaction(
                 PaymentTransaction::TYPE_CAPTURE,
                 null,
@@ -204,11 +207,12 @@ class InvoiceService
             );
 
             if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction->getData()['transaction_id']);
+                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
             }
 
             $paymentTransaction->setIsClosed(1);
             $this->transactionRepository->save($paymentTransaction);
+            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
             return true;
         }

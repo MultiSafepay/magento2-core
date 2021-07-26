@@ -43,11 +43,11 @@ class ShipmentUtil
      */
     public function getTrackingNumber(ShipmentInterface $shipment): string
     {
-        if (empty($shipment->getTracks())) {
+        if (!($tracks = $shipment->getTracks())) {
             return '';
         }
 
-        return $shipment->getTracks()[0]->getTrackNumber();
+        return is_array($tracks) ? (string)reset($tracks)->getTrackNumber() : '';
     }
 
     /**

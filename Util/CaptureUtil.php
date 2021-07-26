@@ -67,12 +67,12 @@ class CaptureUtil
      * @param Transaction $transaction
      * @return bool
      */
-    public function isCaptureManualTransaction(Transaction $transaction): bool
+    public function isCaptureManualTransaction(array $transaction): bool
     {
-        $paymentDetails = $transaction->getPaymentDetails();
+        $paymentDetails = $transaction['payment_details'] ?? [];
 
-        return $transaction->getFinancialStatus() === TransactionStatus::INITIALIZED && $paymentDetails->getCapture()
-               && $paymentDetails->getCapture() === CaptureRequest::CAPTURE_MANUAL_TYPE;
+        return $transaction['financial_status'] === TransactionStatus::INITIALIZED && isset($paymentDetails['capture'])
+               && $paymentDetails['capture'] === CaptureRequest::CAPTURE_MANUAL_TYPE;
     }
 
     /**
