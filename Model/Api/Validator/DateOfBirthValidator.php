@@ -17,14 +17,20 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Validator;
 
+use DateTime;
+
 class DateOfBirthValidator
 {
+    public const DATE_FORMAT = 'd-m-Y';
+
     /**
      * @param string $dateOfBirth
      * @return bool
      */
     public function validate(string $dateOfBirth): bool
     {
-        return (bool)preg_match('/([0-2]\d|(3)[0-1])[-|\/](((0)\d)|((1)[0-2]))[-|\/]\d{4}/', $dateOfBirth);
+        $date = DateTime::createFromFormat(self::DATE_FORMAT, $dateOfBirth);
+
+        return $date && $date->format(self::DATE_FORMAT) === $dateOfBirth;
     }
 }

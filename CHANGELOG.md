@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed a bug where filling in certain wrong values for the Date of birth field for AfterPay and in3 caused an error
 - Fixed a bug where "Unable to unserialize value" errors were logged for every product.
 
 ## [2.8.2] - 2021-07-20
