@@ -20,11 +20,11 @@
     <test name="PayAfterDeliveryCheckoutTest">
         <annotations>
             <features value="Checkout"/>
-            <stories value="Order with MultiSafepay payment method is succesfully created"/>
-            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order"/>
-            <description value="To be sure that an Pay After Delivery order can be placed succesfully"/>
+            <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order for guest order"/>
+            <description value="To be sure that an Pay After Delivery order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
-            <testCaseId value="TEST-1"/>
+            <testCaseId value="MSP-MFTF-1"/>
             <group value="checkout"/>
         </annotations>
 
