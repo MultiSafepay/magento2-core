@@ -25,7 +25,7 @@
             <description value="To be sure that an Pay After Delivery order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
             <testCaseId value="MSP-MFTF-1"/>
-            <group value="checkout"/>
+            <group value="multisafepay_checkout"/>
         </annotations>
 
         <before>
