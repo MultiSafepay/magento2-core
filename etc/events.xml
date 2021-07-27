@@ -42,4 +42,7 @@
     <event name="sales_order_shipment_save_after">
         <observer name="multisafepay_shipment_save_after" instance="MultiSafepay\ConnectCore\Observer\ShipmentSaveAfterObserver" />
     </event>
+    <event name="sales_order_invoice_save_after">
+        <observer name="inventory_sales_virtual_source_deduction_processor" instance="MultiSafepay\ConnectCore\Observer\InvoiceSaveAfterObserver"/>
+    </event>
 </config>
