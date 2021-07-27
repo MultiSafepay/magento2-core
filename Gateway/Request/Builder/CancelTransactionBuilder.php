@@ -86,7 +86,10 @@ class CancelTransactionBuilder implements BuilderInterface
         ];
 
         try {
-            $transaction = $this->sdkFactory->create($storeId)->getTransactionManager()->get($orderIncrementId);
+            $transaction = $this->sdkFactory->create($storeId)
+                ->getTransactionManager()
+                ->get($orderIncrementId)
+                ->getData();
 
             if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
 

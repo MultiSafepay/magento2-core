@@ -139,14 +139,11 @@ class CaptureTransactionBuilder implements BuilderInterface
      * @param int $storeId
      * @throws CouldNotInvoiceException
      */
-    private function validateManualCapture(
-        float $invoiceAmount,
-        string $orderIncrementId,
-        int $storeId
-    ): void {
+    private function validateManualCapture(float $invoiceAmount, string $orderIncrementId, int $storeId): void
+    {
         try {
             $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
-            $transaction = $transactionManager->get($orderIncrementId);
+            $transaction = $transactionManager->get($orderIncrementId)->getData();
         } catch (ClientExceptionInterface $clientException) {
             $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
 

@@ -18,40 +18,29 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service;
 
 use Exception;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\MailException;
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
-use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 use MultiSafepay\ConnectCore\Util\GiftcardUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
-use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
-use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
-use MultiSafepay\ConnectCore\Util\CaptureUtil;
+use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
 
 class OrderService
 {
-    public const INVOICE_CREATE_AFTER_PARAM_NAME = 'multisaepay_create_inovice_after';
-
     /**
      * @var OrderRepositoryInterface
      */
@@ -83,31 +72,6 @@ class OrderService
     private $logger;
 
     /**
-     * @var OrderPaymentRepositoryInterface
-     */
-    private $orderPaymentRepository;
-
-    /**
-     * @var TransactionRepositoryInterface
-     */
-    private $transactionRepository;
-
-    /**
-     * @var OrderStatusUtil
-     */
-    private $orderStatusUtil;
-
-    /**
-     * @var UpdateRequest
-     */
-    private $updateRequest;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
      * @var Config
      */
     private $config;
@@ -116,11 +80,6 @@ class OrderService
      * @var SdkFactory
      */
     private $sdkFactory;
-
-    /**
-     * @var InvoiceRepositoryInterface
-     */
-    private $invoiceRepository;
 
     /**
      * @var JsonHandler
@@ -133,14 +92,14 @@ class OrderService
     private $giftcardUtil;
 
     /**
-     * @var CaptureUtil
+     * @var PayMultisafepayOrder
      */
-    private $captureUtil;
+    private $payMultisafepayOrder;
 
     /**
-     * @var InvoiceService
+     * @var AddInvoicesDataToTransactionAndSendEmail
      */
-    private $invoiceService;
+    private $addInvoicesDataToTransactionAndSendEmail;
 
     /**
      * OrderService constructor.
@@ -151,18 +110,12 @@ class OrderService
      * @param PaymentMethodUtil $paymentMethodUtil
      * @param SecondChance $secondChance
      * @param Logger $logger
-     * @param OrderPaymentRepositoryInterface $orderPaymentRepository
-     * @param TransactionRepositoryInterface $transactionRepository
-     * @param UpdateRequest $updateRequest
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param InvoiceRepositoryInterface $invoiceRepository
      * @param Config $config
      * @param SdkFactory $sdkFactory
-     * @param OrderStatusUtil $orderStatusUtil
      * @param JsonHandler $jsonHandler
      * @param GiftcardUtil $giftcardUtil
-     * @param InvoiceService $invoiceService
-     * @param CaptureUtil $captureUtil
+     * @param PayMultisafepayOrder $payMultisafepayOrder
+     * @param AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -171,18 +124,12 @@ class OrderService
         PaymentMethodUtil $paymentMethodUtil,
         SecondChance $secondChance,
         Logger $logger,
-        OrderPaymentRepositoryInterface $orderPaymentRepository,
-        TransactionRepositoryInterface $transactionRepository,
-        UpdateRequest $updateRequest,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        InvoiceRepositoryInterface $invoiceRepository,
         Config $config,
         SdkFactory $sdkFactory,
-        OrderStatusUtil $orderStatusUtil,
         JsonHandler $jsonHandler,
         GiftcardUtil $giftcardUtil,
-        InvoiceService $invoiceService,
-        CaptureUtil $captureUtil
+        PayMultisafepayOrder $payMultisafepayOrder,
+        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -190,18 +137,12 @@ class OrderService
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->secondChance = $secondChance;
         $this->logger = $logger;
-        $this->orderPaymentRepository = $orderPaymentRepository;
-        $this->transactionRepository = $transactionRepository;
-        $this->updateRequest = $updateRequest;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->invoiceRepository = $invoiceRepository;
         $this->config = $config;
         $this->sdkFactory = $sdkFactory;
-        $this->orderStatusUtil = $orderStatusUtil;
         $this->jsonHandler = $jsonHandler;
         $this->giftcardUtil = $giftcardUtil;
-        $this->invoiceService = $invoiceService;
-        $this->captureUtil = $captureUtil;
+        $this->payMultisafepayOrder = $payMultisafepayOrder;
+        $this->addInvoicesDataToTransactionAndSendEmail = $addInvoicesDataToTransactionAndSendEmail;
     }
 
     /**
@@ -306,7 +247,7 @@ class OrderService
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
-                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ? :
+                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ?:
                     $transactionType;
             }
 
@@ -445,7 +386,7 @@ class OrderService
             Logger::DEBUG
         );
 
-        $this->payOrder($order, $payment, $transaction);
+        $this->payMultisafepayOrder->execute($order, $payment, $transaction);
 
         $this->logger->logInfoForOrder(
             $orderId,
@@ -453,149 +394,13 @@ class OrderService
             Logger::DEBUG
         );
 
-        $this->addInvoicesDataToTransactionAndSendEmail($order, $payment, $transactionManager);
+        $this->addInvoicesDataToTransactionAndSendEmail->execute($order, $payment, $transactionManager);
 
         $this->logger->logInfoForOrder(
             $orderId,
             __('MultiSafepay order transaction complete process has been finished successfully.')->render(),
             Logger::DEBUG
         );
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
-     * @param array $transaction
-     * @throws LocalizedException
-     */
-    private function payOrder(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        array $transaction
-    ): void {
-        if ($order->canInvoice()) {
-            if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
-                $this->invoiceService->invoiceByAmount($order, $payment, $transaction, $order->getBaseTotalDue());
-            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
-            $captureAmount = $order->getBaseTotalDue();
-            $orderId = $order->getIncrementId();
-            $payment->setTransactionId($transaction['transaction_id'] ?? '')
-                ->setAdditionalInformation(
-                    [
-                        PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
-                    ]
-                )->setShouldCloseParentTransaction(false)
-                ->setIsTransactionClosed(0)
-                ->setIsTransactionPending(false);
-
-            $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
-            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
-            $payment->setIsTransactionApproved(true);
-            $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
-            $paymentTransaction = $payment->addTransaction(
-                PaymentTransaction::TYPE_CAPTURE,
-                null,
-                true
-            );
-
-            if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
-            }
-
-            $paymentTransaction->setIsClosed(1);
-            $this->transactionRepository->save($paymentTransaction);
-            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
-
-            if (!$isCreateOrderAutomatically) {
-                $order->addCommentToStatusHistory(
-                    __(
-                        'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
-                        $order->getBaseCurrency()->formatTxt($captureAmount),
-                        $paymentTransaction->getTxnId()
-                    )
-                );
-            }
-
-            // Set order processing
-            $status = $this->orderStatusUtil->getProcessingStatus($order);
-            $order->setState(Order::STATE_PROCESSING);
-            $order->setStatus($status);
-            $this->orderRepository->save($order);
-            $this->logger->logInfoForOrder(
-                $orderId,
-                'Order status has been changed to: ' . $status,
-                Logger::DEBUG
-            );
-        }
-    }
-
-    /**
-     * @param bool $isCreateOrderAutomatically
-     * @param OrderPaymentInterface $payment
-     * @param float $captureAmount
-     * @param string $orderId
-     */
-    private function createInvoice(
-        bool $isCreateOrderAutomatically,
-        OrderPaymentInterface $payment,
-        float $captureAmount,
-        string $orderId
-    ): void {
-        if ($isCreateOrderAutomatically) {
-            $payment->registerCaptureNotification($captureAmount, true);
-            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
-
-            return;
-        }
-
-        $this->logger->logInfoForOrder(
-            $orderId,
-            'Invoice creation process was skipped by selected setting.',
-            Logger::DEBUG
-        );
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
-     * @param TransactionManager $transactionManager
-     * @throws ClientExceptionInterface
-     * @throws Exception
-     */
-    public function addInvoicesDataToTransactionAndSendEmail(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        TransactionManager $transactionManager
-    ): void {
-        $orderId = $order->getIncrementId();
-
-        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
-            $invoiceIncrementId = $invoice->getIncrementId();
-
-            try {
-                if ($this->emailSender->sendInvoiceEmail($payment, $invoice)) {
-                    $this->logger->logInfoForOrder($orderId, __('Invoice email was sent.')->render(), Logger::DEBUG);
-                }
-            } catch (MailException $mailException) {
-                $this->logger->logExceptionForOrder($orderId, $mailException, Logger::INFO);
-            }
-
-            $updateRequest = $this->updateRequest->addData([
-                "invoice_id" => $invoiceIncrementId,
-            ]);
-
-            try {
-                $transactionManager->update($orderId, $updateRequest)->getResponseData();
-                $this->logger->logInfoForOrder(
-                    $orderId,
-                    'Invoice: ' . $invoiceIncrementId . ' update request has been sent to MultiSafepay.'
-                );
-            } catch (ApiException $e) {
-                $this->logger->logUpdateRequestApiException($orderId, $e);
-            }
-        }
     }
 
     /**

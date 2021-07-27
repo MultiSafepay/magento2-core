@@ -179,21 +179,24 @@ class InvoiceService
      * @param float|null $invoiceAmount
      * @return bool
      */
-    public function invoiceByAmount(
+    public function payOrderByAmount(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         array $transaction,
         ?float $invoiceAmount
     ): bool {
         if ($order->canInvoice()) {
+            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
+
             $orderId = $order->getIncrementId();
             $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
                     [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
-                ->setIsTransactionPending(false)
-                ->registerCaptureNotification($invoiceAmount, true);
+                ->setIsTransactionPending(false);
+
+            $this->createInvoice($isCreateOrderAutomatically, $payment, $invoiceAmount, $orderId);
 
             $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
@@ -214,10 +217,46 @@ class InvoiceService
             $this->transactionRepository->save($paymentTransaction);
             $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
+            if (!$isCreateOrderAutomatically) {
+                $order->addCommentToStatusHistory(
+                    __(
+                        'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                        $order->getBaseCurrency()->formatTxt($invoiceAmount),
+                        $paymentTransaction->getTxnId()
+                    )
+                );
+            }
+
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * @param bool $isCreateOrderAutomatically
+     * @param OrderPaymentInterface $payment
+     * @param float $captureAmount
+     * @param string $orderId
+     */
+    private function createInvoice(
+        bool $isCreateOrderAutomatically,
+        OrderPaymentInterface $payment,
+        float $captureAmount,
+        string $orderId
+    ): void {
+        if ($isCreateOrderAutomatically) {
+            $payment->registerCaptureNotification($captureAmount, true);
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+
+            return;
+        }
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            'Invoice creation process was skipped by selected setting.',
+            Logger::DEBUG
+        );
     }
 
     /**

@@ -22,9 +22,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
-use MultiSafepay\ConnectCore\Service\OrderService;
+use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use Psr\Http\Client\ClientExceptionInterface;
+use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
 
 class InvoiceSaveAfterObserver implements ObserverInterface
 {
@@ -39,25 +40,25 @@ class InvoiceSaveAfterObserver implements ObserverInterface
     private $paymentMethodUtil;
 
     /**
-     * @var OrderService
+     * @var AddInvoicesDataToTransactionAndSendEmail
      */
-    private $orderService;
+    private $addInvoicesDataToTransactionAndSendEmail;
 
     /**
      * InvoiceSaveAfterObserver constructor.
      *
      * @param SdkFactory $sdkFactory
      * @param PaymentMethodUtil $paymentMethodUtil
-     * @param OrderService $orderService
+     * @param AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
      */
     public function __construct(
         SdkFactory $sdkFactory,
         PaymentMethodUtil $paymentMethodUtil,
-        OrderService $orderService
+        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->paymentMethodUtil = $paymentMethodUtil;
-        $this->orderService = $orderService;
+        $this->addInvoicesDataToTransactionAndSendEmail = $addInvoicesDataToTransactionAndSendEmail;
     }
 
     /**
@@ -75,10 +76,10 @@ class InvoiceSaveAfterObserver implements ObserverInterface
 
         if ($this->paymentMethodUtil->isMultisafepayOrder($order)
             && $order->getBaseTotalDue() === 0.0
-            && $payment->getAdditionalInformation(OrderService::INVOICE_CREATE_AFTER_PARAM_NAME)
+            && $payment->getAdditionalInformation(PayMultisafepayOrder::INVOICE_CREATE_AFTER_PARAM_NAME)
         ) {
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-            $this->orderService->addInvoicesDataToTransactionAndSendEmail($order, $payment, $transactionManager);
+            $this->addInvoicesDataToTransactionAndSendEmail->execute($order, $payment, $transactionManager);
         }
     }
 }

@@ -129,7 +129,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
             $orderIncrementId = $order->getIncrementId();
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-            $transaction = $transactionManager->get($order->getIncrementId());
+            $transaction = $transactionManager->get($order->getIncrementId())->getData();
             $payment = $order->getPayment();
 
             try {

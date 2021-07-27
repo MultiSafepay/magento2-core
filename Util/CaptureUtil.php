@@ -51,20 +51,20 @@ class CaptureUtil
     }
 
     /**
-     * @param Transaction $transaction
+     * @param array $transaction
      * @param float $amount
      * @return bool
      */
-    public function isManualCapturePossibleForAmount(Transaction $transaction, float $amount): bool
+    public function isManualCapturePossibleForAmount(array $transaction, float $amount): bool
     {
-        $paymentDetails = $transaction->getPaymentDetails();
+        $paymentDetails = $transaction['payment_details'] ?? [];
 
-        return $paymentDetails->getCaptureRemain()
-               && (float)$paymentDetails->getCaptureRemain() >= round($amount * 100, 10);
+        return isset($paymentDetails['capture_remain'])
+               && (float)$paymentDetails['capture_remain'] >= round($amount * 100, 10);
     }
 
     /**
-     * @param Transaction $transaction
+     * @param array $transaction
      * @return bool
      */
     public function isCaptureManualTransaction(array $transaction): bool
@@ -76,14 +76,14 @@ class CaptureUtil
     }
 
     /**
-     * @param Transaction $transaction
+     * @param array $transaction
      * @return bool
      */
-    public function isCaptureManualReservationExpired(Transaction $transaction): bool
+    public function isCaptureManualReservationExpired(array $transaction): bool
     {
-        $paymentDetails = $transaction->getPaymentDetails();
+        $paymentDetails = $transaction['payment_details'] ?? [];
 
-        if (!($reservationExpirationData = $paymentDetails->getCaptureExpiry())) {
+        if (!($reservationExpirationData = $paymentDetails['capture_expiry'] ?? '')) {
             return true;
         }
 
