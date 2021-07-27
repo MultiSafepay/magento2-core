@@ -43,6 +43,13 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
+        if (!empty($additionalData['card_brand'])) {
+            $payment->setAdditionalInformation(
+                'card_brand',
+                $additionalData['card_brand']
+            );
+        }
+
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
         $payment->setAdditionalInformation('payload', $additionalData['payload']);
     }

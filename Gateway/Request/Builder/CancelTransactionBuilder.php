@@ -27,6 +27,8 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use Psr\Http\Client\ClientExceptionInterface;
+use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
+use MultiSafepay\Exception\ApiException;
 
 class CancelTransactionBuilder implements BuilderInterface
 {
@@ -51,6 +53,11 @@ class CancelTransactionBuilder implements BuilderInterface
     private $logger;
 
     /**
+     * @var PaymentMethodUtil
+     */
+    private $paymentMethodUtil;
+
+    /**
      * CancelTransactionBuilder constructor.
      *
      * @param CaptureUtil $captureUtil
@@ -62,12 +69,14 @@ class CancelTransactionBuilder implements BuilderInterface
         CaptureUtil $captureUtil,
         SdkFactory $sdkFactory,
         CaptureRequest $captureRequest,
-        Logger $logger
+        Logger $logger,
+        PaymentMethodUtil $paymentMethodUtil
     ) {
         $this->captureUtil = $captureUtil;
         $this->sdkFactory = $sdkFactory;
         $this->captureRequest = $captureRequest;
         $this->logger = $logger;
+        $this->paymentMethodUtil = $paymentMethodUtil;
     }
 
     /**
@@ -86,31 +95,35 @@ class CancelTransactionBuilder implements BuilderInterface
         ];
 
         try {
-            $transaction = $this->sdkFactory->create($storeId)
-                ->getTransactionManager()
-                ->get($orderIncrementId)
-                ->getData();
+            if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
+                $transaction = $this->sdkFactory->create($storeId)
+                    ->getTransactionManager()
+                    ->get($orderIncrementId)
+                    ->getData();
 
-            if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
+                if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
 
-                if ($this->captureUtil->isCaptureManualReservationExpired($transaction)) {
-                    $this->logger->logInfoForOrder($orderIncrementId, 'Capture reservation is expired.');
+                    if ($this->captureUtil->isCaptureManualReservationExpired($transaction)) {
+                        $this->logger->logInfoForOrder($orderIncrementId, 'Capture reservation is expired.');
+
+                        return $result;
+                    }
+
+                    $captureRequest = $this->captureRequest->addData(
+                        [
+                            "status" => Transaction::CANCELLED,
+                            "reason" => "Order cancelled",
+                        ]
+                    );
+                    $result['payload'] = $captureRequest;
 
                     return $result;
                 }
-
-                $captureRequest = $this->captureRequest->addData(
-                    [
-                        "status" => Transaction::CANCELLED,
-                        "reason" => "Order cancelled",
-                    ]
-                );
-                $result['payload'] = $captureRequest;
-
-                return $result;
             }
         } catch (ClientExceptionInterface $clientException) {
             $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
+        } catch (ApiException $apiException) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $apiException);
         }
 
         return $result;
