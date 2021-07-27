@@ -54,7 +54,7 @@ class DateOfBitrhValidatorTest extends AbstractTestCase
         return [
             ['12-12-1990', true],
             ['12.12.1990', false],
-            ['12/12/1990', true],
+            ['12/12/1990', false],
             ['12.31.1990', false],
             ['45.12.1990', false],
             ['test_date_of_birth', false],
