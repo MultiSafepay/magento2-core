@@ -26,9 +26,9 @@ use MultiSafepay\Api\Transactions\Transaction;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
-use Psr\Http\Client\ClientExceptionInterface;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class CancelTransactionBuilder implements BuilderInterface
 {
@@ -64,6 +64,7 @@ class CancelTransactionBuilder implements BuilderInterface
      * @param SdkFactory $sdkFactory
      * @param CaptureRequest $captureRequest
      * @param Logger $logger
+     * @param PaymentMethodUtil $paymentMethodUtil
      */
     public function __construct(
         CaptureUtil $captureUtil,
@@ -95,14 +96,15 @@ class CancelTransactionBuilder implements BuilderInterface
         ];
 
         try {
-            if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
+            if ($this->paymentMethodUtil->isMultisafepayOrder($order)
+                && $this->captureUtil->isCaptureManualPayment($order->getPayment())
+            ) {
                 $transaction = $this->sdkFactory->create($storeId)
                     ->getTransactionManager()
                     ->get($orderIncrementId)
                     ->getData();
 
                 if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
-
                     if ($this->captureUtil->isCaptureManualReservationExpired($transaction)) {
                         $this->logger->logInfoForOrder($orderIncrementId, 'Capture reservation is expired.');
 

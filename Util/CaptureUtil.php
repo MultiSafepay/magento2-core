@@ -21,19 +21,23 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
+use MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver;
 
 class CaptureUtil
 {
     public const AVAILABLE_MANUAL_CAPTURE_METHODS = [
         VisaConfigProvider::CODE,
+        CreditCardConfigProvider::CODE,
         MastercardConfigProvider::CODE,
         MaestroConfigProvider::CODE,
     ];
+
+    public const AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS = ['VISA', 'MASTERCARD', 'MAESTRO'];
 
     /**
      * @var DateTime
@@ -96,8 +100,19 @@ class CaptureUtil
      */
     public function isCaptureManualPayment(OrderPaymentInterface $payment): bool
     {
-        return in_array($payment->getMethod(), self::AVAILABLE_MANUAL_CAPTURE_METHODS)
-               && $payment->getMethodInstance()->getConfigPaymentAction()
-                  === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY;
+        if (!in_array($payment->getMethod(), self::AVAILABLE_MANUAL_CAPTURE_METHODS)
+            || !($payment->getMethodInstance()->getConfigPaymentAction()
+                 === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY)
+        ) {
+            return false;
+        }
+
+        if ($payment->getMethod() === CreditCardConfigProvider::CODE) {
+            $cardBrand = $payment->getAdditionalInformation(CreditCardDataAssignObserver::CREDIT_CARD_BRAND_PARAM_NAME);
+
+            return $cardBrand && in_array($cardBrand, self::AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS);
+        }
+
+        return true;
     }
 }

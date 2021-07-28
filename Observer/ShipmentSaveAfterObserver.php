@@ -17,27 +17,27 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Observer;
 
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use MultiSafepay\Api\TransactionManager;
+use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
-use MultiSafepay\Exception\ApiException;
-use Psr\Http\Client\ClientExceptionInterface;
 use MultiSafepay\ConnectCore\Service\InvoiceService;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
+use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use MultiSafepay\Api\TransactionManager;
-use Exception;
+use MultiSafepay\Exception\ApiException;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class ShipmentSaveAfterObserver implements ObserverInterface
 {
-
     /**
      * @var SdkFactory
      */
@@ -91,6 +91,10 @@ class ShipmentSaveAfterObserver implements ObserverInterface
      * @param ManagerInterface $messageManager
      * @param UpdateRequest $updateRequest
      * @param PaymentMethodUtil $paymentMethodUtil
+     * @param OrderRepositoryInterface $orderRepository
+     * @param InvoiceService $invoiceService
+     * @param CaptureUtil $captureUtil
+     * @param ShipmentUtil $shipmentUtil
      */
     public function __construct(
         SdkFactory $sdkFactory,
@@ -114,7 +118,6 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         $this->shipmentUtil = $shipmentUtil;
     }
 
-
     /**
      * @param Observer $observer
      * @throws ClientExceptionInterface
@@ -133,9 +136,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             $payment = $order->getPayment();
 
             try {
-                if ($this->captureUtil->isCaptureManualPayment($payment)
-                    && $this->captureUtil->isCaptureManualTransaction($transaction)
-                ) {
+                if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
                     if ($this->invoiceService->createInvoiceAfterShipment($order, $shipment, $payment)) {
                         $this->orderRepository->save($order);
 
@@ -152,6 +153,13 @@ class ShipmentSaveAfterObserver implements ObserverInterface
                     }
 
                     if ($this->shipmentUtil->isOrderShippedPartially($order)) {
+                        if (!$order->getBaseTotalDue()) {
+                            /**
+                             * @todo update parent Transaction status to status completed for fully paid transaction
+                             */
+                            $this->completeParentTransactionStatus($order, $transactionManager);
+                        }
+
                         return;
                     }
                 }
@@ -168,43 +176,37 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         }
     }
 
-    ///**
-    // * @param ShipmentInterface $shipment
-    // * @param OrderInterface $order
-    // * @throws ClientExceptionInterface
-    // */
-    //public function addShippingToTransaction(
-    //    ShipmentInterface $shipment,
-    //    OrderInterface $order
-    //): void {
-    //    if ($this->paymentMethodUtil->isMultisafepayOrder($order)) {
-    //        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-    //
-    //        $updateRequest = $this->updateRequest->addData([
-    //                "tracktrace_code" => $this->getTrackingNumber($shipment),
-    //                "carrier" => $order->getShippingDescription(),
-    //                "ship_date" => $shipment->getCreatedAt(),
-    //                "reason" => 'Shipped'
-    //            ]);
-    //
-    //        $orderId = $order->getIncrementId();
-    //
-    //        try {
-    //            $transactionManager->update($orderId, $updateRequest)->getResponseData();
-    //        } catch (ApiException $apiException) {
-    //            $this->logger->logUpdateRequestApiException($orderId, $apiException);
-    //
-    //            $msg = __('The order status could not be updated at MultiSafepay.
-    //            It can be manually updated in MultiSafepay Control');
-    //
-    //            $this->messageManager->addErrorMessage($msg);
-    //            return;
-    //        }
-    //
-    //        $msg = __('The order status has succesfully been updated at MultiSafepay');
-    //        $this->messageManager->addSuccessMessage($msg);
-    //    }
-    //}
+    /**
+     * @param OrderInterface $order
+     * @param TransactionManager $transactionManager
+     */
+    private function completeParentTransactionStatus(
+        OrderInterface $order,
+        TransactionManager $transactionManager
+    ): void {
+        //$orderId = $order->getIncrementId();
+        //$errorMessage = __('The order status could not be updated at MultiSafepay.');
+        //
+        //try {
+        //    $transactionManager->update(
+        //        $orderId,
+        //        $this->updateRequest->addData(["financial_status" => TransactionStatus::COMPLETED])
+        //    )->getResponseData();
+        //} catch (ApiException $apiException) {
+        //    $this->logger->logUpdateRequestApiException($orderId, $apiException);
+        //    $this->messageManager->addErrorMessage($errorMessage);
+        //
+        //    return;
+        //} catch (ClientExceptionInterface $clientException) {
+        //    $this->logger->logClientException($orderId, $clientException);
+        //    $this->messageManager->addErrorMessage($errorMessage);
+        //
+        //    return;
+        //}
+        //
+        //$msg = __('The parent order status has succesfully been updated at MultiSafepay');
+        //$this->messageManager->addSuccessMessage($msg);
+    }
 
     /**
      * @param ShipmentInterface $shipment
