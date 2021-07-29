@@ -7,6 +7,7 @@
                 <mode>0</mode>
                 <live_api_key />
                 <test_api_key />
+                <create_invoice>1</create_invoice>
                 <order_confirmation_email>after_transaction</order_confirmation_email>
                 <transaction_custom_description />
                 <refund_custom_description />

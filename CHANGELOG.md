@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug where "Unable to unserialize value" errors were logged for every product.
 - Fixed a bug where the shipping description in the transaction would cause an error if it was null (thanks to @florisschreuder)
 
+### Added
+- Added possibility to skip automatic invoice creation after MultiSafepay payment.
+
 ## [2.8.2] - 2021-07-20
 ### Fixed
 - Fixed a bug where the default store url was being used for payment links in backend orders.
