@@ -76,16 +76,17 @@ class RedirectTransactionBuilder implements BuilderInterface
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
+        $areaCode = $this->state->getAreaCode();
 
         $paymentMethod = $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()
             ->getCode();
-        $orderStateAndStatus = $this->getOrderStateAndStatus($order, $paymentMethod);
+        $orderStateAndStatus = $this->getOrderStateAndStatus($order, $paymentMethod, $areaCode);
 
         $stateObject->setState($orderStateAndStatus[self::ORDER_STATE]);
         $stateObject->setStatus($orderStateAndStatus[self::ORDER_STATUS]);
 
         // Early return on backend order
-        if ($this->state->getAreaCode() === Area::AREA_ADMINHTML) {
+        if ($areaCode === Area::AREA_ADMINHTML) {
             return [];
         }
 
@@ -101,11 +102,12 @@ class RedirectTransactionBuilder implements BuilderInterface
     /**
      * @param OrderInterface $order
      * @param string $paymentMethod
+     * @param string $areaCode
      * @return array
      */
-    private function getOrderStateAndStatus(OrderInterface $order, string $paymentMethod): array
+    private function getOrderStateAndStatus(OrderInterface $order, string $paymentMethod, string $areaCode): array
     {
-        if ($paymentMethod === BankTransferConfigProvider::CODE) {
+        if ($paymentMethod === BankTransferConfigProvider::CODE || $areaCode === Area::AREA_ADMINHTML) {
             return [
                 self::ORDER_STATE => Order::STATE_NEW,
                 self::ORDER_STATUS => $this->orderStatusUtil->getPendingStatus($order)

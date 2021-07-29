@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Payment\Command;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;
@@ -37,6 +39,8 @@ class InitializeExampleTest extends AbstractTestCase
      */
     public function testCommandExecution()
     {
+        $this->getAreaStateObject()->setAreaCode(Area::AREA_FRONTEND);
+
         /** @var GatewayCommand $command */
         $initializeCommand = $this->getObjectManager()->get('MultiSafepayInitializeCommand');
         $this->assertInstanceOf(GatewayCommand::class, $initializeCommand);
@@ -52,5 +56,13 @@ class InitializeExampleTest extends AbstractTestCase
                 'stateObject' => new DataObject()
             ]
         );
+    }
+
+    /**
+     * @return State
+     */
+    private function getAreaStateObject(): State
+    {
+        return $this->getObjectManager()->get(State::class);
     }
 }

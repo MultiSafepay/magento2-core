@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2021 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="CheckoutSelectPayAfterDeliveryPaymentActionGroup">
+        <annotations>
+            <description>Selects the 'Pay After Delivery' Payment Method on the Storefront Checkout page and fills in the payment details.</description>
+        </annotations>
+        <arguments>
+            <argument name="paymentDetailsVar" defaultValue="PayAfterDeliveryPaymentDetails"/>
+        </arguments>
+
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Pay After Delivery')}}" dependentSelector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Pay After Delivery')}}" visible="true" stepKey="selectPayAfterDeliveryPaymentMethod"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
+        <fillField selector="{{StorefrontCheckoutPayAfterDeliverySection.dateOfBirth}}" userInput="{{paymentDetailsVar.date_of_birth}}" stepKey="enterDateOfBirth"/>
+        <fillField selector="{{StorefrontCheckoutPayAfterDeliverySection.accountNumber}}" userInput="{{paymentDetailsVar.account_number}}" stepKey="enterAccountNumber"/>
+    </actionGroup>
+</actionGroups>
