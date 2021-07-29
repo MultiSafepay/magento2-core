@@ -561,4 +561,36 @@ class OrderService
             'Order has been canceled. ' . $transactionStatusMessage
         );
     }
+
+    /**
+     * @param OrderInterface $order
+     * @return bool
+     */
+    public function cancelMultisafepayOrderPretransaction(OrderInterface $order): bool
+    {
+        $orderId = $order->getIncrementId();
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+        $updateRequest = $this->updateRequest->addData([
+            "status" => TransactionStatus::CANCELLED,
+            "exclude_order" => 1
+        ]);
+
+        try {
+            $transactionManager->update($orderId, $updateRequest)->getResponseData();
+            $this->logger->logInfoForOrder(
+                $orderId,
+                'MultiSafepay pretransaction was canceled..'
+            );
+        } catch (ApiException $apiException) {
+            $this->logger->logUpdateRequestApiException($orderId, $apiException);
+
+            return false;
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logClientException($orderId, $clientException);
+
+            return false;
+        }
+
+        return true;
+    }
 }

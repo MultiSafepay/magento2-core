@@ -7337,4 +7337,8 @@
         <plugin name="csrf_validator_skip" type="MultiSafepay\ConnectCore\Plugin\CsrfValidatorSkip" />
     </type>
 
+    <type name="Magento\Sales\Api\Data\OrderInterface">
+        <plugin name="multisafepay_cancel_order_pretransaction" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\OrderPlugin" />
+    </type>
+
 </config>
