@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Payment;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\Method\Adapter as PaymentMethodAdapter;
@@ -31,9 +33,12 @@ class AbstractPaymentTestCase extends AbstractTestCase
      * @param string $paymentAdapterClass
      * @param Payment $payment
      * @param OrderInterface $order
+     * @throws LocalizedException
      */
     protected function runPaymentAction(string $paymentAdapterClass, Payment $payment, OrderInterface $order)
     {
+        $this->getAreaStateObject()->setAreaCode(Area::AREA_FRONTEND);
+
         /** @var PaymentMethodAdapter $paymentAdapter */
         $paymentAdapter = $this->getObjectManager()->get($paymentAdapterClass);
         $paymentAction = $paymentAdapter->getConfigData('payment_action');
@@ -81,5 +86,13 @@ class AbstractPaymentTestCase extends AbstractTestCase
     protected function getPaymentRepository(): OrderPaymentRepositoryInterface
     {
         return $this->getObjectManager()->get(OrderPaymentRepositoryInterface::class);
+    }
+
+    /**
+     * @return State
+     */
+    private function getAreaStateObject(): State
+    {
+        return $this->getObjectManager()->get(State::class);
     }
 }
