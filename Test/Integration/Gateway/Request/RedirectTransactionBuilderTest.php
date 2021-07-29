@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Request;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
@@ -28,19 +30,27 @@ class RedirectTransactionBuilderTest extends AbstractTestCase
 {
     /**
      * @magentoDataFixture Magento/Sales/_files/order.php
-     * @dataProvider builderDataProvider
+     * @dataProvider       builderDataProvider
      *
      * @param string $paymentMethod
      * @param string $status
      * @param string $state
      * @param bool $isNotified
+     * @param string $areaCode
      * @throws LocalizedException
      */
-    public function testBuildBankTransfer(string $paymentMethod, string $status, string $state, bool $isNotified): void
-    {
+    public function testBuildBankTransfer(
+        string $paymentMethod,
+        string $status,
+        string $state,
+        bool $isNotified,
+        string $areaCode
+    ): void {
         if ($paymentMethod) {
             $this->getOrder()->getPayment()->setMethod($paymentMethod);
         }
+
+        $this->getAreaStateObject()->setAreaCode($areaCode);
 
         $modifiedStateObject = $this->prepareRedirectTransactionBuilder();
 
@@ -74,14 +84,23 @@ class RedirectTransactionBuilderTest extends AbstractTestCase
                 '',
                 'pending_payment',
                 Order::STATE_PENDING_PAYMENT,
-                false
+                false,
+                Area::AREA_FRONTEND,
+            ],
+            [
+                '',
+                'pending',
+                Order::STATE_NEW,
+                false,
+                Area::AREA_ADMINHTML,
             ],
             [
                 BankTransferConfigProvider::CODE,
                 'pending',
                 Order::STATE_NEW,
-                false
-            ]
+                false,
+                Area::AREA_FRONTEND,
+            ],
         ];
     }
 
@@ -91,5 +110,13 @@ class RedirectTransactionBuilderTest extends AbstractTestCase
     private function getRedirectTransactionBuilder(): RedirectTransactionBuilder
     {
         return $this->getObjectManager()->get(RedirectTransactionBuilder::class);
+    }
+
+    /**
+     * @return State
+     */
+    private function getAreaStateObject(): State
+    {
+        return $this->getObjectManager()->get(State::class);
     }
 }

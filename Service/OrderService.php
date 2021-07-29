@@ -49,6 +49,8 @@ use Psr\Http\Client\ClientExceptionInterface;
 
 class OrderService
 {
+    public const INVOICE_CREATE_AFTER_PARAM_NAME = 'multisaepay_create_inovice_after';
+
     /**
      * @var OrderRepositoryInterface
      */
@@ -287,7 +289,7 @@ class OrderService
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
-                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ?:
+                $transactionType = $this->giftcardUtil->getGiftcardGatewayCodeFromTransaction($transaction) ? :
                     $transactionType;
             }
 
@@ -455,16 +457,20 @@ class OrderService
         array $transaction
     ): void {
         if ($order->canInvoice()) {
+            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
+            $captureAmount = $order->getBaseTotalDue();
             $orderId = $order->getIncrementId();
             $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
-                    [PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation()]
+                    [
+                        PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
+                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
+                    ]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
-                ->setIsTransactionPending(false)
-                ->registerCaptureNotification($order->getBaseTotalDue(), true);
+                ->setIsTransactionPending(false);
 
-            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+            $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
             $this->orderPaymentRepository->save($payment);
@@ -483,6 +489,16 @@ class OrderService
             $this->transactionRepository->save($paymentTransaction);
             $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
+            if (!$isCreateOrderAutomatically) {
+                $order->addCommentToStatusHistory(
+                    __(
+                        'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                        $order->getBaseCurrency()->formatTxt($captureAmount),
+                        $paymentTransaction->getTxnId()
+                    )
+                );
+            }
+
             // Set order processing
             $status = $this->orderStatusUtil->getProcessingStatus($order);
             $order->setState(Order::STATE_PROCESSING);
@@ -497,13 +513,39 @@ class OrderService
     }
 
     /**
+     * @param bool $isCreateOrderAutomatically
+     * @param OrderPaymentInterface $payment
+     * @param float $captureAmount
+     * @param string $orderId
+     */
+    private function createInvoice(
+        bool $isCreateOrderAutomatically,
+        OrderPaymentInterface $payment,
+        float $captureAmount,
+        string $orderId
+    ): void {
+        if ($isCreateOrderAutomatically) {
+            $payment->registerCaptureNotification($captureAmount, true);
+            $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+
+            return;
+        }
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            'Invoice creation process was skipped by selected setting.',
+            Logger::DEBUG
+        );
+    }
+
+    /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
      * @throws Exception
      */
-    private function addInvoicesDataToTransactionAndSendEmail(
+    public function addInvoicesDataToTransactionAndSendEmail(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         TransactionManager $transactionManager
@@ -560,5 +602,37 @@ class OrderService
             $order->getIncrementId(),
             'Order has been canceled. ' . $transactionStatusMessage
         );
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return bool
+     */
+    public function cancelMultisafepayOrderPretransaction(OrderInterface $order): bool
+    {
+        $orderId = $order->getIncrementId();
+        $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
+        $updateRequest = $this->updateRequest->addData([
+            "status" => TransactionStatus::CANCELLED,
+            "exclude_order" => 1
+        ]);
+
+        try {
+            $transactionManager->update($orderId, $updateRequest)->getResponseData();
+            $this->logger->logInfoForOrder(
+                $orderId,
+                'MultiSafepay pretransaction was canceled..'
+            );
+        } catch (ApiException $apiException) {
+            $this->logger->logUpdateRequestApiException($orderId, $apiException);
+
+            return false;
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logClientException($orderId, $clientException);
+
+            return false;
+        }
+
+        return true;
     }
 }
