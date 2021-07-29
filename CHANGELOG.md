@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed a bug where manual invoices for backend created orders did not go to processing state.
 - Fixed a bug where filling in certain wrong values for the Date of birth field for AfterPay and in3 caused an error
 - Fixed a bug where "Unable to unserialize value" errors were logged for every product.
 - Fixed a bug where the shipping description in the transaction would cause an error if it was null (thanks to @florisschreuder)
