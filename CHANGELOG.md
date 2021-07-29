@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added automatic cancellation MultiSafepay pretratransaction for non-paid canceled orders.
+- Added plugin version to the system report log
 
 ### Fixed
+- Fixed a bug where manual invoices for backend created orders did not go to processing state.
 - Fixed a bug where filling in certain wrong values for the Date of birth field for AfterPay and in3 caused an error
 - Fixed a bug where "Unable to unserialize value" errors were logged for every product.
 
