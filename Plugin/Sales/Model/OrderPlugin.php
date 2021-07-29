@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Plugin\Sales\Model;
 
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Service\OrderService;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
@@ -25,11 +24,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 
 class OrderPlugin
 {
-    /**
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
-
     /**
      * @var PaymentMethodUtil
      */
@@ -43,16 +37,13 @@ class OrderPlugin
     /**
      * OrderManagementPlugin constructor.
      *
-     * @param OrderRepositoryInterface $orderRepository
      * @param PaymentMethodUtil $paymentMethodUtil
      * @param OrderService $orderService
      */
     public function __construct(
-        OrderRepositoryInterface $orderRepository,
         PaymentMethodUtil $paymentMethodUtil,
         OrderService $orderService
     ) {
-        $this->orderRepository = $orderRepository;
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->orderService = $orderService;
     }
