@@ -33,6 +33,11 @@ class SystemReportUtil
     public const SYSTEM_REPORT_FILE_NAME = 'multisafepay_system_report.json';
 
     /**
+     * @var VersionUtil
+     */
+    private $versionUtil;
+
+    /**
      * @var State
      */
     private $appState;
@@ -89,6 +94,7 @@ class SystemReportUtil
      * @param ScopeConfigInterface $scopeConfig
      * @param Config $paymentConfig
      * @param Manager $moduleManager
+     * @param VersionUtil $versionUtil
      */
     public function __construct(
         DirectoryList $directoryList,
@@ -99,7 +105,8 @@ class SystemReportUtil
         State $appState,
         ScopeConfigInterface $scopeConfig,
         Config $paymentConfig,
-        Manager $moduleManager
+        Manager $moduleManager,
+        VersionUtil $versionUtil
     ) {
         $this->directoryList = $directoryList;
         $this->driverFile = $driverFile;
@@ -110,6 +117,7 @@ class SystemReportUtil
         $this->scopeConfig = $scopeConfig;
         $this->paymentConfig = $paymentConfig;
         $this->moduleManager = $moduleManager;
+        $this->versionUtil = $versionUtil;
     }
 
     /**
@@ -123,6 +131,9 @@ class SystemReportUtil
             'magento_info' => [
                 'magento_version' => $this->getMagentoVersion(),
                 'magento_mode' => $this->getMagentoMode(),
+            ],
+            'plugin_info' => [
+                'plugin_version' => $this->versionUtil->getPluginVersion()
             ],
             'server_info' => [
                 'root_path' => $this->getRootServerPath(),
