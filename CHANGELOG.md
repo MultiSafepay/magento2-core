@@ -12,15 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added automatic cancellation MultiSafepay pretratransaction for non-paid canceled orders.
 - Added plugin version to the system report log
+- Added possibility to skip automatic invoice creation after MultiSafepay payment.
 
 ### Fixed
 - Fixed a bug where manual invoices for backend created orders did not go to processing state.
 - Fixed a bug where filling in certain wrong values for the Date of birth field for AfterPay and in3 caused an error
 - Fixed a bug where "Unable to unserialize value" errors were logged for every product.
 - Fixed a bug where the shipping description in the transaction would cause an error if it was null (thanks to @florisschreuder)
-
-### Added
-- Added possibility to skip automatic invoice creation after MultiSafepay payment.
 
 ## [2.8.2] - 2021-07-20
 ### Fixed
