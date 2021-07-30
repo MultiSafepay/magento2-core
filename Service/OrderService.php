@@ -26,18 +26,20 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
+use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
 use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 use MultiSafepay\ConnectCore\Util\GiftcardUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use Psr\Http\Client\ClientExceptionInterface;
-use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
+use MultiSafepay\Exception\ApiException;
 
 class OrderService
 {
@@ -102,6 +104,11 @@ class OrderService
     private $addInvoicesDataToTransactionAndSendEmail;
 
     /**
+     * @var UpdateRequest
+     */
+    private $updateRequest;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -116,6 +123,7 @@ class OrderService
      * @param GiftcardUtil $giftcardUtil
      * @param PayMultisafepayOrder $payMultisafepayOrder
      * @param AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
+     * @param UpdateRequest $updateRequest
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
@@ -129,7 +137,8 @@ class OrderService
         JsonHandler $jsonHandler,
         GiftcardUtil $giftcardUtil,
         PayMultisafepayOrder $payMultisafepayOrder,
-        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
+        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail,
+        UpdateRequest $updateRequest
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -143,6 +152,7 @@ class OrderService
         $this->giftcardUtil = $giftcardUtil;
         $this->payMultisafepayOrder = $payMultisafepayOrder;
         $this->addInvoicesDataToTransactionAndSendEmail = $addInvoicesDataToTransactionAndSendEmail;
+        $this->updateRequest = $updateRequest;
     }
 
     /**
