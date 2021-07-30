@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.9.0] - 2021-07-30
 ### Added
-- Added automatic cancellation MultiSafepay pretratransaction for non-paid canceled orders.
+- Added automatic cancellation of MultiSafepay pretransaction for non-paid canceled orders.
 - Added plugin version to the system report log
 - Added possibility to skip automatic invoice creation after MultiSafepay payment.
 
