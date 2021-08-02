@@ -31,10 +31,12 @@ use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Vault;
+use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
 use MultiSafepay\ConnectCore\Service\OrderService;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use ReflectionException;
 use ReflectionObject;
+use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 
 class OrderServiceTest extends AbstractTestCase
 {
@@ -64,16 +66,36 @@ class OrderServiceTest extends AbstractTestCase
     private $reflector;
 
     /**
+     * @var AddInvoicesDataToTransactionAndSendEmail
+     */
+    private $addInvoicesDataToTransactionAndSendEmail;
+
+    /**
+     * @var ReflectionObject
+     */
+    private $addInvoicesDataToTransactionAndSendEmailReflector;
+
+    /**
+     * @var PayMultisafepayOrder
+     */
+    private $payMultisafepayOrder;
+
+    /**
      * @throws LocalizedException
      */
     protected function setUp(): void
     {
         $this->getObjectManager()->get(State::class)->setAreaCode(Area::AREA_FRONTEND);
         $this->orderService = $this->getObjectManager()->create(OrderService::class);
+        $this->payMultisafepayOrder = $this->getObjectManager()->create(PayMultisafepayOrder::class);
+        $this->addInvoicesDataToTransactionAndSendEmail
+            = $this->getObjectManager()->create(AddInvoicesDataToTransactionAndSendEmail::class);
         $this->vault = $this->getObjectManager()->create(Vault::class);
         $this->secondChance = $this->getObjectManager()->create(SecondChance::class);
         $this->statusResolver = $this->getObjectManager()->create(StatusResolver::class);
         $this->reflector = new ReflectionObject($this->orderService);
+        $this->addInvoicesDataToTransactionAndSendEmailReflector
+            = new ReflectionObject($this->addInvoicesDataToTransactionAndSendEmail);
     }
 
     /**
@@ -143,17 +165,18 @@ class OrderServiceTest extends AbstractTestCase
         $fakeTransactionId = '12312312312';
         $transaction = new TransactionResponse();
         $transaction->addData(['transaction_id' => $fakeTransactionId]);
-
-        $payOrderMethod = $this->reflector->getMethod('payOrder');
-        $payOrderMethod->setAccessible(true);
-        $payOrderMethod->invoke($this->orderService, $order, $payment, $transaction->getData());
+        $this->payMultisafepayOrder->execute($order, $payment, $transaction->getData());
 
         self::assertEquals($fakeTransactionId, $payment->getLastTransId());
         self::assertTrue($payment->getIsTransactionApproved());
 
-        $getInvoicesByOrderIdMethod = $this->reflector->getMethod('getInvoicesByOrderId');
+        $getInvoicesByOrderIdMethod =
+            $this->addInvoicesDataToTransactionAndSendEmailReflector->getMethod('getInvoicesByOrderId');
         $getInvoicesByOrderIdMethod->setAccessible(true);
-        $invoices = $getInvoicesByOrderIdMethod->invoke($this->orderService, $order->getId());
+        $invoices = $getInvoicesByOrderIdMethod->invoke(
+            $this->addInvoicesDataToTransactionAndSendEmail,
+            $order->getId()
+        );
         $invoice = reset($invoices);
 
         self::assertEquals($fakeTransactionId, $invoice->getTransactionId());

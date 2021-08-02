@@ -19,6 +19,12 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
+/**
+ * Class GenericGatewayConfigProvider
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
+ */
 class GenericGatewayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_genericgateway';

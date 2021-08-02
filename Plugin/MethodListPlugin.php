@@ -53,6 +53,8 @@ class MethodListPlugin
      * @param Config $config
      * @param CustomerGroupValidator $customerGroupValidator
      * @param ShippingValidator $shippingValidator
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __construct(
         AmountValidator $amountValidator,

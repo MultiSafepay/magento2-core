@@ -21,6 +21,12 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 
+/**
+ * Class GenericGiftcardConfigProvider
+ *
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
+ */
 class GenericGiftcardConfigProvider extends GenericConfigProvider
 {
     /**

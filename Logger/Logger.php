@@ -24,10 +24,35 @@ use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Exception\InvalidArgumentException;
 use Psr\Http\Client\ClientExceptionInterface;
+use MultiSafepay\ConnectCore\Util\JsonHandler\Proxy as JsonHandlerProxy;
 
 class Logger extends CoreLogger
 {
     public const LOGGER_INFO_TYPE = 'info';
+
+    /**
+     * @var JsonHandlerProxy
+     */
+    private $jsonHandler;
+
+    /**
+     * Logger constructor.
+     *
+     * @param $name
+     * @param JsonHandlerProxy $jsonHandler
+     * @param array $handlers
+     * @param array $processors
+     */
+    public function __construct(
+        $name,
+        JsonHandlerProxy $jsonHandler,
+        array $handlers = [],
+        array $processors = []
+    ) {
+        $this->jsonHandler = $jsonHandler;
+
+        parent::__construct($name, $handlers, $processors);
+    }
 
     /**
      * @param string $orderId
@@ -79,6 +104,25 @@ class Logger extends CoreLogger
                 $orderId,
                 $message
             )
+        );
+    }
+
+    /**
+     * @param string $orderId
+     * @param array $transactionData
+     */
+    public function logTransactionData(string $orderId, array $transactionData): void
+    {
+        $transactionLog = $transactionData;
+        unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
+
+        $this->logInfoForOrder(
+            $orderId,
+            __(
+                'Transaction data was retrieved: %1',
+                $this->jsonHandler->convertToPrettyJSON($transactionLog)
+            )->render(),
+            Logger::DEBUG
         );
     }
 
