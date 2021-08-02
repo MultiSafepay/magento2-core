@@ -64,10 +64,8 @@ class PaymentService
             return;
         }
 
-        $transactionId = $order->getPayment()->getEntityId();
-
         try {
-            $orderPayment = $this->orderPaymentRepository->get($transactionId);
+            $orderPayment = $this->orderPaymentRepository->get($order->getPayment()->getEntityId());
             $additionalInformation = $orderPayment->getAdditionalInformation();
 
             foreach (self::ADDITIONAL_INFO_KEYS as $additionalInfoKey) {
