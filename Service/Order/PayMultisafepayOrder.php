@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
@@ -92,6 +93,7 @@ class PayMultisafepayOrder
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param array $transaction
+     * @throws LocalizedException
      */
     public function execute(
         OrderInterface $order,

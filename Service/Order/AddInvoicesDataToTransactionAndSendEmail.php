@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\MailException;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -85,6 +86,7 @@ class AddInvoicesDataToTransactionAndSendEmail
      * @param OrderPaymentInterface $payment
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
+     * @throws Exception
      */
     public function execute(
         OrderInterface $order,
