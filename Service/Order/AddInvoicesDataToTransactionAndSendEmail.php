@@ -31,6 +31,9 @@ use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class AddInvoicesDataToTransactionAndSendEmail
 {
     /**
