@@ -46,7 +46,10 @@ use ReflectionException;
 use ReflectionObject;
 
 /**
- * Class AbstractTestCase to serve as parent for other tests
+ * Class AbstractTestCase
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 abstract class AbstractTestCase extends TestCase
 {

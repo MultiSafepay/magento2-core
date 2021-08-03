@@ -32,6 +32,9 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class EmailSender
 {
     public const AFTER_TRANSACTION_EMAIL_TYPE = 'after_transaction';
