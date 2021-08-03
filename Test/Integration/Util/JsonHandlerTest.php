@@ -65,6 +65,8 @@ class JsonHandlerTest extends AbstractTestCase
      * @param string $testJson
      * @param array $testArray
      * @param string $testPrettyJson
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function testConvertToPrettyJson(string $testJson, array $testArray, string $testPrettyJson): void
     {

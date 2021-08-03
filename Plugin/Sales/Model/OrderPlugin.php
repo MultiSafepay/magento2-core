@@ -17,10 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Plugin\Sales\Model;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Service\OrderService;
+use MultiSafepay\ConnectCore\Service\Order\CancelMultisafepayOrderPretransaction;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
-use Magento\Sales\Api\Data\OrderInterface;
 
 class OrderPlugin
 {
@@ -35,17 +36,25 @@ class OrderPlugin
     private $orderService;
 
     /**
-     * OrderManagementPlugin constructor.
+     * @var CancelMultisafepayOrderPretransaction
+     */
+    private $cancelMultisafepayOrderPretransaction;
+
+    /**
+     * OrderPlugin constructor.
      *
      * @param PaymentMethodUtil $paymentMethodUtil
      * @param OrderService $orderService
+     * @param CancelMultisafepayOrderPretransaction $cancelMultisafepayOrderPretransaction
      */
     public function __construct(
         PaymentMethodUtil $paymentMethodUtil,
-        OrderService $orderService
+        OrderService $orderService,
+        CancelMultisafepayOrderPretransaction $cancelMultisafepayOrderPretransaction
     ) {
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->orderService = $orderService;
+        $this->cancelMultisafepayOrderPretransaction = $cancelMultisafepayOrderPretransaction;
     }
 
     /**
@@ -58,7 +67,7 @@ class OrderPlugin
             && $this->paymentMethodUtil->isMultisafepayOrder($subject)
             && $subject->getState() === Order::STATE_PENDING_PAYMENT
         ) {
-            $this->orderService->cancelMultisafepayOrderPretransaction($subject);
+            $this->cancelMultisafepayOrderPretransaction->execute($subject);
         }
 
         return [$subject];

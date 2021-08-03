@@ -35,6 +35,9 @@ use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidatorFactory;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class GenericAdapter extends Adapter
 {
     /**
@@ -109,6 +112,7 @@ class GenericAdapter extends Adapter
      * @param ValidatorPoolInterface|null $validatorPool
      * @param CommandManagerInterface|null $commandExecutor
      * @param LoggerInterface|null $logger
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ManagerInterface $eventManager,
