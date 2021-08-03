@@ -35,8 +35,6 @@ use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 /**
- * Class GatewaySpecificFieldsValidatorTest
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GatewaySpecificFieldsValidatorTest extends AbstractTestCase

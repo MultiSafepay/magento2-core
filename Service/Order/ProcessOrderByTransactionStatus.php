@@ -28,8 +28,6 @@ use MultiSafepay\ConnectCore\Service\EmailSender;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
- * Class ProcessOrderByTransactionStatus
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ProcessOrderByTransactionStatus

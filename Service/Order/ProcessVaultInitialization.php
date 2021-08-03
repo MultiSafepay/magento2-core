@@ -52,6 +52,7 @@ class ProcessVaultInitialization
      * @param OrderPaymentInterface $payment
      * @param array $paymentDetails
      * @param string $transactionType
+     * @return bool
      * @throws Exception
      */
     public function execute(
@@ -59,7 +60,7 @@ class ProcessVaultInitialization
         OrderPaymentInterface $payment,
         array $paymentDetails,
         string $transactionType
-    ): void {
+    ): bool {
         $this->logger->logInfoForOrder(
             $orderId,
             __('MultiSafepay initialize Vault process has been started')->render(),
@@ -83,5 +84,7 @@ class ProcessVaultInitialization
             __('MultiSafepay initialize Vault process has ended')->render(),
             Logger::DEBUG
         );
+
+        return $isVaultInitialized;
     }
 }

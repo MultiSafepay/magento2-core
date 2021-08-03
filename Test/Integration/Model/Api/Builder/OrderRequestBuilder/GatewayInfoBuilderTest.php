@@ -34,8 +34,6 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\Payment\AbstractTransactionTestCase;
 
 /**
- * Class GatewayInfoBuilderTest
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GatewayInfoBuilderTest extends AbstractTransactionTestCase

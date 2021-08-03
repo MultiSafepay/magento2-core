@@ -43,8 +43,6 @@ use MultiSafepay\ConnectCore\Util\VaultUtil;
 use \MultiSafepay\ConnectCore\Api\PaymentTokenInterface as MultiSafepayPaymentTokenInterface;
 
 /**
- * Class Vault
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Vault

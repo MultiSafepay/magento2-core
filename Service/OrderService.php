@@ -29,11 +29,10 @@ use MultiSafepay\ConnectCore\Service\Order\ProcessChangePaymentMethod;
 use MultiSafepay\ConnectCore\Service\Order\ProcessOrderByTransactionStatus;
 use MultiSafepay\ConnectCore\Service\Order\ProcessVaultInitialization;
 use MultiSafepay\ConnectCore\Util\GiftcardUtil;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
- * Class OrderService
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class OrderService
@@ -79,6 +78,11 @@ class OrderService
     private $processOrderByTransactionStatus;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -89,6 +93,7 @@ class OrderService
      * @param ProcessVaultInitialization $processVaultInitialization
      * @param ProcessChangePaymentMethod $processChangePaymentMethod
      * @param ProcessOrderByTransactionStatus $processOrderByTransactionStatus
+     * @param JsonHandler $jsonHandler
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -99,7 +104,8 @@ class OrderService
         GiftcardUtil $giftcardUtil,
         ProcessVaultInitialization $processVaultInitialization,
         ProcessChangePaymentMethod $processChangePaymentMethod,
-        ProcessOrderByTransactionStatus $processOrderByTransactionStatus
+        ProcessOrderByTransactionStatus $processOrderByTransactionStatus,
+        JsonHandler $jsonHandler
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -109,6 +115,7 @@ class OrderService
         $this->processVaultInitialization = $processVaultInitialization;
         $this->processChangePaymentMethod = $processChangePaymentMethod;
         $this->processOrderByTransactionStatus = $processOrderByTransactionStatus;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -144,7 +151,18 @@ class OrderService
             );
         }
 
-        $this->logger->logTransactionData($orderId, $transaction);
+        $transactionLog = $transaction;
+        unset($transactionLog['payment_details'], $transactionLog['payment_methods']);
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            __(
+                'Transaction data was retrieved: %1',
+                $this->jsonHandler->convertToPrettyJSON($transactionLog)
+            )->render(),
+            Logger::DEBUG
+        );
+
         $transactionStatus = $transaction['status'] ?? '';
 
         if (in_array($transactionStatus, [

@@ -36,8 +36,6 @@ use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidatorFactory;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class GenericAdapter
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GenericAdapter extends Adapter

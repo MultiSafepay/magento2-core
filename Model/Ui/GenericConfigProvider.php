@@ -33,8 +33,6 @@ use MultiSafepay\Sdk;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
- * Class GenericConfigProvider
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
