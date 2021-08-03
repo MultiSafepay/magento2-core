@@ -33,8 +33,6 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 
 /**
- * Class EmailSender
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class EmailSender

@@ -17,11 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Exception;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Vault;
-use Exception;
 
 class ProcessVaultInitialization
 {

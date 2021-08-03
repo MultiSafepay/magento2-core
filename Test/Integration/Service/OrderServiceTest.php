@@ -38,6 +38,11 @@ use ReflectionException;
 use ReflectionObject;
 use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 
+/**
+ * Class OrderServiceTest
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderServiceTest extends AbstractTestCase
 {
     /**

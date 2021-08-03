@@ -23,9 +23,9 @@ use Magento\Sales\Model\Order;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 use Psr\Http\Client\ClientExceptionInterface;
-use MultiSafepay\ConnectCore\Model\SecondChance;
 
 /**
  * Class ProcessOrderByTransactionStatus
