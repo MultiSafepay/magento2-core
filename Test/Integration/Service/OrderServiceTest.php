@@ -27,22 +27,22 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Model\Ui\VaultConfigProvider;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\Api\Transactions\TransactionResponse;
-use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Vault;
-use MultiSafepay\ConnectCore\Service\OrderService;
+use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
+use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
+use MultiSafepay\ConnectCore\Service\Order\ProcessChangePaymentMethod;
+use MultiSafepay\ConnectCore\Service\Order\ProcessVaultInitialization;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use ReflectionException;
 use ReflectionObject;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderServiceTest extends AbstractTestCase
 {
-    /**
-     * @var OrderService
-     */
-    private $orderService;
-
     /**
      * @var Vault
      */
@@ -59,9 +59,34 @@ class OrderServiceTest extends AbstractTestCase
     private $statusResolver;
 
     /**
+     * @var AddInvoicesDataToTransactionAndSendEmail
+     */
+    private $addInvoicesDataToTransactionAndSendEmail;
+
+    /**
      * @var ReflectionObject
      */
-    private $reflector;
+    private $addInvoicesDataToTransactionAndSendEmailReflector;
+
+    /**
+     * @var PayMultisafepayOrder
+     */
+    private $payMultisafepayOrder;
+
+    /**
+     * @var ProcessVaultInitialization
+     */
+    private $processVaultInitialization;
+
+    /**
+     * @var ProcessChangePaymentMethod
+     */
+    private $processChangePaymentMethod;
+
+    /**
+     * @var ReflectionObject
+     */
+    private $processChangePaymentMethodReflector;
 
     /**
      * @throws LocalizedException
@@ -69,11 +94,18 @@ class OrderServiceTest extends AbstractTestCase
     protected function setUp(): void
     {
         $this->getObjectManager()->get(State::class)->setAreaCode(Area::AREA_FRONTEND);
-        $this->orderService = $this->getObjectManager()->create(OrderService::class);
+        $this->payMultisafepayOrder = $this->getObjectManager()->create(PayMultisafepayOrder::class);
+        $this->processVaultInitialization = $this->getObjectManager()->create(ProcessVaultInitialization::class);
+        $this->addInvoicesDataToTransactionAndSendEmail
+            = $this->getObjectManager()->create(AddInvoicesDataToTransactionAndSendEmail::class);
+        $this->processChangePaymentMethod = $this->getObjectManager()->create(ProcessChangePaymentMethod::class);
         $this->vault = $this->getObjectManager()->create(Vault::class);
         $this->secondChance = $this->getObjectManager()->create(SecondChance::class);
         $this->statusResolver = $this->getObjectManager()->create(StatusResolver::class);
-        $this->reflector = new ReflectionObject($this->orderService);
+        $this->addInvoicesDataToTransactionAndSendEmailReflector
+            = new ReflectionObject($this->addInvoicesDataToTransactionAndSendEmail);
+        $this->processChangePaymentMethodReflector
+            = new ReflectionObject($this->processChangePaymentMethod);
     }
 
     /**
@@ -90,12 +122,16 @@ class OrderServiceTest extends AbstractTestCase
         $payment->setAdditionalInformation(VaultConfigProvider::IS_ACTIVE_CODE, true);
         $gatewayToken = '12312312312';
 
-        $isVaultInitialized = $this->vault->initialize($order->getPayment(), [
-            RecurringDetailsInterface::RECURRING_ID => $gatewayToken,
-            RecurringDetailsInterface::TYPE => TransactionStatus::COMPLETED,
-            RecurringDetailsInterface::EXPIRATION_DATE => '2512',
-            RecurringDetailsInterface::CARD_LAST4 => '1111',
-        ]);
+        $isVaultInitialized = $this->processVaultInitialization->execute(
+            $order->getIncrementId(),
+            $payment,
+            [
+                'recurring_id' => $gatewayToken,
+                'card_expiry_date' => '2512',
+                'last4' => '1111',
+            ],
+            TransactionStatus::COMPLETED
+        );
 
         self::assertTrue($isVaultInitialized);
 
@@ -117,14 +153,21 @@ class OrderServiceTest extends AbstractTestCase
         $payment = $order->getPayment();
         $gatewayCode = $payment->getMethodInstance()->getConfigData('gateway_code');
         $transactionType = 'AFTERPAY';
-        $canChangePaymentMethod = $this->reflector->getMethod('canChangePaymentMethod');
+        $canChangePaymentMethod = $this->processChangePaymentMethodReflector->getMethod('canChangePaymentMethod');
         $canChangePaymentMethod->setAccessible(true);
 
-        self::assertTrue($canChangePaymentMethod->invoke($this->orderService, $transactionType, $gatewayCode, $order));
+        self::assertTrue(
+            $canChangePaymentMethod->invoke(
+                $this->processChangePaymentMethod,
+                $transactionType,
+                $gatewayCode,
+                $order
+            )
+        );
 
-        $changePaymentMethod = $this->reflector->getMethod('changePaymentMethod');
+        $changePaymentMethod = $this->processChangePaymentMethodReflector->getMethod('changePaymentMethod');
         $changePaymentMethod->setAccessible(true);
-        $changePaymentMethod->invoke($this->orderService, $order, $payment, $transactionType);
+        $changePaymentMethod->invoke($this->processChangePaymentMethod, $order, $payment, $transactionType);
 
         self::assertEquals(AfterpayConfigProvider::CODE, $payment->getMethod());
     }
@@ -143,17 +186,18 @@ class OrderServiceTest extends AbstractTestCase
         $fakeTransactionId = '12312312312';
         $transaction = new TransactionResponse();
         $transaction->addData(['transaction_id' => $fakeTransactionId]);
-
-        $payOrderMethod = $this->reflector->getMethod('payOrder');
-        $payOrderMethod->setAccessible(true);
-        $payOrderMethod->invoke($this->orderService, $order, $payment, $transaction->getData());
+        $this->payMultisafepayOrder->execute($order, $payment, $transaction->getData());
 
         self::assertEquals($fakeTransactionId, $payment->getLastTransId());
         self::assertTrue($payment->getIsTransactionApproved());
 
-        $getInvoicesByOrderIdMethod = $this->reflector->getMethod('getInvoicesByOrderId');
+        $getInvoicesByOrderIdMethod =
+            $this->addInvoicesDataToTransactionAndSendEmailReflector->getMethod('getInvoicesByOrderId');
         $getInvoicesByOrderIdMethod->setAccessible(true);
-        $invoices = $getInvoicesByOrderIdMethod->invoke($this->orderService, $order->getId());
+        $invoices = $getInvoicesByOrderIdMethod->invoke(
+            $this->addInvoicesDataToTransactionAndSendEmail,
+            $order->getId()
+        );
         $invoice = reset($invoices);
 
         self::assertEquals($fakeTransactionId, $invoice->getTransactionId());

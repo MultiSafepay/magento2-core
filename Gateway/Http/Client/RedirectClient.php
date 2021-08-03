@@ -27,6 +27,8 @@ class RedirectClient implements ClientInterface
      *
      * @param TransferInterface $transferObject
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function placeRequest(TransferInterface $transferObject)
     {

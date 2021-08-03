@@ -36,7 +36,7 @@ class ConfigTest extends AbstractTestCase
      */
     public function testGetModeIsEnabled()
     {
-        $this->assertEquals(true, $this->getConfig()->getMode());
+        $this->assertEquals(true, $this->getConfig()->isLiveMode());
     }
 
     /**
@@ -44,7 +44,7 @@ class ConfigTest extends AbstractTestCase
      */
     public function testGetModeIsDisabled()
     {
-        $this->assertEquals(false, $this->getConfig()->getMode());
+        $this->assertEquals(false, $this->getConfig()->isLiveMode());
     }
 
     /**

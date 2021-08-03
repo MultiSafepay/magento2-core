@@ -104,7 +104,7 @@ class Config
      * @param null $storeId
      * @return bool
      */
-    public function getMode($storeId = null): bool
+    public function isLiveMode($storeId = null): bool
     {
         return ((int)$this->getValue(self::API_MODE, $storeId) === 1);
     }
@@ -115,9 +115,10 @@ class Config
      */
     public function getApiKey($storeId = null): string
     {
-        if (!$this->getMode($storeId)) {
+        if (!$this->isLiveMode($storeId)) {
             return (string)$this->getValue(self::TEST_API_KEY, $storeId);
         }
+
         return (string)$this->getValue(self::LIVE_API_KEY, $storeId);
     }
 
