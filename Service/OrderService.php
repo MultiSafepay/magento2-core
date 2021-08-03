@@ -473,8 +473,7 @@ class OrderService
             $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
-            $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
+            $this->logger->logInfoForOrder($orderId, 'Order payment was updated', Logger::DEBUG);
             $paymentTransaction = $payment->addTransaction(
                 PaymentTransaction::TYPE_CAPTURE,
                 null,
@@ -503,7 +502,6 @@ class OrderService
             $status = $this->orderStatusUtil->getProcessingStatus($order);
             $order->setState(Order::STATE_PROCESSING);
             $order->setStatus($status);
-            $this->orderRepository->save($order);
             $this->logger->logInfoForOrder(
                 $orderId,
                 'Order status has been changed to: ' . $status,
