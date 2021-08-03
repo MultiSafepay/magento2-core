@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Plugin;
 
 use Magento\Payment\Gateway\Config\Config;
+use Magento\Payment\Model\MethodInterface;
 use Magento\Payment\Model\MethodList;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\AmountValidator;
@@ -72,13 +73,15 @@ class MethodListPlugin
      * @param MethodList $subject
      * @param $availableMethods
      * @param CartInterface|null $quote
-     * @return mixed
+     * @return MethodInterface[]
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetAvailableMethods(
         MethodList $subject,
         $availableMethods,
         CartInterface $quote
-    ) {
+    ): array {
         $availableValidators = [$this->shippingValidator, $this->customerGroupValidator, $this->amountValidator];
 
         foreach ($availableMethods as $key => $method) {
