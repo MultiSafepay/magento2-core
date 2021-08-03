@@ -102,6 +102,8 @@ class ThirdPartyPluginsUtil
      * @param $subject
      * @param CartInterface $quote
      * @param array $resultData
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function getMageprinceQuoteTotal($subject, CartInterface $quote, array &$resultData): void
     {
@@ -125,6 +127,8 @@ class ThirdPartyPluginsUtil
      * @param $subject
      * @param CartInterface $quote
      * @param array $resultData
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function getFoomanTotals($subject, CartInterface $quote, array &$resultData): void
     {

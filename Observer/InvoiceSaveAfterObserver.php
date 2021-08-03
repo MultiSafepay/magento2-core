@@ -22,10 +22,10 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
-use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use Psr\Http\Client\ClientExceptionInterface;
 use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
+use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 
 class InvoiceSaveAfterObserver implements ObserverInterface
 {

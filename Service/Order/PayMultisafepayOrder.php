@@ -17,17 +17,17 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
-use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
-use Magento\Sales\Api\OrderRepositoryInterface;
 
 class PayMultisafepayOrder
 {
@@ -42,11 +42,6 @@ class PayMultisafepayOrder
      * @var TransactionRepositoryInterface
      */
     private $transactionRepository;
-
-    /**
-     * @var CaptureUtil
-     */
-    private $captureUtil;
 
     /**
      * @var Logger
@@ -64,11 +59,15 @@ class PayMultisafepayOrder
     private $orderRepository;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * PayMultisafepayOrder constructor.
      *
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
      * @param TransactionRepositoryInterface $transactionRepository
-     * @param CaptureUtil $captureUtil
      * @param Config $config
      * @param Logger $logger
      * @param OrderStatusUtil $orderStatusUtil
@@ -77,7 +76,6 @@ class PayMultisafepayOrder
     public function __construct(
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         TransactionRepositoryInterface $transactionRepository,
-        CaptureUtil $captureUtil,
         Config $config,
         Logger $logger,
         OrderStatusUtil $orderStatusUtil,
@@ -85,7 +83,6 @@ class PayMultisafepayOrder
     ) {
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->transactionRepository = $transactionRepository;
-        $this->captureUtil = $captureUtil;
         $this->config = $config;
         $this->logger = $logger;
         $this->orderStatusUtil = $orderStatusUtil;
@@ -96,6 +93,7 @@ class PayMultisafepayOrder
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param array $transaction
+     * @throws LocalizedException
      */
     public function execute(
         OrderInterface $order,
@@ -103,51 +101,46 @@ class PayMultisafepayOrder
         array $transaction
     ): void {
         if ($order->canInvoice()) {
-            $invoiceAmount = $order->getBaseTotalDue();
+            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
+            $captureAmount = $order->getBaseTotalDue();
             $orderId = $order->getIncrementId();
+            $payment->setTransactionId($transaction['transaction_id'] ?? '')
+                ->setAdditionalInformation(
+                    [
+                        PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
+                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
+                    ]
+                )->setShouldCloseParentTransaction(false)
+                ->setIsTransactionClosed(0)
+                ->setIsTransactionPending(false);
 
-            if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
-                $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
-                $payment->setTransactionId($transaction['transaction_id'] ?? '')
-                    ->setAdditionalInformation(
-                        [
-                            PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                            self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
-                        ]
-                    )->setShouldCloseParentTransaction(false)
-                    ->setIsTransactionClosed(0)
-                    ->setIsTransactionPending(false);
+            $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
+            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
+            $payment->setIsTransactionApproved(true);
+            $this->orderPaymentRepository->save($payment);
+            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
+            $paymentTransaction = $payment->addTransaction(
+                PaymentTransaction::TYPE_CAPTURE,
+                null,
+                true
+            );
 
-                $this->createInvoice($isCreateOrderAutomatically, $payment, $invoiceAmount, $orderId);
+            if ($paymentTransaction !== null) {
+                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
+            }
 
-                $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
-                $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
-                $payment->setIsTransactionApproved(true);
-                $this->orderPaymentRepository->save($payment);
-                $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
-                $paymentTransaction = $payment->addTransaction(
-                    PaymentTransaction::TYPE_CAPTURE,
-                    null,
-                    true
+            $paymentTransaction->setIsClosed(1);
+            $this->transactionRepository->save($paymentTransaction);
+            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
+
+            if (!$isCreateOrderAutomatically) {
+                $order->addCommentToStatusHistory(
+                    __(
+                        'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                        $order->getBaseCurrency()->formatTxt($captureAmount),
+                        $paymentTransaction->getTxnId()
+                    )
                 );
-
-                if ($paymentTransaction !== null) {
-                    $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
-                }
-
-                $paymentTransaction->setIsClosed(1);
-                $this->transactionRepository->save($paymentTransaction);
-                $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
-
-                if (!$isCreateOrderAutomatically) {
-                    $order->addCommentToStatusHistory(
-                        __(
-                            'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
-                            $order->getBaseCurrency()->formatTxt($invoiceAmount),
-                            $paymentTransaction->getTxnId()
-                        )
-                    );
-                }
             }
 
             // Set order processing
@@ -156,7 +149,7 @@ class PayMultisafepayOrder
             $order->setStatus($status);
             $this->orderRepository->save($order);
             $this->logger->logInfoForOrder(
-                $order->getIncrementId(),
+                $orderId,
                 'Order status has been changed to: ' . $status,
                 Logger::DEBUG
             );

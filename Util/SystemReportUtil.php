@@ -95,6 +95,7 @@ class SystemReportUtil
      * @param Config $paymentConfig
      * @param Manager $moduleManager
      * @param VersionUtil $versionUtil
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         DirectoryList $directoryList,

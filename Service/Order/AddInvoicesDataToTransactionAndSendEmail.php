@@ -17,18 +17,23 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Exception;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\MailException;
+use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
 use MultiSafepay\Api\TransactionManager;
-use MultiSafepay\ConnectCore\Logger\Logger;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use MultiSafepay\Exception\ApiException;
-use MultiSafepay\ConnectCore\Service\InvoiceService;
-use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\Api\Transactions\UpdateRequest;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Service\EmailSender;
+use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class AddInvoicesDataToTransactionAndSendEmail
 {
     /**
@@ -37,33 +42,46 @@ class AddInvoicesDataToTransactionAndSendEmail
     private $logger;
 
     /**
-     * @var OrderRepositoryInterface
-     */
-    private $invoiceService;
-
-    /**
      * @var EmailSender
      */
     private $emailSender;
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
+     * @var UpdateRequest
+     */
+    private $updateRequest;
+
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    /**
      * AddInvoicesDataToTransactionAndSendEmail constructor.
      *
-     * @param InvoiceService $invoiceService
      * @param EmailSender $emailSender
      * @param UpdateRequest $updateRequest
      * @param Logger $logger
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param InvoiceRepositoryInterface $invoiceRepository
      */
     public function __construct(
-        InvoiceService $invoiceService,
         EmailSender $emailSender,
         UpdateRequest $updateRequest,
-        Logger $logger
+        Logger $logger,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        InvoiceRepositoryInterface $invoiceRepository
     ) {
-        $this->invoiceService = $invoiceService;
         $this->emailSender = $emailSender;
         $this->updateRequest = $updateRequest;
         $this->logger = $logger;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->invoiceRepository = $invoiceRepository;
     }
 
     /**
@@ -71,6 +89,7 @@ class AddInvoicesDataToTransactionAndSendEmail
      * @param OrderPaymentInterface $payment
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
+     * @throws Exception
      */
     public function execute(
         OrderInterface $order,
@@ -79,7 +98,7 @@ class AddInvoicesDataToTransactionAndSendEmail
     ): void {
         $orderId = $order->getIncrementId();
 
-        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
+        foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
 
             try {
@@ -104,5 +123,16 @@ class AddInvoicesDataToTransactionAndSendEmail
                 $this->logger->logUpdateRequestApiException($orderId, $e);
             }
         }
+    }
+
+    /**
+     * @param string $orderId
+     * @return InvoiceInterface[]
+     */
+    private function getInvoicesByOrderId(string $orderId): array
+    {
+        $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
+
+        return $this->invoiceRepository->getList($searchCriteria)->getItems();
     }
 }

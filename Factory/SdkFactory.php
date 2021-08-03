@@ -75,14 +75,14 @@ class SdkFactory
     }
 
     /**
-     * @param int $storeId
+     * @param int|null $storeId
      * @return Sdk
      */
     private function get(int $storeId = null): Sdk
     {
         return new Sdk(
             $this->config->getApiKey($storeId),
-            $this->config->getMode($storeId),
+            $this->config->isLiveMode($storeId),
             $this->psrClient,
             $this->requestFactory,
             $this->streamFactory
