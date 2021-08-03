@@ -28,6 +28,7 @@ use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
 class PayMultisafepayOrder
 {
@@ -64,6 +65,11 @@ class PayMultisafepayOrder
     private $config;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
      * PayMultisafepayOrder constructor.
      *
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
@@ -72,6 +78,7 @@ class PayMultisafepayOrder
      * @param Logger $logger
      * @param OrderStatusUtil $orderStatusUtil
      * @param OrderRepositoryInterface $orderRepository
+     * @param CaptureUtil $captureUtil
      */
     public function __construct(
         OrderPaymentRepositoryInterface $orderPaymentRepository,
@@ -79,7 +86,8 @@ class PayMultisafepayOrder
         Config $config,
         Logger $logger,
         OrderStatusUtil $orderStatusUtil,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        CaptureUtil $captureUtil
     ) {
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->transactionRepository = $transactionRepository;
@@ -87,6 +95,7 @@ class PayMultisafepayOrder
         $this->logger = $logger;
         $this->orderStatusUtil = $orderStatusUtil;
         $this->orderRepository = $orderRepository;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -101,46 +110,51 @@ class PayMultisafepayOrder
         array $transaction
     ): void {
         if ($order->canInvoice()) {
-            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
-            $captureAmount = $order->getBaseTotalDue();
+            $invoiceAmount = $order->getBaseTotalDue();
             $orderId = $order->getIncrementId();
-            $payment->setTransactionId($transaction['transaction_id'] ?? '')
-                ->setAdditionalInformation(
-                    [
-                        PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
-                    ]
-                )->setShouldCloseParentTransaction(false)
-                ->setIsTransactionClosed(0)
-                ->setIsTransactionPending(false);
 
-            $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
-            $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
-            $payment->setIsTransactionApproved(true);
-            $this->orderPaymentRepository->save($payment);
-            $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
-            $paymentTransaction = $payment->addTransaction(
-                PaymentTransaction::TYPE_CAPTURE,
-                null,
-                true
-            );
+            if (!$this->captureUtil->isCaptureManualTransaction($transaction)) {
+                $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
+                $payment->setTransactionId($transaction['transaction_id'] ?? '')
+                    ->setAdditionalInformation(
+                        [
+                            PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
+                            self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
+                        ]
+                    )->setShouldCloseParentTransaction(false)
+                    ->setIsTransactionClosed(0)
+                    ->setIsTransactionPending(false);
 
-            if ($paymentTransaction !== null) {
-                $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
-            }
+                $this->createInvoice($isCreateOrderAutomatically, $payment, $invoiceAmount, $orderId);
 
-            $paymentTransaction->setIsClosed(1);
-            $this->transactionRepository->save($paymentTransaction);
-            $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
-
-            if (!$isCreateOrderAutomatically) {
-                $order->addCommentToStatusHistory(
-                    __(
-                        'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
-                        $order->getBaseCurrency()->formatTxt($captureAmount),
-                        $paymentTransaction->getTxnId()
-                    )
+                $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
+                $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
+                $payment->setIsTransactionApproved(true);
+                $this->orderPaymentRepository->save($payment);
+                $this->logger->logInfoForOrder($orderId, 'Payment saved', Logger::DEBUG);
+                $paymentTransaction = $payment->addTransaction(
+                    PaymentTransaction::TYPE_CAPTURE,
+                    null,
+                    true
                 );
+
+                if ($paymentTransaction !== null) {
+                    $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
+                }
+
+                $paymentTransaction->setIsClosed(1);
+                $this->transactionRepository->save($paymentTransaction);
+                $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
+
+                if (!$isCreateOrderAutomatically) {
+                    $order->addCommentToStatusHistory(
+                        __(
+                            'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                            $order->getBaseCurrency()->formatTxt($invoiceAmount),
+                            $paymentTransaction->getTxnId()
+                        )
+                    );
+                }
             }
 
             // Set order processing

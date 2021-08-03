@@ -28,6 +28,7 @@ use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
+use MultiSafepay\ConnectCore\Service\InvoiceService;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -62,6 +63,11 @@ class AddInvoicesDataToTransactionAndSendEmail
     private $invoiceRepository;
 
     /**
+     * @var InvoiceService
+     */
+    private $invoiceService;
+
+    /**
      * AddInvoicesDataToTransactionAndSendEmail constructor.
      *
      * @param EmailSender $emailSender
@@ -69,19 +75,22 @@ class AddInvoicesDataToTransactionAndSendEmail
      * @param Logger $logger
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param InvoiceService $invoiceService
      */
     public function __construct(
         EmailSender $emailSender,
         UpdateRequest $updateRequest,
         Logger $logger,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        InvoiceRepositoryInterface $invoiceRepository
+        InvoiceRepositoryInterface $invoiceRepository,
+        InvoiceService $invoiceService
     ) {
         $this->emailSender = $emailSender;
         $this->updateRequest = $updateRequest;
         $this->logger = $logger;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->invoiceRepository = $invoiceRepository;
+        $this->invoiceService = $invoiceService;
     }
 
     /**
@@ -98,7 +107,7 @@ class AddInvoicesDataToTransactionAndSendEmail
     ): void {
         $orderId = $order->getIncrementId();
 
-        foreach ($this->getInvoicesByOrderId($order->getId()) as $invoice) {
+        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
 
             try {
@@ -123,16 +132,5 @@ class AddInvoicesDataToTransactionAndSendEmail
                 $this->logger->logUpdateRequestApiException($orderId, $e);
             }
         }
-    }
-
-    /**
-     * @param string $orderId
-     * @return InvoiceInterface[]
-     */
-    private function getInvoicesByOrderId(string $orderId): array
-    {
-        $searchCriteria = $this->searchCriteriaBuilder->addFilter('order_id', $orderId)->create();
-
-        return $this->invoiceRepository->getList($searchCriteria)->getItems();
     }
 }
