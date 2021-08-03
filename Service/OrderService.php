@@ -502,6 +502,7 @@ class OrderService
             $status = $this->orderStatusUtil->getProcessingStatus($order);
             $order->setState(Order::STATE_PROCESSING);
             $order->setStatus($status);
+            $this->orderRepository->save($order);
             $this->logger->logInfoForOrder(
                 $orderId,
                 'Order status has been changed to: ' . $status,
