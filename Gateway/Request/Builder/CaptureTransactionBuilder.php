@@ -34,6 +34,9 @@ use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use Psr\Http\Client\ClientExceptionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class CaptureTransactionBuilder implements BuilderInterface
 {
     /**

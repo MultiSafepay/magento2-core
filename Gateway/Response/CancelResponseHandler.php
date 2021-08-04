@@ -40,6 +40,8 @@ class CancelResponseHandler implements HandlerInterface
     /**
      * @param array $handlingSubject
      * @param array|null $response
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function handle(array $handlingSubject, ?array $response): void
     {

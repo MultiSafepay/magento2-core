@@ -35,6 +35,9 @@ use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ValueObject\Money;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RefundTransactionBuilder implements BuilderInterface
 {
     /**

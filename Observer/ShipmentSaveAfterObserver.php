@@ -36,6 +36,9 @@ use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ShipmentSaveAfterObserver implements ObserverInterface
 {
     /**
