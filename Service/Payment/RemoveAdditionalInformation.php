@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace MultiSafepay\ConnectCore\Service;
+namespace MultiSafepay\ConnectCore\Service\Payment;
 
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -23,7 +23,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
-class PaymentService
+class RemoveAdditionalInformation
 {
     private const ADDITIONAL_INFO_KEYS = [
         'account_number',
@@ -58,28 +58,26 @@ class PaymentService
     /**
      * @param OrderInterface $order
      */
-    public function removeAdditionalInformation(OrderInterface $order): void
+    public function execute(OrderInterface $order): void
     {
-        if ($order->getPayment() === null) {
-            return;
-        }
-
-        try {
-            $orderPayment = $this->orderPaymentRepository->get($order->getPayment()->getEntityId());
-            $additionalInformation = $orderPayment->getAdditionalInformation();
-
-            foreach (self::ADDITIONAL_INFO_KEYS as $additionalInfoKey) {
-                if (isset($additionalInformation[$additionalInfoKey])) {
-                    unset($additionalInformation[$additionalInfoKey]);
-                }
+        if ($order->getPayment()) {
+            try {
+                $orderPayment = $this->orderPaymentRepository->get($order->getPayment()->getEntityId());
+                $orderPayment->setAdditionalInformation(
+                    array_filter(
+                        $orderPayment->getAdditionalInformation(),
+                        static function ($value) {
+                            return !in_array($value, self::ADDITIONAL_INFO_KEYS);
+                        },
+                        ARRAY_FILTER_USE_KEY
+                    )
+                );
+                $this->orderPaymentRepository->save($orderPayment);
+            } catch (InputException $inputException) {
+                $this->logger->logInfoForOrder($order->getRealOrderId(), $inputException->getMessage());
+            } catch (NoSuchEntityException $noSuchEntityException) {
+                $this->logger->logInfoForOrder($order->getRealOrderId(), $noSuchEntityException->getMessage());
             }
-
-            $orderPayment->setAdditionalInformation($additionalInformation);
-            $this->orderPaymentRepository->save($orderPayment);
-        } catch (InputException $inputException) {
-            $this->logger->logInfoForOrder($order->getRealOrderId(), $inputException->getMessage());
-        } catch (NoSuchEntityException $noSuchEntityException) {
-            $this->logger->logInfoForOrder($order->getRealOrderId(), $noSuchEntityException->getMessage());
         }
     }
 }
