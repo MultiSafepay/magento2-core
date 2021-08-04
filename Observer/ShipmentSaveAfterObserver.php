@@ -153,12 +153,12 @@ class ShipmentSaveAfterObserver implements ObserverInterface
                     }
 
                     if ($this->shipmentUtil->isOrderShippedPartially($order)) {
-                        if (!$order->getBaseTotalDue()) {
-                            /**
-                             * @todo update parent Transaction status to status completed for fully paid transaction
-                             */
-                            $this->completeParentTransactionStatus($order, $transactionManager);
-                        }
+                        /**
+                         * @todo update parent Transaction status to status completed for fully paid transaction
+                         */
+                        //if (!$order->getBaseTotalDue()) {
+                        //    //$this->completeParentTransactionStatus($order, $transactionManager);
+                        //}
 
                         return;
                     }
@@ -176,37 +176,33 @@ class ShipmentSaveAfterObserver implements ObserverInterface
         }
     }
 
-    /**
-     * @param OrderInterface $order
-     * @param TransactionManager $transactionManager
-     */
-    private function completeParentTransactionStatus(
-        OrderInterface $order,
-        TransactionManager $transactionManager
-    ): void {
-        //$orderId = $order->getIncrementId();
-        //$errorMessage = __('The order status could not be updated at MultiSafepay.');
-        //
-        //try {
-        //    $transactionManager->update(
-        //        $orderId,
-        //        $this->updateRequest->addData(["financial_status" => TransactionStatus::COMPLETED])
-        //    )->getResponseData();
-        //} catch (ApiException $apiException) {
-        //    $this->logger->logUpdateRequestApiException($orderId, $apiException);
-        //    $this->messageManager->addErrorMessage($errorMessage);
-        //
-        //    return;
-        //} catch (ClientExceptionInterface $clientException) {
-        //    $this->logger->logClientException($orderId, $clientException);
-        //    $this->messageManager->addErrorMessage($errorMessage);
-        //
-        //    return;
-        //}
-        //
-        //$msg = __('The parent order status has succesfully been updated at MultiSafepay');
-        //$this->messageManager->addSuccessMessage($msg);
-    }
+    //private function completeParentTransactionStatus(
+    //    OrderInterface $order,
+    //    TransactionManager $transactionManager
+    //): void {
+    //    //$orderId = $order->getIncrementId();
+    //    //$errorMessage = __('The order status could not be updated at MultiSafepay.');
+    //    //
+    //    //try {
+    //    //    $transactionManager->update(
+    //    //        $orderId,
+    //    //        $this->updateRequest->addData(["financial_status" => TransactionStatus::COMPLETED])
+    //    //    )->getResponseData();
+    //    //} catch (ApiException $apiException) {
+    //    //    $this->logger->logUpdateRequestApiException($orderId, $apiException);
+    //    //    $this->messageManager->addErrorMessage($errorMessage);
+    //    //
+    //    //    return;
+    //    //} catch (ClientExceptionInterface $clientException) {
+    //    //    $this->logger->logClientException($orderId, $clientException);
+    //    //    $this->messageManager->addErrorMessage($errorMessage);
+    //    //
+    //    //    return;
+    //    //}
+    //    //
+    //    //$msg = __('The parent order status has succesfully been updated at MultiSafepay');
+    //    //$this->messageManager->addSuccessMessage($msg);
+    //}
 
     /**
      * @param ShipmentInterface $shipment

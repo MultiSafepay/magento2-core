@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Service;
 use Exception;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DB\TransactionFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -29,10 +30,11 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class InvoiceService
 {
     /**
@@ -148,7 +150,7 @@ class InvoiceService
         array $invoiceData
     ): InvoiceInterface {
         if (!$payment->canCapture() || !$payment->canCapturePartial()) {
-            throw new Exception("Invoice can't be captured");
+            throw new LocalizedException(__("Invoice can't be captured"));
         }
 
         /** @var InvoiceInterface $invoice */
