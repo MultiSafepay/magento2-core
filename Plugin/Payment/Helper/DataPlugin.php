@@ -44,6 +44,8 @@ class DataPlugin
      * @param callable $proceed
      * @param string $code
      * @return MethodInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundGetMethodInstance(Data $subject, callable $proceed, string $code): MethodInterface
     {
@@ -61,6 +63,8 @@ class DataPlugin
      * @param Data $subject
      * @param array $result
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetPaymentMethods(Data $subject, array $result): array
     {

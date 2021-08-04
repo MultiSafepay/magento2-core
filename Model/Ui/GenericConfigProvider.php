@@ -32,6 +32,11 @@ use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Sdk;
 use Psr\Http\Client\ClientExceptionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
+ */
 class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';

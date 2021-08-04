@@ -42,6 +42,8 @@ class EnabledPlugin
      * @param Enabled $subject
      * @param string $paymentMethod
      * @return string[]
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeIsSatisfiedBy(Enabled $subject, string $paymentMethod): array
     {

@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Changed the resolution of payment icons to be more in line with Magento core payment icons
+
+### Fixed
+- Fixed PHP Mess detector issues.
+
+### Changed
+- Code refactored for order service methods.
 
 ## [2.9.0] - 2021-07-30
 ### Added

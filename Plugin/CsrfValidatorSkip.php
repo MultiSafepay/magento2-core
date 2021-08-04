@@ -32,6 +32,8 @@ class CsrfValidatorSkip
      * @param Closure $proceed
      * @param RequestInterface $request
      * @param ActionInterface $action
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function aroundValidate(
         CsrfValidator $subject,
