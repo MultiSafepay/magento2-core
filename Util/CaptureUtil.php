@@ -33,9 +33,12 @@ class CaptureUtil
 {
     public const AVAILABLE_MANUAL_CAPTURE_METHODS = [
         VisaConfigProvider::CODE,
+        VisaConfigProvider::VAULT_CODE,
         CreditCardConfigProvider::CODE,
+        CreditCardConfigProvider::VAULT_CODE,
         MastercardConfigProvider::CODE,
-        MaestroConfigProvider::CODE,
+        MastercardConfigProvider::VAULT_CODE,
+        MaestroConfigProvider::CODE
     ];
 
     public const AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS = ['VISA', 'MASTERCARD', 'MAESTRO'];
@@ -113,6 +116,10 @@ class CaptureUtil
             $cardBrand = $payment->getAdditionalInformation(CreditCardDataAssignObserver::CREDIT_CARD_BRAND_PARAM_NAME);
 
             return $cardBrand && in_array($cardBrand, self::AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS);
+        }
+
+        if ($payment->getMethod() === CreditCardConfigProvider::VAULT_CODE) {
+            return in_array($payment->getType(), self::AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS);
         }
 
         return true;

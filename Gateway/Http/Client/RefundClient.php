@@ -55,7 +55,7 @@ class RefundClient implements ClientInterface
 
         $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
 
-        $transaction = $transactionManager->get($request['order_id']);
+        $transaction = $transactionManager->get((string)$request['order_id']);
 
         return $transactionManager->refund($transaction, $request['payload'])->getResponseData();
     }

@@ -1366,6 +1366,7 @@
                 <item name="authorize" xsi:type="string">MultiSafepayVisaRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayVisaRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayVisaVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
             </argument>
         </arguments>
     </virtualType>
