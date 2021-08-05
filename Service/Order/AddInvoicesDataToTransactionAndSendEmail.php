@@ -18,17 +18,14 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Order;
 
 use Exception;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\MailException;
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\InvoiceRepositoryInterface;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
-use MultiSafepay\ConnectCore\Service\InvoiceService;
+use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -48,24 +45,14 @@ class AddInvoicesDataToTransactionAndSendEmail
     private $emailSender;
 
     /**
-     * @var SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
      * @var UpdateRequest
      */
     private $updateRequest;
 
     /**
-     * @var InvoiceRepositoryInterface
+     * @var InvoiceUtil
      */
-    private $invoiceRepository;
-
-    /**
-     * @var InvoiceService
-     */
-    private $invoiceService;
+    private $invoiceUtil;
 
     /**
      * AddInvoicesDataToTransactionAndSendEmail constructor.
@@ -73,24 +60,18 @@ class AddInvoicesDataToTransactionAndSendEmail
      * @param EmailSender $emailSender
      * @param UpdateRequest $updateRequest
      * @param Logger $logger
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param InvoiceRepositoryInterface $invoiceRepository
-     * @param InvoiceService $invoiceService
+     * @param InvoiceUtil $invoiceUtil
      */
     public function __construct(
         EmailSender $emailSender,
         UpdateRequest $updateRequest,
         Logger $logger,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        InvoiceRepositoryInterface $invoiceRepository,
-        InvoiceService $invoiceService
+        InvoiceUtil $invoiceUtil
     ) {
         $this->emailSender = $emailSender;
         $this->updateRequest = $updateRequest;
         $this->logger = $logger;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->invoiceRepository = $invoiceRepository;
-        $this->invoiceService = $invoiceService;
+        $this->invoiceUtil = $invoiceUtil;
     }
 
     /**
@@ -107,7 +88,7 @@ class AddInvoicesDataToTransactionAndSendEmail
     ): void {
         $orderId = $order->getIncrementId();
 
-        foreach ($this->invoiceService->getInvoicesByOrderId($order->getId()) as $invoice) {
+        foreach ($this->invoiceUtil->getInvoicesByOrderId($order->getId()) as $invoice) {
             $invoiceIncrementId = $invoice->getIncrementId();
 
             try {

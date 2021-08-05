@@ -17,15 +17,16 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver;
 
 class CaptureUtil
@@ -97,6 +98,7 @@ class CaptureUtil
     /**
      * @param OrderPaymentInterface $payment
      * @return bool
+     * @throws LocalizedException
      */
     public function isCaptureManualPayment(OrderPaymentInterface $payment): bool
     {

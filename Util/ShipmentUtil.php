@@ -56,7 +56,9 @@ class ShipmentUtil
      */
     public function isOrderShippedPartially(OrderInterface $order): bool
     {
-        return !($this->isOrderShipped($order) && (int)$order->getShipmentsCollection()->getSize() === 1);
+        return !($this->isOrderShipped($order)
+                 && $order->getShipmentsCollection()
+                 && (int)$order->getShipmentsCollection()->getSize() === 1);
     }
 
     /**

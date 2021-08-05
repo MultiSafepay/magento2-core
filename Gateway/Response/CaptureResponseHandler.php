@@ -27,9 +27,12 @@ class CaptureResponseHandler implements HandlerInterface
     public const MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME = "multisafepay_capture_data";
 
     /**
-     * @inheritDoc
+     * @param array $handlingSubject
+     * @param array $response
+     * @return $this
+     * @throws LocalizedException
      */
-    public function handle(array $handlingSubject, array $response)
+    public function handle(array $handlingSubject, array $response): CaptureResponseHandler
     {
         $paymentDataObject = SubjectReader::readPayment($handlingSubject);
         $amount = (float)SubjectReader::readAmount($handlingSubject);

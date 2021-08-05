@@ -21,8 +21,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
@@ -120,10 +120,10 @@ class RefundTransactionBuilder implements BuilderInterface
             );
         }
 
-        $payment = $paymentDataObject->getPayment();
         /** @var OrderInterface $order */
-        $order = $payment->getOrder();
+        $order = $paymentDataObject->getPayment()->getOrder();
         $orderId = $order->getIncrementId();
+        $payment = $order->getPayment();
 
         if ($this->captureUtil->isCaptureManualPayment($payment)) {
             if (!$captureData = $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment)) {
@@ -162,10 +162,10 @@ class RefundTransactionBuilder implements BuilderInterface
 
     /**
      * @param string $transactionId
-     * @param InfoInterface $payment
+     * @param OrderPaymentInterface $payment
      * @return array|null
      */
-    private function getCaptureDataByTransactionId(string $transactionId, InfoInterface $payment): ?array
+    private function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
     {
         $captureData = $payment->getAdditionalInformation(
             CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME

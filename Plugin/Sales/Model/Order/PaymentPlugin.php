@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Plugin\Sales\Model\Order;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
@@ -51,6 +52,7 @@ class PaymentPlugin
      * @param Payment $subject
      * @param bool $result
      * @return bool
+     * @throws LocalizedException
      */
     public function afterCanVoid(Payment $subject, bool $result): bool
     {

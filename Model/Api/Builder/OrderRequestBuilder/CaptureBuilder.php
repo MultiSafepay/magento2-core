@@ -43,6 +43,8 @@ class CaptureBuilder implements OrderRequestBuilderInterface
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment, OrderRequest $orderRequest): void
     {
