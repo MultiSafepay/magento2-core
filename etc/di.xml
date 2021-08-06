@@ -1558,6 +1558,7 @@
                 <item name="authorize" xsi:type="string">MultiSafepayMastercardRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayMastercardVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
             </argument>
         </arguments>
     </virtualType>
