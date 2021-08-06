@@ -52,11 +52,10 @@ class RefundClient implements ClientInterface
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
-
+        $orderId = (string)$request['order_id'];
         $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
+        $transaction = $transactionManager->get($orderId);
 
-        $transaction = $transactionManager->get((string)$request['order_id']);
-
-        return $transactionManager->refund($transaction, $request['payload'])->getResponseData();
+        return $transactionManager->refund($transaction, $request['payload'], $orderId)->getResponseData();
     }
 }
