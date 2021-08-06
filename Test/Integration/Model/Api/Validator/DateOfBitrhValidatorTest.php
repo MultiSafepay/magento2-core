@@ -52,7 +52,7 @@ class DateOfBitrhValidatorTest extends AbstractTestCase
     public function dateOfBirthValidatorDataProvider(): array
     {
         return [
-            ['12-12-1990', true],
+            ['1990-12-12', true],
             ['12.12.1990', false],
             ['12/12/1990', false],
             ['12.31.1990', false],
