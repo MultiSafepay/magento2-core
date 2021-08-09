@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Code refactored for order service methods.
 - We are now removing sensitive data from the payment after the customer has been redirected.
 - Changed the resolution of payment icons to be more in line with Magento core payment icons
+- Added date picker field for Date of Birth checkout fields to further increase the consistency of input
 - Dropped support for Magento 2.2.x versions.
 
 ### Fixed

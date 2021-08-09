@@ -21,7 +21,7 @@ use DateTime;
 
 class DateOfBirthValidator
 {
-    public const DATE_FORMAT = 'd-m-Y';
+    public const DATE_FORMAT = 'Y-m-d';
 
     /**
      * @param string $dateOfBirth
