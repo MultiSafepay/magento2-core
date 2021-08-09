@@ -100,7 +100,7 @@ class GatewaySpecificFieldsValidatorTest extends AbstractTestCase
                 'class' => AfterpayValidator::class,
                 'payment_code' => AfterpayConfigProvider::CODE,
                 'fields' => [
-                    'date_of_birth' => '10-10-1990',
+                    'date_of_birth' => '1990-10-10',
                     'gender' => 'mr',
                     'phone_number' => '12314566',
                     'transaction_type' => TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
@@ -144,7 +144,7 @@ class GatewaySpecificFieldsValidatorTest extends AbstractTestCase
                 'class' => EinvoicingValidator::class,
                 'payment_code' => EinvoicingConfigProvider::CODE,
                 'fields' => [
-                    'date_of_birth' => '10-10-1990',
+                    'date_of_birth' => '1990-10-10',
                     'account_number' => 'NL87ABNA0000000004',
                     'transaction_type' => TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
                 ],
@@ -157,7 +157,7 @@ class GatewaySpecificFieldsValidatorTest extends AbstractTestCase
                 'class' => PayafterValidator::class,
                 'payment_code' => PayafterConfigProvider::CODE,
                 'fields' => [
-                    'date_of_birth' => '10-10-1990',
+                    'date_of_birth' => '1990-10-10',
                     'account_number' => 'NL87ABNA0000000004',
                     'transaction_type' => TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
                 ],
