@@ -274,6 +274,7 @@ abstract class AbstractTestCase extends TestCase
     /**
      * @return OrderInterface
      * @throws LocalizedException
+     * @throws Exception
      */
     protected function getOrderWithVisaPaymentMethod(): OrderInterface
     {
@@ -284,6 +285,7 @@ abstract class AbstractTestCase extends TestCase
         $payment->setAdditionalInformation('transaction_type', 'redirect');
         $payment->setOrder($order);
         $order->setPayment($payment);
+        $order->save();
 
         return $order;
     }
