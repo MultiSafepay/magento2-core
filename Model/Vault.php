@@ -175,7 +175,9 @@ class Vault
             $customerId
         );
 
-        $expirationDate = $this->formatExpirationDate($recurringDetails[RecurringDetailsInterface::EXPIRATION_DATE]);
+        $expirationDate = $this->formatExpirationDate(
+            (string)$recurringDetails[RecurringDetailsInterface::EXPIRATION_DATE]
+        );
 
         if ($paymentToken === null) {
             $paymentToken = $this->paymentTokenFactory->create(
