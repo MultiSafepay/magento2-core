@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed PHP Mess detector issues.
+- Fixed a bug where Vault cards would not be stored because of a type error.
 
 ## [2.9.0] - 2021-07-30
 ### Added
