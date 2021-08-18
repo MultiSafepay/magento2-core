@@ -197,11 +197,16 @@ class CaptureTransactionBuilder implements BuilderInterface
         }
 
         $shipment = $payment->getShipment();
+        $invoiceIncrementId = $invoice ? $invoice->getIncrementId() : "";
         $result = [
             "amount" => round($this->amountUtil->getAmount($amount, $order) * 100, 10),
-            "invoice_id" => $invoice ? $invoice->getIncrementId() : "",
+            "invoice_id" => $invoiceIncrementId,
             "new_order_status" => $shipment ? Transaction::SHIPPED : Transaction::COMPLETED,
         ];
+
+        if ($invoiceIncrementId) {
+            $result['new_order_id'] = $order->getIncrementId() . '_' . $invoiceIncrementId;
+        }
 
         return $shipment ? array_merge($result, $this->shipmentUtil->getShipmentApiRequestData($order, $shipment))
             : $result;
