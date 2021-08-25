@@ -17,12 +17,14 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Module\Manager;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote\Address\TotalFactory;
 use Magento\Quote\Model\Quote\ShippingAssignment\ShippingAssignmentProcessor;
+use Magento\Store\Model\ScopeInterface;
 
 class ThirdPartyPluginsUtil
 {
@@ -40,6 +42,10 @@ class ThirdPartyPluginsUtil
             'Fooman_Surcharge' => [
                 'class' => \Fooman\Surcharge\Model\Total\Quote\Surcharge::class,
                 'processor' => 'getFoomanTotals',
+            ],
+            'Magento_GiftWrapping' => [
+                'class' => \Magento\GiftWrapping\Model\Total\Quote\Giftwrapping::class,
+                'processor' => 'prepareMagentoGiftwrappingTotals',
             ],
         ],
     ];
@@ -60,20 +66,36 @@ class ThirdPartyPluginsUtil
     private $totalFactory;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
+     * @var TaxUtil
+     */
+    private $taxUtil;
+
+    /**'
      * ThirdPartyPluginsUtil constructor.
      *
      * @param Manager $moduleManager
      * @param ShippingAssignmentProcessor $shippingAssignmentProcessor
      * @param TotalFactory $totalFactory
+     * @param ScopeConfigInterface $scopeConfig
+     * @param TaxUtil $taxUtil
      */
     public function __construct(
         Manager $moduleManager,
         ShippingAssignmentProcessor $shippingAssignmentProcessor,
-        TotalFactory $totalFactory
+        TotalFactory $totalFactory,
+        ScopeConfigInterface $scopeConfig,
+        TaxUtil $taxUtil
     ) {
         $this->moduleManager = $moduleManager;
         $this->shippingAssignmentProcessor = $shippingAssignmentProcessor;
         $this->totalFactory = $totalFactory;
+        $this->scopeConfig = $scopeConfig;
+        $this->taxUtil = $taxUtil;
     }
 
     /**
@@ -148,6 +170,36 @@ class ThirdPartyPluginsUtil
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * @param $subject
+     * @param CartInterface $quote
+     * @param array $resultData
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     */
+    private function prepareMagentoGiftwrappingTotals($subject, CartInterface $quote, array &$resultData): void
+    {
+        if (($total = $quote->getTotals()['giftwrapping'] ?? null)
+            && ((float)$total->getGwItemsPrice() > 0 || (float)$total->getGwPrice() > 0)
+        ) {
+            $taxRate = $this->taxUtil->getTaxRateByTaxRateIdAndCart(
+                $quote,
+                $this->scopeConfig->getValue(
+                    \Magento\GiftWrapping\Helper\Data::XML_PATH_TAX_CLASS,
+                    ScopeInterface::SCOPE_STORES,
+                    $quote->getStoreId()
+                )
+            );
+
+            $total->setAmount($total->getGwItemsPrice() + $total->getGwPrice())
+                ->setBaseAmount($total->getGwItemsBasePrice() + $total->getGwBasePrice())
+                ->setTaxRate($taxRate)
+                ->setBaseTaxRate($taxRate);
+
+            $resultData[$total->getCode()] = $total;
         }
     }
 

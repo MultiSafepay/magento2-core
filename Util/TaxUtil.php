@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Util;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
@@ -66,20 +67,30 @@ class TaxUtil
      */
     public function getShippingTaxRate(OrderInterface $order): float
     {
-        $store = $order->getStore();
         $quote = $this->quoteRepository->get($order->getQuoteId());
 
-        $request = $this->calculation->getRateRequest(
-            $order->getShippingAddress(),
-            $order->getBillingAddress(),
-            $quote->getCustomerTaxClassId(),
-            $store
+        return $this->getTaxRateByTaxRateIdAndCart(
+            $quote,
+            $this->scopeConfig->getValue(
+                TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+                ScopeInterface::SCOPE_STORES,
+                $quote->getStoreId()
+            )
         );
+    }
 
-        $taxRateId = $this->scopeConfig->getValue(
-            TaxConfig::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-            ScopeInterface::SCOPE_STORES,
-            $order->getStoreId()
+    /**
+     * @param CartInterface $cart
+     * @param $taxRateId
+     * @return float
+     */
+    public function getTaxRateByTaxRateIdAndCart(CartInterface $cart, $taxRateId): float
+    {
+        $request = $this->calculation->getRateRequest(
+            $cart->getShippingAddress(),
+            $cart->getBillingAddress(),
+            $cart->getCustomerTaxClassId(),
+            $cart->getStore()
         );
 
         return $this->calculation->getRate($request->setProductClassId($taxRateId));
