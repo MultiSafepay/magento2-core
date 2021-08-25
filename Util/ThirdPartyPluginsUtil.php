@@ -179,6 +179,7 @@ class ThirdPartyPluginsUtil
      * @param array $resultData
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function prepareMagentoGiftwrappingTotals($subject, CartInterface $quote, array &$resultData): void
     {
