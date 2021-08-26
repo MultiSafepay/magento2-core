@@ -153,14 +153,14 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
     private function getTaxRate($total, int $storeId): float
     {
         if (!empty((float)$total->getValue())) {
-            return round($total->getTaxAmount() / $total->getValue() * 100);
+            return $total->getTaxRate() ?? round($total->getTaxAmount() / $total->getValue() * 100);
         }
 
         if ($this->config->useBaseCurrency($storeId)) {
-            return round($total->getBaseTaxAmount() / $total->getBaseAmount() * 100);
+            return $total->getBaseTaxRate() ?? round($total->getBaseTaxAmount() / $total->getBaseAmount() * 100);
         }
 
-        return round($total->getTaxAmount() / $total->getAmount() * 100);
+        return $total->getBaseTaxRate() ?? round($total->getTaxAmount() / $total->getAmount() * 100);
     }
 
     /**
