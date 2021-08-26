@@ -24,6 +24,7 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTy
 
 class CreditCardDataAssignObserver extends AbstractDataAssignObserver
 {
+    public const CREDIT_CARD_BRAND_PARAM_NAME = 'card_brand';
 
     /**
      * @inheritDoc
@@ -41,6 +42,13 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
             );
 
             return;
+        }
+
+        if (!empty($additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME])) {
+            $payment->setAdditionalInformation(
+                self::CREDIT_CARD_BRAND_PARAM_NAME,
+                $additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME]
+            );
         }
 
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);

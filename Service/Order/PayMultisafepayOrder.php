@@ -27,6 +27,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 
 class PayMultisafepayOrder
@@ -64,6 +65,11 @@ class PayMultisafepayOrder
     private $config;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
      * PayMultisafepayOrder constructor.
      *
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
@@ -72,6 +78,7 @@ class PayMultisafepayOrder
      * @param Logger $logger
      * @param OrderStatusUtil $orderStatusUtil
      * @param OrderRepositoryInterface $orderRepository
+     * @param CaptureUtil $captureUtil
      */
     public function __construct(
         OrderPaymentRepositoryInterface $orderPaymentRepository,
@@ -79,7 +86,8 @@ class PayMultisafepayOrder
         Config $config,
         Logger $logger,
         OrderStatusUtil $orderStatusUtil,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        CaptureUtil $captureUtil
     ) {
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->transactionRepository = $transactionRepository;
@@ -87,6 +95,7 @@ class PayMultisafepayOrder
         $this->logger = $logger;
         $this->orderStatusUtil = $orderStatusUtil;
         $this->orderRepository = $orderRepository;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -101,9 +110,11 @@ class PayMultisafepayOrder
         array $transaction
     ): void {
         if ($order->canInvoice()) {
-            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
-            $captureAmount = $order->getBaseTotalDue();
+            $invoiceAmount = $order->getBaseTotalDue();
             $orderId = $order->getIncrementId();
+            $isManualCaptureTransaction = $this->captureUtil->isCaptureManualTransaction($transaction);
+
+            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
             $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
                     [
@@ -114,12 +125,16 @@ class PayMultisafepayOrder
                 ->setIsTransactionClosed(0)
                 ->setIsTransactionPending(false);
 
-            $this->createInvoice($isCreateOrderAutomatically, $payment, $captureAmount, $orderId);
+            if (!$isManualCaptureTransaction) {
+                $this->createInvoice($isCreateOrderAutomatically, $payment, $invoiceAmount, $orderId);
+            }
+
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
             $payment->setIsTransactionApproved(true);
             $this->logger->logInfoForOrder($orderId, 'Order payment was updated', Logger::DEBUG);
             $paymentTransaction = $payment->addTransaction(
-                PaymentTransaction::TYPE_CAPTURE,
+                $isManualCaptureTransaction ? PaymentTransaction::TYPE_AUTH
+                    : PaymentTransaction::TYPE_CAPTURE,
                 null,
                 true
             );
@@ -128,7 +143,10 @@ class PayMultisafepayOrder
                 $paymentTransaction->setParentTxnId($transaction['transaction_id'] ?? '');
             }
 
-            $paymentTransaction->setIsClosed(1);
+            if (!$isManualCaptureTransaction) {
+                $paymentTransaction->setIsClosed(1);
+            }
+
             $this->transactionRepository->save($paymentTransaction);
             $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
@@ -136,7 +154,7 @@ class PayMultisafepayOrder
                 $order->addCommentToStatusHistory(
                     __(
                         'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
-                        $order->getBaseCurrency()->formatTxt($captureAmount),
+                        $order->getBaseCurrency()->formatTxt($invoiceAmount),
                         $paymentTransaction->getTxnId()
                     )
                 );
