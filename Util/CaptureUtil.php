@@ -31,6 +31,9 @@ use MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver;
 
 class CaptureUtil
 {
+    public const PAYMENT_ACTION_AUTHORIZE_ONLY = 'authorize';
+    public const PAYMENT_ACTION_AUTHORIZE_AND_CAPTURE = 'initialize';
+
     public const AVAILABLE_MANUAL_CAPTURE_METHODS = [
         VisaConfigProvider::CODE,
         VisaConfigProvider::VAULT_CODE,
@@ -79,7 +82,8 @@ class CaptureUtil
     {
         $paymentDetails = $transaction['payment_details'] ?? [];
 
-        return $transaction['financial_status'] === TransactionStatus::INITIALIZED && isset($paymentDetails['capture'])
+        return isset($paymentDetails['financial_status']) && isset($paymentDetails['capture'])
+               && $transaction['financial_status'] === TransactionStatus::INITIALIZED
                && $paymentDetails['capture'] === CaptureRequest::CAPTURE_MANUAL_TYPE;
     }
 
@@ -107,7 +111,7 @@ class CaptureUtil
     {
         if (!in_array($payment->getMethod(), self::AVAILABLE_MANUAL_CAPTURE_METHODS)
             || !($payment->getMethodInstance()->getConfigPaymentAction()
-                 === PaymentAction::PAYMENT_ACTION_AUTHORIZE_ONLY)
+                 === self::PAYMENT_ACTION_AUTHORIZE_ONLY)
         ) {
             return false;
         }

@@ -125,7 +125,8 @@ class RefundTransactionBuilder implements BuilderInterface
         $orderId = $order->getIncrementId();
         $payment = $order->getPayment();
 
-        $captureData = $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment);
+        $captureData = $payment->getParentTransactionId()
+            ? $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment) : null;
 
         if ($this->captureUtil->isCaptureManualPayment($payment) || $captureData) {
             if (!$captureData) {
