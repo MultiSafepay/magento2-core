@@ -10,6 +10,11 @@
             sortOrder="1" disabled="false"  />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Payment">
+        <plugin name="can_cancel_capture_manual_payments" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\Order\PaymentPlugin"
+            sortOrder="1" disabled="false"  />
+    </type>
+
     <type name="Magento\Multishipping\Model\Payment\Method\Specification\Enabled">
         <plugin name="add_generic_methods_to_multishipping" type="MultiSafepay\ConnectCore\Plugin\Multishipping\Model\Payment\Method\Specification\EnabledPlugin"
             sortOrder="1" disabled="false"  />
@@ -1361,6 +1366,7 @@
                 <item name="authorize" xsi:type="string">MultiSafepayVisaRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayVisaRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayVisaVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1552,6 +1558,7 @@
                 <item name="authorize" xsi:type="string">MultiSafepayMastercardRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayMastercardVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2639,6 +2646,26 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayMaestroInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMaestroRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayMaestroCaptureCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Maestro Capture command -->
+    <virtualType name="MultiSafepayMaestroCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMaestroCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Maestro Capture Request -->
+    <virtualType name="MultiSafepayMaestroCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2768,6 +2795,26 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayMastercardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mastercard Capture command -->
+    <virtualType name="MultiSafepayMastercardCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMastercardCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mastercard Capture Request -->
+    <virtualType name="MultiSafepayMastercardCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3284,6 +3331,9 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayVisaInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayVisaRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayVisaCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayVisaCancelCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3304,6 +3354,44 @@
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Visa Capture command -->
+    <virtualType name="MultiSafepayVisaCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayVisaCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Visa Capture Request -->
+    <virtualType name="MultiSafepayVisaCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Visa Cancel command -->
+    <virtualType name="MultiSafepayVisaCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayVisaCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Visa Cancel Request -->
+    <virtualType name="MultiSafepayVisaCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 
@@ -7250,6 +7338,7 @@
                 <item name="second_chance_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondChanceBuilder</item>
                 <item name="seconds_active_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\SecondsActiveBuilder</item>
                 <item name="shopping_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder</item>
+                <item name="capture_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CaptureBuilder</item>
             </argument>
         </arguments>
     </type>

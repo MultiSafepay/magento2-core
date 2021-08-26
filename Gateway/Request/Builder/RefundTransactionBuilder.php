@@ -22,15 +22,22 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ValueObject\Money;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RefundTransactionBuilder implements BuilderInterface
 {
     /**
@@ -59,6 +66,16 @@ class RefundTransactionBuilder implements BuilderInterface
     private $amountUtil;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * RefundTransactionBuilder constructor.
      *
      * @param AmountUtil $amountUtil
@@ -66,19 +83,25 @@ class RefundTransactionBuilder implements BuilderInterface
      * @param Config $config
      * @param CurrencyUtil $currencyUtil
      * @param Description $description
+     * @param CaptureUtil $captureUtil
+     * @param Logger $logger
      */
     public function __construct(
         AmountUtil $amountUtil,
         RefundRequest $refundRequest,
         Config $config,
         CurrencyUtil $currencyUtil,
-        Description $description
+        Description $description,
+        CaptureUtil $captureUtil,
+        Logger $logger
     ) {
         $this->refundRequest = $refundRequest;
         $this->description = $description;
         $this->config = $config;
         $this->currencyUtil = $currencyUtil;
         $this->amountUtil = $amountUtil;
+        $this->captureUtil = $captureUtil;
+        $this->logger = $logger;
     }
 
     /**
@@ -91,16 +114,37 @@ class RefundTransactionBuilder implements BuilderInterface
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $amount = (float)SubjectReader::readAmount($buildSubject);
 
-        $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount <= 0) {
-            throw new CouldNotRefundException(__($msg));
+            throw new CouldNotRefundException(
+                __('Refunds with 0 amount can not be processed. Please set a different amount')
+            );
         }
 
-        $payment = $paymentDataObject->getPayment();
-
         /** @var OrderInterface $order */
-        $order = $payment->getOrder();
+        $order = $paymentDataObject->getPayment()->getOrder();
         $orderId = $order->getIncrementId();
+        $payment = $order->getPayment();
+
+        $captureData = $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment);
+
+        if ($this->captureUtil->isCaptureManualPayment($payment) || $captureData) {
+            if (!$captureData) {
+                $exceptionMessage = __('Can\'t find manual capture data');
+                $this->logger->logInfoForOrder($orderId, $exceptionMessage->render());
+
+                throw new CouldNotRefundException($exceptionMessage);
+            }
+
+            if ($amount > $captureData['amount']) {
+                $exceptionMessage =
+                    __('Refund amount for manual captured invoice is not valid. Please set a different amount');
+                $this->logger->logInfoForOrder($orderId, $exceptionMessage->render());
+
+                throw new CouldNotRefundException($exceptionMessage);
+            }
+
+            $orderId = $captureData['order_id'];
+        }
 
         $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
         $money = new Money(
@@ -114,7 +158,29 @@ class RefundTransactionBuilder implements BuilderInterface
         return [
             'payload' => $refund,
             'order_id' => $orderId,
-            Store::STORE_ID => (int)$order->getStoreId()
+            Store::STORE_ID => (int)$order->getStoreId(),
         ];
+    }
+
+    /**
+     * @param string $transactionId
+     * @param OrderPaymentInterface $payment
+     * @return array|null
+     */
+    private function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
+    {
+        $captureData = $payment->getAdditionalInformation(
+            CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME
+        );
+
+        foreach ($captureData as $captureDataItem) {
+            if (isset($captureDataItem['transaction_id'])
+                && $transactionId === (string)$captureDataItem['transaction_id']
+            ) {
+                return $captureDataItem;
+            }
+        }
+
+        return null;
     }
 }

@@ -58,7 +58,7 @@ class PaymentMethodUtil
      * @param MethodInterface $paymentInstance
      * @return bool
      */
-    private function checkIsMultisafepayMethodByPayment(MethodInterface $paymentInstance): bool
+    public function checkIsMultisafepayMethodByPayment(MethodInterface $paymentInstance): bool
     {
         return (bool)$paymentInstance->getConfigData(self::MULTISAFEPAY_METHOD_ID);
     }

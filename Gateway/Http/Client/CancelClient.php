@@ -23,16 +23,15 @@ use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use Psr\Http\Client\ClientExceptionInterface;
 
-class RefundClient implements ClientInterface
+class CancelClient implements ClientInterface
 {
-
     /**
      * @var SdkFactory
      */
     private $sdkFactory;
 
     /**
-     * RefundClient constructor.
+     * CaptureClient constructor.
      *
      * @param SdkFactory $sdkFactory
      */
@@ -43,19 +42,21 @@ class RefundClient implements ClientInterface
     }
 
     /**
-     * Places request to gateway. Returns result as ENV array
-     *
      * @param TransferInterface $transferObject
-     * @return array
+     * @return array|null
      * @throws ClientExceptionInterface
      */
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
-        $orderId = (string)$request['order_id'];
-        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
-        $transaction = $transactionManager->get($orderId);
 
-        return $transactionManager->refund($transaction, $request['payload'], $orderId)->getResponseData();
+        if (!isset($request['order_id'], $request['payload'])) {
+            return null;
+        }
+
+        $responseData = $this->sdkFactory->create($request[Store::STORE_ID] ?? null)->getTransactionManager()
+            ->captureReservationCancel($request['order_id'], $request['payload'])->getResponseData();
+
+        return array_merge($responseData, $request);
     }
 }

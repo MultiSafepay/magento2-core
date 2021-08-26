@@ -28,6 +28,7 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ValueObject\Money;
+use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
 
 class OrderRequestBuilder
 {

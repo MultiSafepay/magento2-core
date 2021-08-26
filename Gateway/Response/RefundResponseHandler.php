@@ -23,14 +23,12 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class RefundResponseHandler implements HandlerInterface
 {
-
     /**
      * @inheritDoc
      */
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDataObject = SubjectReader::readPayment($handlingSubject);
-
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDataObject->getPayment();
 
