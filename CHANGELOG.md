@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed the resolution of payment icons to be more in line with Magento core payment icons
 - Added date picker field for Date of Birth checkout fields to further increase the consistency of input
 - Dropped support for Magento 2.2.x versions.
+- Payment links can now be used for both order confirmation emails and order comment emails.
 
 ### Fixed
 - Fixed PHP Mess detector issues.
 - Fixed a bug where Vault cards would not be stored because of a type error.
+- Fixed a bug where for some custom totals with a value of '0.0' an error would occur on transaction creation.
 
 ## [2.9.0] - 2021-07-30
 ### Added
