@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.10.0] - 2021-08-27
 ### Added
 - Added compatibility with Adobe Commerce Gift Wrapping plugin.
+- Payment links can now be used for both order confirmation emails and order comment emails.
 
 ### Changed
 - Code refactored for order service methods.
@@ -14,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed the resolution of payment icons to be more in line with Magento core payment icons
 - Added date picker field for Date of Birth checkout fields to further increase the consistency of input
 - Dropped support for Magento 2.2.x versions.
-- Payment links can now be used for both order confirmation emails and order comment emails.
+- Deleted unnecessary order savings for better performance
 
 ### Fixed
 - Fixed PHP Mess detector issues.
