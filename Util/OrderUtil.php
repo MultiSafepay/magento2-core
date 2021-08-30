@@ -56,7 +56,7 @@ class OrderUtil
     public function getOrderByIncrementId(string $incrementId): OrderInterface
     {
         $searchCriteria = $this->searchCriteriaBuilder->addFilter(
-            OrderInterface::INCREMENT_ID,
+            'main_table.increment_id',
             $incrementId
         )->create();
 
