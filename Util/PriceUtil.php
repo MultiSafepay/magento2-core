@@ -151,18 +151,11 @@ class PriceUtil
      */
     public function getShippingUnitPrice(OrderInterface $order): float
     {
-        $isShippingPriceIncludedTax = $this->scopeConfig->getValue(
-            MagentoConfig::CONFIG_XML_PATH_SHIPPING_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $order->getStoreId()
-        );
-
         if ($this->config->useBaseCurrency($order->getStoreId())) {
-            return (float)($isShippingPriceIncludedTax ?
-                $order->getBaseShippingInclTax() : $order->getBaseShippingAmount());
+            return (float)$order->getBaseShippingAmount();
         }
 
-        return (float)($isShippingPriceIncludedTax ? $order->getShippingInclTax() : $order->getShippingAmount());
+        return (float)$order->getShippingAmount();
     }
 
     /**
