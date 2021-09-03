@@ -23,7 +23,7 @@
         </annotations>
         <arguments>
             <argument name="customerVar" defaultValue="CustomerEntityOne"/>
-            <argument name="customerAddressVar" defaultValue="PayAfterDeliveryAddress"/>
+            <argument name="customerAddressVar" defaultValue="MultiSafepayDeliveryAddress"/>
             <!--First available shipping method will be selected if value is not passed for shippingMethod-->
             <argument name="shippingMethod" defaultValue="" type="string"/>
         </arguments>

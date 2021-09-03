@@ -17,7 +17,7 @@
 
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
-    <entity name="PayAfterDeliveryCustomer" type="customer">
+    <entity name="MultiSafepayCustomer" type="customer">
         <data key="group_id">1</data>
         <data key="default_billing">true</data>
         <data key="default_shipping">true</data>
@@ -29,6 +29,6 @@
         <data key="store_id">0</data>
         <data key="website_id">0</data>
         <data key="group">General</data>
-        <requiredEntity type="address">PayAfterDeliveryAddress</requiredEntity>
+        <requiredEntity type="address">MultiSafepayDeliveryAddress</requiredEntity>
     </entity>
 </entities>
