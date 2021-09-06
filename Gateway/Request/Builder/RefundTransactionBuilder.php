@@ -170,15 +170,15 @@ class RefundTransactionBuilder implements BuilderInterface
      */
     private function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
     {
-        $captureData = $payment->getAdditionalInformation(
+        if ($captureData = $payment->getAdditionalInformation(
             CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME
-        );
-
-        foreach ($captureData as $captureDataItem) {
-            if (isset($captureDataItem['transaction_id'])
-                && $transactionId === (string)$captureDataItem['transaction_id']
-            ) {
-                return $captureDataItem;
+        )) {
+            foreach ($captureData as $captureDataItem) {
+                if (isset($captureDataItem['transaction_id'])
+                    && $transactionId === (string)$captureDataItem['transaction_id']
+                ) {
+                    return $captureDataItem;
+                }
             }
         }
 
