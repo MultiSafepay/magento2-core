@@ -17,12 +17,12 @@
 
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="StorefrontGuestCheckoutPayAfterDeliveryTest">
+    <test name="StorefrontGuestCheckoutCreditCardComponentTest">
         <annotations>
             <features value="Checkout"/>
-            <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
-            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order for guest order"/>
-            <description value="To be sure that an Pay After Delivery order can be placed successfully for a guest"/>
+            <stories value="Order with MultiSafepay payment method is successfully created for a guest via credit card component"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing a credit card component guest order"/>
+            <description value="To be sure that a credit card component order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
             <testCaseId value="MSP-MFTF-1"/>
             <group value="multisafepay_checkout"/>
@@ -34,8 +34,9 @@
             <!-- Enable test mode -->
             <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
 
-            <!-- Enable payment method -->
-            <magentoCLI command="config:set {{PayAfterDeliveryEnableConfigData.path}} {{PayAfterDeliveryEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <!-- Enable payment method and credit card component -->
+            <magentoCLI command="config:set {{CreditCardEnableConfigData.path}} {{CreditCardEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <magentoCLI command="config:set {{CreditCardComponentEnableConfigData.path}} {{CreditCardComponentEnableConfigData.value}}" stepKey="enableCreditCardComponent"/>
             <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
         </before>
 
@@ -61,12 +62,17 @@
             <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
         </actionGroup>
 
-        <!-- Checkout select Pay After Delivery Order payment -->
-        <actionGroup ref="CheckoutSelectPayAfterDeliveryPaymentActionGroup" stepKey="selectPayAfterDeliveryPayment"/>
+        <!-- Checkout select Credit Card Component Order payment -->
+        <actionGroup ref="CheckoutSelectCreditCardComponentPaymentActionGroup" stepKey="selectCreditCardComponentPayment"/>
 
         <!--Click Place Order button-->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
-        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <!--Verify 3DS URL-->
+        <seeInCurrentUrl url="https://testpay.multisafepay.com/3ds2/sim/acs" stepKey="assertCheckout3DSUrl"/>
+
+        <!--Verify Success page-->
+        <waitForElement selector="{{CheckoutSuccessMainSection.successTitle}}" time="30" stepKey="waitForSuccessPageLoaded"/>
 
         <!--See success messages-->
         <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>

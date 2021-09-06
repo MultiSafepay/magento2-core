@@ -40,4 +40,28 @@
         <data key="label">No</data>
         <data key="value">0</data>
     </entity>
+    <entity name="CreditCardEnableConfigData">
+        <data key="path">payment/multisafepay_creditcard/active</data>
+        <data key="scope_id">0</data>
+        <data key="label">Yes</data>
+        <data key="value">1</data>
+    </entity>
+    <entity name="CreditCardDisableConfigData">
+        <data key="path">payment/multisafepay_creditcard/active</data>
+        <data key="scope_id">0</data>
+        <data key="label">No</data>
+        <data key="value">0</data>
+    </entity>
+    <entity name="CreditCardComponentEnableConfigData">
+        <data key="path">payment/multisafepay_creditcard/payment_type</data>
+        <data key="scope_id">0</data>
+        <data key="label">Yes</data>
+        <data key="value">credit_card</data>
+    </entity>
+    <entity name="CreditCardComponentDisableConfigData">
+        <data key="path">payment/multisafepay_creditcard/payment_type</data>
+        <data key="scope_id">0</data>
+        <data key="label">No</data>
+        <data key="value">redirect</data>
+    </entity>
 </entities>

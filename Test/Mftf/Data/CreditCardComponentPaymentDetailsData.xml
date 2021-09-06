@@ -17,18 +17,10 @@
 
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
-    <entity name="MultiSafepayDeliveryAddress" type="address">
-        <data key="firstname">MultiSafepayTEST</data>
-        <data key="lastname">MultiSafepayTEST</data>
-        <data key="company">MultiSafepay</data>
-        <array key="street">
-            <item>Kraanspoor 39C</item>
-        </array>
-        <data key="city">Amsterdam</data>
-        <data key="state">Noord Holland</data>
-        <data key="country_id">NL</data>
-        <data key="country">The Netherlands</data>
-        <data key="postcode">1033SC</data>
-        <data key="telephone">0208500500</data>
+    <entity name="CreditCardComponentPaymentDetails" type="paymentDetails">
+        <data key="card_number">4111111111111111</data>
+        <data key="card_holder">MSPTest</data>
+        <data key="expiry_date">10/25</data>
+        <data key="card_code">123</data>
     </entity>
 </entities>

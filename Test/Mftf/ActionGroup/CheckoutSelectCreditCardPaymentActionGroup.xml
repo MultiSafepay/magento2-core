@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2021 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="CheckoutSelectCreditCardComponentPaymentActionGroup">
+        <annotations>
+            <description>Selects the 'Credit Card' Payment Method on the Storefront Checkout page and fills in the payment details.</description>
+        </annotations>
+        <arguments>
+            <argument name="paymentDetailsVar" defaultValue="CreditCardComponentPaymentDetails"/>
+        </arguments>
+
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Credit Card')}}" dependentSelector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Credit Card')}}" visible="true" stepKey="selectCreditCardPaymentMethod"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
+        <fillField selector="{{StorefrontCheckoutCreditCardComponentSection.cardNumber}}" userInput="{{paymentDetailsVar.card_number}}" stepKey="enterCardNumber"/>
+        <fillField selector="{{StorefrontCheckoutCreditCardComponentSection.cardHolder}}" userInput="{{paymentDetailsVar.card_holder}}" stepKey="enterCardHolder"/>
+        <fillField selector="{{StorefrontCheckoutCreditCardComponentSection.expiryDate}}" userInput="{{paymentDetailsVar.expiry_date}}" stepKey="enterexpiryDate"/>
+        <fillField selector="{{StorefrontCheckoutCreditCardComponentSection.cardCode}}" userInput="{{paymentDetailsVar.card_code}}" stepKey="entercardCode"/>
+    </actionGroup>
+</actionGroups>
