@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.10.2] - 2021-09-07
 ### Fixed
-- Fixed a bug where orders with credit card payment methods can't be refunded.
+- Fixed a bug where orders with other than credit card payment methods can't be refunded.
+- Fixed an issue where invoice emails were being sent after some time for orders with Billing Suite payment methods from the legacy plugin.
 
 ## [2.10.1] - 2021-09-02
 ### Fixed
