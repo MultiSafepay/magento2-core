@@ -31,6 +31,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
+use MultiSafepay\ConnectCore\Util\LegacyUtil;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -123,13 +124,16 @@ class EmailSender
             throw new MailException(__('Sending invoice emails disabled'));
         }
 
-        $allowedMethods = [
+        $disallowedMethods = [
             PayafterConfigProvider::CODE,
             KlarnaConfigProvider::CODE,
-            AfterpayConfigProvider::CODE
+            AfterpayConfigProvider::CODE,
+            LegacyUtil::LEGACY_AFTERPAY_CODE,
+            LegacyUtil::LEGACY_KLARNA_CODE,
+            LegacyUtil::LEGACY_PAYAFTER_CODE
         ];
 
-        if (!$invoice->getEmailSent() && !in_array($payment->getMethod(), $allowedMethods, true)) {
+        if (!$invoice->getEmailSent() && !in_array($payment->getMethod(), $disallowedMethods, true)) {
             $this->invoiceSender->send($invoice);
 
             return true;
