@@ -157,10 +157,13 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
         }
 
         if ($this->config->useBaseCurrency($storeId)) {
-            return $total->getBaseTaxRate() ?? round($total->getBaseTaxAmount() / $total->getBaseAmount() * 100);
+            return $total->getBaseTaxRate() ??
+                   ($total->getBaseAmount()
+                       ? round($total->getBaseTaxAmount() / $total->getBaseAmount() * 100) : 0);
         }
 
-        return $total->getBaseTaxRate() ?? round($total->getTaxAmount() / $total->getAmount() * 100);
+        return $total->getBaseTaxRate() ??
+               ($total->getAmount() ? round($total->getTaxAmount() / $total->getAmount() * 100) : 0);
     }
 
     /**
@@ -183,7 +186,7 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
      */
     private function getTitle($total): string
     {
-        $title = $total->getTitle() ?: $total->getLabel();
+        $title = $total->getTitle() ? : $total->getLabel();
 
         if ($title instanceof Phrase) {
             return (string)$title->render();
