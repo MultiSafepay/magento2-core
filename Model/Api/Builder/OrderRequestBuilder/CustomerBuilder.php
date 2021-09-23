@@ -107,7 +107,7 @@ class CustomerBuilder implements OrderRequestBuilderInterface
 
         $customerAddress = $this->address->build($order->getBillingAddress());
 
-        $this->customerDetails->addLocale($this->localeResolver->emulate($order->getStoreId()))
+        $this->customerDetails->addLocale((string)$this->localeResolver->emulate($order->getStoreId()))
             ->addFirstName($billingAddress->getFirstname())
             ->addLastName($billingAddress->getLastname())
             ->addAddress($customerAddress)
