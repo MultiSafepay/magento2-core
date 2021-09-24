@@ -59,7 +59,7 @@ jobs:
             ce_version: '2.3.6'
             magento_pre_install_script: .github/workflows/magento-integration-tests-pre-phpunit.sh
       - name: M2 Integration Tests on 2.4.2
-        uses: multisafepaydev/magento-integration-tests/7.4@master
+        uses: MultiSafepay/github-actions-m2/magento-integration-tests/7.4@master
         env:
             MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
             MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
