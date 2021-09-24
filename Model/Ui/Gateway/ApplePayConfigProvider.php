@@ -22,4 +22,15 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class ApplePayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_applepay';
+    public const APPLE_PAY_BUTTON_CONFIG_PATH = 'direct_button';
+    public const APPLE_PAY_BUTTON_ID = 'multisafepay-apple-pay-button';
+
+    /**
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isApplePayActive(int $storeId = null): bool
+    {
+        return (bool)$this->getPaymentConfig($storeId)[self::APPLE_PAY_BUTTON_CONFIG_PATH];
+    }
 }
