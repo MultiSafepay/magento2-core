@@ -195,6 +195,7 @@
                 <model>MultiSafepayApplePayFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
+                <direct_button>0</direct_button>
                 <title>Apple Pay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
