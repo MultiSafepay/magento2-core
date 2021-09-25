@@ -59,8 +59,8 @@ class AddressBuilder
 
         return $orderRequestAddress->addCity($address->getCity())
             ->addCountry(new Country($address->getCountryId()))
-            ->addHouseNumber($streetAndHouseNumber[1])
-            ->addStreetName($streetAndHouseNumber[0])
-            ->addZipCode(trim($address->getPostcode()));
+            ->addHouseNumber($streetAndHouseNumber[1] ?? '')
+            ->addStreetName($streetAndHouseNumber[0] ?? '')
+            ->addZipCode(trim($address->getPostcode() ?: ''));
     }
 }
