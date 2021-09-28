@@ -23,10 +23,12 @@ use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
 use Magento\Store\Model\StoreManagerInterface;
+use MultiSafepay\Api\Wallets\ApplePay\MerchantSessionRequest;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use Psr\Http\Client\ClientExceptionInterface;
 
 class ApplePayConfigProvider extends GenericConfigProvider
 {
@@ -40,6 +42,11 @@ class ApplePayConfigProvider extends GenericConfigProvider
     private $storeManager;
 
     /**
+     * @var MerchantSessionRequest
+     */
+    private $merchantSessionRequest;
+
+    /**
      * ApplePayConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
@@ -50,6 +57,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param ResolverInterface $localeResolver
      * @param PaymentConfig $paymentConfig
      * @param StoreManagerInterface $storeManager
+     * @param MerchantSessionRequest $merchantSessionRequest
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -59,9 +67,11 @@ class ApplePayConfigProvider extends GenericConfigProvider
         Logger $logger,
         ResolverInterface $localeResolver,
         PaymentConfig $paymentConfig,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        MerchantSessionRequest $merchantSessionRequest
     ) {
         $this->storeManager = $storeManager;
+        $this->merchantSessionRequest = $merchantSessionRequest;
         parent::__construct(
             $assetRepository,
             $config,
@@ -90,5 +100,25 @@ class ApplePayConfigProvider extends GenericConfigProvider
     public function getApplePayMerchantSessionUrl(int $storeId = null): string
     {
         return $this->storeManager->getStore($storeId)->getUrl('multisafepay/apple/session');
+    }
+
+    /**
+     * @param array $requestData
+     * @param int|null $storeId
+     * @return string
+     */
+    public function createApplePayMerchantSession(array $requestData, int $storeId = null): string
+    {
+        if ($multiSafepaySdk = $this->getSdk($storeId)) {
+            try {
+                return $multiSafepaySdk->getWalletManager()
+                    ->createApplePayMerchantSession($this->merchantSessionRequest->addData($requestData))
+                    ->getMerchantSession();
+            } catch (ClientExceptionInterface $clientException) {
+                return '';
+            }
+        }
+
+        return '';
     }
 }
