@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration;
 
 use Exception;
+use Http\Factory\Guzzle\RequestFactory;
+use Http\Factory\Guzzle\StreamFactory;
 use Magento\Config\Model\ResourceModel\Config as ConfigResourceModel;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -28,6 +30,7 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Gateway\Http\Transfer;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
@@ -40,7 +43,11 @@ use Magento\Tax\Api\TaxCalculationInterface;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Sales\Total\Quote\SetupUtil;
 use Magento\TestFramework\Helper\Bootstrap;
+use Http\Adapter\Guzzle6\Client;
+use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use ReflectionObject;
@@ -288,5 +295,43 @@ abstract class AbstractTestCase extends TestCase
         $order->save();
 
         return $order;
+    }
+
+    /**
+     * @param MockObject $sdkReturnMock
+     * @return MockObject
+     */
+    protected function setupSdkFactory(MockObject $sdkReturnMock): MockObject
+    {
+        $sdkFactory = $this->getMockBuilder(SdkFactory::class)
+            ->setConstructorArgs([
+                $this->getObjectManager()->get(Client::class),
+                $this->getObjectManager()->get(RequestFactory::class),
+                $this->getObjectManager()->get(StreamFactory::class),
+                $this->getObjectManager()->get(MultiSafepayConfig::class),
+            ])->getMock();
+
+        $sdkFactory->expects(self::any())
+            ->method('create')
+            ->willReturn($sdkReturnMock);
+
+        return $sdkFactory;
+    }
+
+    /**
+     * @param $body
+     * @return MockObject
+     */
+    protected function prepareTransferObjectMock($body): MockObject
+    {
+        $transferObject = $this->getMockBuilder(Transfer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $transferObject
+            ->method('getBody')
+            ->willReturn($body);
+
+        return $transferObject;
     }
 }

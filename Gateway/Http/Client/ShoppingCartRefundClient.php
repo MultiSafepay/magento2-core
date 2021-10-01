@@ -83,6 +83,7 @@ class ShoppingCartRefundClient implements ClientInterface
         foreach ($request['payload'] as $refundItem) {
             $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
         }
+
         return $transactionManager->refund($transaction, $refundRequest)->getResponseData();
     }
 }

@@ -123,7 +123,12 @@ class RefundTransactionBuilder implements BuilderInterface
         /** @var OrderInterface $order */
         $order = $paymentDataObject->getPayment()->getOrder();
         $orderId = $order->getIncrementId();
-        $payment = $order->getPayment();
+
+        if (!($payment = $order->getPayment())) {
+            throw new CouldNotRefundException(
+                __('Refund can not be processed, because the payment has not been found')
+            );
+        }
 
         $captureData = $payment->getParentTransactionId()
             ? $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment) : null;

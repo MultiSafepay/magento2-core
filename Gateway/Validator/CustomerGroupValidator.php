@@ -40,7 +40,7 @@ class CustomerGroupValidator
 
     /**
      * @param CartInterface $quote
-     * @param $config
+     * @param Config $config
      * @return bool
      */
     public function validate(CartInterface $quote, Config $config): bool
