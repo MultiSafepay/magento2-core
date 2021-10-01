@@ -22,6 +22,7 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item as TransactionItem;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder\WeeeTaxBuilder;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ValueObject\Money;
 
@@ -33,14 +34,22 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
     private $priceUtil;
 
     /**
+     * @var WeeeTaxBuilder
+     */
+    private $weeeTaxBuilder;
+
+    /**
      * OrderItemBuilder constructor.
      *
      * @param PriceUtil $priceUtil
+     * @param WeeeTaxBuilder $weeeTaxBuilder
      */
     public function __construct(
-        PriceUtil $priceUtil
+        PriceUtil $priceUtil,
+        WeeeTaxBuilder $weeeTaxBuilder
     ) {
         $this->priceUtil = $priceUtil;
+        $this->weeeTaxBuilder = $weeeTaxBuilder;
     }
 
     /**
@@ -69,7 +78,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
                 ->addTaxRate((float)$item->getTaxPercent());
         }
 
-        return $items;
+        return $this->weeeTaxBuilder->addWeeeTaxToItems($items, $orderItems, (int)$storeId, $currency);
     }
 
     /**
