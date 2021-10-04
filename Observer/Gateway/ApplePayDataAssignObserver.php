@@ -24,8 +24,6 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTy
 
 class ApplePayDataAssignObserver extends AbstractDataAssignObserver
 {
-    public const CREDIT_CARD_BRAND_PARAM_NAME = 'card_brand';
-
     /**
      * @inheritDoc
      */
@@ -35,7 +33,7 @@ class ApplePayDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
-        if (empty($additionalData['payload'])) {
+        if (empty($additionalData['token'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
                 TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
@@ -44,14 +42,7 @@ class ApplePayDataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
-        if (!empty($additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME])) {
-            $payment->setAdditionalInformation(
-                self::CREDIT_CARD_BRAND_PARAM_NAME,
-                $additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME]
-            );
-        }
-
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
-        $payment->setAdditionalInformation('payload', $additionalData['payload']);
+        $payment->setAdditionalInformation('payment_token', $additionalData['token']);
     }
 }
