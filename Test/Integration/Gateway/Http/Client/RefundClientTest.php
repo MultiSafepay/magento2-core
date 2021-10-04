@@ -59,7 +59,7 @@ class RefundClientTest extends AbstractTestCase
 
         $result = $refundClientMock->placeRequest($transferObject);
 
-        self::assertIsArray($result);
+
         self::assertEquals(self::FAKE_TRANSACTION_ID, $result['transaction_id']);
         self::assertEquals(self::FAKE_REFUND_ID, $result['refund_id']);
     }
