@@ -21,7 +21,6 @@ use Exception;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 
 class RecurringTransactionBuilder implements BuilderInterface
@@ -32,7 +31,7 @@ class RecurringTransactionBuilder implements BuilderInterface
     private $emailSender;
 
     /**
-     * RedirectTransactionBuilder constructor.
+     * RecurringTransactionBuilder constructor.
      *
      * @param EmailSender $emailSender
      */
@@ -54,7 +53,6 @@ class RecurringTransactionBuilder implements BuilderInterface
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDataObject->getPayment();
 
-        /** @var Order $order */
         $order = $payment->getOrder();
 
         if (!$this->emailSender->checkOrderConfirmationBeforeTransaction()) {

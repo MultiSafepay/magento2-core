@@ -87,12 +87,8 @@ class PriceUtil
             $storeId
         );
 
-        $weeeTaxData = $this->jsonHandler->readJSON($item->getWeeeTaxApplied());
-        $weeeTaxUnitPrice = $this->getWeeeTaxUnitPrice($weeeTaxData, $storeId) ? : 0.0;
-
-        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity) +
-                                     $weeeTaxUnitPrice
-            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity) + $weeeTaxUnitPrice;
+        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
+            : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
     }
 
     /**

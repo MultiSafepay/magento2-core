@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder;
 
-use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder;
