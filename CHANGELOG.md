@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.4] - 2021-10-07
+### Fixed
+- Fixed a refund issue for manual captured payments
+
 ## [2.10.3] - 2021-10-04
 ### Fixed
 - Fixed a bug where division by zero issue appeared for custom totals in getting tax rate method.
