@@ -75,7 +75,7 @@ class MethodListPlugin
      * @param CartInterface|null $quote
      * @return MethodInterface[]
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.§)
      */
     public function afterGetAvailableMethods(
         MethodList $subject,
