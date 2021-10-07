@@ -133,7 +133,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $captureData = $payment->getParentTransactionId()
             ? $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment) : null;
 
-        if ($this->captureUtil->isCaptureManualPayment($payment) || $captureData) {
+        if (($this->captureUtil->isCaptureManualPayment($payment) && $captureData) || $captureData) {
             if (!$captureData) {
                 $exceptionMessage = __('Can\'t find manual capture data');
                 $this->logger->logInfoForOrder($orderId, $exceptionMessage->render());

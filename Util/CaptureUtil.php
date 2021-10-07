@@ -117,10 +117,11 @@ class CaptureUtil
         }
 
         if (in_array($payment->getMethod(), [CreditCardConfigProvider::CODE, CreditCardConfigProvider::VAULT_CODE])) {
-            $cardBrand = $payment->getMethod() === CreditCardConfigProvider::VAULT_CODE ? $payment->getType()
-                : $payment->getAdditionalInformation(CreditCardDataAssignObserver::CREDIT_CARD_BRAND_PARAM_NAME);
+            //$cardBrand = $payment->getMethod() === CreditCardConfigProvider::VAULT_CODE ? $payment->getType()
+            //    : $payment->getAdditionalInformation(CreditCardDataAssignObserver::CREDIT_CARD_BRAND_PARAM_NAME);
 
-            return $cardBrand && in_array($cardBrand, self::AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS);
+            //return $cardBrand && in_array($cardBrand, self::AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS);
+            return true;
         }
 
         return true;
