@@ -36,6 +36,11 @@
         <observer name="multisafepay_amex_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver" />
     </event>
 
+    <event name="payment_method_assign_data_multisafepay_googlepay">
+        <observer name="multisafepay_googlepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\GooglePayDataAssignObserver" />
+    </event>
+
+
     <event name="email_order_set_template_vars_before">
         <observer name="payment_link_email_var" instance="MultiSafepay\ConnectCore\Observer\SetTemplateVarsBefore" />
     </event>
@@ -50,4 +55,5 @@
     <event name="sales_order_invoice_save_after">
         <observer name="inventory_sales_virtual_source_deduction_processor" instance="MultiSafepay\ConnectCore\Observer\InvoiceSaveAfterObserver"/>
     </event>
+
 </config>
