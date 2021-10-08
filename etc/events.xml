@@ -37,11 +37,11 @@
     </event>
 
     <event name="payment_method_assign_data_multisafepay_applepay">
-        <observer name="multisafepay_applepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\ApplePayDataAssignObserver" />
+        <observer name="multisafepay_applepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\WalletDataAssignObserver" />
     </event>
 
     <event name="payment_method_assign_data_multisafepay_googlepay">
-        <observer name="multisafepay_googlepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\GooglePayDataAssignObserver" />
+        <observer name="multisafepay_googlepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\WalletDataAssignObserver" />
     </event>
 
     <event name="email_order_set_template_vars_before">

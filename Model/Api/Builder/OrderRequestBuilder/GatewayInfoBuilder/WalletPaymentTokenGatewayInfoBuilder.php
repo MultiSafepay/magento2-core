@@ -19,34 +19,34 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Gateway
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\ApplePay;
+use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Wallet;
 
-class ApplePayGatewayInfoBuilder implements GatewayInfoBuilderInterface
+class WalletPaymentTokenGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
-     * @var ApplePay
+     * @var Wallet
      */
-    private $applePay;
+    private $walletGatewayInfoBuilder;
 
     /**
-     * ApplePayGatewayInfoBuilder constructor.
+     * WalletPaymentTokenGatewayInfoBuilder constructor.
      *
-     * @param ApplePay $applePay
+     * @param Wallet $walletGatewayInfoBuilder
      */
     public function __construct(
-        ApplePay $applePay
+        Wallet $walletGatewayInfoBuilder
     ) {
-        $this->applePay = $applePay;
+        $this->walletGatewayInfoBuilder = $walletGatewayInfoBuilder;
     }
 
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @return ApplePay|null
+     * @return Wallet|null
      */
-    public function build(OrderInterface $order, OrderPaymentInterface $payment): ?ApplePay
+    public function build(OrderInterface $order, OrderPaymentInterface $payment): ?Wallet
     {
-        return $this->applePay->addPaymentToken(
+        return $this->walletGatewayInfoBuilder->addPaymentToken(
             (string)($payment->getAdditionalInformation()['payment_token'] ?? null)
         );
     }
