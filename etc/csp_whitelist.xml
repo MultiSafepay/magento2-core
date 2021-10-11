@@ -4,21 +4,25 @@
         <policy id="script-src">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-library" type="host">https://pay.google.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-library" type="host">https://pay.google.com</value>
             </values>
         </policy>
         <policy id="frame-ancestors">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-library" type="host">https://pay.google.com</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-button-svg" type="host">https://www.gstatic.com/instantbuy/svg/dark_gpay.svg</value>
             </values>
         </policy>
         <policy id="style-src">

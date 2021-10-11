@@ -31,7 +31,13 @@ class GooglePayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_googlepay';
     public const GOOGLE_PAY_BUTTON_CONFIG_PATH = 'direct_button';
+    public const GOOGLE_PAY_BUTTON_MODE_CONFIG_PATH = 'direct_button_mode';
+    public const GOOGLE_PAY_BUTTON_ACCOUNT_ID_CONFIG_PATH = 'direct_button_account_id';
+    public const GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH = 'direct_button_merchant_name';
+    public const GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH = 'direct_button_merchant_id';
     public const GOOGLE_PAY_BUTTON_ID = 'multisafepay-google-pay-button';
+    public const GOOGLE_PAY_PRODUCTION_MODE = 'PRODUCTION';
+    public const GOOGLE_PAY_TEST_MODE = 'TEST';
 
     /**
      * @var StoreManagerInterface
@@ -76,8 +82,39 @@ class GooglePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return bool
      */
-    public function isApplePayActive(int $storeId = null): bool
+    public function isGooglePayActive(int $storeId = null): bool
     {
         return (bool)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_CONFIG_PATH];
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getGooglePayMode(int $storeId = null): string
+    {
+        return (bool)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MODE_CONFIG_PATH]
+            ? self::GOOGLE_PAY_PRODUCTION_MODE : self::GOOGLE_PAY_TEST_MODE;
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getMultisafepayAccountId(int $storeId = null): string
+    {
+        return (string)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_ACCOUNT_ID_CONFIG_PATH];
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return string[]
+     */
+    public function getGooglePayMerchantInfo(int $storeId = null): array
+    {
+        return [
+            'merchantName' => (string)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH],
+            'merchantId' => (string)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH]
+        ];
     }
 }
