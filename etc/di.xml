@@ -6846,6 +6846,135 @@
         </arguments>
     </virtualType>
 
+    <!-- WeChatPay Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayWeChatPayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayWeChatPayValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayWeChatPayValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayWeChatPayCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Configuration reader -->
+    <virtualType name="MultiSafepayWeChatPayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Config Value Handler Pool -->
+    <virtualType name="MultiSafepayWeChatPayConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayWeChatPayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Config Value Handler -->
+    <virtualType name="MultiSafepayWeChatPayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Logger, initialized with ApplePayConfig -->
+    <virtualType name="MultiSafepayWeChatPayLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayWeChatPayLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- WeChatPay Commands infrastructure -->
+    <virtualType name="MultiSafepayWeChatPayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayWeChatPayInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayWeChatPayRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Initialize command -->
+    <virtualType name="MultiSafepayWeChatPayInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayWeChatPayInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Refund command -->
+    <virtualType name="MultiSafepayWeChatPayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayWeChatPayRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Initialization Request -->
+    <virtualType name="MultiSafepayWeChatPayInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Refund Request -->
+    <virtualType name="MultiSafepayWeChatPayRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Validator Pool -->
+    <virtualType name="MultiSafepayWeChatPayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayWeChatPayCountryValidator</item>
+                <item name="currency" xsi:type="string">MultiSafepayWeChatPayCurrencyValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayWeChatPayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayWeChatPayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WeChatPay Value handlers infrastructure -->
+    <virtualType name="MultiSafepayWeChatPayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayWeChatPayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayWeChatPayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- WellnessGiftcard Payment Method Facade configuration -->
     <virtualType name="MultiSafepayWellnessGiftcardFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -7522,6 +7651,7 @@
                 <item name="multisafepay_trustly" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\TrustlyConfigProvider</item>
                 <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3ConfigProvider</item>
                 <item name="multisafepay_genericgateway" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider</item>
+                <item name="multisafepay_wechatpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider</item>
 
                 <!-- Recurring -->
                 <item name="multisafepay_creditcard_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider</item>
