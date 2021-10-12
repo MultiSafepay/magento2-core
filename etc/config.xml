@@ -195,6 +195,7 @@
                 <model>MultiSafepayApplePayFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
+                <direct_button>0</direct_button>
                 <title>Apple Pay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
@@ -210,7 +211,6 @@
                 <allow_specific_customer_group>0</allow_specific_customer_group>
                 <allow_amount>0</allow_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
-                <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>APPLEPAY</gateway_code>
             </multisafepay_applepay>
