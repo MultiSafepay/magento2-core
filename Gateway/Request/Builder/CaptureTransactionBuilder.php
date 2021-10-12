@@ -204,7 +204,9 @@ class CaptureTransactionBuilder implements BuilderInterface
             "new_order_status" => $shipment ? Transaction::SHIPPED : Transaction::COMPLETED,
         ];
 
-        if ($invoiceIncrementId) {
+        if ($invoiceIncrementId
+            && ((float)$invoice->getBaseGrandTotal() !== (float)$order->getBaseGrandTotal())
+        ) {
             $result['new_order_id'] = $order->getIncrementId() . '_' . $invoiceIncrementId;
         }
 

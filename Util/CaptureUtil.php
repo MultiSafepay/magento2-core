@@ -82,7 +82,7 @@ class CaptureUtil
     {
         $paymentDetails = $transaction['payment_details'] ?? [];
 
-        return isset($paymentDetails['financial_status']) && isset($paymentDetails['capture'])
+        return isset($transaction['financial_status']) && isset($paymentDetails['capture'])
                && $transaction['financial_status'] === TransactionStatus::INITIALIZED
                && $paymentDetails['capture'] === CaptureRequest::CAPTURE_MANUAL_TYPE;
     }

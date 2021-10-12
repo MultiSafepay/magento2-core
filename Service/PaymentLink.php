@@ -26,6 +26,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Model\Api\Initializer\OrderRequestInitializer;
+use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class PaymentLink
@@ -73,7 +74,11 @@ class PaymentLink
     {
         $transaction = $this->orderRequestInitializer->initialize($order);
 
-        return $transaction->getPaymentUrl();
+        if (!($paymentUrl = $transaction->getPaymentUrl())) {
+            throw new ApiException('Payment url wasn\'t retrieved. Please try again.');
+        }
+
+        return $paymentUrl;
     }
 
     /**
