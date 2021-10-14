@@ -62,6 +62,24 @@ class PriceUtilTest extends AbstractTestCase
     }
 
     /**
+     * @magentoDataFixture   Magento/Sales/_files/order_with_tax.php
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
+     * @throws LocalizedException
+     */
+    public function testGetUnitRowItemPriceWithTax(): void
+    {
+        $order = $this->getOrder();
+        $orderItems = $order->getItems();
+        $firstItem = current($orderItems);
+        $firstItem->setBaseRowTotalInclTax($firstItem->getBasePrice() * $firstItem->getQtyOrdered());
+
+        self::assertEquals(
+            (float)10,
+            $this->priceUtil->getUnitRowItemPriceWithTax($firstItem, $order->getStoreId())
+        );
+    }
+
+    /**
      * @magentoDbIsolation     enabled
      * @magentoAppIsolation    enabled
      */

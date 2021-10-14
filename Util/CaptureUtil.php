@@ -23,6 +23,7 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
+use MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
@@ -33,6 +34,8 @@ class CaptureUtil
 {
     public const PAYMENT_ACTION_AUTHORIZE_ONLY = 'authorize';
     public const PAYMENT_ACTION_AUTHORIZE_AND_CAPTURE = 'initialize';
+    public const CAPTURE_TRANSACTION_TYPE_MANUAL = 'manual';
+    public const MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME = "multisafepay_capture_data";
 
     public const AVAILABLE_MANUAL_CAPTURE_METHODS = [
         VisaConfigProvider::CODE,
@@ -125,5 +128,27 @@ class CaptureUtil
         }
 
         return true;
+    }
+
+    /**
+     * @param string $transactionId
+     * @param OrderPaymentInterface $payment
+     * @return array|null
+     */
+    public function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
+    {
+        if ($captureData = $payment->getAdditionalInformation(
+            self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME
+        )) {
+            foreach ($captureData as $captureDataItem) {
+                if (isset($captureDataItem['transaction_id'])
+                    && $transactionId === (string)$captureDataItem['transaction_id']
+                ) {
+                    return $captureDataItem;
+                }
+            }
+        }
+
+        return null;
     }
 }
