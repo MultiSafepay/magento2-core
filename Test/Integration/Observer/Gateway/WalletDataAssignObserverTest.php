@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Observer\Gateway;
 use Magento\Framework\DataObject;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
@@ -48,6 +49,8 @@ class WalletDataAssignObserverTest extends AbstractTestCase
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
+     *
+     * @throws LocalizedException
      */
     public function testSetTokenAsAdditionalData(): void
     {
