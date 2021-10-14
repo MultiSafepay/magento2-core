@@ -22,13 +22,11 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\ConnectCore\Config\Config;
-use MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
@@ -131,7 +129,7 @@ class RefundTransactionBuilder implements BuilderInterface
         }
 
         $captureData = $payment->getParentTransactionId()
-            ? $this->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment) : null;
+            ? $this->captureUtil->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment) : null;
 
         if (($this->captureUtil->isCaptureManualPayment($payment) && $captureData) || $captureData) {
             if (!$captureData) {
@@ -166,27 +164,5 @@ class RefundTransactionBuilder implements BuilderInterface
             'order_id' => $orderId,
             Store::STORE_ID => (int)$order->getStoreId(),
         ];
-    }
-
-    /**
-     * @param string $transactionId
-     * @param OrderPaymentInterface $payment
-     * @return array|null
-     */
-    private function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
-    {
-        if ($captureData = $payment->getAdditionalInformation(
-            CaptureResponseHandler::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME
-        )) {
-            foreach ($captureData as $captureDataItem) {
-                if (isset($captureDataItem['transaction_id'])
-                    && $transactionId === (string)$captureDataItem['transaction_id']
-                ) {
-                    return $captureDataItem;
-                }
-            }
-        }
-
-        return null;
     }
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
@@ -43,6 +44,7 @@ class CaptureBuilder implements OrderRequestBuilderInterface
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
+     * @throws LocalizedException
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -50,7 +52,7 @@ class CaptureBuilder implements OrderRequestBuilderInterface
     {
         if ($this->captureUtil->isCaptureManualPayment($payment)) {
             $orderRequest->addData(
-                ['capture' => 'manual']
+                ['capture' => CaptureUtil::CAPTURE_TRANSACTION_TYPE_MANUAL]
             );
         }
     }

@@ -22,11 +22,11 @@ use Magento\Framework\App\State;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
-use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
+use MultiSafepay\ConnectCore\Test\Integration\Gateway\AbstractGatewayTestCase;
 
-class RedirectTransactionBuilderTest extends AbstractTestCase
+class RedirectTransactionBuilderTest extends AbstractGatewayTestCase
 {
     /**
      * @magentoDataFixture Magento/Sales/_files/order.php

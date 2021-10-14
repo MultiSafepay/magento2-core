@@ -21,11 +21,10 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
 class CaptureResponseHandler implements HandlerInterface
 {
-    public const MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME = "multisafepay_capture_data";
-
     /**
      * @param array $handlingSubject
      * @param array $response
@@ -45,9 +44,9 @@ class CaptureResponseHandler implements HandlerInterface
 
         $payment->setTransactionId($response['transaction_id']);
         $payment->setAdditionalInformation(
-            self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
+            CaptureUtil::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
             array_merge(
-                (array)$payment->getAdditionalInformation(self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME),
+                (array)$payment->getAdditionalInformation(CaptureUtil::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME),
                 [$this->prepareCaptureDataFromResponse($response, $amount)]
             )
         );
