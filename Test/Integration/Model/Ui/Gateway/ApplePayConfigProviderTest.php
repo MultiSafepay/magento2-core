@@ -33,8 +33,6 @@ use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class ApplePayConfigProviderTest
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplePayConfigProviderTest extends AbstractTestCase
