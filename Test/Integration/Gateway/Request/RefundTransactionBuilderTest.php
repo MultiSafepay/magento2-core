@@ -55,7 +55,7 @@ class RefundTransactionBuilderTest extends AbstractGatewayTestCase
         $stateObject = new DataObject();
         $order = $this->getOrder();
         $paymentDataObject = $this->getNewPaymentDataObjectFromOrder($order);
-        $currencyCode = $order->getOrderCurrencyCode();
+        $currencyCode = $order->getOrderCurrencyCode() ?? 'USD';
         $amount = $order->getGrandTotal();
 
         $buildSubject = [
