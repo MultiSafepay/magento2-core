@@ -17,14 +17,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
-use Magento\Checkout\Model\Session;
-use Magento\Framework\Locale\ResolverInterface;
-use Magento\Framework\View\Asset\Repository as AssetRepository;
-use Magento\Payment\Gateway\Config\Config as PaymentConfig;
-use Magento\Store\Model\StoreManagerInterface;
-use MultiSafepay\ConnectCore\Config\Config;
-use MultiSafepay\ConnectCore\Factory\SdkFactory;
-use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class GooglePayConfigProvider extends GenericConfigProvider
@@ -38,45 +30,6 @@ class GooglePayConfigProvider extends GenericConfigProvider
     public const GOOGLE_PAY_BUTTON_ID = 'multisafepay-google-pay-button';
     public const GOOGLE_PAY_PRODUCTION_MODE = 'PRODUCTION';
     public const GOOGLE_PAY_TEST_MODE = 'TEST';
-
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
-     * ApplePayConfigProvider constructor.
-     *
-     * @param AssetRepository $assetRepository
-     * @param Config $config
-     * @param SdkFactory $sdkFactory
-     * @param Session $checkoutSession
-     * @param Logger $logger
-     * @param ResolverInterface $localeResolver
-     * @param PaymentConfig $paymentConfig
-     * @param StoreManagerInterface $storeManager
-     */
-    public function __construct(
-        AssetRepository $assetRepository,
-        Config $config,
-        SdkFactory $sdkFactory,
-        Session $checkoutSession,
-        Logger $logger,
-        ResolverInterface $localeResolver,
-        PaymentConfig $paymentConfig,
-        StoreManagerInterface $storeManager
-    ) {
-        $this->storeManager = $storeManager;
-        parent::__construct(
-            $assetRepository,
-            $config,
-            $sdkFactory,
-            $checkoutSession,
-            $logger,
-            $localeResolver,
-            $paymentConfig
-        );
-    }
 
     /**
      * @param int|null $storeId
