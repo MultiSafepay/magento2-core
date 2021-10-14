@@ -96,10 +96,7 @@ class CaptureTransactionBuilderTest extends AbstractGatewayTestCase
         self::assertEquals($order->getStoreId(), $captureTransactionData['store_id']);
         self::assertEquals(round($amount * 100, 10), $capturePayload->get('amount'));
         self::assertIsString($capturePayload->get('invoice_id'));
-        self::assertEquals(
-            $orderIncrementId . '_' . $capturePayload->get('invoice_id'),
-            $capturePayload->get('new_order_id')
-        );
+        self::isNull($capturePayload->get('new_order_id'));
         self::assertEquals(Transaction::COMPLETED, $capturePayload->get('new_order_status'));
 
         $shipment = $this->createShipmentForOrder($order, $preparedItems);
@@ -112,6 +109,45 @@ class CaptureTransactionBuilderTest extends AbstractGatewayTestCase
         }
 
         self::assertEquals(Transaction::SHIPPED, $capturePayload->get('new_order_status'));
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
+     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
+     * @magentoConfigFixture default_store multisafepay/general/mode 0
+     * @throws Exception
+     */
+    public function testBuildPartialCaptureTransactionForPartialAmount(): void
+    {
+        $order = $this->getOrderWithVisaPaymentMethod();
+        $payment = $order->getPayment();
+        $amount = 50;
+        $orderIncrementId = $order->getIncrementId();
+
+        foreach ($order->getItems() as $orderItem) {
+            $preparedItems[$orderItem->getId()] = 1;
+        }
+
+        $captureTransactionBuilder = $this->getCaptureTransactionBuilderMock($orderIncrementId, $this->transactionData);
+        $buildSubject = [
+            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
+            'amount' => $amount,
+        ];
+        $invoice = $order->prepareInvoice($preparedItems);
+        $payment->setInvoice($invoice);
+        $captureTransactionData = $captureTransactionBuilder->build($buildSubject);
+        $capturePayload = $captureTransactionData['payload'];
+
+        self::assertEquals($orderIncrementId, $captureTransactionData['order_id']);
+        self::assertEquals($order->getStoreId(), $captureTransactionData['store_id']);
+        self::assertEquals(round($amount * 100, 10), $capturePayload->get('amount'));
+        self::assertIsString($capturePayload->get('invoice_id'));
+        self::assertEquals(
+            $orderIncrementId . '_' . $capturePayload->get('invoice_id'),
+            $capturePayload->get('new_order_id')
+        );
+        self::assertEquals(Transaction::COMPLETED, $capturePayload->get('new_order_status'));
     }
 
     /**
