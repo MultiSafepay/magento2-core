@@ -32,6 +32,11 @@ use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
 
+/**
+ * Class ApplePayConfigProviderTest
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ApplePayConfigProviderTest extends AbstractTestCase
 {
     private const FAKE_APPLE_SESSION_RESPONSE = '12312312qweqweqweqwe123123';
