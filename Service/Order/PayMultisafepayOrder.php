@@ -114,19 +114,19 @@ class PayMultisafepayOrder
             $orderId = $order->getIncrementId();
             $isManualCaptureTransaction = $this->captureUtil->isCaptureManualTransaction($transaction);
 
-            $isCreateOrderAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
+            $isCreateOrderInvoiceAutomatically = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
             $payment->setTransactionId($transaction['transaction_id'] ?? '')
                 ->setAdditionalInformation(
                     [
                         PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderAutomatically,
+                        self::INVOICE_CREATE_AFTER_PARAM_NAME => !$isCreateOrderInvoiceAutomatically,
                     ]
                 )->setShouldCloseParentTransaction(false)
                 ->setIsTransactionClosed(0)
                 ->setIsTransactionPending(false);
 
             if (!$isManualCaptureTransaction) {
-                $this->createInvoice($isCreateOrderAutomatically, $payment, $invoiceAmount, $orderId);
+                $this->createInvoice($isCreateOrderInvoiceAutomatically, $payment, $invoiceAmount, $orderId);
             }
 
             $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
@@ -150,7 +150,7 @@ class PayMultisafepayOrder
             $this->transactionRepository->save($paymentTransaction);
             $this->logger->logInfoForOrder($orderId, 'Transaction saved', Logger::DEBUG);
 
-            if (!$isCreateOrderAutomatically) {
+            if (!$isCreateOrderInvoiceAutomatically) {
                 $order->addCommentToStatusHistory(
                     __(
                         'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
@@ -174,18 +174,18 @@ class PayMultisafepayOrder
     }
 
     /**
-     * @param bool $isCreateOrderAutomatically
+     * @param bool $isCreateOrderInvoiceAutomatically
      * @param OrderPaymentInterface $payment
      * @param float $captureAmount
      * @param string $orderId
      */
     private function createInvoice(
-        bool $isCreateOrderAutomatically,
+        bool $isCreateOrderInvoiceAutomatically,
         OrderPaymentInterface $payment,
         float $captureAmount,
         string $orderId
     ): void {
-        if ($isCreateOrderAutomatically) {
+        if ($isCreateOrderInvoiceAutomatically) {
             $payment->registerCaptureNotification($captureAmount, true);
             $this->logger->logInfoForOrder($orderId, 'Invoice created', Logger::DEBUG);
 

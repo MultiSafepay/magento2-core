@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration;
 
-use Exception;
 use Http\Factory\Guzzle\RequestFactory;
 use Http\Factory\Guzzle\StreamFactory;
 use Magento\Config\Model\ResourceModel\Config as ConfigResourceModel;
@@ -36,18 +35,21 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
+use Magento\Sales\Api\Data\ShipmentInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Shipment;
+use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Api\TaxCalculationInterface;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Sales\Total\Quote\SetupUtil;
 use Magento\TestFramework\Helper\Bootstrap;
-use Http\Adapter\Guzzle6\Client;
+use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use PHPUnit\Framework\MockObject\MockObject;
-use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
+use Http\Adapter\Guzzle6\Client;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use ReflectionObject;
@@ -166,14 +168,17 @@ abstract class AbstractTestCase extends TestCase
 
     /**
      * @param string $fixtureFile
+     * @param bool $returnContent
+     * @return mixed|null
      * @throws Exception
      */
-    protected function includeFixtureFile(string $fixtureFile)
+    protected function includeFixtureFile(string $fixtureFile, bool $returnContent = false)
     {
         /** @var ComponentRegistrar $componentRegistrar */
         $componentRegistrar = $this->getObjectManager()->get(ComponentRegistrar::class);
         $modulePath = $componentRegistrar->getPath('module', 'MultiSafepay_ConnectCore');
         $fixturePath = $modulePath . '/Test/Integration/_files/' . $fixtureFile . '.php';
+
         if (!is_file($fixturePath)) {
             throw new Exception('Fixture file "' . $fixturePath . '" could not be found');
         }
@@ -182,8 +187,14 @@ abstract class AbstractTestCase extends TestCase
         $directoryList = $this->getObjectManager()->get(DirectoryList::class);
         $rootPath = $directoryList->getRoot();
         chdir($rootPath . '/dev/tests/integration/testsuite/');
-        require($fixturePath);
+        $fileContent = require($fixturePath);
         chdir($cwd);
+
+        if ($returnContent) {
+            return $fileContent;
+        }
+
+        return null;
     }
 
     /**
@@ -298,6 +309,15 @@ abstract class AbstractTestCase extends TestCase
     }
 
     /**
+     * @return array|null
+     * @throws Exception
+     */
+    protected function getManualCaptureTransactionData(): ?array
+    {
+        return $this->includeFixtureFile('manual_capture_transaction_data_example', true);
+    }
+
+    /**
      * @param MockObject $sdkReturnMock
      * @return MockObject
      */
@@ -318,6 +338,24 @@ abstract class AbstractTestCase extends TestCase
         return $sdkFactory;
     }
 
+    /**
+     * @param OrderInterface $order
+     * @param array $items
+     * @return ShipmentInterface
+     * @throws LocalizedException
+     */
+    protected function createShipmentForOrder(OrderInterface $order, array $items): ShipmentInterface
+    {
+        $shipment = $this->getObjectManager()->get(ShipmentFactory::class)->create($order, $items);
+        $shipment->setPackages([['1'], ['2']]);
+        $shipment->setShipmentStatus(Shipment::STATUS_NEW);
+        $shipment->register();
+        $order->setShipment($shipment);
+        $shipment->save();
+
+        return $shipment;
+    }
+      
     /**
      * @param $body
      * @return MockObject

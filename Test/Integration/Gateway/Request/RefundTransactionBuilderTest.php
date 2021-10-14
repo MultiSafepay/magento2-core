@@ -19,41 +19,139 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Request;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Payment\Gateway\Data\PaymentDataObjectFactoryInterface;
-use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Exception\CouldNotRefundException;
 use MultiSafepay\Api\Transactions\RefundRequest;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder;
-use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use MultiSafepay\ConnectCore\Test\Integration\Gateway\AbstractGatewayTestCase;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
-class RefundTransactionBuilderTest extends AbstractTestCase
+class RefundTransactionBuilderTest extends AbstractGatewayTestCase
 {
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->config = $this->getObjectManager()->get(Config::class);
+    }
+
     /**
      * Test to see if this could be build
      *
-     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order.php
      * @throws LocalizedException
      */
-    public function testBuild()
+    public function testBuild(): void
     {
         $refundTransactionBuilder = $this->getRefundTransactionBuilder();
         $stateObject = new DataObject();
         $order = $this->getOrder();
-        $paymentDataObject = $this->getNewPaymentDataObject($order);
+        $paymentDataObject = $this->getNewPaymentDataObjectFromOrder($order);
+        $currencyCode = $order->getOrderCurrencyCode();
+        $amount = $order->getGrandTotal();
 
         $buildSubject = [
             'stateObject' => $stateObject,
             'payment' => $paymentDataObject,
-            'amount' => $order->getGrandTotal(),
-            'currency' => $order->getOrderCurrencyCode()
+            'amount' => $amount,
+            'currency' => $currencyCode,
         ];
 
         $return = $refundTransactionBuilder->build($buildSubject);
 
-        $this->assertArrayHasKey('payload', $return);
-        $this->assertArrayHasKey('order_id', $return);
-        $this->assertInstanceOf(RefundRequest::class, $return['payload']);
+        self::assertArrayHasKey('payload', $return);
+        self::assertArrayHasKey('order_id', $return);
+        self::assertInstanceOf(RefundRequest::class, $return['payload']);
+
+        $payloadData = $return['payload']->getData();
+        self::assertEquals($currencyCode, $payloadData['currency']);
+        self::assertEquals(round($amount * 100, 10), $payloadData['amount']);
+        self::assertEquals(
+            $this->config->getRefundDescription($order->getIncrementId()),
+            $payloadData['description']
+        );
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function testRefundTransactionBuildForPartialCaptureTransaction()
+    {
+        $refundTransactionBuilder = $this->getRefundTransactionBuilder();
+        $order = $this->getOrderWithVisaPaymentMethod();
+        $payment = $order->getPayment();
+        $transactionId = '1234567980';
+        $newOrderId = $order->getIncrementId() . $transactionId;
+        $buildSubject = [
+            'stateObject' => new DataObject(),
+            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
+            'amount' => 50,
+            'currency' => $order->getOrderCurrencyCode(),
+        ];
+        $payment->setParentTransactionId($transactionId);
+        $emptyCaptureDataExceptionMessage = 'Can\'t find manual capture data';
+
+        $this->expectExceptionMessage($emptyCaptureDataExceptionMessage);
+        $this->expectException(CouldNotRefundException::class);
+
+        $refundTransactionBuilder->build($buildSubject);
+
+        $this->expectExceptionMessage(
+            'Refund amount for manual captured invoice is not valid. Please set a different amount'
+        );
+        $this->expectException(CouldNotRefundException::class);
+
+        $payment->setAdditionalInformation(
+            CaptureUtil::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
+            [
+                [
+                    'transaction_id' => $transactionId,
+                    'order_id' => $newOrderId,
+                    'amount' => 20,
+                ],
+            ]
+        );
+        $refundTransactionBuilder->build($buildSubject);
+
+        $this->expectExceptionMessage($emptyCaptureDataExceptionMessage);
+        $this->expectException(CouldNotRefundException::class);
+
+        $payment->setAdditionalInformation(
+            CaptureUtil::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
+            [
+                [
+                    'transaction_id' => $transactionId . '_123',
+                    'order_id' => $newOrderId,
+                    'amount' => 20,
+                ],
+            ]
+        );
+        $refundTransactionBuilder->build($buildSubject);
+
+        $payment->setAdditionalInformation(
+            CaptureUtil::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME,
+            [
+                [
+                    'transaction_id' => $transactionId,
+                    'order_id' => $newOrderId,
+                    'amount' => 20,
+                ],
+            ]
+        );
+        $return = $refundTransactionBuilder->build($buildSubject);
+
+        self::assertArrayHasKey('order_id', $return);
+        self::assertEquals($newOrderId, $return['order_id']);
     }
 
     /**
@@ -67,13 +165,13 @@ class RefundTransactionBuilderTest extends AbstractTestCase
         $refundTransactionBuilder = $this->getRefundTransactionBuilder();
         $stateObject = new DataObject();
         $order = $this->getOrder();
-        $paymentDataObject = $this->getNewPaymentDataObject($order);
+        $paymentDataObject = $this->getNewPaymentDataObjectFromOrder($order);
 
         $buildSubject = [
             'stateObject' => $stateObject,
             'payment' => $paymentDataObject,
             'amount' => 0,
-            'currency' => $order->getOrderCurrencyCode()
+            'currency' => $order->getOrderCurrencyCode(),
         ];
 
         $this->expectException(CouldNotRefundException::class);
@@ -91,13 +189,13 @@ class RefundTransactionBuilderTest extends AbstractTestCase
         $refundTransactionBuilder = $this->getRefundTransactionBuilder();
         $stateObject = new DataObject();
         $order = $this->getOrder();
-        $paymentDataObject = $this->getNewPaymentDataObject($order);
+        $paymentDataObject = $this->getNewPaymentDataObjectFromOrder($order);
 
         $buildSubject = [
             'stateObject' => $stateObject,
             'payment' => $paymentDataObject,
             'amount' => -1,
-            'currency' => $order->getOrderCurrencyCode()
+            'currency' => $order->getOrderCurrencyCode(),
         ];
 
         $this->expectException(CouldNotRefundException::class);
@@ -110,16 +208,5 @@ class RefundTransactionBuilderTest extends AbstractTestCase
     private function getRefundTransactionBuilder(): RefundTransactionBuilder
     {
         return $this->getObjectManager()->get(RefundTransactionBuilder::class);
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @return PaymentDataObjectInterface
-     */
-    private function getNewPaymentDataObject(OrderInterface $order): PaymentDataObjectInterface
-    {
-        /** @var PaymentDataObjectFactoryInterface $paymentDataObjectFactory */
-        $paymentDataObjectFactory = $this->getObjectManager()->get(PaymentDataObjectFactoryInterface::class);
-        return $paymentDataObjectFactory->create($order->getPayment());
     }
 }

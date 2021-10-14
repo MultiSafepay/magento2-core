@@ -187,7 +187,13 @@ class CaptureTransactionBuilder implements BuilderInterface
     {
         $invoice = $payment->getInvoice() ?: $order->getInvoiceCollection()->getLastItem();
 
-        if ($invoice && !$invoice->getIncrementId()) {
+        if (!$invoice->getData()) {
+            throw new CouldNotInvoiceException(
+                __('Something went wrong. Invoice was not found.')
+            );
+        }
+
+        if (!$invoice->getIncrementId()) {
             $invoice->setIncrementId(
                 $this->sequenceManager->getSequence(
                     $invoice->getEntityType(),
