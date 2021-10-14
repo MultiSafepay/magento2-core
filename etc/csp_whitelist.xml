@@ -4,16 +4,19 @@
         <policy id="script-src">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-library" type="host">https://pay.google.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-library" type="host">https://pay.google.com</value>
             </values>
         </policy>
         <policy id="frame-ancestors">
             <values>
                 <value id="multisafepay" type="host">*.multisafepay.com</value>
+                <value id="google-pay-library" type="host">https://pay.google.com</value>
             </values>
         </policy>
         <policy id="img-src">

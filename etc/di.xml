@@ -7545,7 +7545,8 @@
                 <item name="multisafepay_directdebit" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\DirectDebitGatewayInfoBuilder</item>
                 <item name="multisafepay_einvoicing" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\BankAccountAndDateOfBirthGatewayInfoBuilder</item>
                 <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GenderAndDateOfBirthGatewayInfoBuilder</item>
-                <item name="multisafepay_applepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\ApplePayGatewayInfoBuilder</item>
+                <item name="multisafepay_applepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\WalletPaymentTokenGatewayInfoBuilder</item>
+                <item name="multisafepay_googlepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\WalletPaymentTokenGatewayInfoBuilder</item>
             </argument>
         </arguments>
     </type>

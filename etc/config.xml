@@ -483,6 +483,8 @@
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <title>Google Pay</title>
+                <direct_button>0</direct_button>
+                <direct_button_mode>1</direct_button_mode>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_use_checkout>1</can_use_checkout>
@@ -497,7 +499,6 @@
                 <allow_specific_customer_group>0</allow_specific_customer_group>
                 <allow_amount>0</allow_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
-                <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>GOOGLEPAY</gateway_code>
             </multisafepay_googlepay>
@@ -1446,5 +1447,14 @@
                 <gateway_code>YOURGIFT</gateway_code>
             </multisafepay_yourgift>
         </payment>
+        <csp>
+            <policies>
+                <storefront>
+                    <frame-ancestors>
+                        <inline>0</inline>
+                    </frame-ancestors>
+                </storefront>
+            </policies>
+        </csp>
     </default>
 </config>
