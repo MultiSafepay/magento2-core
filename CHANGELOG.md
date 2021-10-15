@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.11.0] - 2021-10-15
 ### Added
 - Added Apple Pay Direct
-- Added Google Pay
-- Added WeChat Pay
+- Added Google Pay Direct/Redirect
+- Added WeChat Pay Redirect
 
 ### Fixed
 - Fixed an error notice when postal code was left empty (Thanks to @thlassche)
