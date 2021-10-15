@@ -70,6 +70,15 @@
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>IDEAL</gateway_code>
             </multisafepay_ideal>
+            <multisafepay_creditcard_vault>
+                <active>0</active>
+                <model>MultiSafepayIdealVaultFacade</model>
+                <title>Stored Bank Account (iDEAL)</title>
+                <transaction_type>direct</transaction_type>
+                <instant_purchase>
+                    <supported>1</supported>
+                </instant_purchase>
+            </multisafepay_creditcard_vault>
             <multisafepay_payafter>
                 <active>0</active>
                 <model>PayafterFacade</model>

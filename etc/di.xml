@@ -279,6 +279,67 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="MultiSafepayIdealVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIdealVaultConfig</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayIdealVaultValueHandlerPool</argument>
+            <argument name="vaultProvider" xsi:type="object">MultiSafepayIdealRecurringFacade</argument>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Ideal Vault Configuration reader -->
+    <virtualType name="MultiSafepayIdealVaultConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayIdealVaultValueHandler" type="VaultPaymentDefaultValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayIdealVaultConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayIdealVaultValueHandlerPool" type="VaultPaymentValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayIdealVaultValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayIdealVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayIdealVaultAuthorizeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RecurringClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Ideal Vault Authorize Request -->
+    <virtualType name="MultiSafepayIdealVaultAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RecurringTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Command managers section for Vault -->
+    <virtualType name="MultiSafepayIdealVaultCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">MultiSafepayIdealRecurringCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="multisafepay_Ideal_recurring" xsi:type="string">MultiSafepayIdealVaultCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- Payafter Payment Method Facade configuration -->
     <virtualType name="PayafterFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
