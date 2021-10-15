@@ -95,7 +95,7 @@ class CaptureTransactionBuilderTest extends AbstractGatewayTestCase
         self::assertEquals($orderIncrementId, $captureTransactionData['order_id']);
         self::assertEquals($order->getStoreId(), $captureTransactionData['store_id']);
         self::assertEquals(round($amount * 100, 10), $capturePayload->get('amount'));
-        self::assertIsString($capturePayload->get('invoice_id'));
+        self::assertEquals($invoice->getIncrementId(), $capturePayload->get('invoice_id'));
         self::isNull($capturePayload->get('new_order_id'));
         self::assertEquals(Transaction::COMPLETED, $capturePayload->get('new_order_status'));
 
@@ -142,7 +142,7 @@ class CaptureTransactionBuilderTest extends AbstractGatewayTestCase
         self::assertEquals($orderIncrementId, $captureTransactionData['order_id']);
         self::assertEquals($order->getStoreId(), $captureTransactionData['store_id']);
         self::assertEquals(round($amount * 100, 10), $capturePayload->get('amount'));
-        self::assertIsString($capturePayload->get('invoice_id'));
+        self::assertEquals($invoice->getIncrementId(), $capturePayload->get('invoice_id'));
         self::assertEquals(
             $orderIncrementId . '_' . $capturePayload->get('invoice_id'),
             $capturePayload->get('new_order_id')

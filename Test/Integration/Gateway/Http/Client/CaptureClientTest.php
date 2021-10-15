@@ -84,7 +84,6 @@ class CaptureClientTest extends AbstractGatewayTestCase
             )
         );
 
-        self::assertIsArray($result);
         self::assertEquals(self::FAKE_TRANSACTION_ID, $result['transaction_id']);
         self::assertEquals($fakeOrderIncrementId, $result['order_id']);
     }

@@ -71,16 +71,16 @@ class CancelClientTest extends AbstractGatewayTestCase
             ->getMock();
 
         self::assertNull($cancelClientMock->placeRequest($this->prepareTransferObjectMock([])));
-        self::assertIsArray(
-            $cancelClientMock->placeRequest(
-                $this->prepareTransferObjectMock(
-                    [
-                        'order_id' => $fakeOrderIncrementId,
-                        'payload' => $captureRequestPayload,
-                    ]
-                )
+        $cancelResult = $cancelClientMock->placeRequest(
+            $this->prepareTransferObjectMock(
+                [
+                    'order_id' => $fakeOrderIncrementId,
+                    'payload' => $captureRequestPayload,
+                ]
             )
         );
+        self::isTrue(isset($cancelResult['order_id']));
+        self::isTrue(isset($cancelResult['payload']));
     }
 
     /**
