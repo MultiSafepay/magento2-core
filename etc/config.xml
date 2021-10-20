@@ -70,7 +70,34 @@
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>IDEAL</gateway_code>
             </multisafepay_ideal>
-            <multisafepay_creditcard_vault>
+            <multisafepay_ideal_recurring>
+                <active>0</active>
+                <model>MultiSafepayIdealRecurringFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>iDEAL (Recurring)</title>
+                <currency>EUR</currency>
+                <can_authorize>1</can_authorize>
+                <can_authorize_vault>1</can_authorize_vault>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <allowspecific>0</allowspecific>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <allow_amount>0</allow_amount>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>redirect</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>IDEAL</gateway_code>
+            </multisafepay_ideal_recurring>
+            <multisafepay_ideal_vault>
                 <active>0</active>
                 <model>MultiSafepayIdealVaultFacade</model>
                 <title>Stored Bank Account (iDEAL)</title>
@@ -78,7 +105,7 @@
                 <instant_purchase>
                     <supported>1</supported>
                 </instant_purchase>
-            </multisafepay_creditcard_vault>
+            </multisafepay_ideal_vault>
             <multisafepay_payafter>
                 <active>0</active>
                 <model>PayafterFacade</model>

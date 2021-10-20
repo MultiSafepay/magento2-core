@@ -33,6 +33,8 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardRecurringConfigProvider;
@@ -51,8 +53,14 @@ class Vault
         CreditCardConfigProvider::CODE => CreditCardRecurringConfigProvider::CODE,
         VisaConfigProvider::CODE => VisaRecurringConfigProvider::CODE,
         MastercardConfigProvider::CODE => MastercardRecurringConfigProvider::CODE,
-        AmexConfigProvider::CODE => AmexRecurringConfigProvider::CODE
+        AmexConfigProvider::CODE => AmexRecurringConfigProvider::CODE,
+        IdealConfigProvider::CODE => IdealRecurringConfigProvider::CODE,
     ];
+
+    /**
+     * @var IdealConfigProvider
+     */
+    protected $idealConfigProvider;
 
     /**
      * @var PaymentTokenManagementInterface
@@ -100,6 +108,7 @@ class Vault
      * @param EncryptorInterface $encryptor
      * @param JsonHandler $jsonHandler
      * @param OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
+     * @param IdealConfigProvider $idealConfigProvider
      * @param MaestroConfigProvider $maestroConfigProvider
      * @param PaymentTokenFactoryInterface $paymentTokenFactory
      * @param PaymentTokenManagementInterface $paymentTokenManagement
@@ -110,6 +119,7 @@ class Vault
         EncryptorInterface $encryptor,
         JsonHandler $jsonHandler,
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
+        IdealConfigProvider $idealConfigProvider,
         MaestroConfigProvider $maestroConfigProvider,
         PaymentTokenFactoryInterface $paymentTokenFactory,
         PaymentTokenManagementInterface $paymentTokenManagement,
@@ -124,6 +134,7 @@ class Vault
         $this->vaultUtil = $vaultUtil;
         $this->jsonHandler = $jsonHandler;
         $this->maestroConfigProvider = $maestroConfigProvider;
+        $this->idealConfigProvider = $idealConfigProvider;
     }
 
     /**
@@ -197,7 +208,7 @@ class Vault
         $paymentToken->setTokenDetails($this->jsonHandler->convertToJSON([
             MultiSafepayPaymentTokenInterface::TYPE => $recurringDetails[RecurringDetailsInterface::TYPE],
             MultiSafepayPaymentTokenInterface::MASKED_CC => $recurringDetails[RecurringDetailsInterface::CARD_LAST4],
-            MultiSafepayPaymentTokenInterface::EXPIRATION_DATE => $expirationDate->format('m/Y')
+            MultiSafepayPaymentTokenInterface::EXPIRATION_DATE => $expirationDate->format('m/Y'),
         ]));
 
         $paymentToken->setIsActive(true);
@@ -214,6 +225,11 @@ class Vault
      */
     private function validateRecurringDetails(array $recurringDetails): bool
     {
+        if ($recurringDetails[RecurringDetailsInterface::RECURRING_ID]
+            && ($recurringDetails[RecurringDetailsInterface::TYPE] === $this->idealConfigProvider->getGatewayCode())) {
+            return true;
+        }
+
         $arrayFields = [
             RecurringDetailsInterface::TYPE,
             RecurringDetailsInterface::RECURRING_ID,
@@ -233,7 +249,7 @@ class Vault
             }
 
             if ($field === RecurringDetailsInterface::TYPE && $recurringDetails[$field] === $maestroGatewayCode) {
-                return  false;
+                return false;
             }
         }
 
