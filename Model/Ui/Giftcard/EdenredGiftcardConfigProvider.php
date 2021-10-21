@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Giftcard;
 
+use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 
 class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
@@ -26,10 +27,11 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
     public const EDENECO_COUPON_CODE = 'edeneco';
     public const EDENRES_COUPON_CODE = 'edenres';
     public const EDENSPORTS_COUPON_CODE = 'edensports';
+    public const CONFIG_ALL_CATEGORIES_VALUE = 'all_categories';
 
     public function getAvailableCategoriesAndCoupons(int $storeId = null): array
     {
-        return [
+        return array_filter([
             self::EDENCOM_COUPON_CODE => $this->getAvailableCategoriesByCouponCode(
                 self::EDENCOM_COUPON_CODE,
                 $storeId
@@ -46,7 +48,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
                 self::EDENSPORTS_COUPON_CODE,
                 $storeId
             ),
-        ];
+        ]);
     }
 
     /**
@@ -56,6 +58,45 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
      */
     public function getAvailableCategoriesByCouponCode(string $couponCode, int $storeId = null): array
     {
-        return $this->getPaymentConfig($storeId)[$couponCode . '_categories'];
+        if ($ids = $this->getPaymentConfig($storeId)[$couponCode . '_categories']) {
+            return explode(',', $ids);
+        }
+
+        return [];
+    }
+
+    /**
+     * @param CartInterface $quote
+     * @return array
+     */
+    public function getAvailableCouponsByQuote(CartInterface $quote): array
+    {
+        $result = [];
+        $availableCategoriesAndCoupons = $this->getAvailableCategoriesAndCoupons($quote->getStoreId());
+        $temporaryResult = [];
+        $counter = 0;
+
+        foreach ($quote->getAllItems() as $item) {
+            $categoryIds = $item->getProduct()->getCategoryIds();
+
+            foreach ($availableCategoriesAndCoupons as $couponCode => $availableCategoryIds) {
+                if (array_intersect($categoryIds, $availableCategoryIds)
+                    || in_array(self::CONFIG_ALL_CATEGORIES_VALUE, $availableCategoryIds)
+                ) {
+                    $temporaryResult[] = $couponCode;
+                }
+            }
+
+            if ($counter === 0) {
+                $result = $temporaryResult;
+            } else {
+                $result = array_intersect($result, $temporaryResult);
+            }
+
+            $temporaryResult = [];
+            $counter++;
+        }
+
+        return array_unique($result);
     }
 }

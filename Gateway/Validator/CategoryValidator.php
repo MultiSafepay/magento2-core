@@ -17,25 +17,30 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator;
 
-use Magento\Customer\Model\Session;
 use Magento\Payment\Gateway\Config\Config;
 use Magento\Quote\Api\Data\CartInterface;
+use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 
-class CustomerGroupValidator
+class CategoryValidator
 {
-    /**
-     * @var Session
-     */
-    private $customerSession;
+    public const AVAILABLE_GATEWAYS = [
+        EdenredGiftcardConfigProvider::CODE,
+    ];
 
     /**
-     * CustomerGroupValidator constructor.
-     *
-     * @param Session $customerSession
+     * @var EdenredGiftcardConfigProvider
      */
-    public function __construct(Session $customerSession)
-    {
-        $this->customerSession = $customerSession;
+    private $edenredGiftcardConfigProvider;
+
+    /**
+     * CategoryValidator constructor.
+     *
+     * @param EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
+     */
+    public function __construct(
+        EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
+    ) {
+        $this->edenredGiftcardConfigProvider = $edenredGiftcardConfigProvider;
     }
 
     /**
@@ -48,19 +53,12 @@ class CustomerGroupValidator
      */
     public function validate(CartInterface $quote, Config $config, string $methodCode): bool
     {
-        $storeId = $quote->getStoreId();
+        if (!in_array($methodCode, self::AVAILABLE_GATEWAYS, true)) {
+            return false;
+        }
 
-        if ((int)$config->getValue('allow_specific_customer_group', $storeId) === 1) {
-            $availableCustomerGroups = explode(
-                ',',
-                (string)$config->getValue('allowed_customer_group', $storeId)
-            );
-
-            return !in_array(
-                ($this->customerSession->isLoggedIn() && $this->customerSession->getCustomer()->getId())
-                    ? $this->customerSession->getCustomer()->getGroupId() : $quote->getCustomerGroupId(),
-                $availableCustomerGroups
-            );
+        if ($methodCode === EdenredGiftcardConfigProvider::CODE) {
+            return count($this->edenredGiftcardConfigProvider->getAvailableCouponsByQuote($quote)) === 0;
         }
 
         return false;
