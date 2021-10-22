@@ -121,8 +121,8 @@ class IdealConfigProvider extends GenericConfigProvider
      */
     public function getGatewayCode(): string
     {
-        $maestroMethodCode = self::CODE;
+        $methodCode = self::CODE;
 
-        return (string)$this->scopeConfig->getValue('payment/' . $maestroMethodCode . '/gateway_code');
+        return (string)$this->scopeConfig->getValue('payment/' . $methodCode . '/gateway_code');
     }
 }

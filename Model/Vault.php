@@ -42,7 +42,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\VaultUtil;
-use \MultiSafepay\ConnectCore\Api\PaymentTokenInterface as MultiSafepayPaymentTokenInterface;
+use MultiSafepay\ConnectCore\Api\PaymentTokenInterface as MultiSafepayPaymentTokenInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -139,12 +139,15 @@ class Vault
 
     /**
      * @param Payment $payment
-     * @param array $recurringDetails
+     * @param array $paymentDetails
+     * @param string $transactionType
      * @return bool
      * @throws Exception
      */
-    public function initialize(Payment $payment, array $recurringDetails): bool
+    public function initialize(Payment $payment, array $paymentDetails, string $transactionType): bool
     {
+        $recurringDetails = $this->getRecurringDetailsFromPaymentDetails($paymentDetails, $transactionType);
+
         if (!$this->validateRecurringDetails($recurringDetails)
             || !$this->vaultUtil->validateVaultTokenEnabler($payment->getAdditionalInformation())
         ) {
@@ -187,7 +190,8 @@ class Vault
         );
 
         $expirationDate = $this->formatExpirationDate(
-            (string)$recurringDetails[RecurringDetailsInterface::EXPIRATION_DATE]
+            (string)$recurringDetails[RecurringDetailsInterface::EXPIRATION_DATE],
+            (string)$recurringDetails[RecurringDetailsInterface::TYPE]
         );
 
         if ($paymentToken === null) {
@@ -217,6 +221,30 @@ class Vault
         $this->paymentTokenRepository->save($paymentToken);
 
         return $paymentToken;
+    }
+
+    /**
+     * @param array $paymentDetails
+     * @param string $transactionType
+     * @return array
+     */
+    private function getRecurringDetailsFromPaymentDetails(array $paymentDetails, string $transactionType): array
+    {
+        if ($transactionType === $this->idealConfigProvider->getGatewayCode()) {
+            return [
+                RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
+                RecurringDetailsInterface::TYPE => $transactionType,
+                RecurringDetailsInterface::EXPIRATION_DATE => '',
+                RecurringDetailsInterface::CARD_LAST4 => 'xx' . substr($paymentDetails['account_iban'], -2) ?? '',
+            ];
+        }
+
+        return [
+            RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
+            RecurringDetailsInterface::TYPE => $transactionType,
+            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails['card_expiry_date'] ?? '',
+            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails['last4'] ?? '',
+        ];
     }
 
     /**
@@ -258,13 +286,19 @@ class Vault
 
     /**
      * @param string $expirationDate
+     * @param string $type
      * @return DateTime
      * @throws Exception
      */
-    private function formatExpirationDate(string $expirationDate): DateTime
+    private function formatExpirationDate(string $expirationDate, string $type): DateTime
     {
         $year = substr($expirationDate, 0, 2);
         $date = substr($expirationDate, 2, 4);
+
+        // Add 5 years for iDEAL, because there is no expiration date for this token
+        if ($type === $this->idealConfigProvider->getGatewayCode()) {
+            return new DateTime(sprintf("%s-%02d-01 00:00:00", date('y') + 5, $date));
+        }
 
         return new DateTime(sprintf("%s-%02d-01 00:00:00", $year, $date));
     }
