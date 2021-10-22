@@ -17,7 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Giftcard;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 
 class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
@@ -29,6 +31,30 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
     public const EDENSPORTS_COUPON_CODE = 'edensports';
     public const CONFIG_ALL_CATEGORIES_VALUE = 'all_categories';
 
+    /**
+     * Retrieve assoc array of checkout configuration
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getConfig(): array
+    {
+        return [
+            'payment' => [
+                $this->getCode() => [
+                    'image' => $this->getImage(),
+                    'is_preselected' => $this->isPreselected(),
+                    'transaction_type' => $this->getTransactionType(),
+                    'coupons' => $this->getAvailableCouponsByQuote($this->checkoutSession->getQuote()),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return array
+     */
     public function getAvailableCategoriesAndCoupons(int $storeId = null): array
     {
         return array_filter([
@@ -71,12 +97,31 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
      */
     public function getAvailableCouponsByQuote(CartInterface $quote): array
     {
+        return $this->getAvailableCouponsForSpecificItems($quote->getAllItems(), (int)$quote->getStoreId());
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return array
+     */
+    public function getAvailableCouponsByOrder(OrderInterface $order): array
+    {
+        return $this->getAvailableCouponsForSpecificItems($order->getAllItems(), (int)$order->getStoreId());
+    }
+
+    /**
+     * @param array $items
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getAvailableCouponsForSpecificItems(array $items, int $storeId = null): array
+    {
         $result = [];
-        $availableCategoriesAndCoupons = $this->getAvailableCategoriesAndCoupons($quote->getStoreId());
+        $availableCategoriesAndCoupons = $this->getAvailableCategoriesAndCoupons($storeId);
         $temporaryResult = [];
         $counter = 0;
 
-        foreach ($quote->getAllItems() as $item) {
+        foreach ($items as $item) {
             $categoryIds = $item->getProduct()->getCategoryIds();
 
             foreach ($availableCategoriesAndCoupons as $couponCode => $availableCategoryIds) {
@@ -89,6 +134,10 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
 
             if ($counter === 0) {
                 $result = $temporaryResult;
+
+                if (!$result) {
+                    break;
+                }
             } else {
                 $result = array_intersect($result, $temporaryResult);
             }

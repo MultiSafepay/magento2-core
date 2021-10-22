@@ -7822,8 +7822,4 @@
     <type name="Magento\Sales\Api\Data\OrderInterface">
         <plugin name="multisafepay_cancel_order_pretransaction" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\OrderPlugin" />
     </type>
-
-    <type name="Magento\Payment\Gateway\Config\Config">
-        <plugin name="multisafepay_payment_config_plugin" type="MultiSafepay\ConnectCore\Plugin\Payment\Gateway\Config\ConfigPlugin" />
-    </type>
 </config>

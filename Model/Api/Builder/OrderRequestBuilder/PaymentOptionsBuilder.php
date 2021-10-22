@@ -24,6 +24,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
 use MultiSafepay\ConnectCore\Model\SecureToken;
+use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 
 class PaymentOptionsBuilder implements OrderRequestBuilderInterface
 {
@@ -47,20 +48,28 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     private $storeManager;
 
     /**
-     * PaymentOptions constructor.
+     * @var EdenredGiftcardConfigProvider
+     */
+    private $edenredGiftcardConfigProvider;
+
+    /**
+     * PaymentOptionsBuilder constructor.
      *
      * @param PaymentOptions $paymentOptions
      * @param SecureToken $secureToken
      * @param StoreManagerInterface $storeManager
+     * @param EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
      */
     public function __construct(
         PaymentOptions $paymentOptions,
         SecureToken $secureToken,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
     ) {
         $this->secureToken = $secureToken;
         $this->paymentOptions = $paymentOptions;
         $this->storeManager = $storeManager;
+        $this->edenredGiftcardConfigProvider = $edenredGiftcardConfigProvider;
     }
 
     /**
@@ -83,14 +92,41 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
         $notificationUrl = $this->getUrl(self::NOTIFICATION_URL, $storeId);
         $redirectUrl = $this->getUrl(self::REDIRECT_URL, $storeId, $params);
         $cancelUrl = $this->getUrl(self::CANCEL_URL, $storeId, $params);
+        $paymentOptions = $this->paymentOptions->addNotificationUrl($notificationUrl)
+            ->addRedirectUrl($redirectUrl)
+            ->addCancelUrl($cancelUrl)
+            ->addCloseWindow(false)
+            ->addNotificationMethod();
 
-        $orderRequest->addPaymentOptions(
-            $this->paymentOptions->addNotificationUrl($notificationUrl)
-                ->addRedirectUrl($redirectUrl)
-                ->addCancelUrl($cancelUrl)
-                ->addCloseWindow(false)
-                ->addNotificationMethod()
-        );
+        if ($additionalSettings = $this->getAdditionalSettings($order, $payment)) {
+            $paymentOptions->addSettings($additionalSettings);
+        }
+
+        $orderRequest->addPaymentOptions($paymentOptions);
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @return array
+     */
+    private function getAdditionalSettings(OrderInterface $order, OrderPaymentInterface $payment): array
+    {
+        $settings = [];
+
+        if ($payment->getMethod() === EdenredGiftcardConfigProvider::CODE) {
+            $coupons = $this->edenredGiftcardConfigProvider->getAvailableCouponsByOrder($order);
+            $settings = [
+                'gateways' => [
+                    'coupons' => [
+                        'allow' => array_map('strtoupper', $coupons),
+                        'disabled' => count($coupons) === 0,
+                    ],
+                ],
+            ];
+        }
+
+        return $settings;
     }
 
     /**
