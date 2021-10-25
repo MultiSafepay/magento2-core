@@ -33,6 +33,8 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
@@ -55,7 +57,13 @@ class Vault
         MastercardConfigProvider::CODE => MastercardRecurringConfigProvider::CODE,
         AmexConfigProvider::CODE => AmexRecurringConfigProvider::CODE,
         IdealConfigProvider::CODE => IdealRecurringConfigProvider::CODE,
+        DirectDebitConfigProvider::CODE => DirectDebitRecurringConfigProvider::CODE,
     ];
+
+    /**
+     * @var DirectDebitConfigProvider
+     */
+    protected $directDebitConfigProvider;
 
     /**
      * @var IdealConfigProvider
@@ -108,6 +116,7 @@ class Vault
      * @param EncryptorInterface $encryptor
      * @param JsonHandler $jsonHandler
      * @param OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
+     * @param DirectDebitConfigProvider $directDebitConfigProvider
      * @param IdealConfigProvider $idealConfigProvider
      * @param MaestroConfigProvider $maestroConfigProvider
      * @param PaymentTokenFactoryInterface $paymentTokenFactory
@@ -119,6 +128,7 @@ class Vault
         EncryptorInterface $encryptor,
         JsonHandler $jsonHandler,
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
+        DirectDebitConfigProvider $directDebitConfigProvider,
         IdealConfigProvider $idealConfigProvider,
         MaestroConfigProvider $maestroConfigProvider,
         PaymentTokenFactoryInterface $paymentTokenFactory,
@@ -135,6 +145,7 @@ class Vault
         $this->jsonHandler = $jsonHandler;
         $this->maestroConfigProvider = $maestroConfigProvider;
         $this->idealConfigProvider = $idealConfigProvider;
+        $this->directDebitConfigProvider = $directDebitConfigProvider;
     }
 
     /**
@@ -235,7 +246,7 @@ class Vault
                 RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
                 RecurringDetailsInterface::TYPE => $transactionType,
                 RecurringDetailsInterface::EXPIRATION_DATE => '',
-                RecurringDetailsInterface::CARD_LAST4 => 'xx' . substr($paymentDetails['account_iban'], -2) ?? '',
+                RecurringDetailsInterface::CARD_LAST4 => 'xx' . substr($paymentDetails['account_iban'] ?? '', -2),
             ];
         }
 
@@ -253,16 +264,9 @@ class Vault
      */
     private function validateRecurringDetails(array $recurringDetails): bool
     {
-        if ($recurringDetails[RecurringDetailsInterface::RECURRING_ID]
-            && ($recurringDetails[RecurringDetailsInterface::TYPE] === $this->idealConfigProvider->getGatewayCode())) {
-            return true;
-        }
-
         $arrayFields = [
             RecurringDetailsInterface::TYPE,
             RecurringDetailsInterface::RECURRING_ID,
-            RecurringDetailsInterface::EXPIRATION_DATE,
-            RecurringDetailsInterface::CARD_LAST4,
         ];
 
         if (empty($recurringDetails)) {
@@ -295,8 +299,9 @@ class Vault
         $year = substr($expirationDate, 0, 2);
         $date = substr($expirationDate, 2, 4);
 
-        // Add 5 years for iDEAL, because there is no expiration date for this token
-        if ($type === $this->idealConfigProvider->getGatewayCode()) {
+        // Add 5 years for tokens without expiration date
+        if ($type === $this->idealConfigProvider->getGatewayCode()
+            || $type === $this->directDebitConfigProvider->getGatewayCode()) {
             return new DateTime(sprintf("%s-%02d-01 00:00:00", date('y') + 5, $date));
         }
 
