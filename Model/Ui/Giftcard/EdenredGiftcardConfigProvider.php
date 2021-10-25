@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Giftcard;
 
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -122,6 +123,10 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
         $counter = 0;
 
         foreach ($items as $item) {
+            if ($item->getProduct()->getTypeId() === Configurable::TYPE_CODE && !$item->getHasParentId()) {
+                continue;
+            }
+
             $categoryIds = $item->getProduct()->getCategoryIds();
 
             foreach ($availableCategoriesAndCoupons as $couponCode => $availableCategoryIds) {
