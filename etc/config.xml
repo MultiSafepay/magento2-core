@@ -888,7 +888,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>IDEAL</gateway_code>
+                <gateway_code>DIRDEB</gateway_code>
             </multisafepay_directdebit_recurring>
             <multisafepay_directdebit_vault>
                 <active>0</active>

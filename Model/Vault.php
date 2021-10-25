@@ -111,7 +111,13 @@ class Vault
     private $maestroConfigProvider;
 
     /**
+     * @var array
+     */
+    private $types;
+
+    /**
      * VaultUtil constructor.
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      *
      * @param EncryptorInterface $encryptor
      * @param JsonHandler $jsonHandler
@@ -146,6 +152,9 @@ class Vault
         $this->maestroConfigProvider = $maestroConfigProvider;
         $this->idealConfigProvider = $idealConfigProvider;
         $this->directDebitConfigProvider = $directDebitConfigProvider;
+        $this->types = [
+            $idealConfigProvider->getGatewayCode(), $directDebitConfigProvider->getGatewayCode()
+        ];
     }
 
     /**
@@ -241,7 +250,7 @@ class Vault
      */
     private function getRecurringDetailsFromPaymentDetails(array $paymentDetails, string $transactionType): array
     {
-        if ($transactionType === $this->idealConfigProvider->getGatewayCode()) {
+        if (in_array($transactionType, $this->types, true)) {
             return [
                 RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
                 RecurringDetailsInterface::TYPE => $transactionType,
@@ -300,8 +309,7 @@ class Vault
         $date = substr($expirationDate, 2, 4);
 
         // Add 5 years for tokens without expiration date
-        if ($type === $this->idealConfigProvider->getGatewayCode()
-            || $type === $this->directDebitConfigProvider->getGatewayCode()) {
+        if (in_array($type, $this->types, true)) {
             return new DateTime(sprintf("%s-%02d-01 00:00:00", date('y') + 5, $date));
         }
 
