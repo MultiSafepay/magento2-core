@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
@@ -58,6 +59,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param PaymentConfig $paymentConfig
      * @param StoreManagerInterface $storeManager
      * @param MerchantSessionRequest $merchantSessionRequest
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -68,7 +70,8 @@ class ApplePayConfigProvider extends GenericConfigProvider
         ResolverInterface $localeResolver,
         PaymentConfig $paymentConfig,
         StoreManagerInterface $storeManager,
-        MerchantSessionRequest $merchantSessionRequest
+        MerchantSessionRequest $merchantSessionRequest,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->storeManager = $storeManager;
         $this->merchantSessionRequest = $merchantSessionRequest;
@@ -79,7 +82,8 @@ class ApplePayConfigProvider extends GenericConfigProvider
             $checkoutSession,
             $logger,
             $localeResolver,
-            $paymentConfig
+            $paymentConfig,
+            $scopeConfig
         );
     }
 

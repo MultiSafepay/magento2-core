@@ -61,16 +61,6 @@ class Vault
     ];
 
     /**
-     * @var DirectDebitConfigProvider
-     */
-    protected $directDebitConfigProvider;
-
-    /**
-     * @var IdealConfigProvider
-     */
-    protected $idealConfigProvider;
-
-    /**
      * @var PaymentTokenManagementInterface
      */
     private $paymentTokenManagement;
@@ -150,10 +140,9 @@ class Vault
         $this->vaultUtil = $vaultUtil;
         $this->jsonHandler = $jsonHandler;
         $this->maestroConfigProvider = $maestroConfigProvider;
-        $this->idealConfigProvider = $idealConfigProvider;
-        $this->directDebitConfigProvider = $directDebitConfigProvider;
         $this->types = [
-            $idealConfigProvider->getGatewayCode(), $directDebitConfigProvider->getGatewayCode()
+            $idealConfigProvider->getGatewayCode(),
+            $directDebitConfigProvider->getGatewayCode(),
         ];
     }
 
@@ -250,20 +239,16 @@ class Vault
      */
     private function getRecurringDetailsFromPaymentDetails(array $paymentDetails, string $transactionType): array
     {
-        if (in_array($transactionType, $this->types, true)) {
-            return [
-                RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
-                RecurringDetailsInterface::TYPE => $transactionType,
-                RecurringDetailsInterface::EXPIRATION_DATE => '',
-                RecurringDetailsInterface::CARD_LAST4 => 'xx' . substr($paymentDetails['account_iban'] ?? '', -2),
-            ];
-        }
+        $isTransactionTypeVault = in_array($transactionType, $this->types, true);
 
         return [
             RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
             RecurringDetailsInterface::TYPE => $transactionType,
-            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails['card_expiry_date'] ?? '',
-            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails['last4'] ?? '',
+            RecurringDetailsInterface::EXPIRATION_DATE => $isTransactionTypeVault ? ''
+                : ($paymentDetails['card_expiry_date'] ?? ''),
+            RecurringDetailsInterface::CARD_LAST4 => $isTransactionTypeVault
+                ? ('xx' . substr($paymentDetails['account_iban'] ?? '', -2))
+                : ($paymentDetails['last4'] ?? ''),
         ];
     }
 
@@ -282,7 +267,7 @@ class Vault
             return false;
         }
 
-        $maestroGatewayCode = $this->maestroConfigProvider->getMaestroGatewayCode();
+        $maestroGatewayCode = $this->maestroConfigProvider->getGatewayCode();
 
         foreach ($arrayFields as $field) {
             if (empty($recurringDetails[$field])) {
@@ -305,15 +290,11 @@ class Vault
      */
     private function formatExpirationDate(string $expirationDate, string $type): DateTime
     {
-        $year = substr($expirationDate, 0, 2);
         $date = substr($expirationDate, 2, 4);
 
-        // Add 5 years for tokens without expiration date
-        if (in_array($type, $this->types, true)) {
-            return new DateTime(sprintf("%s-%02d-01 00:00:00", date('y') + 5, $date));
-        }
-
-        return new DateTime(sprintf("%s-%02d-01 00:00:00", $year, $date));
+        return in_array($type, $this->types, true)
+            ? (new DateTime(sprintf("%s-%02d-01 00:00:00", date('y') + 5, $date)))
+            : (new DateTime(sprintf("%s-%02d-01 00:00:00", substr($expirationDate, 0, 2), $date)));
     }
 
     /**
