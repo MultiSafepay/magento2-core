@@ -118,32 +118,44 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
     public function getAvailableCouponsForSpecificItems(array $items, int $storeId = null): array
     {
         $result = [];
+        // All available coupons with assigned categories in configuration panel
         $availableCategoriesAndCoupons = $this->getAvailableCategoriesAndCoupons($storeId);
         $temporaryResult = [];
         $counter = 0;
 
         foreach ($items as $item) {
-            if ($item->getProduct()->getTypeId() === Configurable::TYPE_CODE && !$item->getHasParentId()) {
+            // Parent configurable products should be skipped, instead we have to check child products
+            if (!$item->getHasParentId() && $item->getProduct()->getTypeId() === Configurable::TYPE_CODE) {
                 continue;
             }
 
+            // Assigned categories for current product
             $categoryIds = $item->getProduct()->getCategoryIds();
 
             foreach ($availableCategoriesAndCoupons as $couponCode => $availableCategoryIds) {
+                // Check if we have intersection between product categories and coupon categories or if current
+                // coupon assigned to all categories
                 if (array_intersect($categoryIds, $availableCategoryIds)
-                    || in_array(self::CONFIG_ALL_CATEGORIES_VALUE, $availableCategoryIds)
+                    || in_array(self::CONFIG_ALL_CATEGORIES_VALUE, $availableCategoryIds, true)
                 ) {
+                    // Set all available coupons for current product
                     $temporaryResult[] = $couponCode;
                 }
             }
 
+            // for first iteration/product we should save $temporaryResult to $result for next comparisons with the
+            // $temporaryResult
             if ($counter === 0) {
                 $result = $temporaryResult;
 
+                // if first product doesn't have any available categories then we can stop the comparison process,
+                // because the Edenred doesn't available for a current cart
                 if (!$result) {
                     break;
                 }
             } else {
+                // compare if previous saved result for previous product have any intersected categories with a
+                // current product and save this intersection
                 $result = array_intersect($result, $temporaryResult);
             }
 
@@ -151,6 +163,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
             $counter++;
         }
 
+        // delete duplicate coupons
         return array_unique($result);
     }
 }
