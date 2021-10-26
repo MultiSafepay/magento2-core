@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -61,7 +60,6 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param PaymentConfig $paymentConfig
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -72,8 +70,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         ResolverInterface $localeResolver,
         PaymentConfig $paymentConfig,
         Filesystem $filesystem,
-        StoreManagerInterface $storeManager,
-        ScopeConfigInterface $scopeConfig
+        StoreManagerInterface $storeManager
     ) {
         $this->storeManager = $storeManager;
         $this->filesystem = $filesystem;
@@ -84,8 +81,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
             $checkoutSession,
             $logger,
             $localeResolver,
-            $paymentConfig,
-            $scopeConfig
+            $paymentConfig
         );
     }
 
