@@ -20,15 +20,14 @@ namespace MultiSafepay\ConnectCore\Util;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\ConnectAdminhtml\Model\Config\Source\PaymentAction;
-use MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
-use MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver;
 
 class CaptureUtil
 {
@@ -55,13 +54,22 @@ class CaptureUtil
     private $dateTime;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * CaptureUtil constructor.
      *
      * @param DateTime $dateTime
+     * @param Config $config
      */
-    public function __construct(DateTime $dateTime)
-    {
+    public function __construct(
+        DateTime $dateTime,
+        Config $config
+    ) {
         $this->dateTime = $dateTime;
+        $this->config = $config;
     }
 
     /**
@@ -108,13 +116,14 @@ class CaptureUtil
     /**
      * @param OrderPaymentInterface $payment
      * @return bool
-     * @throws LocalizedException
      */
     public function isCaptureManualPayment(OrderPaymentInterface $payment): bool
     {
-        if (!in_array($payment->getMethod(), self::AVAILABLE_MANUAL_CAPTURE_METHODS)
-            || !($payment->getMethodInstance()->getConfigPaymentAction()
-                 === self::PAYMENT_ACTION_AUTHORIZE_ONLY)
+        $storeId = $payment->getOrder() ? $payment->getOrder()->getStoreId() : Store::DEFAULT_STORE_ID;
+
+        if (!$this->config->isManualCaptureEnabled($storeId)
+            || !in_array($payment->getMethod(), self::AVAILABLE_MANUAL_CAPTURE_METHODS, true)
+            || !($payment->getMethodInstance()->getConfigPaymentAction() === self::PAYMENT_ACTION_AUTHORIZE_ONLY)
         ) {
             return false;
         }

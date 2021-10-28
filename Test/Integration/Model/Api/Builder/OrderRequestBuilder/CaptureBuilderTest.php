@@ -61,6 +61,7 @@ class CaptureBuilderTest extends AbstractTransactionTestCase
     /**
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @dataProvider         gatewaysDataProvider
+     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
      *
      * @param string $paymentCode
      * @param string $paymentAction
