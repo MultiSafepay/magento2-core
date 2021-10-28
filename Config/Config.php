@@ -39,6 +39,7 @@ class Config
     public const PROCESSING_ORDER_STATUS = 'processing_order_status';
     public const CREATE_INVOICE_AUTOMATICALLY = 'create_invoice';
     public const BEFORE_TRANSACTION = 'before_transaction';
+    public const USE_MANUAL_CAPTURE = 'use_manual_capture';
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
 
@@ -217,5 +218,14 @@ class Config
     public function isCreateOrderInvoiceAutomatically($storeId = null): bool
     {
         return (bool)$this->getValue(self::CREATE_INVOICE_AUTOMATICALLY, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return bool
+     */
+    public function isManualCaptureEnabled($storeId = null): bool
+    {
+        return (bool)$this->getValue(self::USE_MANUAL_CAPTURE, $storeId);
     }
 }

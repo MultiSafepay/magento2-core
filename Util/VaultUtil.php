@@ -24,6 +24,7 @@ use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Vault\Model\Ui\VaultConfigProvider;
 use MultiSafepay\ConnectCore\Api\PaymentTokenInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
 
 class VaultUtil
 {
@@ -31,6 +32,11 @@ class VaultUtil
      * @var AssetRepository
      */
     private $assetRepository;
+
+    /**
+     * @var DirectDebitConfigProvider
+     */
+    private $directDebitConfigProvider;
 
     /**
      * @var Logger
@@ -41,13 +47,16 @@ class VaultUtil
      * VaultUtil constructor.
      *
      * @param AssetRepository $assetRepository
+     * @param DirectDebitConfigProvider $directDebitConfigProvider
      * @param Logger $logger
      */
     public function __construct(
         AssetRepository $assetRepository,
+        DirectDebitConfigProvider $directDebitConfigProvider,
         Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
+        $this->directDebitConfigProvider = $directDebitConfigProvider;
         $this->logger = $logger;
     }
 
@@ -103,6 +112,10 @@ class VaultUtil
      */
     private function getImagePathByType(string $type): string
     {
+        if ($type === $this->directDebitConfigProvider->getGatewayCode()) {
+            return $this->directDebitConfigProvider->getPath();
+        }
+
         return 'MultiSafepay_ConnectCore::images/multisafepay_' . strtolower($type) . '.png';
     }
 

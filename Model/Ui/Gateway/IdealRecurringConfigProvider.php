@@ -8,7 +8,7 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * Copyright © 2021 MultiSafepay, Inc. All rights reserved.
+ * Copyright © 2020 MultiSafepay, Inc. All rights reserved.
  * See DISCLAIMER.md for disclaimer details.
  *
  */
@@ -19,7 +19,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
-class MaestroConfigProvider extends GenericConfigProvider
+class IdealRecurringConfigProvider extends GenericConfigProvider
 {
-    public const CODE = 'multisafepay_maestro';
+    public const CODE = 'multisafepay_ideal_recurring';
 }

@@ -68,12 +68,7 @@ class ProcessVaultInitialization
         );
 
         //Check if Vault needs to be initialized
-        $isVaultInitialized = $this->vault->initialize($payment, [
-            RecurringDetailsInterface::RECURRING_ID => $paymentDetails['recurring_id'] ?? '',
-            RecurringDetailsInterface::TYPE => $transactionType,
-            RecurringDetailsInterface::EXPIRATION_DATE => $paymentDetails['card_expiry_date'] ?? '',
-            RecurringDetailsInterface::CARD_LAST4 => $paymentDetails['last4'] ?? '',
-        ]);
+        $isVaultInitialized = $this->vault->initialize($payment, $paymentDetails, $transactionType);
 
         if ($isVaultInitialized) {
             $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render(), Logger::DEBUG);

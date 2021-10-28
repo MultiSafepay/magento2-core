@@ -279,6 +279,198 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="MultiSafepayIdealVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIdealVaultConfig</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayIdealVaultValueHandlerPool</argument>
+            <argument name="vaultProvider" xsi:type="object">MultiSafepayIdealRecurringFacade</argument>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Ideal Vault Configuration reader -->
+    <virtualType name="MultiSafepayIdealVaultConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayIdealVaultValueHandler" type="VaultPaymentDefaultValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayIdealVaultConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayIdealVaultValueHandlerPool" type="VaultPaymentValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayIdealVaultValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayIdealVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayIdealVaultAuthorizeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RecurringClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Ideal Vault Authorize Request -->
+    <virtualType name="MultiSafepayIdealVaultAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RecurringTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Command managers section for Vault -->
+    <virtualType name="MultiSafepayIdealVaultCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">MultiSafepayIdealRecurringCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="multisafepay_ideal_recurring" xsi:type="string">MultiSafepayIdealVaultCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- IdealRecurring Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayIdealRecurringFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealRecurringConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayIdealRecurringValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayIdealRecurringValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayIdealRecurringCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Configuration reader -->
+    <virtualType name="MultiSafepayIdealRecurringConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealRecurringConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Config Value Handler Pool -->
+    <virtualType name="MultiSafepayIdealRecurringConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayIdealRecurringConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Config Value Handler -->
+    <virtualType name="MultiSafepayIdealRecurringConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Logger, initialized with IdealRecurringConfig -->
+    <virtualType name="MultiSafepayIdealRecurringLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayIdealRecurringLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- IdealRecurring Commands infrastructure -->
+    <virtualType name="MultiSafepayIdealRecurringCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">MultiSafepayIdealRecurringAuthorizeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayIdealRecurringRefundCommand</item>
+                <item name="vault_authorize" xsi:type="string">MultiSafepayIdealVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Initialize command -->
+    <virtualType name="MultiSafepayIdealRecurringAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayIdealRecurringAuthorizeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Refund command -->
+    <virtualType name="MultiSafepayIdealRecurringRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayIdealRecurringRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Authorize Request -->
+    <virtualType name="MultiSafepayIdealRecurringAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Refund Request -->
+    <virtualType name="MultiSafepayIdealRecurringRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Validator Pool -->
+    <virtualType name="MultiSafepayIdealRecurringValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayIdealRecurringCountryValidator</item>
+                <item name="currency" xsi:type="string">MultiSafepayIdealRecurringCurrencyValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayIdealRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayIdealRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- IdealRecurring Value handlers infrastructure -->
+    <virtualType name="MultiSafepayIdealRecurringValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayIdealRecurringConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayIdealRecurringConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Payafter Payment Method Facade configuration -->
     <virtualType name="PayafterFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -4353,6 +4545,198 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="MultiSafepayDirectDebitVaultFacade" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayDirectDebitVaultConfig</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayDirectDebitVaultValueHandlerPool</argument>
+            <argument name="vaultProvider" xsi:type="object">MultiSafepayDirectDebitRecurringFacade</argument>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebit Vault Configuration reader -->
+    <virtualType name="MultiSafepayDirectDebitVaultConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayDirectDebitVaultValueHandler" type="VaultPaymentDefaultValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayDirectDebitVaultConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayDirectDebitVaultValueHandlerPool" type="VaultPaymentValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayDirectDebitVaultValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="MultiSafepayDirectDebitVaultAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayDirectDebitVaultAuthorizeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RecurringClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebit Vault Authorize Request -->
+    <virtualType name="MultiSafepayDirectDebitVaultAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RecurringTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Command managers section for Vault -->
+    <virtualType name="MultiSafepayDirectDebitVaultCommandManager" type="Magento\Payment\Gateway\Command\CommandManager">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">MultiSafepayDirectDebitRecurringCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Payment\Gateway\Command\CommandManagerPool">
+        <arguments>
+            <argument name="executors" xsi:type="array">
+                <item name="multisafepay_directdebit_recurring" xsi:type="string">MultiSafepayDirectDebitVaultCommandManager</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- DirectDebitRecurring Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayDirectDebitRecurringFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitRecurringConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayDirectDebitRecurringValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayDirectDebitRecurringValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayDirectDebitRecurringCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Configuration reader -->
+    <virtualType name="MultiSafepayDirectDebitRecurringConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitRecurringConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Config Value Handler Pool -->
+    <virtualType name="MultiSafepayDirectDebitRecurringConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayDirectDebitRecurringConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Config Value Handler -->
+    <virtualType name="MultiSafepayDirectDebitRecurringConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Logger, initialized with DirectDebitRecurringConfig -->
+    <virtualType name="MultiSafepayDirectDebitRecurringLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayDirectDebitRecurringLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- DirectDebitRecurring Commands infrastructure -->
+    <virtualType name="MultiSafepayDirectDebitRecurringCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">MultiSafepayDirectDebitRecurringAuthorizeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayDirectDebitRecurringRefundCommand</item>
+                <item name="vault_authorize" xsi:type="string">MultiSafepayDirectDebitVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Initialize command -->
+    <virtualType name="MultiSafepayDirectDebitRecurringAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayDirectDebitRecurringAuthorizeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Refund command -->
+    <virtualType name="MultiSafepayDirectDebitRecurringRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayDirectDebitRecurringRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Authorize Request -->
+    <virtualType name="MultiSafepayDirectDebitRecurringAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Refund Request -->
+    <virtualType name="MultiSafepayDirectDebitRecurringRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Validator Pool -->
+    <virtualType name="MultiSafepayDirectDebitRecurringValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayDirectDebitRecurringCountryValidator</item>
+                <item name="currency" xsi:type="string">MultiSafepayDirectDebitRecurringCurrencyValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayDirectDebitRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayDirectDebitRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- DirectDebitRecurring Value handlers infrastructure -->
+    <virtualType name="MultiSafepayDirectDebitRecurringValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayDirectDebitRecurringConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayDirectDebitRecurringConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- MultiSafepayEinvoicing Payment Method Facade configuration -->
     <virtualType name="MultiSafepayEinvoicingFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -7788,6 +8172,8 @@
                 <item name="multisafepay_visa_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaRecurringConfigProvider</item>
                 <item name="multisafepay_mastercard_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardRecurringConfigProvider</item>
                 <item name="multisafepay_amex_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexRecurringConfigProvider</item>
+                <item name="multisafepay_ideal_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealRecurringConfigProvider</item>
+                <item name="multisafepay_directdebit_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitRecurringConfigProvider</item>
 
                 <!-- Gift cards -->
                 <item name="multisafepay_babygiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BabyGiftcardConfigProvider</item>

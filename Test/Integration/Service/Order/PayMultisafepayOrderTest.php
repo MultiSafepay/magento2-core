@@ -55,6 +55,7 @@ class PayMultisafepayOrderTest extends AbstractTransactionTestCase
     /**
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
+     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
      * @throws Exception
      */
     public function testTriggerNotificationForManualCaptureCreatedOrder()

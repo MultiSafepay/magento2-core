@@ -57,9 +57,9 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param Session $checkoutSession
      * @param Logger $logger
      * @param ResolverInterface $localeResolver
+     * @param PaymentConfig $paymentConfig
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
-     * @param PaymentConfig $paymentConfig
      */
     public function __construct(
         AssetRepository $assetRepository,

@@ -23,6 +23,27 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class DirectDebitConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_directdebit';
+    public const VAULT_CODE = 'multisafepay_directdebit_vault';
+
+    /**
+     * Retrieve assoc array of checkout configuration
+     *
+     * @return array
+     * @throws LocalizedException
+     */
+    public function getConfig(): array
+    {
+        return [
+            'payment' => [
+                $this->getCode() => [
+                    'image' => $this->getImage(),
+                    'vaultCode' => self::VAULT_CODE,
+                    'is_preselected' => $this->isPreselected(),
+                    'transaction_type' => $this->getTransactionType(),
+                ],
+            ],
+        ];
+    }
 
     /**
      * @return string
