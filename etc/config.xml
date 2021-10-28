@@ -13,6 +13,7 @@
                 <refund_custom_description />
                 <use_base_currency>1</use_base_currency>
                 <preselected_method>multisafepay_ideal</preselected_method>
+                <use_manual_capture>0</use_manual_capture>
                 <debug>0</debug>
             </general>
             <advanced>

@@ -69,6 +69,7 @@ class ProcessManualCaptureShipmentTest extends AbstractTransactionTestCase
      * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
+     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
      * @throws Exception
      */
     public function testCreateFullShipmentForManualCaptureCreatedOrder()
@@ -106,6 +107,7 @@ class ProcessManualCaptureShipmentTest extends AbstractTransactionTestCase
      * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
+     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
      * @throws Exception
      */
     public function testCreatePartialShipmentForManualCaptureCreatedOrder()
