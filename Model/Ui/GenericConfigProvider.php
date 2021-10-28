@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
@@ -41,6 +42,7 @@ class GenericConfigProvider implements ConfigProviderInterface
 {
     public const CODE = '';
     private const DEFAULT_CONFIG_PAYMENT_PATH = 'payment/%s';
+    private const GATEWAY_CODE = 'gateway_code';
 
     /**
      * @var AssetRepository
@@ -223,6 +225,19 @@ class GenericConfigProvider implements ConfigProviderInterface
         return (array)$this->config->getValueByPath(
             sprintf(self::DEFAULT_CONFIG_PAYMENT_PATH, $this->getCode()),
             $storeId
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getGatewayCode(): string
+    {
+        return (string)$this->config->getValueByPath(
+            sprintf(
+                self::DEFAULT_CONFIG_PAYMENT_PATH,
+                $this->getCode() . DIRECTORY_SEPARATOR . self::GATEWAY_CODE
+            )
         );
     }
 }
