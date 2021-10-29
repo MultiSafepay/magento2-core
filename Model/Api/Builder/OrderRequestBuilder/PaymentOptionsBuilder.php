@@ -98,7 +98,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
             ->addCloseWindow(false)
             ->addNotificationMethod();
 
-        if ($additionalSettings = $this->getAdditionalSettings($order, $payment)) {
+        if ($additionalSettings = $this->getAdditionalSettings($order, $payment, $orderRequest)) {
             $paymentOptions->addSettings($additionalSettings);
         }
 
@@ -108,10 +108,14 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @return array
+     * @param OrderRequest $orderRequest
+     * @return array|\array[][]
      */
-    private function getAdditionalSettings(OrderInterface $order, OrderPaymentInterface $payment): array
-    {
+    private function getAdditionalSettings(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): array {
         $settings = [];
 
         if ($payment->getMethod() === EdenredGiftcardConfigProvider::CODE) {
@@ -124,6 +128,14 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
                     ],
                 ],
             ];
+
+            // We have to set coupon as a gateway code if we have only one available coupon code
+            /**
+             * @todo create and move it to separate gateway code builder
+             */
+            if (count($coupons) === 1) {
+                $orderRequest->addGatewayCode(strtoupper(reset($coupons)));
+            }
         }
 
         return $settings;

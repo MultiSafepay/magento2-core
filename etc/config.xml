@@ -1219,7 +1219,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>EDENCO</gateway_code>
+                <gateway_code></gateway_code>
             </multisafepay_edenred>
             <multisafepay_gezondheidsbon>
                 <active>0</active>
