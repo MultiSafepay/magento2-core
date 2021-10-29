@@ -65,7 +65,8 @@ class CustomerGroupValidatorTest extends AbstractTestCase
         self::assertFalse(
             $this->customerGroupValidator->validate(
                 $this->getQuote('tableRate'),
-                $this->paymentConfig
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
             )
         );
     }
@@ -86,7 +87,8 @@ class CustomerGroupValidatorTest extends AbstractTestCase
         self::assertTrue(
             $this->customerGroupValidator->validate(
                 $quote,
-                $this->paymentConfig
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
             )
         );
     }
@@ -108,7 +110,8 @@ class CustomerGroupValidatorTest extends AbstractTestCase
         self::assertFalse(
             $this->customerGroupValidator->validate(
                 $quote,
-                $this->paymentConfig
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
             )
         );
     }

@@ -54,7 +54,11 @@ class AmountValidatorTest extends AbstractTestCase
     public function testValidateWithAllowSpecificAmountDisabled(): void
     {
         self::assertFalse(
-            $this->amountValidator->validate($this->getQuote('tableRate'), $this->paymentConfig)
+            $this->amountValidator->validate(
+                $this->getQuote('tableRate'),
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
+            )
         );
     }
 
@@ -68,7 +72,11 @@ class AmountValidatorTest extends AbstractTestCase
     public function testValidateWithAllowSpecificAmountEnabled(): void
     {
         self::assertTrue(
-            $this->amountValidator->validate($this->getQuote('tableRate'), $this->paymentConfig)
+            $this->amountValidator->validate(
+                $this->getQuote('tableRate'),
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
+            )
         );
     }
 
@@ -82,7 +90,11 @@ class AmountValidatorTest extends AbstractTestCase
     public function testValidatePassedWithAllowSpecificAmountEnabled(): void
     {
         self::assertFalse(
-            $this->amountValidator->validate($this->getQuote('tableRate'), $this->paymentConfig)
+            $this->amountValidator->validate(
+                $this->getQuote('tableRate'),
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
+            )
         );
     }
 
@@ -94,7 +106,11 @@ class AmountValidatorTest extends AbstractTestCase
     public function testValidateWithAllowSpecificAmountNotSetted(): void
     {
         self::assertFalse(
-            $this->amountValidator->validate($this->getQuote('tableRate'), $this->paymentConfig)
+            $this->amountValidator->validate(
+                $this->getQuote('tableRate'),
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
+            )
         );
     }
 
@@ -108,7 +124,11 @@ class AmountValidatorTest extends AbstractTestCase
     public function testValidateWithAllowSpecificAmountWithMaxAmountNotSetted(): void
     {
         self::assertFalse(
-            $this->amountValidator->validate($this->getQuote('tableRate'), $this->paymentConfig)
+            $this->amountValidator->validate(
+                $this->getQuote('tableRate'),
+                $this->paymentConfig,
+                VisaConfigProvider::CODE
+            )
         );
     }
 }
