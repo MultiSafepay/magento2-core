@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Validator;
 use Exception;
 use Magento\Payment\Gateway\Config\Config as PaymentGatewayConfig;
 use MultiSafepay\ConnectCore\Gateway\Validator\ShippingValidator;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
 class ShippingValidatorTest extends AbstractTestCase
@@ -39,7 +40,9 @@ class ShippingValidatorTest extends AbstractTestCase
 
         /** @var ShippingValidator $shippingValidator */
         $shippingValidator = $this->getObjectManager()->get(ShippingValidator::class);
-        $this->assertFalse($shippingValidator->validate($quote, $config));
+        $this->assertFalse(
+            $shippingValidator->validate($quote, $config, VisaConfigProvider::CODE)
+        );
     }
 
     /**
@@ -58,6 +61,6 @@ class ShippingValidatorTest extends AbstractTestCase
 
         /** @var ShippingValidator $shippingValidator */
         $shippingValidator = $this->getObjectManager()->get(ShippingValidator::class);
-        $this->assertTrue($shippingValidator->validate($quote, $config));
+        $this->assertTrue($shippingValidator->validate($quote, $config, VisaConfigProvider::CODE));
     }
 }
