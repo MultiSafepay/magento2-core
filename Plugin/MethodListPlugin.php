@@ -22,6 +22,7 @@ use Magento\Payment\Model\MethodInterface;
 use Magento\Payment\Model\MethodList;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\AmountValidator;
+use MultiSafepay\ConnectCore\Gateway\Validator\CategoryValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\CustomerGroupValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\ShippingValidator;
 
@@ -48,12 +49,18 @@ class MethodListPlugin
     private $amountValidator;
 
     /**
+     * @var CategoryValidator
+     */
+    private $categoryValidator;
+
+    /**
      * MethodListPlugin constructor.
      *
      * @param AmountValidator $amountValidator
      * @param Config $config
      * @param CustomerGroupValidator $customerGroupValidator
      * @param ShippingValidator $shippingValidator
+     * @param CategoryValidator $categoryValidator
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -61,12 +68,14 @@ class MethodListPlugin
         AmountValidator $amountValidator,
         Config $config,
         CustomerGroupValidator $customerGroupValidator,
-        ShippingValidator $shippingValidator
+        ShippingValidator $shippingValidator,
+        CategoryValidator $categoryValidator
     ) {
         $this->amountValidator = $amountValidator;
         $this->config = $config;
         $this->customerGroupValidator = $customerGroupValidator;
         $this->shippingValidator = $shippingValidator;
+        $this->categoryValidator = $categoryValidator;
     }
 
     /**
@@ -82,13 +91,19 @@ class MethodListPlugin
         $availableMethods,
         CartInterface $quote
     ): array {
-        $availableValidators = [$this->shippingValidator, $this->customerGroupValidator, $this->amountValidator];
+        $availableValidators = [
+            $this->shippingValidator,
+            $this->customerGroupValidator,
+            $this->amountValidator,
+            $this->categoryValidator
+        ];
 
         foreach ($availableMethods as $key => $method) {
-            $this->config->setMethodCode($method->getCode());
+            $methodCode = $method->getCode();
+            $this->config->setMethodCode($methodCode);
 
             foreach ($availableValidators as $validator) {
-                if ($validator->validate($quote, $this->config)) {
+                if ($validator->validate($quote, $this->config, $methodCode)) {
                     unset($availableMethods[$key]);
                     continue 2;
                 }

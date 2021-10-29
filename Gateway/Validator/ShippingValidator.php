@@ -26,9 +26,12 @@ class ShippingValidator
     /**
      * @param CartInterface $quote
      * @param Config $config
+     * @param string $methodCode
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate(CartInterface $quote, Config $config): bool
+    public function validate(CartInterface $quote, Config $config, string $methodCode): bool
     {
         $storeId = $quote->getStoreId();
 

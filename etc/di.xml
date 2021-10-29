@@ -6249,6 +6249,135 @@
         </arguments>
     </virtualType>
 
+    <!-- Edenred Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayEdenredFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayEdenredValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayEdenredValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayEdenredCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Configuration reader -->
+    <virtualType name="MultiSafepayEdenredConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Config Value Handler Pool -->
+    <virtualType name="MultiSafepayEdenredConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayEdenredConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Config Value Handler -->
+    <virtualType name="MultiSafepayEdenredConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayEdenredConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Logger, initialized with EdenredConfig -->
+    <virtualType name="MultiSafepayEdenredLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayEdenredConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayEdenredLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Edenred Commands infrastructure -->
+    <virtualType name="MultiSafepayEdenredCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayEdenredInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayEdenredRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Initialize command -->
+    <virtualType name="MultiSafepayEdenredInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayEdenredInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Refund command -->
+    <virtualType name="MultiSafepayEdenredRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayEdenredRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Initialization Request -->
+    <virtualType name="MultiSafepayEdenredInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Refund Request -->
+    <virtualType name="MultiSafepayEdenredRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Validator Pool -->
+    <virtualType name="MultiSafepayEdenredValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayEdenredCountryValidator</item>
+                <item name="currency" xsi:type="string">MultiSafepayEdenredCurrencyValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayEdenredCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayEdenredConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayEdenredCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayEdenredConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Edenred Value handlers infrastructure -->
+    <virtualType name="MultiSafepayEdenredValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayEdenredConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayEdenredConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayEdenredConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Gezondheidsbon Payment Method Facade configuration -->
     <virtualType name="MultiSafepayGezondheidsbonFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -8050,6 +8179,7 @@
                 <item name="multisafepay_babygiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BabyGiftcardConfigProvider</item>
                 <item name="multisafepay_beautyandwellness" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BeautyAndWellnessConfigProvider</item>
                 <item name="multisafepay_boekenbon" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\BoekenbonConfigProvider</item>
+                <item name="multisafepay_edenred" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider</item>
                 <item name="multisafepay_fashioncheque" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\FashionChequeConfigProvider</item>
                 <item name="multisafepay_fashiongiftcard" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\FashionGiftcardConfigProvider</item>
                 <item name="multisafepay_fietsenbon" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Giftcard\FietsenbonConfigProvider</item>
