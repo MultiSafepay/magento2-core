@@ -4,7 +4,7 @@
     "version": "2.11.0",
     "require": {
         "multisafepay/php-sdk": "^5.3",
-        "php-http/guzzle6-adapter": "*",
+        "php-http/guzzle6-adapter": "^2.0",
         "guzzlehttp/psr7": "*",
         "http-interop/http-factory-guzzle": "^1.0",
         "magento/framework": "^102.0|^103.0",
