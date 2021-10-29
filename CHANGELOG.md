@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.12.0] - 2021-10-29
+### Added
+- Added iDEAL and Direct Debit Vault
+- Added Edenred
+
+### Fixed
+- Fixed an issue with Vault and Manual capture
+
 ### Changed
 - Changed the dependency on Guzzle6-adapter from '*' to '^2.0', because Guzzle6-adapter '^1.0' does not implement Psr-7
 
