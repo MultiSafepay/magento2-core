@@ -85,7 +85,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
      */
     public function getAvailableCategoriesByCouponCode(string $couponCode, int $storeId = null): array
     {
-        if ($ids = $this->getPaymentConfig($storeId)[$couponCode . '_categories']) {
+        if ($ids = ($this->getPaymentConfig($storeId)[$couponCode . '_categories'] ?? null)) {
             return explode(',', $ids);
         }
 
