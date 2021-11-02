@@ -164,6 +164,6 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
         }
 
         // delete duplicate coupons
-        return array_unique($result);
+        return array_values(array_unique($result));
     }
 }
