@@ -6,10 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.2] - 2021-11-03
+### Changed
+- Bumped the version to match the current meta package version
+
 ## [2.12.1] - 2021-11-01
 ### Fixed
 - Fixed an issue related to empty Edenred payment method config
-
 
 ## [2.12.0] - 2021-10-29
 ### Added
