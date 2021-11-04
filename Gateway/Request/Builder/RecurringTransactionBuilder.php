@@ -49,18 +49,17 @@ class RecurringTransactionBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
-
-        /** @var OrderPaymentInterface $payment */
         $payment = $paymentDataObject->getPayment();
-
         $order = $payment->getOrder();
 
-        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction()) {
+        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction(
+            $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()->getCode()
+        )) {
             $order->setCanSendNewEmailFlag(false);
         }
 
         return [
-            'order' => $order
+            'order' => $order,
         ];
     }
 }

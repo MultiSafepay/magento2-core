@@ -28,6 +28,7 @@ use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Invoice;
 use MultiSafepay\ConnectCore\Config\Config;
+use Magento\Payment\Gateway\Config\Config as GatewayConfig;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
@@ -67,6 +68,11 @@ class EmailSender
     private $scopeConfig;
 
     /**
+     * @var GatewayConfig
+     */
+    private $gatewayConfig;
+
+    /**
      * Email constructor.
      *
      * @param Config $config
@@ -74,19 +80,22 @@ class EmailSender
      * @param OrderIdentity $orderIdentity
      * @param OrderSender $orderSender
      * @param ScopeConfigInterface $scopeConfig
+     * @param gatewayConfig $gatewayConfig
      */
     public function __construct(
         Config $config,
         InvoiceSender $invoiceSender,
         OrderIdentity $orderIdentity,
         OrderSender $orderSender,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        GatewayConfig $gatewayConfig
     ) {
         $this->config = $config;
         $this->invoiceSender = $invoiceSender;
         $this->orderIdentity = $orderIdentity;
         $this->orderSender = $orderSender;
         $this->scopeConfig = $scopeConfig;
+        $this->gatewayConfig = $gatewayConfig;
     }
 
     /**
@@ -99,10 +108,20 @@ class EmailSender
         OrderInterface $order,
         string $emailType = self::AFTER_TRANSACTION_EMAIL_TYPE
     ): bool {
-        if (!$order->getEmailSent()
-            && $this->orderIdentity->isEnabled()
-            && $this->config->getOrderConfirmationEmail() === $emailType
-        ) {
+        if ($order->getEmailSent() || !$this->orderIdentity->isEnabled()) {
+            return false;
+        }
+
+        if ($order->getPayment()) {
+            $this->gatewayConfig->setMethodCode($order->getPayment()->getMethod());
+        }
+
+        $emailTypes = [
+            $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL) ?? '',
+            $this->config->getOrderConfirmationEmail(),
+        ];
+
+        if (in_array($emailType, $emailTypes, true)) {
             $this->orderSender->send($order);
 
             return true;
@@ -130,7 +149,7 @@ class EmailSender
             AfterpayConfigProvider::CODE,
             LegacyUtil::LEGACY_AFTERPAY_CODE,
             LegacyUtil::LEGACY_KLARNA_CODE,
-            LegacyUtil::LEGACY_PAYAFTER_CODE
+            LegacyUtil::LEGACY_PAYAFTER_CODE,
         ];
 
         if (!$invoice->getEmailSent() && !in_array($payment->getMethod(), $disallowedMethods, true)) {
@@ -143,10 +162,17 @@ class EmailSender
     }
 
     /**
+     * @param string $methodCode
      * @return bool
      */
-    public function checkOrderConfirmationBeforeTransaction(): bool
+    public function checkOrderConfirmationBeforeTransaction(string $methodCode): bool
     {
+        $this->gatewayConfig->setMethodCode($methodCode);
+
+        if ($gatewaySpecificSetting = $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL)) {
+            return $gatewaySpecificSetting === Config::BEFORE_TRANSACTION;
+        }
+
         return $this->config->getOrderConfirmationEmail() === Config::BEFORE_TRANSACTION;
     }
 }
