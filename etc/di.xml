@@ -8208,4 +8208,11 @@
     <type name="Magento\Sales\Api\Data\OrderInterface">
         <plugin name="multisafepay_cancel_order_pretransaction" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\OrderPlugin" />
     </type>
+
+    <type name="MultiSafepay\ConnectCore\Config\Config">
+        <arguments>
+            <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>
+            <argument name="jsonHandler" xsi:type="object">MultiSafepay\ConnectCore\Util\JsonHandler\Proxy</argument>
+        </arguments>
+    </type>
 </config>
