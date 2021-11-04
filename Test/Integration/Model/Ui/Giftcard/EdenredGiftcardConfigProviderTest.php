@@ -17,8 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Ui\Giftcard;
 
-use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
+use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -102,6 +103,8 @@ class EdenredGiftcardConfigProviderTest extends AbstractTestCase
      * @magentoConfigFixture default_store payment/multisafepay_edenred/edencom_categories 2,3,5
      * @magentoConfigFixture default_store payment/multisafepay_edenred/edenres_categories 7
      * @magentoConfigFixture default_store payment/multisafepay_edenred/edensports_categories 5,6,7,8
+     *
+     * @throws LocalizedException
      */
     public function testGetAvailableCouponsByOrder(): void
     {
