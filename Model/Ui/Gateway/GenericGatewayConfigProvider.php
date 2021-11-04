@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -18,6 +19,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -58,6 +60,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param Logger $logger
      * @param ResolverInterface $localeResolver
      * @param PaymentConfig $paymentConfig
+     * @param WriterInterface $configWriter
+     * @param JsonHandler $jsonHandler
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
      */
@@ -69,6 +73,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         Logger $logger,
         ResolverInterface $localeResolver,
         PaymentConfig $paymentConfig,
+        WriterInterface $configWriter,
+        JsonHandler $jsonHandler,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager
     ) {
@@ -81,7 +87,9 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
             $checkoutSession,
             $logger,
             $localeResolver,
-            $paymentConfig
+            $paymentConfig,
+            $configWriter,
+            $jsonHandler
         );
     }
 

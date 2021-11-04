@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
+use MultiSafepay\Api\Account\Account;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class GooglePayConfigProvider extends GenericConfigProvider
@@ -24,7 +25,6 @@ class GooglePayConfigProvider extends GenericConfigProvider
     public const CODE = 'multisafepay_googlepay';
     public const GOOGLE_PAY_BUTTON_CONFIG_PATH = 'direct_button';
     public const GOOGLE_PAY_BUTTON_MODE_CONFIG_PATH = 'direct_button_mode';
-    public const GOOGLE_PAY_BUTTON_ACCOUNT_ID_CONFIG_PATH = 'direct_button_account_id';
     public const GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH = 'direct_button_merchant_name';
     public const GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH = 'direct_button_merchant_id';
     public const GOOGLE_PAY_BUTTON_ID = 'multisafepay-google-pay-button';
@@ -56,7 +56,7 @@ class GooglePayConfigProvider extends GenericConfigProvider
      */
     public function getMultisafepayAccountId(int $storeId = null): string
     {
-        return (string)($this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_ACCOUNT_ID_CONFIG_PATH] ?? '');
+        return (string)($this->getAccountData($storeId)[Account::ACCOUNT_ID_PARAM_NAME] ?? '');
     }
 
     /**

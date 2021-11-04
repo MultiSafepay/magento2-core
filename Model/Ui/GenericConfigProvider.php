@@ -20,14 +20,17 @@ namespace MultiSafepay\ConnectCore\Model\Ui;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
+use Magento\Store\Model\ScopeInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Sdk;
@@ -80,6 +83,16 @@ class GenericConfigProvider implements ConfigProviderInterface
     private $paymentConfig;
 
     /**
+     * @var WriterInterface
+     */
+    private $configWriter;
+
+    /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * GenericConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
@@ -89,6 +102,8 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param Logger $logger
      * @param ResolverInterface $localeResolver
      * @param PaymentConfig $paymentConfig
+     * @param WriterInterface $configWriter
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -97,7 +112,9 @@ class GenericConfigProvider implements ConfigProviderInterface
         Session $checkoutSession,
         Logger $logger,
         ResolverInterface $localeResolver,
-        PaymentConfig $paymentConfig
+        PaymentConfig $paymentConfig,
+        WriterInterface $configWriter,
+        JsonHandler $jsonHandler
     ) {
         $this->assetRepository = $assetRepository;
         $this->config = $config;
@@ -106,6 +123,8 @@ class GenericConfigProvider implements ConfigProviderInterface
         $this->logger = $logger;
         $this->localeResolver = $localeResolver;
         $this->paymentConfig = $paymentConfig;
+        $this->configWriter = $configWriter;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -239,5 +258,38 @@ class GenericConfigProvider implements ConfigProviderInterface
                 $this->getCode() . DIRECTORY_SEPARATOR . self::GATEWAY_CODE
             )
         );
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getAccountData(int $storeId = null): array
+    {
+        $accountData = $this->config->getAccountData($storeId);
+
+        if (!$accountData) {
+            try {
+                $accountData = $this->sdkFactory->create((int)$storeId)
+                    ->getAccountManager()
+                    ->get()
+                    ->getData();
+            } catch (ApiException $apiException) {
+                $this->logger->logException($apiException);
+            } catch (InvalidApiKeyException $invalidApiKeyException) {
+                $this->logger->logInvalidApiKeyException($invalidApiKeyException);
+            } catch (ClientExceptionInterface $clientException) {
+                $this->logger->logClientException('', $clientException);
+            }
+
+            $this->configWriter->save(
+                sprintf(Config::DEFAULT_PATH_PATTERN, Config::MULTISAFEPAY_ACCOUNT_DATA),
+                $this->jsonHandler->convertToJSON($accountData),
+                ScopeInterface::SCOPE_STORE,
+                $storeId
+            );
+        }
+
+        return $accountData;
     }
 }

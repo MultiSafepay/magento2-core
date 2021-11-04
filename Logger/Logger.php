@@ -243,6 +243,22 @@ class Logger extends CoreLogger
     /**
      * @param Exception $exception
      */
+    public function logException(Exception $exception): void
+    {
+        $this->debug(
+            sprintf(
+                '(Something went wrong): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile()
+            )
+        );
+    }
+
+    /**
+     * @param Exception $exception
+     */
     public function logPaymentRequestGetCustomerDataException(Exception $exception): void
     {
         $this->debug(

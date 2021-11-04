@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
@@ -28,6 +29,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class ApplePayConfigProvider extends GenericConfigProvider
@@ -56,6 +58,8 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param Logger $logger
      * @param ResolverInterface $localeResolver
      * @param PaymentConfig $paymentConfig
+     * @param WriterInterface $configWriter
+     * @param JsonHandler $jsonHandler
      * @param StoreManagerInterface $storeManager
      * @param MerchantSessionRequest $merchantSessionRequest
      */
@@ -67,6 +71,8 @@ class ApplePayConfigProvider extends GenericConfigProvider
         Logger $logger,
         ResolverInterface $localeResolver,
         PaymentConfig $paymentConfig,
+        WriterInterface $configWriter,
+        JsonHandler $jsonHandler,
         StoreManagerInterface $storeManager,
         MerchantSessionRequest $merchantSessionRequest
     ) {
@@ -79,7 +85,9 @@ class ApplePayConfigProvider extends GenericConfigProvider
             $checkoutSession,
             $logger,
             $localeResolver,
-            $paymentConfig
+            $paymentConfig,
+            $configWriter,
+            $jsonHandler
         );
     }
 

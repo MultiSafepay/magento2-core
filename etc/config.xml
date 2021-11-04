@@ -15,6 +15,7 @@
                 <preselected_method>multisafepay_ideal</preselected_method>
                 <use_manual_capture>0</use_manual_capture>
                 <debug>0</debug>
+                <account_data/>
             </general>
             <advanced>
                 <custom_totals />
