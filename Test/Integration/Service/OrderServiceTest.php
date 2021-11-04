@@ -17,22 +17,16 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Service;
 
-use Exception;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\StatusResolver;
-use Magento\Vault\Api\Data\PaymentTokenInterface;
-use Magento\Vault\Model\Ui\VaultConfigProvider;
-use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\Api\Transactions\TransactionResponse;
 use MultiSafepay\ConnectCore\Model\SecondChance;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Vault;
 use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 use MultiSafepay\ConnectCore\Service\Order\ProcessChangePaymentMethod;
-use MultiSafepay\ConnectCore\Service\Order\ProcessVaultInitialization;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use ReflectionException;
@@ -64,11 +58,6 @@ class OrderServiceTest extends AbstractTestCase
     private $payMultisafepayOrder;
 
     /**
-     * @var ProcessVaultInitialization
-     */
-    private $processVaultInitialization;
-
-    /**
      * @var ProcessChangePaymentMethod
      */
     private $processChangePaymentMethod;
@@ -90,7 +79,6 @@ class OrderServiceTest extends AbstractTestCase
     {
         $this->getObjectManager()->get(State::class)->setAreaCode(Area::AREA_FRONTEND);
         $this->payMultisafepayOrder = $this->getObjectManager()->create(PayMultisafepayOrder::class);
-        $this->processVaultInitialization = $this->getObjectManager()->create(ProcessVaultInitialization::class);
         $this->processChangePaymentMethod = $this->getObjectManager()->create(ProcessChangePaymentMethod::class);
         $this->invoiceUtil = $this->getObjectManager()->create(InvoiceUtil::class);
         $this->vault = $this->getObjectManager()->create(Vault::class);
@@ -98,70 +86,6 @@ class OrderServiceTest extends AbstractTestCase
         $this->statusResolver = $this->getObjectManager()->create(StatusResolver::class);
         $this->processChangePaymentMethodReflector
             = new ReflectionObject($this->processChangePaymentMethod);
-    }
-
-    /**
-     * @magentoDataFixture     Magento/Sales/_files/order_with_customer.php
-     * @magentoDbIsolation     enabled
-     * @magentoAppIsolation    enabled
-     * @throws LocalizedException
-     * @throws Exception
-     */
-    public function testVaultInitialization(): void
-    {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $payment->setAdditionalInformation(VaultConfigProvider::IS_ACTIVE_CODE, true);
-        $gatewayToken = '12312312312';
-
-        $isVaultInitialized = $this->processVaultInitialization->execute(
-            $order->getIncrementId(),
-            $payment,
-            [
-                'recurring_id' => $gatewayToken,
-                'card_expiry_date' => '2512',
-                'last4' => '1111',
-            ],
-            TransactionStatus::COMPLETED
-        );
-
-        self::assertTrue($isVaultInitialized);
-
-        if ($isVaultInitialized) {
-            $vaultData = $payment->getExtensionAttributes()->getVaultPaymentToken()->getData();
-
-            self::assertEquals($gatewayToken, $vaultData[PaymentTokenInterface::GATEWAY_TOKEN]);
-        }
-    }
-
-    /**
-     * @magentoDataFixture   Magento/Sales/_files/order_with_customer.php
-     * @throws LocalizedException
-     * @throws ReflectionException
-     */
-    public function testChangePaymentMethod(): void
-    {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $gatewayCode = $payment->getMethodInstance()->getConfigData('gateway_code');
-        $transactionType = 'AFTERPAY';
-        $canChangePaymentMethod = $this->processChangePaymentMethodReflector->getMethod('canChangePaymentMethod');
-        $canChangePaymentMethod->setAccessible(true);
-
-        self::assertTrue(
-            $canChangePaymentMethod->invoke(
-                $this->processChangePaymentMethod,
-                $transactionType,
-                $gatewayCode,
-                $order
-            )
-        );
-
-        $changePaymentMethod = $this->processChangePaymentMethodReflector->getMethod('changePaymentMethod');
-        $changePaymentMethod->setAccessible(true);
-        $changePaymentMethod->invoke($this->processChangePaymentMethod, $order, $payment, $transactionType);
-
-        self::assertEquals(AfterpayConfigProvider::CODE, $payment->getMethod());
     }
 
     /**
