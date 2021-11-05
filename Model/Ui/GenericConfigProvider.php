@@ -286,7 +286,7 @@ class GenericConfigProvider implements ConfigProviderInterface
                 sprintf(Config::DEFAULT_PATH_PATTERN, Config::MULTISAFEPAY_ACCOUNT_DATA),
                 $this->jsonHandler->convertToJSON($accountData),
                 ScopeInterface::SCOPE_STORE,
-                $storeId
+                $storeId ?: 0
             );
         }
 

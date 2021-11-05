@@ -59,11 +59,11 @@ class Config
      * Config constructor.
      *
      * @param ScopeConfigInterface $scopeConfig
-     * @param JsonHandler\Proxy $jsonHandler
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        JsonHandler\Proxy $jsonHandler
+        JsonHandler $jsonHandler
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->jsonHandler = $jsonHandler;

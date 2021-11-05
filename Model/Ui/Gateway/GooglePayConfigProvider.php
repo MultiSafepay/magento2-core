@@ -56,7 +56,9 @@ class GooglePayConfigProvider extends GenericConfigProvider
      */
     public function getMultisafepayAccountId(int $storeId = null): string
     {
-        return (string)($this->getAccountData($storeId)[Account::ACCOUNT_ID_PARAM_NAME] ?? '');
+        return $this->isGooglePayActive($storeId)
+            ? (string)($this->getAccountData($storeId)[Account::ACCOUNT_ID_PARAM_NAME] ?? '')
+            : '';
     }
 
     /**
@@ -65,13 +67,16 @@ class GooglePayConfigProvider extends GenericConfigProvider
      */
     public function getGooglePayMerchantInfo(int $storeId = null): array
     {
+        if (!$this->isGooglePayActive($storeId)) {
+            return [
+                'merchantName' => '',
+                'merchantId' => '',
+            ];
+        }
+
         return [
-            'merchantName' => (string)(
-                $this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH] ?? ''
-            ),
-            'merchantId' => (string)(
-                $this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH] ?? ''
-            ),
+            'merchantName' => (string)($this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH] ?? ''),
+            'merchantId' => (string)($this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH] ?? ''),
         ];
     }
 }
