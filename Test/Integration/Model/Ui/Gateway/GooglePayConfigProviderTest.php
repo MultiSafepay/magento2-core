@@ -13,6 +13,8 @@
  *
  */
 
+// phpcs:disable Generic.Files.LineLength.TooLong
+
 declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Ui\Gateway;

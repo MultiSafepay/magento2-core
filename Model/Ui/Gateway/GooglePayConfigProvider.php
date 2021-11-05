@@ -75,8 +75,12 @@ class GooglePayConfigProvider extends GenericConfigProvider
         }
 
         return [
-            'merchantName' => (string)($this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH] ?? ''),
-            'merchantId' => (string)($this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH] ?? ''),
+            'merchantName' => (string)(
+                $this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_NAME_CONFIG_PATH] ?? ''
+            ),
+            'merchantId' => (string)(
+                $this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MERCHANT_ID_CONFIG_PATH] ?? ''
+            ),
         ];
     }
 }
