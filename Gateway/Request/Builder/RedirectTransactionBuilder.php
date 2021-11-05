@@ -91,7 +91,7 @@ class RedirectTransactionBuilder implements BuilderInterface
         }
 
         // If not backend order, check when order confirmation e-mail needs to be sent
-        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction()) {
+        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction($paymentMethod)) {
             $stateObject->setIsNotified(false);
             $order->setCanSendNewEmailFlag(false);
         }
