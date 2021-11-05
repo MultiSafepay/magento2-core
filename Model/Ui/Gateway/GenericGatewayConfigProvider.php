@@ -64,6 +64,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param JsonHandler $jsonHandler
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         AssetRepository $assetRepository,
