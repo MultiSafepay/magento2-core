@@ -32,6 +32,9 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use Psr\Http\Client\ClientExceptionInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ApplePayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_applepay';
@@ -62,6 +65,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param JsonHandler $jsonHandler
      * @param StoreManagerInterface $storeManager
      * @param MerchantSessionRequest $merchantSessionRequest
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         AssetRepository $assetRepository,

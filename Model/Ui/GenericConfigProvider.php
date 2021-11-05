@@ -104,6 +104,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param PaymentConfig $paymentConfig
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         AssetRepository $assetRepository,
