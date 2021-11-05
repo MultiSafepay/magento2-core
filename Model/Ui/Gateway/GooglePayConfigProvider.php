@@ -37,7 +37,8 @@ class GooglePayConfigProvider extends GenericConfigProvider
      */
     public function isGooglePayActive(int $storeId = null): bool
     {
-        return (bool)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_CONFIG_PATH];
+        return (bool)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_CONFIG_PATH]
+               && (bool)$this->getPaymentConfig($storeId)['active'];
     }
 
     /**
