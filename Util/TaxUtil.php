@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Vat;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -44,20 +46,28 @@ class TaxUtil
     private $quoteRepository;
 
     /**
+     * @var Session
+     */
+    private $customerSession;
+
+    /**
      * GrandTotalUtil constructor.
      *
      * @param CartRepositoryInterface $quoteRepository
      * @param Calculation $calculation
      * @param ScopeConfigInterface $scopeConfig
+     * @param Session $customerSession
      */
     public function __construct(
         CartRepositoryInterface $quoteRepository,
         Calculation $calculation,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        Session $customerSession
     ) {
         $this->quoteRepository = $quoteRepository;
         $this->calculation = $calculation;
         $this->scopeConfig = $scopeConfig;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -89,10 +99,27 @@ class TaxUtil
         $request = $this->calculation->getRateRequest(
             $cart->getShippingAddress(),
             $cart->getBillingAddress(),
-            $cart->getCustomerTaxClassId(),
+            $this->getCustomerTaxClassId($cart),
             $cart->getStore()
         );
 
         return $this->calculation->getRate($request->setProductClassId($taxRateId));
+    }
+
+    /**
+     * @param CartInterface $quote
+     * @return int|null
+     */
+    private function getCustomerTaxClassId(CartInterface $quote): ?int
+    {
+        if ($this->scopeConfig->isSetFlag(
+            Vat::XML_PATH_CUSTOMER_GROUP_AUTO_ASSIGN,
+            ScopeInterface::SCOPE_STORE,
+            $quote->getStoreId()
+        )) {
+            return (int)$this->customerSession->getCustomer()->getTaxClassId();
+        }
+
+        return (int)$quote->getCustomerTaxClassId();
     }
 }
