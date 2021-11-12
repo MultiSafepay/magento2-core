@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Shoppin
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
+use Magento\GiftCardAccount\Model\Giftcardaccount;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -134,6 +135,11 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
     private function buildItem($total, string $currency, int $storeId): Item
     {
         $title = $this->getTitle($total);
+
+        if ($total->getCode() === 'giftcardaccount' && ($giftCards = $total->getGiftCards())) {
+            $title = $this->getGiftCardAccountTitle($total, $giftCards);
+        }
+
         $unitPrice = $total->getAmount() ? $this->getAmount($total, $storeId) : $total->getValue();
 
         return (new Item())
@@ -143,6 +149,22 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
             ->addDescription($title)
             ->addMerchantItemId($total->getCode())
             ->addTaxRate($this->getTaxRate($total, $storeId));
+    }
+
+    /**
+     * @param $total
+     * @param array $giftCardsData
+     * @return string
+     */
+    private function getGiftCardAccountTitle($total, array $giftCardsData): string
+    {
+        $couponCodes = '';
+
+        foreach ($giftCardsData as $data) {
+            $couponCodes .= $data[Giftcardaccount::CODE] . ',';
+        }
+
+        return $this->getTitle($total) . ' (' . rtrim($couponCodes, ',') . ')';
     }
 
     /**

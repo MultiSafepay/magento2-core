@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Added a separate option for when to send the order confirmation email for the Bank Transfer payment method
+- Added a compatibility with [Adobe Commerce Gift Card Accounts](https://docs.magento.com/user-guide/catalog/product-gift-card-accounts.html)
 
 ### Fixed
 - Fixed an issue where the wrong shipping tax rate was being sent when using VAT ID validation
