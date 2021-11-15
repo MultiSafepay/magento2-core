@@ -13,6 +13,8 @@
  *
  */
 
+// phpcs:disable Generic.Files.LineLength.TooLong
+
 declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Ui\Gateway;
@@ -51,11 +53,12 @@ class GooglePayConfigProviderTest extends AbstractTestCase
     }
 
     /**
-     * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button_account_id 12345
+     * @magentoConfigFixture default_store multisafepay/general/account_data {"account_id":12343565,"role":"merchant","site_id":123123}
+     * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button 1
      */
     public function testGetMultisafepayAccountId(): void
     {
-        self::assertSame('12345', $this->googlePayConfigProvider->getMultisafepayAccountId());
+        self::assertSame('12343565', $this->googlePayConfigProvider->getMultisafepayAccountId());
     }
 
     public function testGetMultisafepayAccountIdEmpty(): void
@@ -66,6 +69,7 @@ class GooglePayConfigProviderTest extends AbstractTestCase
     /**
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button_merchant_name test_name
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button_merchant_id test_merchant_id
+     * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button 1
      */
     public function testGetGooglePayMerchantInfo(): void
     {

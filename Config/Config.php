@@ -19,6 +19,7 @@ namespace MultiSafepay\ConnectCore\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 class Config
 {
@@ -40,6 +41,7 @@ class Config
     public const CREATE_INVOICE_AUTOMATICALLY = 'create_invoice';
     public const BEFORE_TRANSACTION = 'before_transaction';
     public const USE_MANUAL_CAPTURE = 'use_manual_capture';
+    public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
 
@@ -49,14 +51,22 @@ class Config
     private $scopeConfig;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * Config constructor.
      *
      * @param ScopeConfigInterface $scopeConfig
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        JsonHandler $jsonHandler
     ) {
         $this->scopeConfig = $scopeConfig;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -227,5 +237,16 @@ class Config
     public function isManualCaptureEnabled($storeId = null): bool
     {
         return (bool)$this->getValue(self::USE_MANUAL_CAPTURE, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return array
+     */
+    public function getAccountData($storeId = null): array
+    {
+        return $this->jsonHandler->readJSON(
+            $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId)
+        );
     }
 }

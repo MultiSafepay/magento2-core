@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
@@ -29,6 +30,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\ApplePayConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -75,6 +77,8 @@ class ApplePayConfigProviderTest extends AbstractTestCase
             $this->getObjectManager()->get(Logger::class),
             $this->getObjectManager()->get(ResolverInterface::class),
             $this->getObjectManager()->get(PaymentConfig::class),
+            $this->getObjectManager()->get(WriterInterface::class),
+            $this->getObjectManager()->get(JsonHandler::class),
             $this->storeManager,
             $this->getObjectManager()->get(MerchantSessionRequest::class),
         ])->setMethodsExcept(['createApplePayMerchantSession', 'getSdk'])->getMock();
