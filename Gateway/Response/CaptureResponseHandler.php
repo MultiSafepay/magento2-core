@@ -21,10 +21,26 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
 class CaptureResponseHandler implements HandlerInterface
 {
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * CancelResponseHandler constructor.
+     *
+     * @param Logger $logger
+     */
+    public function __construct(Logger $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * @param array $handlingSubject
      * @param array $response
@@ -38,8 +54,11 @@ class CaptureResponseHandler implements HandlerInterface
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDataObject->getPayment();
 
-        if (!isset($response['transaction_id'], $response['order_id'])) {
-            throw new LocalizedException(__('Response API data is not valid.'));
+        if (!$response || !isset($response['transaction_id'], $response['order_id'])) {
+            $exceptionMessage = __('Capture response API data is not valid.');
+            $this->logger->logInfoForOrder($response['order_id'] ?? '', $exceptionMessage->render());
+
+            throw new LocalizedException($exceptionMessage);
         }
 
         $payment->setTransactionId($response['transaction_id']);
@@ -49,6 +68,11 @@ class CaptureResponseHandler implements HandlerInterface
                 (array)$payment->getAdditionalInformation(CaptureUtil::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME),
                 [$this->prepareCaptureDataFromResponse($response, $amount)]
             )
+        );
+
+        $this->logger->logInfoForOrder(
+            $response['order_id'],
+            'Amount ' . $amount . ' was captured. Transaction ID: ' . $response['transaction_id']
         );
 
         return $this;

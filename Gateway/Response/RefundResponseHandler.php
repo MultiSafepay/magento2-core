@@ -20,21 +20,54 @@ namespace MultiSafepay\ConnectCore\Gateway\Response;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\ConnectCore\Logger\Logger;
 
 class RefundResponseHandler implements HandlerInterface
 {
     /**
-     * @inheritDoc
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * CancelResponseHandler constructor.
+     *
+     * @param Logger $logger
+     */
+    public function __construct(Logger $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @param array $handlingSubject
+     * @param array $response
+     * @return $this|void
      */
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDataObject = SubjectReader::readPayment($handlingSubject);
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDataObject->getPayment();
+        $orderId = $payment->getOrder()->getIncrementId();
+
+        if (!$response) {
+            $this->logger->logInfoForOrder(
+                $orderId,
+                'Order was not refunded. Please check the logs and try again.'
+            );
+
+            return $this;
+        }
 
         if (isset($response['refund_id'])) {
             $payment->setTransactionId($response['refund_id']);
         }
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            'Order was refunded. Refund ID: ' . $response['refund_id']
+        );
 
         $payment->setIsTransactionClosed(true);
 

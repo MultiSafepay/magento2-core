@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -126,6 +127,8 @@ class CancelTransactionBuilder implements BuilderInterface
             $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
         } catch (ApiException $apiException) {
             $this->logger->logExceptionForOrder($orderIncrementId, $apiException);
+        } catch (LocalizedException $localizedException) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $localizedException);
         }
 
         return $result;

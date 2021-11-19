@@ -21,6 +21,8 @@ use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class CaptureClient implements ClientInterface
@@ -31,28 +33,44 @@ class CaptureClient implements ClientInterface
     private $sdkFactory;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * CaptureClient constructor.
      *
      * @param SdkFactory $sdkFactory
+     * @param Logger $logger
      */
     public function __construct(
-        SdkFactory $sdkFactory
+        SdkFactory $sdkFactory,
+        Logger $logger
     ) {
         $this->sdkFactory = $sdkFactory;
+        $this->logger = $logger;
     }
 
     /**
-     * Places request to gateway. Returns result as ENV array
-     *
      * @param TransferInterface $transferObject
-     * @return array
-     * @throws ClientExceptionInterface
+     * @return array|null
      */
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
+        $orderId = $request['order_id'];
 
-        return $this->sdkFactory->create($request[Store::STORE_ID] ?? null)
-            ->getTransactionManager()->capture($request['order_id'], $request['payload'])->getResponseData();
+        try {
+            return $this->sdkFactory->create($request[Store::STORE_ID] ?? null)
+                ->getTransactionManager()->capture($orderId, $request['payload'])->getResponseData();
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logClientException($orderId, $clientException);
+
+            return null;
+        } catch (ApiException $apiException) {
+            $this->logger->logExceptionForOrder($orderId, $apiException);
+
+            return null;
+        }
     }
 }
