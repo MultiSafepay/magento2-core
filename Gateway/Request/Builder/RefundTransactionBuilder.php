@@ -111,21 +111,22 @@ class RefundTransactionBuilder implements BuilderInterface
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $amount = (float)SubjectReader::readAmount($buildSubject);
-
-        if ($amount <= 0) {
-            throw new CouldNotRefundException(
-                __('Refunds with 0 amount can not be processed. Please set a different amount')
-            );
-        }
-
         /** @var OrderInterface $order */
         $order = $paymentDataObject->getPayment()->getOrder();
         $orderId = $order->getIncrementId();
 
+        if ($amount <= 0) {
+            $message = __('Refunds with 0 amount can not be processed. Please set a different amount');
+            $this->logger->logInfoForOrder($orderId, $message->render());
+
+            throw new CouldNotRefundException($message);
+        }
+
         if (!($payment = $order->getPayment())) {
-            throw new CouldNotRefundException(
-                __('Refund can not be processed, because the payment has not been found')
-            );
+            $message = __('Refund can not be processed, because the payment has not been found');
+            $this->logger->logInfoForOrder($orderId, $message->render());
+
+            throw new CouldNotRefundException($message);
         }
 
         $captureData = $payment->getParentTransactionId()
