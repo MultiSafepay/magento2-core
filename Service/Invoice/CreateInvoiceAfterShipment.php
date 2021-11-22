@@ -17,10 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Invoice;
 
-use Exception;
-use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
@@ -66,7 +63,7 @@ class CreateInvoiceAfterShipment
      * @param ShipmentInterface $shipment
      * @param OrderPaymentInterface $payment
      * @return bool
-     * @throws Exception
+     * @throws LocalizedException
      */
     public function execute(
         OrderInterface $order,
@@ -77,10 +74,16 @@ class CreateInvoiceAfterShipment
             $payment->setShipment($shipment);
 
             if (!$payment->canCapture() || !$payment->canCapturePartial()) {
-                throw new LocalizedException(__("Invoice can't be captured"));
+                $message = __("Invoice can't be captured manually");
+                $this->logger->logInfoForOrder($order->getIncrementId(), $message->render());
+
+                throw new LocalizedException($message);
             }
 
-            $invoice = $this->createInvoiceByInvoiceData->execute($order, $payment, $invoiceData);
+            if (!($invoice = $this->createInvoiceByInvoiceData->execute($order, $payment, $invoiceData))) {
+                return false;
+            }
+
             $invoiceId = $invoice->getIncrementId();
             $this->logger->logInfoForOrder(
                 $order->getIncrementId(),
