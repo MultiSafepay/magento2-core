@@ -75,6 +75,22 @@ class SdkFactory
     }
 
     /**
+     * @param bool $isLive
+     * @param string $apiKey
+     * @return Sdk
+     */
+    public function createWithModeAndApiKey(bool $isLive, string $apiKey): Sdk
+    {
+        return new Sdk(
+            $apiKey,
+            $isLive,
+            $this->psrClient,
+            $this->requestFactory,
+            $this->streamFactory
+        );
+    }
+
+    /**
      * @param int|null $storeId
      * @return Sdk
      */
