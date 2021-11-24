@@ -23,6 +23,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
+use MultiSafepay\ConnectCore\Service\PaymentLink;
 
 class SetTemplateVarsBefore implements ObserverInterface
 {
@@ -32,14 +33,22 @@ class SetTemplateVarsBefore implements ObserverInterface
     private $state;
 
     /**
+     * @var PaymentLink
+     */
+    private $paymentLink;
+
+    /**
      * SetTemplateVarsBefore constructor.
      *
      * @param State $state
+     * @param PaymentLink $paymentLink
      */
     public function __construct(
-        State $state
+        State $state,
+        PaymentLink $paymentLink
     ) {
         $this->state = $state;
+        $this->paymentLink = $paymentLink;
     }
 
     /**
@@ -56,11 +65,9 @@ class SetTemplateVarsBefore implements ObserverInterface
 
         /** @var Order $order */
         $order = $transport->getOrder();
-        $payment = $order->getPayment();
 
-        if (array_key_exists('payment_link', $payment->getAdditionalInformation())) {
-            $paymentLink = $payment->getAdditionalInformation()['payment_link'];
-            $transport['payment_link'] = $paymentLink;
+        if ($paymentUrl = $this->paymentLink->getPaymentLinkFromOrder($order)) {
+            $transport['payment_link'] = $paymentUrl;
         }
     }
 
@@ -75,6 +82,7 @@ class SetTemplateVarsBefore implements ObserverInterface
         if (array_key_exists('transportObject', $observer->getData())) {
             return $observer->getData()['transportObject'];
         }
+
         return $observer->getTransport();
     }
 }

@@ -58,4 +58,7 @@
     <event name="sales_order_invoice_save_after">
         <observer name="inventory_sales_virtual_source_deduction_processor" instance="MultiSafepay\ConnectCore\Observer\InvoiceSaveAfterObserver"/>
     </event>
+    <event name="sales_order_place_after">
+        <observer name="multisafepay_order_place_after" instance="MultiSafepay\ConnectCore\Observer\OrderPlaceAfterObserver" />
+    </event>
 </config>

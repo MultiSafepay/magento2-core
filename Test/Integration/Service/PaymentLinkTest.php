@@ -69,7 +69,10 @@ class PaymentLinkTest extends AbstractPaymentTestCase
         $payment = $order->getPayment();
         $this->paymentLinkService->addPaymentLink($order, $fakePaymentLink);
 
-        self::assertEquals($fakePaymentLink, $payment->getAdditionalInformation('payment_link'));
+        self::assertEquals(
+            $fakePaymentLink,
+            $payment->getAdditionalInformation(PaymentLink::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME)
+        );
         self::assertEquals(
             __('The user has been redirected to the following page: %1', $fakePaymentLink)->render(),
             $order->getStatusHistoryCollection()->getFirstItem()->getComment()

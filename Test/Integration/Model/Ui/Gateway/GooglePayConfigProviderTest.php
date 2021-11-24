@@ -43,6 +43,7 @@ class GooglePayConfigProviderTest extends AbstractTestCase
 
     /**
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button_mode 1
+     * @magentoConfigFixture default_store payment/multisafepay_googlepay/active 1
      */
     public function testGetGooglePlayMode(): void
     {
@@ -55,6 +56,7 @@ class GooglePayConfigProviderTest extends AbstractTestCase
     /**
      * @magentoConfigFixture default_store multisafepay/general/account_data {"account_id":12343565,"role":"merchant","site_id":123123}
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button 1
+     * @magentoConfigFixture default_store payment/multisafepay_googlepay/active 1
      */
     public function testGetMultisafepayAccountId(): void
     {
@@ -70,6 +72,7 @@ class GooglePayConfigProviderTest extends AbstractTestCase
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button_merchant_name test_name
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button_merchant_id test_merchant_id
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button 1
+     * @magentoConfigFixture default_store payment/multisafepay_googlepay/active 1
      */
     public function testGetGooglePayMerchantInfo(): void
     {
