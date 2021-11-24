@@ -31,6 +31,8 @@ use Psr\Http\Client\ClientExceptionInterface;
 
 class PaymentLink
 {
+    public const MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME = 'payment_link';
+
     /**
      * @var OrderRequestInitializer
      */
@@ -94,6 +96,16 @@ class PaymentLink
     }
 
     /**
+     * @param OrderInterface $order
+     * @return string
+     */
+    public function getPaymentLinkFromOrder(OrderInterface $order): string
+    {
+        return (string)$order->getPayment()
+            ->getAdditionalInformation(self::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME);
+    }
+
+    /**
      * @param Payment $payment
      * @param string $paymentUrl
      * @return void
@@ -102,7 +114,10 @@ class PaymentLink
     private function addToAdditionalInformation(Payment $payment, string $paymentUrl): void
     {
         if ($payment !== null) {
-            $payment->setAdditionalInformation('payment_link', $paymentUrl);
+            $payment->setAdditionalInformation(
+                self::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME,
+                $paymentUrl
+            );
         }
     }
 

@@ -8215,4 +8215,11 @@
             <argument name="jsonHandler" xsi:type="object">MultiSafepay\ConnectCore\Util\JsonHandler\Proxy</argument>
         </arguments>
     </type>
+
+    <preference for="MultiSafepay\ConnectCore\Api\PaymentUrlInterface" type="MultiSafepay\ConnectCore\Model\PaymentUrl"/>
+    <preference for="MultiSafepay\ConnectCore\Api\GuestPaymentUrlInterface" type="MultiSafepay\ConnectCore\Model\GuestPaymentUrl"/>
+    <preference for="MultiSafepay\ConnectCore\Api\MultisafepayOrderInterface" type="MultiSafepay\ConnectCore\Model\MultisafepayOrder"/>
+    <preference for="MultiSafepay\ConnectCore\Api\PaymentMethodsInterface" type="MultiSafepay\ConnectCore\Model\PaymentMethods"/>
+    <preference for="MultiSafepay\ConnectCore\Api\GuestPaymentMethodsInterface" type="MultiSafepay\ConnectCore\Model\GuestPaymentMethods"/>
+    <preference for="MultiSafepay\ConnectCore\Api\RestoreQuoteInterface" type="MultiSafepay\ConnectCore\Model\RestoreQuote"/>
 </config>
