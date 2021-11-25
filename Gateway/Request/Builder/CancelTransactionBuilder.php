@@ -127,8 +127,6 @@ class CancelTransactionBuilder implements BuilderInterface
             $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
         } catch (ApiException $apiException) {
             $this->logger->logExceptionForOrder($orderIncrementId, $apiException);
-        } catch (LocalizedException $localizedException) {
-            $this->logger->logExceptionForOrder($orderIncrementId, $localizedException);
         }
 
         return $result;

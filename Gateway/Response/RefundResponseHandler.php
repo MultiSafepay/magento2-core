@@ -54,7 +54,7 @@ class RefundResponseHandler implements HandlerInterface
         if (!$response) {
             $this->logger->logInfoForOrder(
                 $orderId,
-                'Order was not refunded. Please check the logs and try again.'
+                'Something went wrong. Order was not refunded.'
             );
 
             return $this;

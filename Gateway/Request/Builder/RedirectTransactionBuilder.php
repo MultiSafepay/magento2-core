@@ -75,7 +75,8 @@ class RedirectTransactionBuilder implements BuilderInterface
     }
 
     /**
-     * @inheritDoc
+     * @param array $buildSubject
+     * @return array
      * @throws LocalizedException
      */
     public function build(array $buildSubject): array
@@ -105,6 +106,8 @@ class RedirectTransactionBuilder implements BuilderInterface
             }
         } catch (LocalizedException $localizedException) {
             $this->logger->logExceptionForOrder($order->getIncrementId(), $localizedException);
+
+            throw new LocalizedException(__('Something went wrong. Please, check the MultiSafepay logs.'));
         }
 
         return [];
