@@ -173,6 +173,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         foreach (self::GENERIC_CONFIG_PATHS as $path) {
             $genericList[] = (array)$this->config->getValueByPath($path, $storeId);
         }
+
         $genericList = array_merge(...$genericList);
 
         return $genericList ? array_filter(array_keys($genericList), function ($key) {

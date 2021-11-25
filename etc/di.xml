@@ -76,6 +76,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -205,6 +206,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">IdealInitializeCommand</item>
                 <item name="refund" xsi:type="string">IdealRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -396,6 +398,7 @@
                 <item name="refund" xsi:type="string">MultiSafepayIdealRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayIdealVaultAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -525,6 +528,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">PayafterInitializeCommand</item>
                 <item name="refund" xsi:type="string">PayafterRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -654,6 +658,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">KlarnaInitializeCommand</item>
                 <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -782,6 +787,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">AfterpayInitializeCommand</item>
                 <item name="refund" xsi:type="string">AfterpayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -911,6 +917,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">BancontactInitializeCommand</item>
                 <item name="refund" xsi:type="string">BancontactRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1040,6 +1047,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayAmexInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayAmexRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1169,6 +1177,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayApplePayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayApplePayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1298,6 +1307,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayBelfiusInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayBelfiusRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1428,6 +1438,7 @@
                 <item name="authorize" xsi:type="string">MultiSafepayCreditCardRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayCreditCardRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayCreditCardVaultAuthorizeCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1559,6 +1570,7 @@
                 <item name="refund" xsi:type="string">MultiSafepayVisaRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayVisaVaultAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1751,6 +1763,7 @@
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayMastercardVaultAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1942,6 +1955,7 @@
                 <item name="authorize" xsi:type="string">MultiSafepayAmexRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayAmexRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayAmexVaultAuthorizeCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2132,6 +2146,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayCreditCardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayCreditCardRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2322,6 +2337,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayDotpayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayDotpayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2451,6 +2467,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayEPSInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayEPSRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2580,6 +2597,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayGiropayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayGiropayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2709,6 +2727,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayGooglePayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayGooglePayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2839,6 +2858,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayIdealQRInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayIdealQRRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -2969,6 +2989,7 @@
                 <item name="initialize" xsi:type="string">MultiSafepayMaestroInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMaestroRefundCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayMaestroCaptureCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3118,6 +3139,7 @@
                 <item name="initialize" xsi:type="string">MultiSafepayMastercardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRefundCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3266,6 +3288,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayPaysafecardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayPaysafecardRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3395,6 +3418,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepaySofortInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepaySofortRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3524,6 +3548,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayTrustPayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayTrustPayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3656,6 +3681,7 @@
                 <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
                 <item name="cancel" xsi:type="string">MultiSafepayVisaCancelCommand</item>
                 <item name="void" xsi:type="string">MultiSafepayVisaCancelCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3823,6 +3849,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayAlipayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayAlipayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3952,6 +3979,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayDirectBankTransferInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayDirectBankTransferRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4082,6 +4110,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayBankTransferInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayBankTransferRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4211,6 +4240,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepaySantanderInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepaySantanderRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4340,6 +4370,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayCBCInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayCBCRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4469,6 +4500,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayDirectDebitInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayDirectDebitRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4662,6 +4694,7 @@
                 <item name="refund" xsi:type="string">MultiSafepayDirectDebitRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayDirectDebitVaultAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4791,6 +4824,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayEinvoicingInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayEinvoicingRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -4921,6 +4955,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayINGHomePayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayINGHomePayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -5050,6 +5085,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayKBCInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayKBCRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -5179,6 +5215,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayPaypalInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayPaypalRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -5308,6 +5345,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayTrustlyInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayTrustlyRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -5437,6 +5475,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayIn3InitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayIn3RefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>
@@ -5551,6 +5590,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayGenericGatewayInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayGenericGatewayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
     </virtualType>

@@ -34,6 +34,8 @@
                 <title>MultiSafepay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -57,6 +59,8 @@
                 <title>iDEAL</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -81,6 +85,8 @@
                 <currency>EUR</currency>
                 <can_authorize>1</can_authorize>
                 <can_authorize_vault>1</can_authorize_vault>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -116,6 +122,8 @@
                 <title>Pay After Delivery</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -140,6 +148,8 @@
                 <title>Klarna - buy now, pay later</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -164,6 +174,8 @@
                 <title>Afterpay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -188,6 +200,8 @@
                 <title>Bancontact</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -213,6 +227,8 @@
                 <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -237,6 +253,8 @@
                 <title>Apple Pay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -260,6 +278,8 @@
                 <title>Belfius</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -286,6 +306,8 @@
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_authorize_vault>1</can_authorize_vault>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -312,6 +334,8 @@
                 <currency>EUR</currency>
                 <can_authorize>1</can_authorize>
                 <can_authorize_vault>1</can_authorize_vault>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -346,6 +370,8 @@
                 <currency>EUR</currency>
                 <can_authorize>1</can_authorize>
                 <can_authorize_vault>1</can_authorize_vault>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -382,6 +408,8 @@
                 <currency>EUR</currency>
                 <can_authorize>1</can_authorize>
                 <can_authorize_vault>1</can_authorize_vault>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -418,6 +446,8 @@
                 <currency>EUR</currency>
                 <can_authorize>1</can_authorize>
                 <can_authorize_vault>1</can_authorize_vault>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -451,6 +481,8 @@
                 <title>Dotpay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -475,6 +507,8 @@
                 <title>EPS</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -499,6 +533,8 @@
                 <title>Giropay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -525,6 +561,8 @@
                 <direct_button_mode>1</direct_button_mode>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -548,6 +586,8 @@
                 <title>iDEAL QR</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -573,6 +613,8 @@
                 <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -601,6 +643,8 @@
                 <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -628,6 +672,8 @@
                 <title>Paysafecard</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -652,6 +698,8 @@
                 <title>SOFORT Banking</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -676,6 +724,8 @@
                 <title>TrustPay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -701,6 +751,8 @@
                 <payment_type>redirect</payment_type>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -729,6 +781,8 @@
                 <title>Alipay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -753,6 +807,8 @@
                 <title>Request To Pay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -777,6 +833,8 @@
                 <title>Bank Transfer</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <order_confirmation_email/>
@@ -802,6 +860,8 @@
                 <title>Santander Pay per Month</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
@@ -826,6 +886,8 @@
                 <title>CBC</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -850,6 +912,8 @@
                 <title>Direct Debit</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -873,6 +937,8 @@
                 <payment_action>authorize</payment_action>
                 <title>Direct Debit (Recurring)</title>
                 <currency>EUR</currency>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_authorize>1</can_authorize>
                 <can_authorize_vault>1</can_authorize_vault>
                 <can_use_checkout>1</can_use_checkout>
@@ -910,6 +976,8 @@
                 <title>E-invoicing</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -934,6 +1002,8 @@
                 <title>ING Home'Pay</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -958,6 +1028,8 @@
                 <title>KBC</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -982,6 +1054,8 @@
                 <title>Paypal</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -1006,6 +1080,8 @@
                 <title>Trustly</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
@@ -1030,6 +1106,8 @@
                 <title>in3</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
                 <can_refund>1</can_refund>
