@@ -23,6 +23,7 @@ use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -48,6 +49,7 @@ class RefundClientTest extends AbstractTestCase
 
         $refundClientMock = $this->getMockBuilder(RefundClient::class)->setConstructorArgs([
             $this->setupSdkFactory($this->getSdkMockWithRefundMethod($fakeOrderIncrementId, $refundRequestPayload)),
+            $this->getObjectManager()->get(Logger::class)
         ])->setMethodsExcept(['placeRequest'])->getMock();
 
         /** @var TransferInterface $transferObject */

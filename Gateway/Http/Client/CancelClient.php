@@ -58,7 +58,7 @@ class CancelClient implements ClientInterface
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
-        $orderId = $request['order_id'];
+        $orderId = $request['order_id'] ?? '';
 
         if (!isset($request['payload'])) {
             $this->logger->logInfoForOrder(
