@@ -20,8 +20,9 @@ namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 use Exception;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
+use Magento\Framework\Exception\LocalizedException;
 
 class RecurringTransactionBuilder implements BuilderInterface
 {
@@ -31,20 +32,27 @@ class RecurringTransactionBuilder implements BuilderInterface
     private $emailSender;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * RecurringTransactionBuilder constructor.
      *
      * @param EmailSender $emailSender
+     * @param Logger $logger
      */
     public function __construct(
-        EmailSender $emailSender
+        EmailSender $emailSender,
+        Logger $logger
     ) {
         $this->emailSender = $emailSender;
+        $this->logger = $logger;
     }
 
     /**
      * @param array $buildSubject
      * @return array
-     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
@@ -52,10 +60,14 @@ class RecurringTransactionBuilder implements BuilderInterface
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 
-        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction(
-            $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()->getCode()
-        )) {
-            $order->setCanSendNewEmailFlag(false);
+        try {
+            if (!$this->emailSender->checkOrderConfirmationBeforeTransaction(
+                $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()->getCode()
+            )) {
+                $order->setCanSendNewEmailFlag(false);
+            }
+        } catch (LocalizedException $localizedException) {
+            $this->logger->logExceptionForOrder($order->getIncrementId(), $localizedException);
         }
 
         return [

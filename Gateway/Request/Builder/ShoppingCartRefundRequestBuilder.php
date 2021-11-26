@@ -25,14 +25,14 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Sales\Model\Order\Creditmemo\Item;
+use Magento\Store\Model\Store;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ValueObject\Money;
-use Magento\Store\Model\Store;
 
 class ShoppingCartRefundRequestBuilder implements BuilderInterface
 {
-
     /**
      * @var CurrencyUtil
      */
@@ -44,17 +44,25 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
     private $amountUtil;
 
     /**
-     * RefundTransactionBuilder constructor.
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * ShoppingCartRefundRequestBuilder constructor.
      *
      * @param AmountUtil $amountUtil
      * @param CurrencyUtil $currencyUtil
+     * @param Logger $logger
      */
     public function __construct(
         AmountUtil $amountUtil,
-        CurrencyUtil $currencyUtil
+        CurrencyUtil $currencyUtil,
+        Logger $logger
     ) {
         $this->currencyUtil = $currencyUtil;
         $this->amountUtil = $amountUtil;
+        $this->logger = $logger;
     }
 
     /**
@@ -78,12 +86,17 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         $creditMemo = $payment->getCreditMemo();
 
         if ($creditMemo === null) {
-            throw new NoSuchEntityException(__('The refund could not be created because the credit memo is missing'));
+            $message = __('The refund could not be created because the credit memo is missing');
+            $this->logger->logInfoForOrder($orderId, $message->render());
+
+            throw new NoSuchEntityException($message);
         }
 
-        $msg = 'Refunds with 0 amount can not be processed. Please set a different amount';
+        $message = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount === 0.0) {
-            throw new CouldNotRefundException(__($msg));
+            $this->logger->logInfoForOrder($orderId, $message);
+
+            throw new CouldNotRefundException(__($message));
         }
 
         $refund = [];

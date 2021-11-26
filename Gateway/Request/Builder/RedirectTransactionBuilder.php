@@ -24,6 +24,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
@@ -49,51 +50,64 @@ class RedirectTransactionBuilder implements BuilderInterface
     private $emailSender;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * RedirectTransactionBuilder constructor.
      *
      * @param EmailSender $emailSender
      * @param OrderStatusUtil $orderStatusUtil
      * @param State $state
+     * @param Logger $logger
      */
     public function __construct(
         EmailSender $emailSender,
         OrderStatusUtil $orderStatusUtil,
-        State $state
+        State $state,
+        Logger $logger
     ) {
         $this->state = $state;
         $this->emailSender = $emailSender;
         $this->orderStatusUtil = $orderStatusUtil;
+        $this->logger = $logger;
     }
 
     /**
-     * @inheritDoc
+     * @param array $buildSubject
+     * @return array
      * @throws LocalizedException
      */
     public function build(array $buildSubject): array
     {
         $stateObject = $buildSubject['stateObject'];
-
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
-        $areaCode = $this->state->getAreaCode();
 
-        $paymentMethod = $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()
-            ->getCode();
-        $orderStateAndStatus = $this->getOrderStateAndStatus($order, $paymentMethod, $areaCode);
+        try {
+            $areaCode = $this->state->getAreaCode();
+            $paymentMethod = $payment->getMethod() !== '' ? $payment->getMethod() : $payment->getMethodInstance()
+                ->getCode();
+            $orderStateAndStatus = $this->getOrderStateAndStatus($order, $paymentMethod, $areaCode);
+            $stateObject->setState($orderStateAndStatus[self::ORDER_STATE]);
+            $stateObject->setStatus($orderStateAndStatus[self::ORDER_STATUS]);
 
-        $stateObject->setState($orderStateAndStatus[self::ORDER_STATE]);
-        $stateObject->setStatus($orderStateAndStatus[self::ORDER_STATUS]);
+            // Early return on backend order
+            if ($areaCode === Area::AREA_ADMINHTML) {
+                return [];
+            }
 
-        // Early return on backend order
-        if ($areaCode === Area::AREA_ADMINHTML) {
-            return [];
-        }
+            // If not backend order, check when order confirmation e-mail needs to be sent
+            if (!$this->emailSender->checkOrderConfirmationBeforeTransaction($paymentMethod)) {
+                $stateObject->setIsNotified(false);
+                $order->setCanSendNewEmailFlag(false);
+            }
+        } catch (LocalizedException $localizedException) {
+            $this->logger->logExceptionForOrder($order->getIncrementId(), $localizedException);
 
-        // If not backend order, check when order confirmation e-mail needs to be sent
-        if (!$this->emailSender->checkOrderConfirmationBeforeTransaction($paymentMethod)) {
-            $stateObject->setIsNotified(false);
-            $order->setCanSendNewEmailFlag(false);
+            throw new LocalizedException(__('Something went wrong. Please, check the MultiSafepay logs.'));
         }
 
         return [];

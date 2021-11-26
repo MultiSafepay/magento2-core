@@ -23,11 +23,13 @@ use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class ShoppingCartRefundClient implements ClientInterface
 {
-
     /**
      * @var SdkFactory
      */
@@ -44,46 +46,64 @@ class ShoppingCartRefundClient implements ClientInterface
     private $config;
 
     /**
-     * RefundClient constructor.
+     * @var Logger
+     */
+    private $logger;
+
+    /**
+     * ShoppingCartRefundClient constructor.
      *
      * @param Config $config
      * @param Description $description
      * @param SdkFactory $sdkFactory
+     * @param Logger $logger
      */
     public function __construct(
         Config $config,
         Description $description,
-        SdkFactory $sdkFactory
+        SdkFactory $sdkFactory,
+        Logger $logger
     ) {
         $this->description = $description;
         $this->sdkFactory = $sdkFactory;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
-     * @inheritDoc
-     * @throws ClientExceptionInterface
+     * @param TransferInterface $transferObject
+     * @return array
      */
     public function placeRequest(TransferInterface $transferObject): array
     {
         $request = $transferObject->getBody();
 
-        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
+        try {
+            $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
+            $orderId = $request['order_id'];
+            $transaction = $transactionManager->get($orderId);
+            $refundRequest = $transactionManager->createRefundRequest($transaction);
+            $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
+            $refundRequest->addDescription($description);
+            $refundRequest->addMoney($request['money']);
 
-        $orderId = $request['order_id'];
-        $transaction = $transactionManager->get($orderId);
+            foreach ($request['payload'] as $refundItem) {
+                $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
+            }
 
-        $refundRequest = $transactionManager->createRefundRequest($transaction);
+            return $transactionManager->refund($transaction, $refundRequest)->getResponseData();
+        } catch (InvalidApiKeyException $invalidApiKeyException) {
+            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
 
-        $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
-        $refundRequest->addDescription($description);
+            return [];
+        } catch (ApiException $apiException) {
+            $this->logger->logExceptionForOrder($orderId, $apiException);
 
-        $refundRequest->addMoney($request['money']);
+            return [];
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logClientException($orderId, $clientException);
 
-        foreach ($request['payload'] as $refundItem) {
-            $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
+            return [];
         }
-
-        return $transactionManager->refund($transaction, $refundRequest)->getResponseData();
     }
 }

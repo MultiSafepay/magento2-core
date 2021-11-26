@@ -45,11 +45,10 @@ class CancelResponseHandler implements HandlerInterface
      */
     public function handle(array $handlingSubject, ?array $response): void
     {
-        if (isset($response['success'])) {
-            $this->logger->logInfoForOrder(
-                $response['order_id'] ?: '',
-                'Reservation for MultiSafepay order was canceled.'
-            );
-        }
+        $this->logger->logInfoForOrder(
+            $response['order_id'] ?: '',
+            'Reservation for MultiSafepay order '
+            . (isset($response['success']) ? 'was' : 'wasn\'t') . ' canceled.'
+        );
     }
 }

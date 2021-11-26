@@ -25,6 +25,7 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class AddShippingToTransaction
@@ -100,6 +101,14 @@ class AddShippingToTransaction
             $this->logger->logUpdateRequestApiException($orderId, $apiException);
             $this->messageManager->addErrorMessage(__('The order status could not be updated at MultiSafepay.
                 It can be manually updated in MultiSafepay Control'));
+
+            return;
+        } catch (InvalidApiKeyException $invalidApiKeyException) {
+            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
+
+            return;
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logClientException($orderId, $clientException);
 
             return;
         }

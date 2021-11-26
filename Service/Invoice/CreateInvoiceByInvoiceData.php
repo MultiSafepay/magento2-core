@@ -23,6 +23,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use MultiSafepay\ConnectCore\Logger\Logger;
 
 class CreateInvoiceByInvoiceData
 {
@@ -32,51 +33,69 @@ class CreateInvoiceByInvoiceData
     private $transactionFactory;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * CreateInvoiceByInvoiceData constructor.
      *
      * @param TransactionFactory $transactionFactory
+     * @param Logger $logger
      */
     public function __construct(
-        TransactionFactory $transactionFactory
+        TransactionFactory $transactionFactory,
+        Logger $logger
     ) {
         $this->transactionFactory = $transactionFactory;
+        $this->logger = $logger;
     }
 
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param array $invoiceData
-     * @return InvoiceInterface
+     * @return InvoiceInterface|null
      * @throws LocalizedException
-     * @throws Exception
      */
     public function execute(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         array $invoiceData
-    ): InvoiceInterface {
+    ): ?InvoiceInterface {
+        $orderIncrementId = $order->getIncrementId();
+
         if (!$order->canInvoice()) {
-            throw new LocalizedException(__("Invoice can't be created"));
+            $message = __("Invoice can't be created");
+            $this->logger->logInfoForOrder($orderIncrementId, $message->render());
+
+            throw new LocalizedException($message);
         }
 
-        /** @var InvoiceInterface $invoice */
-        $invoice = $order->prepareInvoice($invoiceData);
-        $invoice->register();
-        $invoice->getOrder()->setIsInProcess(true);
-        $payment->setInvoice($invoice);
-        $payment->capture($invoice);
+        try {
+            /** @var InvoiceInterface $invoice */
+            $invoice = $order->prepareInvoice($invoiceData);
+            $invoice->register();
+            $invoice->getOrder()->setIsInProcess(true);
+            $payment->setInvoice($invoice);
+            $payment->capture($invoice);
 
-        if ($invoice->getIsPaid()) {
-            $invoice->pay();
+            if ($invoice->getIsPaid()) {
+                $invoice->pay();
+            }
+
+            $payment->getOrder()->addRelatedObject($invoice);
+            $payment->setCreatedInvoice($invoice);
+            $this->transactionFactory->create()
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder())
+                ->save();
+
+            return $invoice;
+        } catch (Exception $exception) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $exception);
+
+            return null;
         }
-
-        $payment->getOrder()->addRelatedObject($invoice);
-        $payment->setCreatedInvoice($invoice);
-        $this->transactionFactory->create()
-            ->addObject($invoice)
-            ->addObject($invoice->getOrder())
-            ->save();
-
-        return $invoice;
     }
 }

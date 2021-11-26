@@ -18,16 +18,12 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Gateway\Http\Client;
 
 use Magento\Payment\Gateway\Config\Config;
-use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
-use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider;
-use Psr\Http\Client\ClientExceptionInterface;
 
 class GenericGatewayRefundClient implements ClientInterface
 {
-
     /**
      * @var RefundClient
      */
@@ -46,26 +42,20 @@ class GenericGatewayRefundClient implements ClientInterface
     /**
      * GenericGatewayRefundClient constructor.
      *
-     * @param Config $config
      * @param RefundClient $refundClient
      * @param ShoppingCartRefundClient $shoppingCartRefundClient
      */
     public function __construct(
-        Config $config,
         RefundClient $refundClient,
         ShoppingCartRefundClient $shoppingCartRefundClient
     ) {
         $this->refundClient = $refundClient;
         $this->shoppingCartRefundClient = $shoppingCartRefundClient;
-        $this->config = $config;
     }
 
     /**
      * @param TransferInterface $transferObject
      * @return array|null
-     * @throws ClientException
-     * @throws ConverterException
-     * @throws ClientExceptionInterface
      */
     public function placeRequest(TransferInterface $transferObject): ?array
     {

@@ -72,6 +72,7 @@ class GenericGatewayRefundTransactionBuilder implements BuilderInterface
         if ($this->config->getValue(GenericGatewayConfigProvider::REQUIRE_SHOPPING_CART)) {
             return $this->shoppingCartRefundRequestBuilder->build($buildSubject);
         }
+
         return $this->refundTransactionBuilder->build($buildSubject);
     }
 }

@@ -21,6 +21,9 @@ use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class RefundClient implements ClientInterface
@@ -32,30 +35,50 @@ class RefundClient implements ClientInterface
     private $sdkFactory;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * RefundClient constructor.
      *
      * @param SdkFactory $sdkFactory
+     * @param Logger $logger
      */
     public function __construct(
-        SdkFactory $sdkFactory
+        SdkFactory $sdkFactory,
+        Logger $logger
     ) {
         $this->sdkFactory = $sdkFactory;
+        $this->logger = $logger;
     }
 
     /**
-     * Places request to gateway. Returns result as ENV array
-     *
      * @param TransferInterface $transferObject
-     * @return array
-     * @throws ClientExceptionInterface
+     * @return array|null
      */
     public function placeRequest(TransferInterface $transferObject): ?array
     {
         $request = $transferObject->getBody();
         $orderId = (string)$request['order_id'];
-        $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
-        $transaction = $transactionManager->get($orderId);
 
-        return $transactionManager->refund($transaction, $request['payload'], $orderId)->getResponseData();
+        try {
+            $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
+            $transaction = $transactionManager->get($orderId);
+
+            return $transactionManager->refund($transaction, $request['payload'], $orderId)->getResponseData();
+        } catch (InvalidApiKeyException $invalidApiKeyException) {
+            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
+
+            return null;
+        } catch (ApiException $apiException) {
+            $this->logger->logExceptionForOrder($orderId, $apiException);
+
+            return null;
+        } catch (ClientExceptionInterface $clientException) {
+            $this->logger->logClientException($orderId, $clientException);
+
+            return null;
+        }
     }
 }
