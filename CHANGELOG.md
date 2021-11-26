@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed an issue where the wrong shipping tax rate was being sent when using VAT ID validation
 
+### Changed
+- Updated the credit card logo
+
 ## [2.12.2] - 2021-11-03
 ### Changed
 - Bumped the version to match the current meta package version
