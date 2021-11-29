@@ -17,8 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Config;
 
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\ScopeInterface;
+use MultiSafepay\ConnectCore\Util\EncryptorUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 class Config
@@ -56,15 +59,23 @@ class Config
     private $jsonHandler;
 
     /**
+     * @var EncryptorUtil
+     */
+    private $encryptorUtil;
+
+    /**
      * Config constructor.
      *
+     * @param $encryptorUtil $encryptorUtil
      * @param ScopeConfigInterface $scopeConfig
      * @param JsonHandler $jsonHandler
      */
     public function __construct(
+        EncryptorUtil $encryptorUtil,
         ScopeConfigInterface $scopeConfig,
         JsonHandler $jsonHandler
     ) {
+        $this->encryptorUtil = $encryptorUtil;
         $this->scopeConfig = $scopeConfig;
         $this->jsonHandler = $jsonHandler;
     }
@@ -123,14 +134,15 @@ class Config
     /**
      * @param null $storeId
      * @return string
+     * @throws Exception
      */
     public function getApiKey($storeId = null): string
     {
         if (!$this->isLiveMode($storeId)) {
-            return (string)$this->getValue(self::TEST_API_KEY, $storeId);
+            return $this->encryptorUtil->decrypt((string)$this->getValue(self::TEST_API_KEY, $storeId));
         }
 
-        return (string)$this->getValue(self::LIVE_API_KEY, $storeId);
+        return $this->encryptorUtil->decrypt((string)$this->getValue(self::LIVE_API_KEY, $storeId));
     }
 
     /**

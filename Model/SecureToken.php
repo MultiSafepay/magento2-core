@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model;
 
+use Exception;
 use InvalidArgumentException;
 use Magento\Framework\Encryption\Encryptor;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -50,6 +51,7 @@ class SecureToken
     /**
      * @param string $originalValue
      * @return string
+     * @throws Exception
      */
     public function generate(string $originalValue): string
     {
@@ -73,6 +75,7 @@ class SecureToken
      * @param string $originalValue
      * @param string $secureToken
      * @return bool
+     * @throws Exception
      */
     public function validate(string $originalValue, string $secureToken): bool
     {
