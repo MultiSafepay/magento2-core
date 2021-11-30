@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model;
 
+use Exception;
 use InvalidArgumentException;
 use MultiSafepay\ConnectCore\Model\SecureToken;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -44,7 +45,7 @@ class SecureTokenTest extends AbstractTestCase
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      */
-    public function testGenereateTokenWithApiTokenSet(): void
+    public function testGenerateTokenWithApiTokenSet(): void
     {
         $token = $this->secureToken->generate(self::TEST_ORIGINAL_VALUE);
 
@@ -56,7 +57,10 @@ class SecureTokenTest extends AbstractTestCase
         self::assertNotEmpty($this->secureToken->generate(''));
     }
 
-    public function testGenereateTokenWithoutApiToken(): void
+    /**
+     * @throws Exception
+     */
+    public function testGenerateTokenWithoutApiToken(): void
     {
         $this->expectExceptionMessage('No API key configured');
         $this->expectException(InvalidArgumentException::class);
