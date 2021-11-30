@@ -19,7 +19,6 @@ namespace MultiSafepay\ConnectCore\Config;
 
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Model\ScopeInterface;
 use MultiSafepay\ConnectCore\Util\EncryptorUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
@@ -138,11 +137,9 @@ class Config
      */
     public function getApiKey($storeId = null): string
     {
-        if (!$this->isLiveMode($storeId)) {
-            return $this->encryptorUtil->decrypt((string)$this->getValue(self::TEST_API_KEY, $storeId));
-        }
-
-        return $this->encryptorUtil->decrypt((string)$this->getValue(self::LIVE_API_KEY, $storeId));
+        return !$this->isLiveMode($storeId)
+            ? $this->encryptorUtil->decrypt((string)$this->getValue(self::TEST_API_KEY, $storeId))
+            : $this->encryptorUtil->decrypt((string)$this->getValue(self::LIVE_API_KEY, $storeId));
     }
 
     /**

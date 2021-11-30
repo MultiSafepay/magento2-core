@@ -43,10 +43,6 @@ class EncryptorUtil
      */
     public function decrypt(string $key): string
     {
-        if ($this->encryptor->validateHashVersion($key)) {
-            return $key;
-        }
-
-        return $this->encryptor->decrypt($key);
+        return $this->encryptor->validateHashVersion($key) ? $key : $this->encryptor->decrypt($key);
     }
 }
