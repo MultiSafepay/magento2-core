@@ -64,7 +64,7 @@ class CaptureResponseHandlerTest extends AbstractGatewayTestCase
             'amount' => $amount,
         ];
 
-        $this->expectExceptionMessage('Response API data is not valid.');
+        $this->expectExceptionMessage('Capture response API data is not valid.');
         $this->expectException(LocalizedException::class);
 
         $this->captureResponseHandler->handle($handlingSubject, $response);

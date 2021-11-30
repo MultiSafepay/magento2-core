@@ -28,6 +28,7 @@ use MultiSafepay\Api\Transactions\RefundRequest\Arguments\CheckoutData;
 use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\Sdk;
 use MultiSafepay\ValueObject\CartItem;
@@ -75,6 +76,7 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
             $this->getConfig(),
             $this->getDescription(),
             $this->setupSdkFactory($this->getSdkMockWithRefundMethod($refundRequestPayload)),
+            $this->getObjectManager()->get(Logger::class)
         ])->setMethodsExcept(['placeRequest'])->getMock();
 
         /** @var TransferInterface $transferObject */

@@ -23,6 +23,7 @@ use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction;
 use MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\Gateway\AbstractGatewayTestCase;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -66,6 +67,7 @@ class CancelClientTest extends AbstractGatewayTestCase
                 $this->setupSdkFactory(
                     $this->getSdkMockWithCaptureReservationCancel($fakeOrderIncrementId, $captureRequestPayload)
                 ),
+                $this->getObjectManager()->get(Logger::class)
             ])
             ->setMethodsExcept(['placeRequest'])
             ->getMock();
