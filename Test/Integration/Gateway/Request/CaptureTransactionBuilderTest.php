@@ -30,6 +30,7 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\Gateway\AbstractGatewayTestCase;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -300,6 +301,7 @@ class CaptureTransactionBuilderTest extends AbstractGatewayTestCase
                 $this->shipmentUtil,
                 $this->sequenceManager,
                 $this->getObjectManager()->get(Logger::class),
+                $this->getObjectManager()->get(JsonHandler::class)
             ])
             ->setMethodsExcept(['build'])
             ->getMock();
