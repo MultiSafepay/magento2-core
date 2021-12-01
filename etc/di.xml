@@ -123,16 +123,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayConfig</argument>
         </arguments>
@@ -253,16 +247,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">IdealCountryValidator</item>
-                <item name="currency" xsi:type="string">IdealCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="IdealCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">IdealConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="IdealCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">IdealConfig</argument>
         </arguments>
@@ -445,16 +433,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayIdealRecurringCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayIdealRecurringCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayIdealRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayIdealRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayIdealRecurringConfig</argument>
         </arguments>
@@ -574,17 +556,11 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">PayafterCountryValidator</item>
-                <item name="currency" xsi:type="string">PayafterCurrencyValidator</item>
                 <item name="global" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\PayafterValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="PayafterCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">PayafterConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="PayafterCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">PayafterConfig</argument>
         </arguments>
@@ -704,16 +680,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">KlarnaCountryValidator</item>
-                <item name="currency" xsi:type="string">KlarnaCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="KlarnaCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">KlarnaConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="KlarnaCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">KlarnaConfig</argument>
         </arguments>
@@ -833,17 +803,11 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">AfterpayCountryValidator</item>
-                <item name="currency" xsi:type="string">AfterpayCurrencyValidator</item>
                 <item name="global" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\AfterpayValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="AfterpayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">AfterpayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="AfterpayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">AfterpayConfig</argument>
         </arguments>
@@ -964,16 +928,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">BancontactCountryValidator</item>
-                <item name="currency" xsi:type="string">BancontactCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="BancontactCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">BancontactConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="BancontactCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">BancontactConfig</argument>
         </arguments>
@@ -1094,16 +1052,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayAmexCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayAmexCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayAmexCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayAmexConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayAmexCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayAmexConfig</argument>
         </arguments>
@@ -1224,16 +1176,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayApplePayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayApplePayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayApplePayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayApplePayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayApplePayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayApplePayConfig</argument>
         </arguments>
@@ -1354,16 +1300,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayBelfiusCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayBelfiusCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayBelfiusCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayBelfiusConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayBelfiusCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayBelfiusConfig</argument>
         </arguments>
@@ -1485,16 +1425,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayCreditCardRecurringCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayCreditCardRecurringCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayCreditCardRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayCreditCardRecurringConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayCreditCardRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayCreditCardRecurringConfig</argument>
         </arguments>
@@ -1617,16 +1551,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayVisaRecurringCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayVisaRecurringCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayVisaRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayVisaRecurringConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayVisaRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayVisaRecurringConfig</argument>
         </arguments>
@@ -1810,16 +1738,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayMastercardRecurringCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayMastercardRecurringCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayMastercardRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayMastercardRecurringConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayMastercardRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayMastercardRecurringConfig</argument>
         </arguments>
@@ -2002,16 +1924,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayAmexRecurringCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayAmexRecurringCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayAmexRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayAmexRecurringConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayAmexRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayAmexRecurringConfig</argument>
         </arguments>
@@ -2193,16 +2109,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayCreditCardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayCreditCardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayCreditCardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayCreditCardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayCreditCardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayCreditCardConfig</argument>
         </arguments>
@@ -2384,16 +2294,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayDotpayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayDotpayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayDotpayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayDotpayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayDotpayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayDotpayConfig</argument>
         </arguments>
@@ -2514,16 +2418,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayEPSCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayEPSCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayEPSCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayEPSConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayEPSCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayEPSConfig</argument>
         </arguments>
@@ -2644,16 +2542,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayGiropayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGiropayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayGiropayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGiropayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGiropayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayGiropayConfig</argument>
         </arguments>
@@ -2774,16 +2666,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayGooglePayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGooglePayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayGooglePayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGooglePayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGooglePayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayGooglePayConfig</argument>
         </arguments>
@@ -2905,16 +2791,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayIdealQRCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayIdealQRCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayIdealQRCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayIdealQRConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayIdealQRCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayIdealQRConfig</argument>
         </arguments>
@@ -3055,16 +2935,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayMaestroCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayMaestroCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayMaestroCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayMaestroConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayMaestroCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayMaestroConfig</argument>
         </arguments>
@@ -3205,16 +3079,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayMastercardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayMastercardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayMastercardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayMastercardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayMastercardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayMastercardConfig</argument>
         </arguments>
@@ -3335,16 +3203,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayPaysafecardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayPaysafecardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayPaysafecardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayPaysafecardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayPaysafecardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayPaysafecardConfig</argument>
         </arguments>
@@ -3465,16 +3327,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepaySofortCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepaySofortCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepaySofortCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepaySofortConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepaySofortCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepaySofortConfig</argument>
         </arguments>
@@ -3595,16 +3451,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayTrustPayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayTrustPayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayTrustPayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayTrustPayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayTrustPayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayTrustPayConfig</argument>
         </arguments>
@@ -3766,16 +3616,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayVisaCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayVisaCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayVisaCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayVisaConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayVisaCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayVisaConfig</argument>
         </arguments>
@@ -3896,16 +3740,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayAlipayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayAlipayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayAlipayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayAlipayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayAlipayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayAlipayConfig</argument>
         </arguments>
@@ -4026,17 +3864,11 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayDirectBankTransferCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayDirectBankTransferCurrencyValidator</item>
                 <item name="global" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\DirectBankTransferValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayDirectBankTransferCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayDirectBankTransferConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayDirectBankTransferCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayDirectBankTransferConfig</argument>
         </arguments>
@@ -4157,16 +3989,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayBankTransferCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayBankTransferCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayBankTransferCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayBankTransferConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayBankTransferCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayBankTransferConfig</argument>
         </arguments>
@@ -4287,16 +4113,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepaySantanderCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepaySantanderCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepaySantanderCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepaySantanderConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepaySantanderCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepaySantanderConfig</argument>
         </arguments>
@@ -4417,16 +4237,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayCBCCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayCBCCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayCBCCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayCBCConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayCBCCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayCBCConfig</argument>
         </arguments>
@@ -4547,17 +4361,11 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayDirectDebitCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayDirectDebitCurrencyValidator</item>
                 <item name="global" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\DirectDebitValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayDirectDebitCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayDirectDebitConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayDirectDebitCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayDirectDebitConfig</argument>
         </arguments>
@@ -4741,16 +4549,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayDirectDebitRecurringCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayDirectDebitRecurringCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayDirectDebitRecurringCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayDirectDebitRecurringCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayDirectDebitRecurringConfig</argument>
         </arguments>
@@ -4871,17 +4673,11 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayEinvoicingCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayEinvoicingCurrencyValidator</item>
                 <item name="global" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\EinvoicingValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayEinvoicingCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayEinvoicingConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayEinvoicingCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayEinvoicingConfig</argument>
         </arguments>
@@ -5002,16 +4798,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayINGHomePayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayINGHomePayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayINGHomePayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayINGHomePayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayINGHomePayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayINGHomePayConfig</argument>
         </arguments>
@@ -5132,16 +4922,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayKBCCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayKBCCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayKBCCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayKBCConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayKBCCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayKBCConfig</argument>
         </arguments>
@@ -5262,16 +5046,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayPaypalCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayPaypalCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayPaypalCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayPaypalConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayPaypalCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayPaypalConfig</argument>
         </arguments>
@@ -5392,16 +5170,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayTrustlyCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayTrustlyCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayTrustlyCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayTrustlyConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayTrustlyCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayTrustlyConfig</argument>
         </arguments>
@@ -5522,17 +5294,11 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayIn3CountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayIn3CurrencyValidator</item>
                 <item name="global" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Validator\Gateway\In3Validator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayIn3CountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayIn3Config</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayIn3CurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayIn3Config</argument>
         </arguments>
@@ -5715,16 +5481,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayBabyGiftcardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayBabyGiftcardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayBabyGiftcardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayBabyGiftcardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayBabyGiftcardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayBabyGiftcardConfig</argument>
         </arguments>
@@ -5824,16 +5584,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayBeautyAndWellnessCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayBeautyAndWellnessCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayBeautyAndWellnessCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayBeautyAndWellnessConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayBeautyAndWellnessCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayBeautyAndWellnessConfig</argument>
         </arguments>
@@ -5933,16 +5687,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayBoekenbonCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayBoekenbonCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayBoekenbonCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayBoekenbonConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayBoekenbonCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayBoekenbonConfig</argument>
         </arguments>
@@ -6042,16 +5790,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayFashionChequeCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayFashionChequeCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayFashionChequeCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayFashionChequeConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayFashionChequeCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayFashionChequeConfig</argument>
         </arguments>
@@ -6151,16 +5893,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayFashionGiftcardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayFashionGiftcardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayFashionGiftcardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayFashionGiftcardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayFashionGiftcardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayFashionGiftcardConfig</argument>
         </arguments>
@@ -6260,16 +5996,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayFietsenbonCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayFietsenbonCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayFietsenbonCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayFietsenbonConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayFietsenbonCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayFietsenbonConfig</argument>
         </arguments>
@@ -6389,16 +6119,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayEdenredCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayEdenredCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayEdenredCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayEdenredConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayEdenredCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayEdenredConfig</argument>
         </arguments>
@@ -6498,16 +6222,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayGezondheidsbonCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGezondheidsbonCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayGezondheidsbonCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGezondheidsbonConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGezondheidsbonCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayGezondheidsbonConfig</argument>
         </arguments>
@@ -6607,16 +6325,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayGivacardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGivacardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayGivacardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGivacardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGivacardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayGivacardConfig</argument>
         </arguments>
@@ -6716,16 +6428,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayGoodcardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGoodcardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayGoodcardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGoodcardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGoodcardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayGoodcardConfig</argument>
         </arguments>
@@ -6825,16 +6531,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayNationaleTuinbonCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayNationaleTuinbonCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayNationaleTuinbonCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayNationaleTuinbonConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayNationaleTuinbonCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayNationaleTuinbonConfig</argument>
         </arguments>
@@ -6934,16 +6634,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayParfumcadeaukaartCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayParfumcadeaukaartCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayParfumcadeaukaartCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayParfumcadeaukaartConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayParfumcadeaukaartCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayParfumcadeaukaartConfig</argument>
         </arguments>
@@ -7043,16 +6737,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayPodiumcadeaukaartCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayPodiumcadeaukaartCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayPodiumcadeaukaartCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayPodiumcadeaukaartConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayPodiumcadeaukaartCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayPodiumcadeaukaartConfig</argument>
         </arguments>
@@ -7152,16 +6840,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepaySportenfitCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepaySportenfitCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepaySportenfitCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepaySportenfitConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepaySportenfitCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepaySportenfitConfig</argument>
         </arguments>
@@ -7261,16 +6943,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayVVVcadeaukaartCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayVVVcadeaukaartCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayVVVcadeaukaartCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayVVVcadeaukaartConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayVVVcadeaukaartCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayVVVcadeaukaartConfig</argument>
         </arguments>
@@ -7370,16 +7046,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayWebshopGiftcardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayWebshopGiftcardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayWebshopGiftcardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayWebshopGiftcardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayWebshopGiftcardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayWebshopGiftcardConfig</argument>
         </arguments>
@@ -7499,16 +7169,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayWeChatPayCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayWeChatPayCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayWeChatPayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayWeChatPayCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayWeChatPayConfig</argument>
         </arguments>
@@ -7608,16 +7272,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayWellnessGiftcardCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayWellnessGiftcardCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayWellnessGiftcardCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayWellnessGiftcardConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayWellnessGiftcardCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayWellnessGiftcardConfig</argument>
         </arguments>
@@ -7717,16 +7375,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayWijnCadeauCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayWijnCadeauCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayWijnCadeauCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayWijnCadeauConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayWijnCadeauCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayWijnCadeauConfig</argument>
         </arguments>
@@ -7826,16 +7478,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayWinkelChequeCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayWinkelChequeCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayWinkelChequeCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayWinkelChequeConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayWinkelChequeCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayWinkelChequeConfig</argument>
         </arguments>
@@ -7935,16 +7581,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayYourGiftCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayYourGiftCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayYourGiftCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayYourGiftConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayYourGiftCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayYourGiftConfig</argument>
         </arguments>
@@ -8044,16 +7684,10 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">MultiSafepayGood4funCountryValidator</item>
-                <item name="currency" xsi:type="string">MultiSafepayGood4funCurrencyValidator</item>
             </argument>
         </arguments>
     </virtualType>
     <virtualType name="MultiSafepayGood4funCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
-        <arguments>
-            <argument name="config" xsi:type="object">MultiSafepayGood4funConfig</argument>
-        </arguments>
-    </virtualType>
-    <virtualType name="MultiSafepayGood4funCurrencyValidator" type="MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator">
         <arguments>
             <argument name="config" xsi:type="object">MultiSafepayGood4funConfig</argument>
         </arguments>
