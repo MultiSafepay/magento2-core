@@ -335,6 +335,8 @@ class GenericAdapter extends Adapter
     /**
      * @param string $currencyCode
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function canUseForCurrency($currencyCode): bool
     {
