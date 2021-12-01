@@ -338,10 +338,7 @@ class GenericAdapter extends Adapter
      */
     public function canUseForCurrency($currencyCode): bool
     {
-        return $this->validateByInstance(
-            $this->currencyValidatorFactory,
-            ['currency' => $currencyCode, 'storeId' => $this->getStore()]
-        );
+        return true;
     }
 
     /**
