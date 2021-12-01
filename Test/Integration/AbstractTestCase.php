@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration;
 
+use Exception;
 use Http\Factory\Guzzle\RequestFactory;
 use Http\Factory\Guzzle\StreamFactory;
 use Magento\Config\Model\ResourceModel\Config as ConfigResourceModel;
@@ -355,7 +356,7 @@ abstract class AbstractTestCase extends TestCase
 
         return $shipment;
     }
-      
+
     /**
      * @param $body
      * @return MockObject
