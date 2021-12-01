@@ -23,6 +23,7 @@ use Magento\Payment\Model\MethodList;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\AmountValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\CategoryValidator;
+use MultiSafepay\ConnectCore\Gateway\Validator\CurrencyValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\CustomerGroupValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\ShippingValidator;
 
@@ -54,6 +55,11 @@ class MethodListPlugin
     private $categoryValidator;
 
     /**
+     * @var CurrencyValidator
+     */
+    private $currencyValidator;
+
+    /**
      * MethodListPlugin constructor.
      *
      * @param AmountValidator $amountValidator
@@ -69,13 +75,15 @@ class MethodListPlugin
         Config $config,
         CustomerGroupValidator $customerGroupValidator,
         ShippingValidator $shippingValidator,
-        CategoryValidator $categoryValidator
+        CategoryValidator $categoryValidator,
+        CurrencyValidator $currencyValidator
     ) {
         $this->amountValidator = $amountValidator;
         $this->config = $config;
         $this->customerGroupValidator = $customerGroupValidator;
         $this->shippingValidator = $shippingValidator;
         $this->categoryValidator = $categoryValidator;
+        $this->currencyValidator = $currencyValidator;
     }
 
     /**
@@ -95,7 +103,8 @@ class MethodListPlugin
             $this->shippingValidator,
             $this->customerGroupValidator,
             $this->amountValidator,
-            $this->categoryValidator
+            $this->categoryValidator,
+            $this->currencyValidator
         ];
 
         foreach ($availableMethods as $key => $method) {

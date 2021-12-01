@@ -17,49 +17,34 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator;
 
-use Magento\Payment\Gateway\ConfigInterface;
-use Magento\Payment\Gateway\Validator\AbstractValidator;
-use Magento\Payment\Gateway\Validator\ResultInterface;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Payment\Gateway\Config\Config;
+use Magento\Quote\Api\Data\CartInterface;
 
-class CurrencyValidator extends AbstractValidator
+class CurrencyValidator
 {
     /**
-     * @var ConfigInterface
-     */
-    private $config;
-
-    /**
-     * CurrencyValidator constructor.
+     * @param CartInterface $quote
+     * @param Config $config
+     * @param string $methodCode
+     * @return bool
      *
-     * @param ResultInterfaceFactory $resultFactory
-     * @param ConfigInterface $config
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __construct(
-        ResultInterfaceFactory $resultFactory,
-        ConfigInterface $config
-    ) {
-        $this->config = $config;
-        parent::__construct($resultFactory);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function validate(array $validationSubject): ResultInterface
+    public function validate(CartInterface $quote, Config $config, string $methodCode): bool
     {
-        $storeId = $validationSubject['storeId'];
+        $storeId = $quote->getStoreId();
 
-        if ((int)$this->config->getValue('allow_specific_currency', $storeId) === 1) {
+        if ((int)$config->getValue('allow_specific_currency', $storeId) === 1) {
             $availableCurrencies = explode(
                 ',',
-                (string)$this->config->getValue('allowed_currency', $storeId)
+                (string)$config->getValue('allowed_currency', $storeId)
             );
 
-            if (!in_array($validationSubject['currency'], $availableCurrencies, true)) {
-                return $this->createResult(false);
+            if (!in_array($quote->getStore()->getCurrentCurrencyCode(), $availableCurrencies, true)) {
+                return true;
             }
         }
-        return $this->createResult(true);
+
+        return false;
     }
 }
