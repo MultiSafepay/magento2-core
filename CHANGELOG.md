@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API Keys are now stored with encryption provided by the Encryptor from the Magento Framework
 - MultiSafepay Account data is now dynamically retrieved via an API request for Google Pay Direct
 - Improved logging for Magento payment gateway, client and shipping requests.
+- Changed from using the Magento payment currency validator to using own for filtering by current store currency
 
 ## [2.12.2] - 2021-11-03
 ### Changed
