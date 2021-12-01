@@ -136,13 +136,4 @@ class GenericAdapterTest extends AbstractTestCase
     {
         self::assertTrue($this->genericAdapter->canUseForCountry('NL'));
     }
-
-    /**
-     * @magentoConfigFixture default_store payment/multisafepay_genericgateway_1/allow_specific_currency 1
-     * @magentoConfigFixture default_store payment/multisafepay_genericgateway_1/allowed_currency USD
-     */
-    public function testCanUseForCurrency(): void
-    {
-        self::assertFalse($this->genericAdapter->canUseForCurrency('EUR'));
-    }
 }
