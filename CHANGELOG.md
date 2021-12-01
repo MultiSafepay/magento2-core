@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.13.0] - 2021-11-30
 ### Added
 - Added a separate option for when to send the order confirmation email for the Bank Transfer payment method
-- Added a compatibility with [Adobe Commerce Gift Card Accounts](https://docs.magento.com/user-guide/catalog/product-gift-card-accounts.html)
-- Added a compatibility with REST API
+- Added compatibility with [Adobe Commerce Gift Card Accounts](https://docs.magento.com/user-guide/catalog/product-gift-card-accounts.html)
+- Added back REST API compatibility, including an end point for retrieving the payment link after order creation.
+- Added the possibility to fetch transaction data in the transaction overview.
 
 ### Fixed
 - Fixed an issue where the wrong shipping tax rate was being sent when using VAT ID validation
@@ -16,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated the credit card logo
 - API Keys are now stored with encryption provided by the Encryptor from the Magento Framework
+- MultiSafepay Account data is now dynamically retrieved via an API request for Google Pay Direct
+- Improved logging for Magento payment gateway, client and shipping requests.
+- Changed from using the Magento payment currency validator to using own for filtering by current store currency
 
 ## [2.12.2] - 2021-11-03
 ### Changed

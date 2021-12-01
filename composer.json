@@ -1,9 +1,9 @@
 {
     "name": "multisafepay/magento2-core",
     "description": "MultiSafepay module for Magento 2",
-    "version": "2.12.2",
+    "version": "2.13.0",
     "require": {
-        "multisafepay/php-sdk": "^5.3",
+        "multisafepay/php-sdk": "^5.4",
         "php-http/guzzle6-adapter": "^2.0",
         "guzzlehttp/psr7": "*",
         "http-interop/http-factory-guzzle": "^1.0",
