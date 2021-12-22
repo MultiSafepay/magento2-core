@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -43,20 +44,28 @@ class PriceUtil
     private $jsonHandler;
 
     /**
+     * @var TaxUtil
+     */
+    private $taxUtil;
+
+    /**
      * PriceUtil constructor.
      *
      * @param Config $config
      * @param ScopeConfigInterface $scopeConfig
      * @param JsonHandler $jsonHandler
+     * @param TaxUtil $taxUtil
      */
     public function __construct(
         Config $config,
         ScopeConfigInterface $scopeConfig,
-        JsonHandler $jsonHandler
+        JsonHandler $jsonHandler,
+        TaxUtil $taxUtil
     ) {
         $this->config = $config;
         $this->scopeConfig = $scopeConfig;
         $this->jsonHandler = $jsonHandler;
+        $this->taxUtil = $taxUtil;
     }
 
     /**
@@ -144,14 +153,20 @@ class PriceUtil
     /**
      * @param OrderInterface $order
      * @return float
+     * @throws NoSuchEntityException
      */
     public function getShippingUnitPrice(OrderInterface $order): float
     {
+        $shippingTaxRate = 1 + ($this->taxUtil->getShippingTaxRate($order) / 100);
+
         if ($this->config->useBaseCurrency($order->getStoreId())) {
-            return (float)$order->getBaseShippingAmount();
+
+            return ($order->getBaseShippingInclTax() - ($order->getBaseShippingDiscountAmount() * $shippingTaxRate))
+                   / $shippingTaxRate;
         }
 
-        return (float)$order->getShippingAmount();
+        return ($order->getShippingInclTax() - ($order->getShippingDiscountAmount() * $shippingTaxRate))
+               / $shippingTaxRate;
     }
 
     /**

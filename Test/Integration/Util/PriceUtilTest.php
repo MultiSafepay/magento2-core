@@ -51,12 +51,14 @@ class PriceUtilTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
+     * @magentoDataFixture   Magento/Sales/_files/quote.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
      * @throws LocalizedException
      */
     public function testGetBaseShippingUnitPrice(): void
     {
         $order = $this->getOrder();
+        $order->setQuoteId(1);
 
         self::assertEquals((float)$order->getBaseShippingAmount(), $this->priceUtil->getShippingUnitPrice($order));
     }
