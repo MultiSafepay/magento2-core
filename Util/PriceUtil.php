@@ -39,11 +39,6 @@ class PriceUtil
     private $scopeConfig;
 
     /**
-     * @var JsonHandler
-     */
-    private $jsonHandler;
-
-    /**
      * @var TaxUtil
      */
     private $taxUtil;
@@ -53,18 +48,15 @@ class PriceUtil
      *
      * @param Config $config
      * @param ScopeConfigInterface $scopeConfig
-     * @param JsonHandler $jsonHandler
      * @param TaxUtil $taxUtil
      */
     public function __construct(
         Config $config,
         ScopeConfigInterface $scopeConfig,
-        JsonHandler $jsonHandler,
         TaxUtil $taxUtil
     ) {
         $this->config = $config;
         $this->scopeConfig = $scopeConfig;
-        $this->jsonHandler = $jsonHandler;
         $this->taxUtil = $taxUtil;
     }
 
