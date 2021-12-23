@@ -64,4 +64,14 @@ class OrderStatusUtil
 
         return $order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING) ?? Order::STATE_PROCESSING;
     }
+
+    /**
+     * @param OrderInterface $order
+     * @param string $transactionStatus
+     * @return string
+     */
+    public function getOrderStatusByTransactionStatus(OrderInterface $order, string $transactionStatus): string
+    {
+        return $this->config->getStatusByTransactionStatus($transactionStatus, $order->getStoreId());
+    }
 }

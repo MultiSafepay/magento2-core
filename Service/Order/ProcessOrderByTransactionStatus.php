@@ -25,6 +25,7 @@ use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\SecondChance;
 use MultiSafepay\ConnectCore\Service\EmailSender;
+use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
@@ -58,6 +59,11 @@ class ProcessOrderByTransactionStatus
     private $addInvoicesDataToTransactionAndSendEmail;
 
     /**
+     * @var OrderStatusUtil
+     */
+    private $orderStatusUtil;
+
+    /**
      * ProcessOrderByTransactionStatus constructor.
      *
      * @param Logger $logger
@@ -65,19 +71,22 @@ class ProcessOrderByTransactionStatus
      * @param EmailSender $emailSender
      * @param PayMultisafepayOrder $payMultisafepayOrder
      * @param AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
+     * @param OrderStatusUtil $orderStatusUtil
      */
     public function __construct(
         Logger $logger,
         SecondChance $secondChance,
         EmailSender $emailSender,
         PayMultisafepayOrder $payMultisafepayOrder,
-        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
+        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail,
+        OrderStatusUtil $orderStatusUtil
     ) {
         $this->logger = $logger;
         $this->secondChance = $secondChance;
         $this->emailSender = $emailSender;
         $this->payMultisafepayOrder = $payMultisafepayOrder;
         $this->addInvoicesDataToTransactionAndSendEmail = $addInvoicesDataToTransactionAndSendEmail;
+        $this->orderStatusUtil = $orderStatusUtil;
     }
 
     /**
@@ -103,14 +112,24 @@ class ProcessOrderByTransactionStatus
         $transactionStatusMessage = __('MultiSafepay Transaction status: ') . $transactionStatus;
         $order->addCommentToStatusHistory($transactionStatusMessage);
         $this->logger->logInfoForOrder($orderId, $transactionStatusMessage, Logger::DEBUG);
+        $updateOrderStatus = false;
 
         switch ($transactionStatus) {
+            case TransactionStatus::INITIALIZED:
+            case TransactionStatus::RESERVED:
+            case TransactionStatus::CHARGEDBACK:
+            case TransactionStatus::REFUNDED:
+            case TransactionStatus::PARTIAL_REFUNDED:
+                $updateOrderStatus = true;
+                break;
             case TransactionStatus::COMPLETED:
             case TransactionStatus::SHIPPED:
                 $this->completeOrderTransaction($order, $payment, $transaction, $transactionManager);
                 break;
 
             case TransactionStatus::UNCLEARED:
+                $updateOrderStatus = true;
+
                 if ($gatewayCode !== 'SANTANDER') {
                     $message =
                         __('Uncleared Transaction. You can accept the transaction manually in MultiSafepay Control');
@@ -120,6 +139,8 @@ class ProcessOrderByTransactionStatus
                 break;
 
             case TransactionStatus::EXPIRED:
+                $updateOrderStatus = true;
+
                 if (in_array($order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)) {
                     $this->cancelOrder($order, $transactionStatusMessage);
                 }
@@ -127,8 +148,22 @@ class ProcessOrderByTransactionStatus
             case TransactionStatus::DECLINED:
             case TransactionStatus::CANCELLED:
             case TransactionStatus::VOID:
+                $updateOrderStatus = true;
                 $this->cancelOrder($order, $transactionStatusMessage);
                 break;
+        }
+
+        if ($updateOrderStatus
+            && ($statusToUpdate = $this->orderStatusUtil->getOrderStatusByTransactionStatus($order, $transactionStatus))
+        ) {
+            $orderUpdateStatusMessage = __('Order status has been changed to: %1', $statusToUpdate);
+            $order->setStatus($statusToUpdate);
+            $order->addCommentToStatusHistory($orderUpdateStatusMessage);
+            $this->logger->logInfoForOrder(
+                $orderId,
+                $orderUpdateStatusMessage->render(),
+                Logger::DEBUG
+            );
         }
     }
 

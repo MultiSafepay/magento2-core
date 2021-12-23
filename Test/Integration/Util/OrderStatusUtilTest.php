@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\Test\Integration\Util;
 
 use Magento\Framework\Exception\LocalizedException;
+use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 
@@ -101,5 +102,44 @@ class OrderStatusUtilTest extends AbstractTestCase
     public function testGetProcessingStatusWithoutPreselected(): void
     {
         self::assertNotEquals('fraud', $this->orderStatusUtil->getProcessingStatus($this->getOrder()));
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @magentoConfigFixture default_store multisafepay/status/initialized_status pending
+     * @throws LocalizedException
+     */
+    public function testGetOrderStatusForInitializedMultisafepayStatus(): void
+    {
+        self::assertEquals(
+            'pending',
+            $this->orderStatusUtil->getOrderStatusByTransactionStatus($this->getOrder(), TransactionStatus::INITIALIZED)
+        );
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @magentoConfigFixture default_store multisafepay/status/reserved_status pending
+     * @throws LocalizedException
+     */
+    public function testGetOrderStatusForReservedMultisafepayStatus(): void
+    {
+        self::assertEquals(
+            'pending',
+            $this->orderStatusUtil->getOrderStatusByTransactionStatus($this->getOrder(), TransactionStatus::RESERVED)
+        );
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @magentoConfigFixture default_store multisafepay/status/chargeback_status pending
+     * @throws LocalizedException
+     */
+    public function testGetOrderStatusForChargedbackMultisafepayStatus(): void
+    {
+        self::assertEquals(
+            'pending',
+            $this->orderStatusUtil->getOrderStatusByTransactionStatus($this->getOrder(), TransactionStatus::CHARGEDBACK)
+        );
     }
 }

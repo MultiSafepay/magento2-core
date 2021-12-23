@@ -112,6 +112,19 @@ class ProcessOrderByTransactionStatusTest extends AbstractTestCase
     }
 
     /**
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
+     * @magentoConfigFixture default_store multisafepay/status/reserved_status pending
+     * @magentoConfigFixture default_store multisafepay/general/mode 0
+     * @throws LocalizedException
+     * @throws ClientExceptionInterface
+     */
+    public function testProcessOrderByTransactionStatusReserved(): void
+    {
+        $this->getProcessOrderByTransactionStatusTest(TransactionStatus::RESERVED);
+    }
+
+    /**
      * @param string $transactionStatus
      * @throws ClientExceptionInterface
      * @throws LocalizedException
@@ -133,6 +146,17 @@ class ProcessOrderByTransactionStatusTest extends AbstractTestCase
         $lastComment = end($statusHistories);
 
         switch ($transactionStatus) {
+            case TransactionStatus::RESERVED:
+                self::assertEquals(
+                    $this->orderStatusUtil->getOrderStatusByTransactionStatus($order, $transactionStatus),
+                    $order->getStatus()
+                );
+                self::assertEquals(
+                    'Order status has been changed to: pending',
+                    $lastComment->getComment()->render()
+                );
+
+                break;
             case TransactionStatus::UNCLEARED:
                 self::assertEquals(
                     'Uncleared Transaction. You can accept the transaction manually in MultiSafepay Control',

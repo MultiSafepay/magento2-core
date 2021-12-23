@@ -26,6 +26,7 @@ use MultiSafepay\ConnectCore\Util\JsonHandler;
 class Config
 {
     public const DEFAULT_PATH_PATTERN = 'multisafepay/general/%s';
+    public const STATUS_PATH_PATTERN = 'multisafepay/status/%s';
     public const ADVANCED_PATH_PATTERN = 'multisafepay/advanced/%s';
 
     public const TEST_API_KEY = 'test_api_key';
@@ -44,6 +45,13 @@ class Config
     public const BEFORE_TRANSACTION = 'before_transaction';
     public const USE_MANUAL_CAPTURE = 'use_manual_capture';
     public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
+
+    public const MULTISAFEPAY_INITIALIZED_STATUS = 'initialized_status';
+    public const MULTISAFEPAY_UNCLEARED_STATUS = 'uncleared_status';
+    public const MULTISAFEPAY_RESERVED_STATUS = 'reserved_status';
+    public const MULTISAFEPAY_CHARGEBACK_STATUS = 'chargeback_status';
+    public const MULTISAFEPAY_REFUNDED_STATUS = 'refunded_status';
+    public const MULTISAFEPAY_PARTIAL_REFUNDED_STATUS = 'partial_refunded_status';
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
 
@@ -102,6 +110,20 @@ class Config
     {
         return $this->scopeConfig->getValue(
             $path,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * @param string $field
+     * @param null $storeId
+     * @return mixed
+     */
+    public function getStatusValue(string $field, $storeId = null)
+    {
+        return $this->scopeConfig->getValue(
+            sprintf(self::STATUS_PATH_PATTERN, $field),
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -257,5 +279,69 @@ class Config
         return $this->jsonHandler->readJSON(
             $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId)
         );
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getInitializedStatus($storeId = null): string
+    {
+        return (string)$this->getStatusValue(self::MULTISAFEPAY_INITIALIZED_STATUS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getUnclearedStatus($storeId = null): string
+    {
+        return (string)$this->getStatusValue(self::MULTISAFEPAY_UNCLEARED_STATUS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getReservedStatus($storeId = null): string
+    {
+        return (string)$this->getStatusValue(self::MULTISAFEPAY_RESERVED_STATUS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getChargebackStatus($storeId = null): string
+    {
+        return (string)$this->getStatusValue(self::MULTISAFEPAY_CHARGEBACK_STATUS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getRefundedStatus($storeId = null): string
+    {
+        return (string)$this->getStatusValue(self::MULTISAFEPAY_REFUNDED_STATUS, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getPartialRefundedStatus($storeId = null): string
+    {
+        return (string)$this->getStatusValue(self::MULTISAFEPAY_PARTIAL_REFUNDED_STATUS, $storeId);
+    }
+
+    /**
+     * @param string $transactionStatus
+     * @param null $storeId
+     * @return string
+     */
+    public function getStatusByTransactionStatus(string $transactionStatus, $storeId = null): string
+    {
+        return (string)$this->getStatusValue($transactionStatus . '_status', $storeId);
     }
 }
