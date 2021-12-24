@@ -85,6 +85,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
         OrderRequest $orderRequest
     ): void {
         $storeId = $order->getStoreId();
+        $this->storeManager->setCurrentStore($order->getStoreId());
         $params = [
             'secureToken' => $this->secureToken->generate((string)$order->getRealOrderId()),
         ];
