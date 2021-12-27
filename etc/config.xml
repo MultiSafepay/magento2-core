@@ -17,6 +17,18 @@
                 <debug>0</debug>
                 <account_data/>
             </general>
+            <status>
+                <initialized_status/>
+                <uncleared_status/>
+                <reserved_status/>
+                <chargeback_status/>
+                <refunded_status/>
+                <partial_refunded_status/>
+                <void_status/>
+                <declined_status/>
+                <expired_status/>
+                <cancelled_status/>
+            </status>
             <advanced>
                 <custom_totals />
                 <disable_shopping_cart>0</disable_shopping_cart>

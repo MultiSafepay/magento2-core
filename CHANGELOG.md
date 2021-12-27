@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Shipping prices excluding tax are now re-calculated based on the shipping prices including tax
 
+### Added
+- Added options for selecting separate order status for different MultiSafepay statuses
+
+
 ## [2.13.0] - 2021-11-30
 ### Added
 - Added a separate option for when to send the order confirmation email for the Bank Transfer payment method
