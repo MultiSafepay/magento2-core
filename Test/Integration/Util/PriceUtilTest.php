@@ -17,8 +17,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\Test\Integration\Util;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceRounder;
+use Magento\Quote\Model\Quote\Address\ToOrderAddress;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Tax\Model\Config;
 use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
@@ -51,14 +53,16 @@ class PriceUtilTest extends AbstractTestCase
 
     /**
      * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
-     * @magentoDataFixture   Magento/Sales/_files/quote.php
+     * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
      * @throws LocalizedException
+     * @throws Exception
      */
     public function testGetBaseShippingUnitPrice(): void
     {
         $order = $this->getOrder();
-        $order->setQuoteId(1);
+        $quote = $this->getQuote('tableRate');
+        $order->setQuoteId($quote->getId());
 
         self::assertEquals((float)$order->getBaseShippingAmount(), $this->priceUtil->getShippingUnitPrice($order));
     }
