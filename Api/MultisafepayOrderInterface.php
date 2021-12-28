@@ -17,15 +17,13 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Api;
 
-use Magento\Sales\Api\Data\OrderInterface;
-
 interface MultisafepayOrderInterface
 {
     /**
      * GET for order api
      * @param string $orderId
      * @param string $secureToken
-     * @return OrderInterface|string
+     * @return \Magento\Sales\Api\Data\OrderInterface|string
      */
     public function getOrder(string $orderId, string $secureToken);
 }

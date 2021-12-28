@@ -17,14 +17,12 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Api;
 
-use Magento\Quote\Api\Data\PaymentMethodInterface;
-
 interface PaymentMethodsInterface
 {
     /**
      * GET for payment-methods api
      * @param int $cartId The cart ID.
-     * @return PaymentMethodInterface[] Array of payment methods.
+     * @return \Magento\Quote\Api\Data\PaymentMethodInterface[] Array of payment methods.
      */
     public function getList(int $cartId): array;
 }
