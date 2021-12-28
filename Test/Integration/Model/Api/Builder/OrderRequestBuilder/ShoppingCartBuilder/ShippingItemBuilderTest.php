@@ -62,7 +62,7 @@ class ShippingItemBuilderTest extends AbstractTestCase
      */
     public function testBuildWithUseBaseCurrencySettingEnabled(): void
     {
-        $this->checkBuildedShippingItem($this->getShippingBuildedItem());
+        $this->checkBuiltShippingItem($this->getBuiltShippingItem(20));
     }
 
     /**
@@ -72,7 +72,7 @@ class ShippingItemBuilderTest extends AbstractTestCase
      */
     public function testBuildWithUseBaseCurrencySettingDisabled(): void
     {
-        $this->checkBuildedShippingItem($this->getShippingBuildedItem());
+        $this->checkBuiltShippingItem($this->getBuiltShippingItem(25));
     }
 
     /**
@@ -82,14 +82,14 @@ class ShippingItemBuilderTest extends AbstractTestCase
      */
     public function testBuildWithShippingAmountEqualsZero(): void
     {
-        self::assertNull($this->getShippingBuildedItem(0));
+        self::assertNull($this->getBuiltShippingItem(0));
     }
 
     /**
      * @param Item $shippingItem
      * @throws LocalizedException
      */
-    private function checkBuildedShippingItem(Item $shippingItem): void
+    private function checkBuiltShippingItem(Item $shippingItem): void
     {
         $order = $this->getOrder();
         $shippingAmount = $this->config->useBaseCurrency($order->getStoreId()) ? $order->getBaseShippingAmount() :
@@ -113,13 +113,15 @@ class ShippingItemBuilderTest extends AbstractTestCase
      * @throws NoSuchEntityException
      * @throws Exception
      */
-    private function getShippingBuildedItem(float $customShippingAmount = null): ?Item
+    private function getBuiltShippingItem(float $customShippingAmount = null): ?Item
     {
         $order = $this->getOrder();
         $quote = $this->getQuote('tableRate');
         $order->setShippingDescription('test_shipping')
             ->setQuoteId($quote->getId())
-            ->setShippingAmount($customShippingAmount ?? (float)25);
+            ->setShippingAmount($customShippingAmount)
+            ->setBaseShippingInclTax($customShippingAmount)
+            ->setShippingInclTax($customShippingAmount);
 
         $buildedItems = $this->shippingItemBuilder->build($order, $this->currencyUtil->getCurrencyCode($order));
 
