@@ -24,7 +24,7 @@ interface GuestPaymentMethodsInterface
     /**
      * GET for payment-methods api
      * @param string $cartId The cart ID.
-     * @return PaymentMethodInterface[] Array of payment methods.
+     * @return \Magento\Quote\Api\Data\PaymentMethodInterface[] Array of payment methods.
      */
     public function getList(string $cartId): array;
 }
