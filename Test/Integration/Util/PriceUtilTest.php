@@ -18,14 +18,16 @@ declare(strict_types=1);
 namespace MultiSafepay\Test\Integration\Util;
 
 use Exception;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Pricing\PriceCurrencyInterface as PriceRounder;
-use Magento\Quote\Model\Quote\Address\ToOrderAddress;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Tax\Model\Config;
 use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
+use MultiSafepay\ConnectCore\Util\TaxUtil;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class PriceUtilTest extends AbstractTestCase
 {
@@ -54,17 +56,33 @@ class PriceUtilTest extends AbstractTestCase
     /**
      * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
      * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testGetShippingUnitPrice(): void
+    {
+        $order = $this->getOrder();
+        $quote = $this->getQuote('tableRate');
+        $order->setQuoteId($quote->getId())->setShippingInclTax(10);
+
+        self::assertEquals((float)10, $this->getPriceUtilMock(0)->getShippingUnitPrice($order));
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
+     * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
      * @throws LocalizedException
      * @throws Exception
      */
-    public function testGetBaseShippingUnitPrice(): void
+    public function testGetBaseShippingUnitPriceWithTax(): void
     {
         $order = $this->getOrder();
         $quote = $this->getQuote('tableRate');
-        $order->setQuoteId($quote->getId());
+        $order->setQuoteId($quote->getId())->setBaseShippingInclTax(10);
 
-        self::assertEquals((float)$order->getBaseShippingAmount(), $this->priceUtil->getShippingUnitPrice($order));
+        self::assertEquals(8.2644628099174, $this->getPriceUtilMock(21)->getShippingUnitPrice($order));
     }
 
     /**
@@ -146,5 +164,23 @@ class PriceUtilTest extends AbstractTestCase
                 $unitPrice * $quote->getItemsQty() + $quoteItem->getBaseTaxAmount() + $quote->getBaseShippingAmount()
             )
         );
+    }
+
+    /**
+     * @param float $taxRate
+     * @return PriceUtil
+     */
+    private function getPriceUtilMock(float $taxRate): PriceUtil
+    {
+        $taxUtil = $this->getMockBuilder(TaxUtil::class)->disableOriginalConstructor()->getMock();
+        $taxUtil->method('getShippingTaxRate')->willReturn($taxRate);
+
+        return $this->getMockBuilder(PriceUtil::class)
+            ->setConstructorArgs([
+                $this->getObjectManager()->get(MultiSafepayConfig::class),
+                $this->getObjectManager()->get(ScopeConfigInterface::class),
+                $taxUtil
+            ])->setMethodsExcept(['getShippingUnitPrice'])
+            ->getMock();
     }
 }
