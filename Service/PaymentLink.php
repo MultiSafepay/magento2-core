@@ -25,6 +25,7 @@ use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use MultiSafepay\ConnectCore\Model\Api\Initializer\OrderRequestInitializer;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -101,8 +102,13 @@ class PaymentLink
      */
     public function getPaymentLinkFromOrder(OrderInterface $order): string
     {
-        return (string)$order->getPayment()
-            ->getAdditionalInformation(self::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME);
+        if (!($paymentLink =
+            (string)$order->getPayment()->getAdditionalInformation(self::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME)
+        )) {
+            return $order->getPayment()->getAdditionalInformation(Transaction::RAW_DETAILS)['payment_link'] ?? '';
+        }
+
+        return $paymentLink;
     }
 
     /**

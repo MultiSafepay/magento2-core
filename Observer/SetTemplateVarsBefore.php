@@ -22,6 +22,7 @@ use Magento\Framework\App\State;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Service\PaymentLink;
 
@@ -62,11 +63,10 @@ class SetTemplateVarsBefore implements ObserverInterface
         }
 
         $transport = $this->getTransportObject($observer);
-
         /** @var Order $order */
         $order = $transport->getOrder();
 
-        if ($paymentUrl = $this->paymentLink->getPaymentLinkFromOrder($order)) {
+        if ($order instanceof OrderInterface && ($paymentUrl = $this->paymentLink->getPaymentLinkFromOrder($order))) {
             $transport['payment_link'] = $paymentUrl;
         }
     }
