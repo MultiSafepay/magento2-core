@@ -79,8 +79,8 @@ class ShoppingCartRefundClient implements ClientInterface
         $request = $transferObject->getBody();
 
         try {
-            $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
             $orderId = $request['order_id'];
+            $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
             $transaction = $transactionManager->get($orderId);
             $refundRequest = $transactionManager->createRefundRequest($transaction);
             $description = $this->description->addDescription($this->config->getRefundDescription($orderId));

@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Fixed an issue where failed shopping cart refunds in rare cases wouldn't be able to log ApiException and ClientExceptionInterface errors.
 - Fixed an issue where the setting order comments fails on Magento 2.4.3 (Thanks to @Tjitse-E)
 
 ### Changed
