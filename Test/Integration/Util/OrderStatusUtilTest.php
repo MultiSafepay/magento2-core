@@ -129,17 +129,4 @@ class OrderStatusUtilTest extends AbstractTestCase
             $this->orderStatusUtil->getOrderStatusByTransactionStatus($this->getOrder(), TransactionStatus::RESERVED)
         );
     }
-
-    /**
-     * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store multisafepay/status/chargeback_status pending
-     * @throws LocalizedException
-     */
-    public function testGetOrderStatusForChargedbackMultisafepayStatus(): void
-    {
-        self::assertEquals(
-            'pending',
-            $this->orderStatusUtil->getOrderStatusByTransactionStatus($this->getOrder(), TransactionStatus::CHARGEDBACK)
-        );
-    }
 }
