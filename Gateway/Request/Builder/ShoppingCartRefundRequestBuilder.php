@@ -92,6 +92,13 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             throw new NoSuchEntityException($message);
         }
 
+        if ($creditMemo->getAdjustment() !== 0.0) {
+            $message = __('Refunds for MultiSafepay payment with non empty adjustments can not be processed');
+            $this->logger->logInfoForOrder($orderId, $message->render());
+
+            throw new CouldNotRefundException($message);
+        }
+
         $message = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount === 0.0) {
             $this->logger->logInfoForOrder($orderId, $message);
