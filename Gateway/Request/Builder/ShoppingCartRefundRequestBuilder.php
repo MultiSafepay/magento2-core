@@ -93,7 +93,7 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         }
 
         if ($creditMemo->getAdjustment() !== 0.0) {
-            $message = __('Refunds for MultiSafepay payment with non empty adjustments can not be processed');
+            $message = __('Refunds with adjustments for this payment method are currently not supported');
             $this->logger->logInfoForOrder($orderId, $message->render());
 
             throw new CouldNotRefundException($message);
