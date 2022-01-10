@@ -25,8 +25,12 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
-class CancelMultisafepayOrderPretransaction
+class CancelMultisafepayOrderPaymentLink
 {
+    public const DISABLE_PRETRANSACTION_CANCELLING_OPTION = 0;
+    public const CANCEL_BACK_BUTTON_PRETRANSACTION_OPTION = 1;
+    public const CANCEL_ALWAYS_PRETRANSACTION_OPTION = 2;
+
     /**
      * @var Logger
      */
@@ -43,7 +47,7 @@ class CancelMultisafepayOrderPretransaction
     private $sdkFactory;
 
     /**
-     * CancelMultisafepayOrderPretransaction constructor.
+     * CancelMultisafepayOrderPaymentLink constructor.
      *
      * @param UpdateRequest $updateRequest
      * @param Logger $logger

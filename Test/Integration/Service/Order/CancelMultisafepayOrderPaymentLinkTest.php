@@ -22,17 +22,17 @@ use MultiSafepay\Api\Base\Response;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Service\Order\CancelMultisafepayOrderPretransaction;
+use MultiSafepay\ConnectCore\Service\Order\CancelMultisafepayOrderPaymentLink;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
 
-class CancelMultisafepayOrderPretransactionTest extends AbstractTestCase
+class CancelMultisafepayOrderPaymentLinkTest extends AbstractTestCase
 {
     /**
-     * @var CancelMultisafepayOrderPretransaction
+     * @var CancelMultisafepayOrderPaymentLink
      */
-    private $cancelMultisafepayOrderPretransaction;
+    private $cancelMultisafepayOrderPaymentLink;
 
     /**
      * {@inheritdoc}
@@ -40,8 +40,8 @@ class CancelMultisafepayOrderPretransactionTest extends AbstractTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cancelMultisafepayOrderPretransaction =
-            $this->getObjectManager()->get(CancelMultisafepayOrderPretransaction::class);
+        $this->cancelMultisafepayOrderPaymentLink =
+            $this->getObjectManager()->get(CancelMultisafepayOrderPaymentLink::class);
     }
 
     /**
@@ -50,11 +50,11 @@ class CancelMultisafepayOrderPretransactionTest extends AbstractTestCase
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @throws LocalizedException
      */
-    public function testCancelMultisafepayOrderPretransactionSuccess(): void
+    public function testCancelMultisafepayOrderPaymentLinkSuccess(): void
     {
         $order = $this->getOrderWithVisaPaymentMethod();
-        $cancelMultisafepayOrderPretransactionMock =
-            $this->getMockBuilder(CancelMultisafepayOrderPretransaction::class)->setConstructorArgs([
+        $cancelMultisafepayOrderPaymentLinkMock =
+            $this->getMockBuilder(CancelMultisafepayOrderPaymentLink::class)->setConstructorArgs([
                 $this->getObjectManager()->get(UpdateRequest::class),
                 $this->getObjectManager()->get(Logger::class),
                 $this->setupSdkFactory($this->getSdkMock($order->getIncrementId())),
@@ -62,7 +62,7 @@ class CancelMultisafepayOrderPretransactionTest extends AbstractTestCase
                 ->setMethodsExcept(['execute'])
                 ->getMock();
 
-        self::assertTrue($cancelMultisafepayOrderPretransactionMock->execute($order));
+        self::assertTrue($cancelMultisafepayOrderPaymentLinkMock->execute($order));
     }
 
     /**
@@ -71,10 +71,10 @@ class CancelMultisafepayOrderPretransactionTest extends AbstractTestCase
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @throws LocalizedException
      */
-    public function testCancelMultisafepayOrderPretransactionFailed(): void
+    public function testCancelMultisafepayOrderPaymentLinkFailed(): void
     {
         self::assertFalse(
-            $this->cancelMultisafepayOrderPretransaction->execute($this->getOrderWithVisaPaymentMethod())
+            $this->cancelMultisafepayOrderPaymentLink->execute($this->getOrderWithVisaPaymentMethod())
         );
     }
 
