@@ -54,6 +54,7 @@ class Config
     public const MULTISAFEPAY_PARTIAL_REFUNDED_STATUS = 'partial_refunded_status';
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
+    public const CANCEL_PAYMENTLINK = 'second_chance_paymentlink';
 
     /**
      * @var ScopeConfigInterface
@@ -281,6 +282,15 @@ class Config
         );
     }
 
+    /**
+     * @param null $storeId
+     * @return int
+     */
+    public function getCancelPaymentLinkOption($storeId = null): int
+    {
+        return (int)$this->getAdvancedValue(self::CANCEL_PAYMENTLINK, $storeId);
+    }
+  
     /**
      * @param null $storeId
      * @return string
