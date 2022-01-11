@@ -92,7 +92,9 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             throw new NoSuchEntityException($message);
         }
 
-        if ($creditMemo->getAdjustment() !== 0.0) {
+        $adjustments = $creditMemo->getAdjustment();
+
+        if ($adjustments !== null && $adjustments !== 0.0) {
             $message = __('Refunds with adjustments for this payment method are currently not supported');
             $this->logger->logInfoForOrder($orderId, $message->render());
 
