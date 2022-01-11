@@ -5,20 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.14.0] - 2022-01-11
 ### Fixed
 - Fixed an issue where failed shopping cart refunds in rare cases wouldn't be able to log ApiException and ClientExceptionInterface errors.
 - Fixed an issue where the setting order comments fails on Magento 2.4.3 (Thanks to @Tjitse-E)
+- Fixed an issue where the wrong Api key is used to generate SecureToken (Thanks to @Hexmage)
+- Fixed an issue related to Swagger error
 
 ### Changed
 - Shipping prices excluding tax are now re-calculated based on the shipping prices including tax
 
 ### Added
 - Added options for selecting separate order status for different MultiSafepay statuses
-
-### Fixed
-- Fixed an issue where the wrong Api key is used to generate SecureToken (Thanks to @Hexmage)
-
-
+- Added options for selecting separate behaviours of cancelling MutliSafepay order payment link
+- Added error when using adjustment for shopping cart refund
 
 ## [2.13.0] - 2021-11-30
 ### Added
