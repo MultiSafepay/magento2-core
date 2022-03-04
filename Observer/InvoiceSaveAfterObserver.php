@@ -21,7 +21,10 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use Psr\Http\Client\ClientExceptionInterface;
 use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
@@ -45,23 +48,33 @@ class InvoiceSaveAfterObserver implements ObserverInterface
     private $addInvoicesDataToTransactionAndSendEmail;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * InvoiceSaveAfterObserver constructor.
      *
      * @param SdkFactory $sdkFactory
      * @param PaymentMethodUtil $paymentMethodUtil
      * @param AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
+     * @param Logger $logger
      */
     public function __construct(
         SdkFactory $sdkFactory,
         PaymentMethodUtil $paymentMethodUtil,
-        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
+        AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail,
+        Logger $logger
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->addInvoicesDataToTransactionAndSendEmail = $addInvoicesDataToTransactionAndSendEmail;
+        $this->logger = $logger;
     }
 
     /**
+     * Execute the observer for the sales_order_invoice_save_after event
+     *
      * @param Observer $observer
      * @throws ClientExceptionInterface
      */
@@ -74,12 +87,26 @@ class InvoiceSaveAfterObserver implements ObserverInterface
         /** @var OrderPaymentInterface $payment */
         $payment = $order->getPayment();
 
-        if ($this->paymentMethodUtil->isMultisafepayOrder($order)
-            && $order->getBaseTotalDue() === 0.0
+        if (!$this->paymentMethodUtil->isMultisafepayOrder($order)) {
+            return;
+        }
+
+        if ($order->getBaseTotalDue() === 0.0
             && $payment->getAdditionalInformation(PayMultisafepayOrder::INVOICE_CREATE_AFTER_PARAM_NAME)
         ) {
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
             $this->addInvoicesDataToTransactionAndSendEmail->execute($order, $payment, $transactionManager);
+
+            return;
+        }
+
+        if ($invoice->getRequestedCaptureCase() === Invoice::CAPTURE_OFFLINE
+            && $order->getState() === Order::STATE_PENDING_PAYMENT) {
+            $order->setState(Order::STATE_NEW);
+            $this->logger->logInfoForOrder(
+                $order->getRealOrderId(),
+                'Invoice has been captured offline, pending status has been applied'
+            );
         }
     }
 }
