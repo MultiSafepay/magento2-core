@@ -21,7 +21,6 @@ use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use MultiSafepay\ConnectCore\Util\EncryptorUtil;
-use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 class Config
 {
@@ -62,11 +61,6 @@ class Config
     private $scopeConfig;
 
     /**
-     * @var JsonHandler
-     */
-    private $jsonHandler;
-
-    /**
      * @var EncryptorUtil
      */
     private $encryptorUtil;
@@ -74,18 +68,15 @@ class Config
     /**
      * Config constructor.
      *
-     * @param $encryptorUtil $encryptorUtil
+     * @param EncryptorUtil $encryptorUtil
      * @param ScopeConfigInterface $scopeConfig
-     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         EncryptorUtil $encryptorUtil,
-        ScopeConfigInterface $scopeConfig,
-        JsonHandler $jsonHandler
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->encryptorUtil = $encryptorUtil;
         $this->scopeConfig = $scopeConfig;
-        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -273,13 +264,11 @@ class Config
 
     /**
      * @param null $storeId
-     * @return array
+     * @return string
      */
-    public function getAccountData($storeId = null): array
+    public function getAccountData($storeId = null): string
     {
-        return $this->jsonHandler->readJSON(
-            $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId)
-        );
+        return $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId);
     }
 
     /**

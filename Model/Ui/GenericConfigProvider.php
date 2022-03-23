@@ -266,7 +266,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getAccountData(int $storeId = null): array
     {
-        $accountData = $this->config->getAccountData($storeId);
+        $accountData = $this->jsonHandler->readJSON($this->config->getAccountData($storeId));
 
         if (!$accountData) {
             try {
