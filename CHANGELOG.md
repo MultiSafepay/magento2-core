@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an issue where MultiSafepay orders in state pending_payment could not go to processing if the order was paid through another way.
 - Fixed an issue with a circular dependency in the Config, which shows up during a setup:upgrade command.
 
+### Changed
+- Deprecated ING Home'Pay
+
 ## [2.14.1] - 2022-02-22
 ### Changed
 - Bump version
