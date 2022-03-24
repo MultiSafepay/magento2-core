@@ -23,7 +23,6 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Service\PaymentLink;
 
 class SetTemplateVarsBefore implements ObserverInterface
@@ -53,6 +52,8 @@ class SetTemplateVarsBefore implements ObserverInterface
     }
 
     /**
+     * Retrieve the payment link from the order and add it to the Transport object
+     *
      * @param Observer $observer
      * @throws LocalizedException
      */
@@ -63,10 +64,13 @@ class SetTemplateVarsBefore implements ObserverInterface
         }
 
         $transport = $this->getTransportObject($observer);
-        /** @var Order $order */
-        $order = $transport->getOrder();
+        $order = $this->getOrderFromTransportObject($transport);
 
-        if ($order instanceof OrderInterface && ($paymentUrl = $this->paymentLink->getPaymentLinkFromOrder($order))) {
+        if ($order === null) {
+            return;
+        }
+
+        if ($paymentUrl = $this->paymentLink->getPaymentLinkFromOrder($order)) {
             $transport['payment_link'] = $paymentUrl;
         }
     }
@@ -84,5 +88,25 @@ class SetTemplateVarsBefore implements ObserverInterface
         }
 
         return $observer->getTransport();
+    }
+
+    /**
+     * Retrieve the order from the Transport object
+     *
+     * phpcs:ignore
+     * @param $transport
+     * @return OrderInterface|null
+     */
+    private function getOrderFromTransportObject($transport): ?OrderInterface
+    {
+        if (is_array($transport) && array_key_exists('order', $transport)) {
+            return $transport['order'];
+        }
+
+        if (is_object($transport) && $transport->getOrder() instanceof OrderInterface) {
+            return $transport->getOrder();
+        }
+
+        return null;
     }
 }
