@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed an issue where MultiSafepay orders in state pending_payment could not go to processing if the order was paid through another way.
 - Fixed an issue with a circular dependency in the Config, which shows up during a setup:upgrade command.
+- Fixed an issue with the custom REST API endpoint for retrieving the payment URL for a specific logged in customer, where it returned an incorrect type use error.
 - Fixed an issue with the Amasty_OrderStatus module where it wasn't able to correctly save an order comment after placing it.
 
 ### Changed
-- Deprecated ING Home'Pay
+- ING Home'Pay is now deprecated
 
 ## [2.14.1] - 2022-02-22
 ### Changed

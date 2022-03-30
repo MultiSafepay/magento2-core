@@ -58,12 +58,14 @@ class PaymentUrl implements PaymentUrlInterface
     }
 
     /**
+     * Get the payment URL from an order
+     *
      * @param int $orderId
-     * @param int|null $customerId
+     * @param int $customerId
      * @param int|null $cartId
      * @return string
      */
-    public function getPaymentUrl(int $orderId, ?int $customerId = null, ?int $cartId = null): string
+    public function getPaymentUrl(int $orderId, int $customerId, ?int $cartId = null): string
     {
         try {
             $order = $this->orderRepository->get($orderId);

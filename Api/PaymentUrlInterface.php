@@ -20,10 +20,11 @@ namespace MultiSafepay\ConnectCore\Api;
 interface PaymentUrlInterface
 {
     /**
+     * Get the payment URL from an order
+     *
      * @param int $orderId
-     * @param int|null $customerId
-     * @param int|null $cartId
+     * @param int $customerId
      * @return string
      */
-    public function getPaymentUrl(int $orderId, ?int $customerId = null, ?int $cartId = null): string;
+    public function getPaymentUrl(int $orderId, int $customerId): string;
 }
