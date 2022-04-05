@@ -62,7 +62,7 @@ class DescriptionBuilder implements OrderRequestBuilderInterface
         OrderRequest $orderRequest
     ): void {
         $orderId = (string) $order->getRealOrderId();
-        $customDescription = (string)$this->config->getValue('transaction_custom_description');
+        $customDescription = (string)$this->config->getValue(Config::TRANSACTION_DESCRIPTION);
 
         if (empty($customDescription)) {
             $this->description->addDescription(__('Payment for order #%1', $orderId)->render());

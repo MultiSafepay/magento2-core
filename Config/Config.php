@@ -33,6 +33,7 @@ class Config
     public const API_MODE = 'mode';
     public const DEBUG = 'debug';
     public const ORDER_CONFIRMATION_EMAIL = 'order_confirmation_email';
+    public const TRANSACTION_DESCRIPTION = 'transaction_custom_description';
     public const REFUND_DESCRIPTION = 'refund_custom_description';
     public const USE_BASE_CURRENCY = 'use_base_currency';
     public const PRESELECTED_METHOD = 'preselected_method';
@@ -58,7 +59,7 @@ class Config
     /**
      * @var ScopeConfigInterface
      */
-    private $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @var EncryptorUtil
