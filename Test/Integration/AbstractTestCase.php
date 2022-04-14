@@ -18,8 +18,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration;
 
 use Exception;
-use Http\Factory\Guzzle\RequestFactory;
-use Http\Factory\Guzzle\StreamFactory;
 use Magento\Config\Model\ResourceModel\Config as ConfigResourceModel;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -46,11 +44,11 @@ use Magento\Tax\Api\TaxCalculationInterface;
 use Magento\Tax\Model\Config;
 use Magento\Tax\Model\Sales\Total\Quote\SetupUtil;
 use Magento\TestFramework\Helper\Bootstrap;
+use MultiSafepay\ConnectCore\Client\Client;
 use MultiSafepay\ConnectCore\Config\Config as MultiSafepayConfig;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use PHPUnit\Framework\MockObject\MockObject;
-use Http\Adapter\Guzzle6\Client;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 use ReflectionObject;
@@ -326,10 +324,8 @@ abstract class AbstractTestCase extends TestCase
     {
         $sdkFactory = $this->getMockBuilder(SdkFactory::class)
             ->setConstructorArgs([
-                $this->getObjectManager()->get(Client::class),
-                $this->getObjectManager()->get(RequestFactory::class),
-                $this->getObjectManager()->get(StreamFactory::class),
                 $this->getObjectManager()->get(MultiSafepayConfig::class),
+                $this->getObjectManager()->get(Client::class)
             ])->getMock();
 
         $sdkFactory->expects(self::any())

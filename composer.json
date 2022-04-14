@@ -4,9 +4,8 @@
     "version": "2.14.1",
     "require": {
         "multisafepay/php-sdk": "^5.4",
-        "php-http/guzzle6-adapter": "^2.0",
-        "guzzlehttp/psr7": "*",
-        "http-interop/http-factory-guzzle": "^1.0",
+        "nyholm/psr7": "^1.4",
+        "psr/http-client": "^1.0",
         "magento/framework": "^102.0|^103.0",
         "magento/module-sales": "^102.0|^103.0",
         "magento/module-checkout": "^100.0",
@@ -16,7 +15,11 @@
         "magento/module-vault": "^101.0",
         "php": ">=7.1",
         "ext-pcre": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "provide": {
+        "psr/http-client-implementation": "1.0"
     },
     "require-dev": {
         "object-calisthenics/phpcs-calisthenics-rules": "^3.5 || ^2.0",
