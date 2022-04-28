@@ -63,7 +63,7 @@ class Handler extends Base
      * @param array $record
      * @return bool
      */
-    public function isHandling(array $record)
+    public function isHandling(array $record): bool
     {
         if ($this->config->isDebug()) {
             return true;
