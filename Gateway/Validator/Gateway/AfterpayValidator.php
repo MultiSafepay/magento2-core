@@ -22,6 +22,7 @@ class AfterpayValidator extends BaseGatewayValidator
     public const AVAILABLE_VALIDATORS = [
         'date_of_birth',
         'gender',
+        'afterpay_terms',
         'empty_field'
     ];
 

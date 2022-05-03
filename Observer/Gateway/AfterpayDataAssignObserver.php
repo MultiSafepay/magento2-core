@@ -35,5 +35,6 @@ class AfterpayDataAssignObserver extends AbstractDataAssignObserver
         $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth'] ?? null);
         $payment->setAdditionalInformation('gender', $additionalData['gender'] ?? null);
         $payment->setAdditionalInformation('phone_number', $additionalData['phone_number'] ?? null);
+        $payment->setAdditionalInformation('afterpay_terms', $additionalData['afterpay_terms'] ?? null);
     }
 }
