@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.15.0] - 2022-04-28
 ### Fixed
 - Fixed an issue where MultiSafepay orders in state pending_payment could not go to processing if the order was paid through another way.
 - Fixed an issue with a circular dependency in the Config, which shows up during a setup:upgrade command.
@@ -12,7 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an issue with the Amasty_OrderStatus module where it wasn't able to correctly save an order comment after placing it.
 
 ### Changed
-- ING Home'Pay is now deprecated
+- Deprecated ING Home'Pay
+- Added changes that are required for PHP 8.1:
+  - Added function type declarations
+  - Changed namespaces to be declared on a single line
+- Removed the dependency for Guzzle 6 and replaced it with a custom client implementation based on the Magento Curl Adapter
+- Removed the dependency for php-http/guzzle6-adapter and replaced it with nyholm/psr7
 
 ## [2.14.1] - 2022-02-22
 ### Changed
