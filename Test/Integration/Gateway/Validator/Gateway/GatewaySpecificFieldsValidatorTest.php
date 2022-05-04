@@ -103,6 +103,7 @@ class GatewaySpecificFieldsValidatorTest extends AbstractTestCase
                     'date_of_birth' => '1990-10-10',
                     'gender' => 'mr',
                     'phone_number' => '12314566',
+                    'afterpay_terms' => '1',
                     'transaction_type' => TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
                 ],
                 'expected' => [
