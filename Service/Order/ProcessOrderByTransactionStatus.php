@@ -148,6 +148,7 @@ class ProcessOrderByTransactionStatus
             case TransactionStatus::DECLINED:
             case TransactionStatus::CANCELLED:
             case TransactionStatus::VOID:
+                usleep(5000000);
                 $updateOrderStatus = true;
                 $this->cancelOrder($order, $transactionStatusMessage);
                 break;
