@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
@@ -148,7 +150,6 @@ class ProcessOrderByTransactionStatus
             case TransactionStatus::DECLINED:
             case TransactionStatus::CANCELLED:
             case TransactionStatus::VOID:
-                usleep(5000000);
                 $updateOrderStatus = true;
                 $this->cancelOrder($order, $transactionStatusMessage);
                 break;
@@ -228,13 +229,20 @@ class ProcessOrderByTransactionStatus
     }
 
     /**
+     * Cancel the order if it is not already canceled
+     *
      * @param OrderInterface $order
      * @param string $transactionStatusMessage
+     * @throws LocalizedException
+     * @throws Exception
      */
     private function cancelOrder(OrderInterface $order, string $transactionStatusMessage): void
     {
+        if ($order->getState() === Order::STATE_CANCELED) {
+            return;
+        }
+
         $order->cancel();
-        $order->addCommentToStatusHistory($transactionStatusMessage);
         $this->logger->logInfoForOrder(
             $order->getIncrementId(),
             'Order has been canceled. ' . $transactionStatusMessage
