@@ -3763,6 +3763,130 @@
         </arguments>
     </virtualType>
 
+    <!-- Alipay+ ™ Partner Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayAlipayplusFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayplusConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayAlipayplusValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayAlipayplusValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayAlipayplusCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Configuration reader -->
+    <virtualType name="MultiSafepayAlipayplusConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayplusConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Config Value Handler Pool -->
+    <virtualType name="MultiSafepayAlipayplusConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayAlipayplusConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Config Value Handler -->
+    <virtualType name="MultiSafepayAlipayplusConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayAlipayplusConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Logger, initialized with MultiSafepayAlipayplusConfig -->
+    <virtualType name="MultiSafepayAlipayplusLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayAlipayplusConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="\MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayAlipayplusLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Alipay+ ™ Partner Commands infrastructure -->
+    <virtualType name="MultiSafepayAlipayplusCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayAlipayplusInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayAlipayplusRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Initialize command -->
+    <virtualType name="MultiSafepayAlipayplusInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayAlipayplusInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Refund command -->
+    <virtualType name="MultiSafepayAlipayplusRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayAlipayplusRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Initialization Request -->
+    <virtualType name="MultiSafepayAlipayplusInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Refund Request -->
+    <virtualType name="MultiSafepayAlipayplusRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Validator Pool -->
+    <virtualType name="MultiSafepayAlipayplusValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayAlipayplusCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayAlipayplusCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayAlipayplusConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Alipay+ ™ Partner Value handlers infrastructure -->
+    <virtualType name="MultiSafepayAlipayplusValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayAlipayplusConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayAlipayplusConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayAlipayplusConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- DirectBankTransfer Payment Method Facade configuration -->
     <virtualType name="MultiSafepayDirectBankTransferFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -7828,6 +7952,7 @@
                 <item name="multisafepay_trustpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\TrustPayConfigProvider</item>
                 <item name="multisafepay_visa" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider</item>
                 <item name="multisafepay_alipay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayConfigProvider</item>
+                <item name="multisafepay_alipayplus" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayplusConfigProvider</item>
                 <item name="multisafepay_directbanktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectBankTransferConfigProvider</item>
                 <item name="multisafepay_banktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider</item>
                 <item name="multisafepay_santander" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\SantanderConfigProvider</item>
