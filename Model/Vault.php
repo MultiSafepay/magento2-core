@@ -28,6 +28,7 @@ use Magento\Vault\Api\Data\PaymentTokenFactoryInterface;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Api\PaymentTokenManagementInterface;
 use Magento\Vault\Api\PaymentTokenRepositoryInterface;
+use Magento\Vault\Model\PaymentToken;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexRecurringConfigProvider;
@@ -38,6 +39,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitRecurringConfigProvider
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
@@ -58,6 +60,7 @@ class Vault
         AmexConfigProvider::CODE => AmexRecurringConfigProvider::CODE,
         IdealConfigProvider::CODE => IdealRecurringConfigProvider::CODE,
         DirectDebitConfigProvider::CODE => DirectDebitRecurringConfigProvider::CODE,
+        MaestroConfigProvider::CODE => MaestroRecurringConfigProvider::CODE
     ];
 
     /**
@@ -106,7 +109,8 @@ class Vault
     private $types;
 
     /**
-     * VaultUtil constructor.
+     * Vault constructor
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      *
      * @param EncryptorInterface $encryptor
@@ -267,14 +271,8 @@ class Vault
             return false;
         }
 
-        $maestroGatewayCode = $this->maestroConfigProvider->getGatewayCode();
-
         foreach ($arrayFields as $field) {
             if (empty($recurringDetails[$field])) {
-                return false;
-            }
-
-            if ($field === RecurringDetailsInterface::TYPE && $recurringDetails[$field] === $maestroGatewayCode) {
                 return false;
             }
         }
@@ -318,5 +316,40 @@ class Vault
         }
 
         return $extensionAttributes;
+    }
+
+    /**
+     * Disable the payment token if it does not exist anymore at MultiSafepay
+     *
+     * @param array $apiTokens
+     * @param string $customerReference
+     */
+    public function removePaymentTokensByList(array $apiTokens, string $customerReference): void
+    {
+        $tokenRepository = $this->paymentTokenManagement->getListByCustomerId($customerReference);
+
+        $tokenList = [];
+        $apiTokenList = [];
+
+        /** @var PaymentToken $token */
+        foreach ($tokenRepository as $token) {
+            if (in_array($token->getPaymentMethodCode(), self::VAULT_GATEWAYS, true)) {
+                $tokenList[] = $token->getGatewayToken();
+            }
+        }
+
+        foreach ($apiTokens as $apiToken) {
+            $apiTokenList[] = $apiToken->getToken();
+        }
+
+        $tokensToRemove = array_diff($tokenList, $apiTokenList);
+
+        foreach ($tokensToRemove as $tokenToRemove) {
+            foreach ($tokenRepository as $token) {
+                if ($token->getGatewayToken() === $tokenToRemove) {
+                    $this->paymentTokenRepository->delete($token);
+                }
+            }
+        }
     }
 }

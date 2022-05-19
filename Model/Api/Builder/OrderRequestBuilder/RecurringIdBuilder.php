@@ -26,6 +26,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 
@@ -38,6 +39,7 @@ class RecurringIdBuilder implements OrderRequestBuilderInterface
         VisaConfigProvider::VAULT_CODE,
         IdealConfigProvider::VAULT_CODE,
         DirectDebitConfigProvider::VAULT_CODE,
+        MaestroConfigProvider::VAULT_CODE
     ];
 
     /**
