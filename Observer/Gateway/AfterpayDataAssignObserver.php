@@ -32,9 +32,21 @@ class AfterpayDataAssignObserver extends AbstractDataAssignObserver
 
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
-        $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth'] ?? null);
-        $payment->setAdditionalInformation('gender', $additionalData['gender'] ?? null);
-        $payment->setAdditionalInformation('phone_number', $additionalData['phone_number'] ?? null);
-        $payment->setAdditionalInformation('afterpay_terms', $additionalData['afterpay_terms'] ?? null);
+
+        if (isset($additionalData['date_of_birth'])) {
+            $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth']);
+        }
+
+        if (isset($additionalData['gender'])) {
+            $payment->setAdditionalInformation('gender', $additionalData['gender']);
+        }
+
+        if (isset($additionalData['phone_number'])) {
+            $payment->setAdditionalInformation('phone_number', $additionalData['phone_number']);
+        }
+
+        if (isset($additionalData['afterpay_terms'])) {
+            $payment->setAdditionalInformation('afterpay_terms', $additionalData['afterpay_terms']);
+        }
     }
 }
