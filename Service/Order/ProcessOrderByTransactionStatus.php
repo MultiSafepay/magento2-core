@@ -240,12 +240,13 @@ class ProcessOrderByTransactionStatus
         switch ($status) {
             case Order::STATE_CANCELED:
                 $order->cancel();
-            break;
+                break;
             case Order::STATE_HOLDED:
                 $order->hold();
+                break;
             default:
                 $order->setStatus($status);
-            break;
+                break;
         }
     }
 
