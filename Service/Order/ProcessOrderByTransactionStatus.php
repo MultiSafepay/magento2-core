@@ -159,7 +159,7 @@ class ProcessOrderByTransactionStatus
             && ($statusToUpdate = $this->orderStatusUtil->getOrderStatusByTransactionStatus($order, $transactionStatus))
         ) {
             $orderUpdateStatusMessage = __('Order status has been changed to: %1', $statusToUpdate);
-            $order->setStatus($statusToUpdate);
+            $this->setOrderStatus($order, $statusToUpdate);
             $order->addCommentToStatusHistory($orderUpdateStatusMessage);
             $this->logger->logInfoForOrder(
                 $orderId,
@@ -226,6 +226,27 @@ class ProcessOrderByTransactionStatus
             __('MultiSafepay order transaction complete process has been finished successfully.')->render(),
             Logger::DEBUG
         );
+    }
+
+    /**
+     * Set the order status by calling the correct function per status.
+     *
+     * @param OrderInterface $order
+     * @param string $status
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    private function setOrderStatus(OrderInterface $order, string $status) {
+        switch ($status) {
+            case Order::STATE_CANCELED:
+                $order->cancel();
+            break;
+            case Order::STATE_HOLDED:
+                $order->hold();
+            default:
+                $order->setStatus($status);
+            break;
+        }
     }
 
     /**
