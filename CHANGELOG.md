@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.16.0] - 2022-06-29
 ### Added
-- Added Vault & Tokenization for Maestro
+- Added Vault for Maestro
+- Added the Alipay+ payment method
+
+### Fixed
+- Fixed an issue where placing orders through some gateways with GraphQL returns an error
+- Fixed an issue where there would be duplicated tokens stored in Vault in some rare cases
 
 ## [2.15.2] - 2022-05-13
 ### Fixed
