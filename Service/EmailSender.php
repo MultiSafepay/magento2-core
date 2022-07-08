@@ -99,6 +99,8 @@ class EmailSender
     }
 
     /**
+     * Send the order confirmation email
+     *
      * @param OrderInterface $order
      * @param string $emailType
      * @return bool
@@ -117,9 +119,12 @@ class EmailSender
         }
 
         $emailTypes = [
-            $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL) ?? '',
-            $this->config->getOrderConfirmationEmail(),
+            $this->config->getOrderConfirmationEmail()
         ];
+
+        if ($this->gatewayConfig->getValue(Config::OVERRIDE_ORDER_CONFIRMATION_EMAIL)) {
+            $emailTypes[] = $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL) ?? '';
+        }
 
         if (in_array($emailType, $emailTypes, true)) {
             $this->orderSender->send($order);
@@ -162,13 +167,19 @@ class EmailSender
     }
 
     /**
+     * Check if order confirmation e-mail needs to be sent before transaction
+     *
      * @param string $methodCode
      * @return bool
      */
     public function checkOrderConfirmationBeforeTransaction(string $methodCode): bool
     {
         $this->gatewayConfig->setMethodCode($methodCode);
-
+        
+        if (!$this->gatewayConfig->getValue(Config::OVERRIDE_ORDER_CONFIRMATION_EMAIL)) {
+            return $this->config->getOrderConfirmationEmail() === Config::BEFORE_TRANSACTION;
+        }
+        
         if ($gatewaySpecificSetting = $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL)) {
             return $gatewaySpecificSetting === Config::BEFORE_TRANSACTION;
         }

@@ -139,6 +139,8 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
+                <override_order_confirmation_email>0</override_order_confirmation_email>
+                <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
@@ -165,6 +167,8 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
+                <override_order_confirmation_email>0</override_order_confirmation_email>
+                <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
@@ -191,6 +195,8 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
+                <override_order_confirmation_email>0</override_order_confirmation_email>
+                <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
@@ -914,6 +920,7 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
+                <override_order_confirmation_email>1</override_order_confirmation_email>
                 <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
@@ -941,6 +948,8 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
+                <override_order_confirmation_email>0</override_order_confirmation_email>
+                <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
@@ -1057,6 +1066,8 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>1</can_use_internal>
+                <override_order_confirmation_email>0</override_order_confirmation_email>
+                <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
@@ -1187,6 +1198,8 @@
                 <can_fetch_transaction_info>1</can_fetch_transaction_info>
                 <can_use_checkout>1</can_use_checkout>
                 <can_use_internal>0</can_use_internal>
+                <override_order_confirmation_email>0</override_order_confirmation_email>
+                <order_confirmation_email/>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>

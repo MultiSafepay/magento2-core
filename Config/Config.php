@@ -32,6 +32,7 @@ class Config
     public const LIVE_API_KEY = 'live_api_key';
     public const API_MODE = 'mode';
     public const DEBUG = 'debug';
+    public const OVERRIDE_ORDER_CONFIRMATION_EMAIL = 'override_order_confirmation_email';
     public const ORDER_CONFIRMATION_EMAIL = 'order_confirmation_email';
     public const TRANSACTION_DESCRIPTION = 'transaction_custom_description';
     public const REFUND_DESCRIPTION = 'refund_custom_description';
