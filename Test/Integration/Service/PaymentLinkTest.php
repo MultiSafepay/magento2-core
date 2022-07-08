@@ -38,7 +38,7 @@ class PaymentLinkTest extends AbstractPaymentTestCase
     protected function setUp(): void
     {
         $this->paymentLinkService = $this->getObjectManager()->create(PaymentLink::class);
-        $this->getObjectManager()->get(State::class)->setAreaCode(Area::AREA_FRONTEND);
+        $this->getObjectManager()->get(State::class)->setAreaCode(Area::AREA_ADMINHTML);
     }
 
     /**
@@ -74,7 +74,7 @@ class PaymentLinkTest extends AbstractPaymentTestCase
             $payment->getAdditionalInformation(PaymentLink::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME)
         );
         self::assertEquals(
-            __('The user has been redirected to the following page: %1', $fakePaymentLink)->render(),
+            __('Payment link for this transaction: %1', $fakePaymentLink)->render(),
             $order->getStatusHistoryCollection()->getFirstItem()->getComment()
         );
     }

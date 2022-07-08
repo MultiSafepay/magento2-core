@@ -82,6 +82,7 @@ class OrderPlaceAfterObserver implements ObserverInterface
             try {
                 $paymentUrl = $this->paymentLink->getPaymentLinkByOrder($order);
                 $this->paymentLink->addPaymentLink($order, $paymentUrl);
+                $this->logger->logInfoForOrder($orderId, 'Payment URL is: ' . $paymentUrl);
             } catch (InvalidApiKeyException $invalidApiKeyException) {
                 $this->logger->logInvalidApiKeyException($invalidApiKeyException);
                 $this->messageManager->addErrorMessage(__('The order can not be created, because the

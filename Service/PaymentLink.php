@@ -17,11 +17,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service;
 
+use Exception;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Payment;
@@ -29,7 +29,11 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use MultiSafepay\ConnectCore\Model\Api\Initializer\OrderRequestInitializer;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
+use MultiSafepay\ConnectCore\Logger\Logger;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class PaymentLink
 {
     public const MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME = 'payment_link';
@@ -50,20 +54,28 @@ class PaymentLink
     private $state;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * PaymentLink constructor.
      *
      * @param OrderRequestInitializer $orderRequestInitializer
      * @param OrderRepositoryInterface $orderRepository
      * @param State $state
+     * @param Logger $logger
      */
     public function __construct(
         OrderRequestInitializer $orderRequestInitializer,
         OrderRepositoryInterface $orderRepository,
-        State $state
+        State $state,
+        Logger $logger
     ) {
         $this->orderRequestInitializer = $orderRequestInitializer;
         $this->orderRepository = $orderRepository;
         $this->state = $state;
+        $this->logger = $logger;
     }
 
     /**
@@ -85,10 +97,13 @@ class PaymentLink
     }
 
     /**
+     * Add the payment link to the order
+     *
      * @param OrderInterface $order
      * @param string $paymentLink
      * @return void
      * @throws LocalizedException
+     * @throws Exception
      */
     public function addPaymentLink(OrderInterface $order, string $paymentLink): void
     {
@@ -128,30 +143,35 @@ class PaymentLink
     }
 
     /**
+     * Add the Payment link to the order comments if the order was placed in the admin backend
+     *
      * @param OrderInterface $order
      * @param string $paymentUrl
      * @return void
+     * @throws Exception
      */
     private function addPaymentLinkToOrderComments(OrderInterface $order, string $paymentUrl): void
     {
-        $order->addCommentToStatusHistory($this->getOrderCommentByAreaCode($paymentUrl));
-        $this->orderRepository->save($order);
+        if ($this->isAreaCodeAdminHtml()) {
+            $order->addCommentToStatusHistory(__('Payment link for this transaction: %1', $paymentUrl)->render());
+            $this->orderRepository->save($order);
+        }
     }
 
     /**
-     * @param string $paymentUrl
-     * @return Phrase
+     * Check if this is being executed from the backend
+     *
+     * @return bool
      */
-    private function getOrderCommentByAreaCode(string $paymentUrl): Phrase
+    private function isAreaCodeAdminHtml(): bool
     {
         try {
             $areaCode = $this->state->getAreaCode();
         } catch (LocalizedException $localizedException) {
-            $areaCode = Area::AREA_ADMINHTML;
+            $this->logger->logException($localizedException);
+            return false;
         }
 
-        return $areaCode === Area::AREA_ADMINHTML
-            ? __('Payment link for this transaction: %1', $paymentUrl)
-            : __('The user has been redirected to the following page: %1', $paymentUrl);
+        return $areaCode === Area::AREA_ADMINHTML;
     }
 }
