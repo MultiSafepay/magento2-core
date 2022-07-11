@@ -5,11 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.17.0] - 2022-07-11
+### Added
+- Added a configuration option for overriding when to send the order confirmation e-mail for pay later methods
+
 ### Fixed
-- Fixed an issue where the order state switch to 'Pending payment', after 'Completed' in rare cases 
+- Fixed an issue where the order state switches to 'Pending payment' after 'Completed' in rare cases 
 
 ### Removed
-- Removed the payment link order comment for frontend orders, since it was causing an issue in rare cases because of saving the order
+- Removed the payment link order comment for frontend orders, because of multiple processes trying to save the order, which causes an issue in some instances
 
 ## [2.16.0] - 2022-06-29
 ### Added
