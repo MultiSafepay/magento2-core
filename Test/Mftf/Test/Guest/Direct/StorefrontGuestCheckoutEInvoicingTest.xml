@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2022 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontGuestCheckoutEInvoicingTest">
+        <annotations>
+            <features value="Checkout"/>
+            <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing an E-Invoicing order for guest order"/>
+            <description value="To be sure that an E-Invoicing order can be placed successfully for a guest"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MSP-MFTF-EINVOICING-DIRECT"/>
+            <group value="multisafepay_checkout"/>
+        </annotations>
+
+        <before>
+            <createData entity="MultiSafepaySimpleOne" stepKey="createSimpleProduct"/>
+
+            <!-- Enable test mode -->
+            <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
+
+            <!-- Enable payment method -->
+            <magentoCLI command="config:set {{EInvoicingEnableConfigData.path}} {{EInvoicingEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
+        </before>
+
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+            <magentoCLI command="config:set {{EInvoicingDisableConfigData.path}} {{EInvoicingDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
+        </after>
+
+        <!--Go to product page-->
+        <amOnPage url="$$createSimpleProduct.custom_attributes[url_key]$$.html" stepKey="navigateToSimpleProductPage"/>
+        <waitForPageLoad stepKey="waitForCatalogPageLoad"/>
+
+        <!--Add Product to Shopping Cart-->
+        <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addToCartFromStorefrontProductPage">
+            <argument name="productName" value="$$createSimpleProduct.name$$"/>
+        </actionGroup>
+
+        <!--Go to Checkout-->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <actionGroup ref="GuestCheckoutFillingShippingSectionWithCountryActionGroup" stepKey="guestCheckoutFillingShippingSectionWithCountry">
+            <argument name="customerVar" value="CustomerEntityOne"/>
+            <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
+        </actionGroup>
+
+        <!-- Checkout select E-Invoicing Order payment -->
+        <actionGroup ref="CheckoutSelectEInvoicingPaymentActionGroup" stepKey="selectEInvoicingPayment"/>
+
+        <!--Click Place Order button-->
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <!--See success messages-->
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
+        <see selector="{{CheckoutSuccessMainSection.orderNumberText}}" userInput="Your order # is: " stepKey="seeOrderNumber"/>
+    </test>
+</tests>

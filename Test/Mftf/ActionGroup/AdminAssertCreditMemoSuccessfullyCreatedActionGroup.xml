@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2022 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminAssertCreditMemoSuccessfullyCreatedActionGroup">
+        <annotations>
+            <description>Asserts the credit memo and refund.</description>
+        </annotations>
+        <arguments>
+            <argument name="subTotal" defaultValue="1.23" type="string"/>
+            <argument name="adjustmentRefund" defaultValue="0.10" type="string"/>
+            <argument name="adjustmentFee" defaultValue="0.20" type="string"/>
+            <argument name="grandTotal" defaultValue="2.34" type="string"/>
+        </arguments>
+
+        <!-- Perform all assertions: assert refund success create message -->
+        <see selector="{{AdminIndexManagementSection.successMessage}}" userInput="You created the credit memo." stepKey="assertRefundSuccessCreateMessage"/>
+
+        <!--Assert refund in Credit Memo Tab -->
+        <click selector="{{AdminOrderDetailsOrderViewSection.creditMemos}}" stepKey="clickCreditMemoTab"/>
+        <waitForPageLoad stepKey="waitForTabLoad"/>
+        <grabTextFrom selector="{{AdminCreditMemosGridSection.memoId}}" stepKey="grabMemoId"/>
+        <assertNotEmpty stepKey="assertMemoIdIsNotEmpty" after="grabMemoId">
+            <actualResult type="const">$grabMemoId</actualResult>
+        </assertNotEmpty>
+        <click selector="{{AdminCreditMemosGridSection.memoId}}" stepKey="clickView"/>
+        <waitForPageLoad stepKey="waitForCreditMemo"/>
+        <scrollTo selector="{{AdminCreditMemoViewTotalSection.subtotal}}" stepKey="scrollToTotal"/>
+        <see selector="{{AdminCreditMemoViewTotalSection.subtotal}}" userInput="€{{subTotal}}" stepKey="seeSubtotal"/>
+        <see selector="{{AdminCreditMemoViewTotalSection.adjustmentRefund}}" userInput="€{{adjustmentRefund}}" stepKey="seeAdjustmentRefund"/>
+        <see selector="{{AdminCreditMemoViewTotalSection.adjustmentFee}}" userInput="€{{adjustmentFee}}" stepKey="seeAdjustmentFee"/>
+        <see selector="{{AdminCreditMemoViewTotalSection.grandTotal}}" userInput="€{{grandTotal}}" stepKey="assertRefundOnCreditMemoTab"/>
+    </actionGroup>
+</actionGroups>

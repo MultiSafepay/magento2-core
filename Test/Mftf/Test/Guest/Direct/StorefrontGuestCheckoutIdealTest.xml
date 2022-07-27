@@ -17,14 +17,14 @@
 
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="StorefrontGuestCheckoutPayAfterDeliveryTest">
+    <test name="StorefrontGuestCheckoutIdealTest">
         <annotations>
             <features value="Checkout"/>
             <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
-            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order for guest order"/>
-            <description value="To be sure that an Pay After Delivery order can be placed successfully for a guest"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing an iDEAL order for guest order"/>
+            <description value="To be sure that an iDEAL order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
-            <testCaseId value="MSP-MFTF-1"/>
+            <testCaseId value="MSP-MFTF-IDEAL-DIRECT"/>
             <group value="multisafepay_checkout"/>
         </annotations>
 
@@ -35,13 +35,13 @@
             <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
 
             <!-- Enable payment method -->
-            <magentoCLI command="config:set {{PayAfterDeliveryEnableConfigData.path}} {{PayAfterDeliveryEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <magentoCLI command="config:set {{IdealEnableConfigData.path}} {{IdealEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
             <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
         </before>
 
         <after>
-            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+            <magentoCLI command="config:set {{IdealDisableConfigData.path}} {{IdealDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
         </after>
 
         <!--Go to product page-->
@@ -61,15 +61,55 @@
             <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
         </actionGroup>
 
-        <!-- Checkout select Pay After Delivery Order payment -->
-        <actionGroup ref="CheckoutSelectPayAfterDeliveryPaymentActionGroup" stepKey="selectPayAfterDeliveryPayment"/>
+        <!-- Checkout select iDEAL Order payment -->
+        <actionGroup ref="CheckoutSelectIdealPaymentActionGroup" stepKey="selectIdealPayment"/>
 
         <!--Click Place Order button-->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
-        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <!--Verify payment page URL-->
+        <seeInCurrentUrl url="https://testpayv2.multisafepay.com/simulator/ideal" stepKey="assertCheckoutIdealPaymentPage"/>
+
+        <!-- Click on TEST button -->
+        <click selector="//button[@name='pay']" stepKey="clickPayButton"/>
+
+        <waitForPageLoad stepKey="waitForThankYouPageLoad"/>
 
         <!--See success messages-->
         <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
         <see selector="{{CheckoutSuccessMainSection.orderNumberText}}" userInput="Your order # is: " stepKey="seeOrderNumber"/>
+
+        <!--Grab Order ID from Success Page-->
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderId"/>
+
+        <!--Trigger Notification URL-->
+        <amOnPage url="multisafepay/connect/notification?transactionid={$grabOrderId}&amp;timestamp=1" stepKey="TriggerNotificationUrl"/>
+        <waitForText userInput="ok" selector="body" stepKey="waitForOK"/>
+
+        <!--Log in to admin backend-->
+        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        <actionGroup ref="AssertAdminSuccessLoginActionGroup" stepKey="assertLoggedIn"/>
+
+        <!--Navigate to the order-->
+        <assertNotEmpty stepKey="assertOrderIdIsNotEmpty" after="grabOrderId">
+            <actualResult type="const">$grabOrderId</actualResult>
+        </assertNotEmpty>
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="{$grabOrderId}"/>
+        </actionGroup>
+
+        <!-- Navigate to the invoice -->
+        <actionGroup ref="AdminNavigateToTheInvoiceFromOrderViewActionGroup" stepKey="NavigateToInvoice"/>
+
+        <!-- Create the credit memo -->
+        <actionGroup ref="AdminCreateNewCreditMemoFromInvoiceViewActionGroup" stepKey="CreateCreditMemo">
+            <argument name="adjustmentRefund" value="0.10"/>
+            <argument name="adjustmentFee" value="0.20"/>
+        </actionGroup>
+
+        <!-- Assert the credit memo to be successful -->
+        <actionGroup ref="AdminAssertCreditMemoSuccessfullyCreatedActionGroup" stepKey="AssertCreditMemoSuccess"/>
     </test>
 </tests>

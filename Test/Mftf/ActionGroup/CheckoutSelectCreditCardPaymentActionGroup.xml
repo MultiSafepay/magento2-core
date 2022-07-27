@@ -24,7 +24,6 @@
         <arguments>
             <argument name="paymentDetailsVar" defaultValue="CreditCardComponentPaymentDetails"/>
         </arguments>
-
         <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
         <waitForPageLoad stepKey="waitForPageLoad"/>
         <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Credit Card')}}" dependentSelector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Credit Card')}}" visible="true" stepKey="selectCreditCardPaymentMethod"/>

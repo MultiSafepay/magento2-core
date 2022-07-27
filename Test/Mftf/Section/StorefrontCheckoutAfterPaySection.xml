@@ -17,8 +17,9 @@
 
 <sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
-    <section name="StorefrontCheckoutPayAfterDeliverySection">
-        <element name="dateOfBirth" type="date" selector="#payafter-date-of-birth"/>
-        <element name="accountNumber" type="input" selector="#payafter-account-number"/>
+    <section name="StorefrontCheckoutAfterPaySection">
+        <element name="dateOfBirth" type="date" selector="#afterpay-date-of-birth"/>
+        <element name="gender" type="input" selector="#afterpay-gender"/>
+        <element name="terms" type="input" selector="#afterpay-terms"/>
     </section>
 </sections>

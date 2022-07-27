@@ -17,20 +17,19 @@
 
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="StorefrontCustomerCheckoutPayAfterDeliveryTest">
+    <test name="StorefrontGuestCheckoutPayAfterDeliveryTest">
         <annotations>
             <features value="Checkout"/>
-            <stories value="Order with MultiSafepay payment method is successfully created for a customer"/>
-            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order for a customer"/>
-            <description value="To be sure that an Pay After Delivery order can be placed successfully for a customer"/>
+            <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order for guest order"/>
+            <description value="To be sure that an Pay After Delivery order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
-            <testCaseId value="MSP-MFTF-2"/>
+            <testCaseId value="MSP-MFTF-PAYAFTER-DIRECT"/>
             <group value="multisafepay_checkout"/>
         </annotations>
 
         <before>
             <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
-            <createData entity="PayAfterDeliveryCustomer" stepKey="createCustomer"/>
 
             <!-- Enable test mode -->
             <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
@@ -41,15 +40,9 @@
         </before>
 
         <after>
-            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
-            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <magentoCLI command="config:set {{PayAfterDeliveryDisableConfigData.path}} {{PayAfterDeliveryDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
         </after>
-
-        <!--Go to Storefront as Customer-->
-        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
-            <argument name="Customer" value="$$createCustomer$$" />
-        </actionGroup>
 
         <!--Go to product page-->
         <amOnPage url="$$createSimpleProduct.custom_attributes[url_key]$$.html" stepKey="navigateToSimpleProductPage"/>
@@ -63,19 +56,15 @@
         <!--Go to Checkout-->
         <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
 
-        <!--Select Shipping Rate "Flat Rate"-->
-        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="selectFlatShippingMethod"/>
-        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask2"/>
-
-        <click selector="{{CheckoutShippingSection.editActiveAddress}}" stepKey="editNewAddress"/>
-        <actionGroup ref="clearCheckoutAddressPopupFieldsActionGroup" stepKey="clearRequiredFields">
-            <argument name="classPrefix" value="._show"/>
+        <actionGroup ref="GuestCheckoutFillingShippingSectionWithCountryActionGroup" stepKey="guestCheckoutFillingShippingSectionWithCountry">
+            <argument name="customerVar" value="CustomerEntityOne"/>
+            <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
         </actionGroup>
 
-        <!--Refresh Page and Place Order-->
-        <reloadPage stepKey="reloadPage"/>
+        <!-- Checkout select Pay After Delivery Order payment -->
         <actionGroup ref="CheckoutSelectPayAfterDeliveryPaymentActionGroup" stepKey="selectPayAfterDeliveryPayment"/>
-        <waitForElement selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="waitForPlaceOrderButton"/>
+
+        <!--Click Place Order button-->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
         <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
 

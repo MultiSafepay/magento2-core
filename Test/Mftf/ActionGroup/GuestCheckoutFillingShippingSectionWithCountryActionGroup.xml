@@ -24,8 +24,6 @@
         <arguments>
             <argument name="customerVar" defaultValue="CustomerEntityOne"/>
             <argument name="customerAddressVar" defaultValue="MultiSafepayDeliveryAddress"/>
-            <!--First available shipping method will be selected if value is not passed for shippingMethod-->
-            <argument name="shippingMethod" defaultValue="" type="string"/>
         </arguments>
 
         <fillField selector="{{CheckoutShippingSection.email}}" userInput="{{customerVar.email}}" stepKey="enterEmail"/>
@@ -37,9 +35,9 @@
         <fillField selector="{{CheckoutShippingSection.city}}" userInput="{{customerAddressVar.city}}" stepKey="enterCity"/>
         <fillField selector="{{CheckoutShippingSection.postcode}}" userInput="{{customerAddressVar.postcode}}" stepKey="enterPostcode"/>
         <fillField selector="{{CheckoutShippingSection.telephone}}" userInput="{{customerAddressVar.telephone}}" stepKey="enterTelephone"/>
-        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
-        <waitForElement selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('shippingMethod')}}" stepKey="waitForShippingMethod"/>
-        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('shippingMethod')}}" stepKey="selectShippingMethod"/>
+        <wait time="5" stepKey="waitForLoadingMaskToDissapear"/>
+        <waitForElement selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('')}}" stepKey="waitForShippingMethod"/>
+        <click selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('')}}" stepKey="selectShippingMethod"/>
         <waitForElement selector="{{CheckoutShippingSection.next}}" time="30" stepKey="waitForNextButton"/>
         <click selector="{{CheckoutShippingSection.next}}" stepKey="clickNext"/>
         <waitForElement selector="{{CheckoutPaymentSection.paymentSectionTitle}}" time="30" stepKey="waitForPaymentSectionLoaded"/>

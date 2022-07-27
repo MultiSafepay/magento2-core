@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2022 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontGuestCheckoutCreditCardComponentTest">
+        <annotations>
+            <features value="Checkout"/>
+            <stories value="Order with MultiSafepay payment method is successfully created for a guest via credit card component"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing a credit card component guest order"/>
+            <description value="To be sure that a credit card component order can be placed successfully for a guest"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MSP-MFTF-1"/>
+            <!--Temporarily remove from MultiSafepay group, because the test is broken-->
+            <!--<group value="multisafepay_checkout"/>-->
+        </annotations>
+
+        <before>
+            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
+
+            <!-- Enable test mode -->
+            <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
+
+            <!-- Enable payment method and credit card component -->
+            <magentoCLI command="config:set {{CreditCardEnableConfigData.path}} {{CreditCardEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <magentoCLI command="config:set {{CreditCardComponentEnableConfigData.path}} {{CreditCardComponentEnableConfigData.value}}" stepKey="enableCreditCardComponent"/>
+            <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
+        </before>
+
+        <after>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+        </after>
+
+        <!--Go to product page-->
+        <amOnPage url="$$createSimpleProduct.custom_attributes[url_key]$$.html" stepKey="navigateToSimpleProductPage"/>
+        <waitForPageLoad stepKey="waitForCatalogPageLoad"/>
+
+        <!--Add Product to Shopping Cart-->
+        <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addToCartFromStorefrontProductPage">
+            <argument name="productName" value="$$createSimpleProduct.name$$"/>
+        </actionGroup>
+
+        <!--Go to Checkout-->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <actionGroup ref="GuestCheckoutFillingShippingSectionWithCountryActionGroup" stepKey="guestCheckoutFillingShippingSectionWithCountry">
+            <argument name="customerVar" value="CustomerEntityOne"/>
+            <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
+        </actionGroup>
+
+        <!-- Checkout select Credit Card Component Order payment -->
+        <actionGroup ref="CheckoutSelectCreditCardComponentPaymentActionGroup" stepKey="selectCreditCardComponentPayment"/>
+
+        <!--Click Place Order button-->
+        <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
+
+        <!--Verify 3DS URL-->
+        <seeInCurrentUrl url="https://testpay.multisafepay.com/3ds2/sim/acs" stepKey="assertCheckout3DSUrl"/>
+
+        <!--Verify Success page-->
+        <waitForElement selector="{{CheckoutSuccessMainSection.successTitle}}" time="30" stepKey="waitForSuccessPageLoaded"/>
+
+        <!--See success messages-->
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
+        <see selector="{{CheckoutSuccessMainSection.orderNumberText}}" userInput="Your order # is: " stepKey="seeOrderNumber"/>
+    </test>
+</tests>

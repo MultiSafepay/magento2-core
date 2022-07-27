@@ -29,7 +29,9 @@
         <waitForPageLoad stepKey="waitForPageLoad"/>
         <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Pay After Delivery')}}" dependentSelector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Pay After Delivery')}}" visible="true" stepKey="selectPayAfterDeliveryPaymentMethod"/>
         <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
-        <fillField selector="{{StorefrontCheckoutPayAfterDeliverySection.dateOfBirth}}" userInput="{{paymentDetailsVar.date_of_birth}}" stepKey="enterDateOfBirth"/>
+        <pressKey userInput="10" selector="{{StorefrontCheckoutPayAfterDeliverySection.dateOfBirth}}" stepKey="dateOfBirthValue1"/>
+        <pressKey userInput="10" selector="{{StorefrontCheckoutPayAfterDeliverySection.dateOfBirth}}" stepKey="dateOfBirthValue2"/>
+        <pressKey userInput="2000" selector="{{StorefrontCheckoutPayAfterDeliverySection.dateOfBirth}}" stepKey="dateOfBirthValue3"/>
         <fillField selector="{{StorefrontCheckoutPayAfterDeliverySection.accountNumber}}" userInput="{{paymentDetailsVar.account_number}}" stepKey="enterAccountNumber"/>
     </actionGroup>
 </actionGroups>

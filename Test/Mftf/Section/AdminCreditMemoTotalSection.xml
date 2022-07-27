@@ -17,8 +17,7 @@
 
 <sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
-    <section name="StorefrontCheckoutPayAfterDeliverySection">
-        <element name="dateOfBirth" type="date" selector="#payafter-date-of-birth"/>
-        <element name="accountNumber" type="input" selector="#payafter-account-number"/>
+    <section name="AdminCreditMemoTotalSection">
+        <element name="refund" type="button"  selector=".order-totals-actions button[data-ui-id='order-items-submit-button']"/>
     </section>
 </sections>

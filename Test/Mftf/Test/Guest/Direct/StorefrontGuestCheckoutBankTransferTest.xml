@@ -17,14 +17,14 @@
 
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="StorefrontGuestCheckoutCreditCardComponentTest">
+    <test name="StorefrontGuestCheckoutBankTransferTest">
         <annotations>
             <features value="Checkout"/>
-            <stories value="Order with MultiSafepay payment method is successfully created for a guest via credit card component"/>
-            <title value="MultiSafepay checkout - check if success page is reached after placing a credit card component guest order"/>
-            <description value="To be sure that a credit card component order can be placed successfully for a guest"/>
+            <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing an Bank Transfer order for guest order"/>
+            <description value="To be sure that an Bank Transfer order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
-            <testCaseId value="MSP-MFTF-1"/>
+            <testCaseId value="MSP-MFTF-BANKTRANSFER-DIRECT"/>
             <group value="multisafepay_checkout"/>
         </annotations>
 
@@ -34,15 +34,15 @@
             <!-- Enable test mode -->
             <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
 
-            <!-- Enable payment method and credit card component -->
-            <magentoCLI command="config:set {{CreditCardEnableConfigData.path}} {{CreditCardEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
-            <magentoCLI command="config:set {{CreditCardComponentEnableConfigData.path}} {{CreditCardComponentEnableConfigData.value}}" stepKey="enableCreditCardComponent"/>
+            <!-- Enable payment method -->
+            <magentoCLI command="config:set {{BankTransferEnableConfigData.path}} {{BankTransferEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <magentoCLI command="config:set {{BankTransferDirectConfigData.path}} {{BankTransferDirectConfigData.value}}" stepKey="enableDirectTransactionType"/>
             <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
         </before>
 
         <after>
-            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+            <magentoCLI command="config:set {{BankTransferDisableConfigData.path}} {{BankTransferDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
         </after>
 
         <!--Go to product page-->
@@ -62,17 +62,15 @@
             <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
         </actionGroup>
 
-        <!-- Checkout select Credit Card Component Order payment -->
-        <actionGroup ref="CheckoutSelectCreditCardComponentPaymentActionGroup" stepKey="selectCreditCardComponentPayment"/>
+        <!-- Checkout select Bank Transfer Order payment -->
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForPageLoad stepKey="waitForPaymentPageLoad"/>
+        <selectOption userInput="multisafepay_banktransfer" selector="#multisafepay_banktransfer" stepKey="selectBankTransferPaymentMethod"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
 
         <!--Click Place Order button-->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
-
-        <!--Verify 3DS URL-->
-        <seeInCurrentUrl url="https://testpay.multisafepay.com/3ds2/sim/acs" stepKey="assertCheckout3DSUrl"/>
-
-        <!--Verify Success page-->
-        <waitForElement selector="{{CheckoutSuccessMainSection.successTitle}}" time="30" stepKey="waitForSuccessPageLoaded"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
 
         <!--See success messages-->
         <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>

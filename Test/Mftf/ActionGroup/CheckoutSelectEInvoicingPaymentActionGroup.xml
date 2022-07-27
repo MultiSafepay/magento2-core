@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * Copyright © 2022 MultiSafepay, Inc. All rights reserved.
+ * See DISCLAIMER.md for disclaimer details.
+ *
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="CheckoutSelectEInvoicingPaymentActionGroup">
+        <annotations>
+            <description>Selects the 'E-Invoicing' Payment Method on the Storefront Checkout page and fills in the payment details.</description>
+        </annotations>
+        <arguments>
+            <argument name="paymentDetailsVar" defaultValue="PayAfterDeliveryPaymentDetails"/>
+        </arguments>
+
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <selectOption userInput="multisafepay_einvoicing" selector="#multisafepay_einvoicing" stepKey="selectAfterPayPaymentMethod"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
+        <pressKey userInput="10" selector="{{StorefrontCheckoutEInvoicingSection.dateOfBirth}}" stepKey="dateOfBirthValue1"/>
+        <pressKey userInput="10" selector="{{StorefrontCheckoutEInvoicingSection.dateOfBirth}}" stepKey="dateOfBirthValue2"/>
+        <pressKey userInput="2000" selector="{{StorefrontCheckoutEInvoicingSection.dateOfBirth}}" stepKey="dateOfBirthValue3"/>
+        <fillField selector="{{StorefrontCheckoutEInvoicingSection.accountNumber}}" userInput="{{paymentDetailsVar.account_number}}" stepKey="enterAccountNumber"/>
+    </actionGroup>
+</actionGroups>
