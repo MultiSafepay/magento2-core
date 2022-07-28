@@ -22,7 +22,7 @@ use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
-class IdealDataAssignObserver extends AbstractDataAssignObserver
+class IssuersDataAssignObserver extends AbstractDataAssignObserver
 {
 
     /**

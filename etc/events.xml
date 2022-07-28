@@ -1,6 +1,9 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="payment_method_assign_data_multisafepay_ideal">
-        <observer name="ideal_assign_chosen_issuer" instance="MultiSafepay\ConnectCore\Observer\Gateway\IdealDataAssignObserver" />
+        <observer name="ideal_assign_chosen_issuer" instance="MultiSafepay\ConnectCore\Observer\Gateway\IssuersDataAssignObserver" />
+    </event>
+    <event name="payment_method_assign_data_multisafepay_mybank">
+        <observer name="mybank_assign_chosen_issuer" instance="MultiSafepay\ConnectCore\Observer\Gateway\IssuersDataAssignObserver" />
     </event>
     <event name="payment_method_assign_data_multisafepay_payafter">
         <observer name="payafter_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PayafterDataAssignObserver" />

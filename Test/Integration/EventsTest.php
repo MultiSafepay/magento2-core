@@ -22,7 +22,7 @@ use MultiSafepay\ConnectCore\Observer\Gateway\AfterpayDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\DirectBankTransferDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\DirectDebitDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\EinvoicingDataAssignObserver;
-use MultiSafepay\ConnectCore\Observer\Gateway\IdealDataAssignObserver;
+use MultiSafepay\ConnectCore\Observer\Gateway\IssuersDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\PayafterDataAssignObserver;
 
 class EventsTest extends EventsTestCase
@@ -33,7 +33,7 @@ class EventsTest extends EventsTestCase
     public function testForAdminObservers()
     {
         $this->findObserverForEvent(
-            IdealDataAssignObserver::class,
+            IssuersDataAssignObserver::class,
             'payment_method_assign_data_multisafepay_ideal'
         );
 

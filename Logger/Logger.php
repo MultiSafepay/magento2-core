@@ -102,21 +102,6 @@ class Logger extends CoreLogger
      * @param ApiException $apiException
      * @return void
      */
-    public function logGetIssuersApiException(string $orderId, ApiException $apiException): void
-    {
-        $this->error(
-            '(Order ID: ' . $orderId . ') MultiSafepay error when trying to retrieve the iDEAL issuers. Error: ' .
-            $apiException->getCode() . ' ' . $apiException->getMessage()
-        );
-
-        $this->debug($apiException->getDetails());
-    }
-
-    /**
-     * @param string $orderId
-     * @param ApiException $apiException
-     * @return void
-     */
     public function logUpdateRequestApiException(string $orderId, ApiException $apiException): void
     {
         $this->error(

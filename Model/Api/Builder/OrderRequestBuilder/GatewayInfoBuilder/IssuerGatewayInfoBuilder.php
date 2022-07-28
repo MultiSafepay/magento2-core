@@ -19,33 +19,34 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Gateway
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Ideal;
+use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Issuer;
+use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfoInterface;
 
-class IdealGatewayInfoBuilder implements GatewayInfoBuilderInterface
+class IssuerGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
     /**
-     * @var Ideal
+     * @var Issuer
      */
-    private $ideal;
+    private $issuer;
 
     /**
      * GatewayInfo constructor.
      *
-     * @param Ideal $ideal
+     * @param Issuer $issuer
      */
     public function __construct(
-        Ideal $ideal
+        Issuer $issuer
     ) {
-        $this->ideal = $ideal;
+        $this->issuer = $issuer;
     }
 
     /**
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @return Ideal
+     * @return GatewayInfoInterface
      */
-    public function build(OrderInterface $order, OrderPaymentInterface $payment): Ideal
+    public function build(OrderInterface $order, OrderPaymentInterface $payment): GatewayInfoInterface
     {
-        return $this->ideal->addIssuerId($payment->getAdditionalInformation()['issuer_id']);
+        return $this->issuer->addIssuerId($payment->getAdditionalInformation()['issuer_id']);
     }
 }

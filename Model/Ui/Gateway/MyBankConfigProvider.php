@@ -21,10 +21,9 @@ use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 use Psr\Http\Client\ClientExceptionInterface;
 
-class IdealConfigProvider extends GenericConfigProvider
+class MyBankConfigProvider extends GenericConfigProvider
 {
-    public const CODE = 'multisafepay_ideal';
-    public const VAULT_CODE = 'multisafepay_ideal_vault';
+    public const CODE = 'multisafepay_mybank';
 
     /**
      * Retrieve assoc array of checkout configuration
@@ -40,7 +39,6 @@ class IdealConfigProvider extends GenericConfigProvider
                 $this->getCode() => [
                     'issuers' => $this->getIssuers(),
                     'image' => $this->getImage(),
-                    'vaultCode' => self::VAULT_CODE,
                     'is_preselected' => $this->isPreselected(),
                 ],
             ],

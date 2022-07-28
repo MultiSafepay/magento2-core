@@ -19,7 +19,6 @@ namespace MultiSafepay\ConnectCore\Model\Ui;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -33,6 +32,7 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
+use MultiSafepay\Exception\InvalidArgumentException;
 use MultiSafepay\Sdk;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -181,6 +181,10 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getSdk(?int $storeId = null): ?Sdk
     {
+        if ($storeId === null) {
+            $storeId = $this->getStoreIdFromCheckoutSession();
+        }
+
         try {
             return $this->sdkFactory->create($storeId);
         } catch (InvalidApiKeyException $invalidApiKeyException) {
@@ -188,8 +192,7 @@ class GenericConfigProvider implements ConfigProviderInterface
 
             return null;
         } catch (ApiException $apiException) {
-            $orderId = $this->checkoutSession->getLastRealOrder()->getIncrementId();
-            $this->logger->logGetIssuersApiException($orderId, $apiException);
+            $this->logger->logException($apiException);
 
             return null;
         }
@@ -231,7 +234,7 @@ class GenericConfigProvider implements ConfigProviderInterface
 
         return (string)$this->paymentConfig->getValue(
             'transaction_type',
-            $this->checkoutSession->getQuote()->getStoreId()
+            $this->getStoreIdFromCheckoutSession()
         );
     }
 
@@ -291,5 +294,48 @@ class GenericConfigProvider implements ConfigProviderInterface
         }
 
         return $accountData;
+    }
+
+    /**
+     * @return array
+     * @throws ClientExceptionInterface
+     */
+    public function getIssuers(): array
+    {
+        $issuers = [];
+
+        if ($multiSafepaySdk = $this->getSdk()) {
+            try {
+                $issuerListing = $multiSafepaySdk->getIssuerManager()->getIssuersByGatewayCode($this->getGatewayCode());
+                foreach ($issuerListing as $issuer) {
+                    $issuers[] = [
+                        'code' => $issuer->getCode(),
+                        'description' => $issuer->getDescription(),
+                    ];
+                }
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                $this->logger->logException($invalidArgumentException);
+                return $issuers;
+            }
+        }
+
+        return $issuers;
+    }
+
+    /**
+     * Return the store ID from the Checkout Session
+     *
+     * @return int|null
+     */
+    private function getStoreIdFromCheckoutSession(): ?int
+    {
+        try {
+            $storeId = $this->checkoutSession->getQuote()->getStoreId();
+        } catch (LocalizedException $localizedException) {
+            $this->logger->logException($localizedException);
+            return null;
+        }
+
+        return $storeId;
     }
 }
