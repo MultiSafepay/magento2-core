@@ -417,7 +417,6 @@
                 <instant_purchase>
                     <supported>1</supported>
                 </instant_purchase>
-                <gateway_code>VISA</gateway_code>
             </multisafepay_visa_vault>
             <multisafepay_mastercard_recurring>
                 <active>0</active>
@@ -689,7 +688,6 @@
                 <instant_purchase>
                     <supported>1</supported>
                 </instant_purchase>
-                <gateway_code>MAESTRO</gateway_code>
             </multisafepay_maestro_vault>
             <multisafepay_mastercard>
                 <active>0</active>
