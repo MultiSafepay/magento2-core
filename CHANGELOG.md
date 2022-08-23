@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.18.0] - 2022-08-23
+### Added
+- Added the MyBank payment method
+- Improved logging for failed POST notifications
+
+### Fixed
+- Fixed an issue where in some cases VISA transactions could not be refunded through the backend
+
 ## [2.17.0] - 2022-07-11
 ### Added
 - Added a configuration option for overriding when to send the order confirmation e-mail for pay later methods
