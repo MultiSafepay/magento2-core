@@ -272,4 +272,22 @@ class Logger extends CoreLogger
             )
         );
     }
+
+    /**
+     * Log the failed POST notification body and headers
+     *
+     * @param string $headers
+     * @param string $body
+     * @throws Exception
+     */
+    public function logFailedPOSTNotification(string $headers, string $body): void
+    {
+        $this->debug(
+            sprintf(
+                '(Failed POST notification) Headers: %1$s, Body: %2$s',
+                $headers,
+                $body
+            )
+        );
+    }
 }
