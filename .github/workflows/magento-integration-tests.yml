@@ -57,6 +57,7 @@ jobs:
             MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
             MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
             GLOBAL_GITHUB_TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+            CURRENT_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         with:
             module_name: MultiSafepay_ConnectCore
             composer_name: multisafepay/magento2-core
@@ -69,6 +70,7 @@ jobs:
             MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
             MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
             GLOBAL_GITHUB_TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+            CURRENT_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         with:
             module_name: MultiSafepay_ConnectCore
             composer_name: multisafepay/magento2-core
