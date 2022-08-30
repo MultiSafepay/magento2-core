@@ -30,32 +30,35 @@ class Logger extends CoreLogger
     public const LOGGER_INFO_TYPE = 'info';
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param ApiException $apiException
      * @return void
      */
-    public function logPaymentLinkError(string $orderId, ApiException $apiException): void
+    public function logPaymentLinkError(?string $orderId, ApiException $apiException): void
     {
         $this->error(
-            '(Order ID: ' . $orderId . ') MultiSafepay error when trying to retrieve the payment link. Error: ' .
-            $apiException->getCode() . ' ' . $apiException->getMessage()
+            sprintf(
+                '(Order ID: %1$s) MultiSafepay error when trying to retrieve the payment link. Error: %2$s',
+                $orderId ?? 'unknown',
+                $apiException->getCode() . ' ' . $apiException->getMessage()
+            )
         );
 
         $this->debug($apiException->getDetails());
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param Exception $exception
      * @param int $logLevel
      */
-    public function logExceptionForOrder(string $orderId, Exception $exception, int $logLevel = self::DEBUG): void
+    public function logExceptionForOrder(?string $orderId, Exception $exception, int $logLevel = self::DEBUG): void
     {
         $this->addRecord(
             $logLevel,
             sprintf(
                 '(Order ID: %1$s) %2$s: %6$s (code: %3$d, line: %4$d, file: %5$s)',
-                $orderId,
+                $orderId ?? 'unknown',
                 static::getLevelName($logLevel),
                 $exception->getCode(),
                 $exception->getLine(),
@@ -66,47 +69,53 @@ class Logger extends CoreLogger
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param string $message
      * @param int $logLevel
      */
-    public function logInfoForOrder(string $orderId, string $message, int $logLevel = self::INFO): void
+    public function logInfoForOrder(?string $orderId, string $message, int $logLevel = self::INFO): void
     {
         $this->addRecord(
             $logLevel,
             sprintf(
                 '(Order ID: %1$s): %2$s',
-                $orderId,
+                $orderId ?? 'unknown',
                 $message
             )
         );
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param ApiException $apiException
      * @return void
      */
-    public function logGetRequestApiException(string $orderId, ApiException $apiException): void
+    public function logGetRequestApiException(?string $orderId, ApiException $apiException): void
     {
         $this->error(
-            '(Order ID: ' . $orderId . ') MultiSafepay error when trying to retrieve the transaction. Error: ' .
-            $apiException->getCode() . ' ' . $apiException->getMessage()
+            sprintf(
+                '(Order ID: %1$s) MultiSafepay error when trying to retrieve the transaction. Error: %2$s',
+                $orderId ?? 'unknown',
+                $apiException->getCode() . ' ' . $apiException->getMessage()
+            )
         );
 
         $this->debug($apiException->getDetails());
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param ApiException $apiException
      * @return void
      */
-    public function logUpdateRequestApiException(string $orderId, ApiException $apiException): void
+    public function logUpdateRequestApiException(?string $orderId, ApiException $apiException): void
     {
         $this->error(
-            '(Order ID: ' . $orderId . ') MultiSafepay error when trying to update the transaction. Error: ' .
-            $apiException->getCode() . ' ' . $apiException->getMessage()
+            sprintf(
+                '(Order ID: %1$s) MultiSafepay error when trying to update the transaction. Error: %2$s',
+                $orderId ?? 'unknown',
+                $apiException->getCode() . ' ' . $apiException->getMessage()
+            )
         );
 
         $this->debug($apiException->getDetails());
@@ -122,75 +131,86 @@ class Logger extends CoreLogger
     }
 
     /**
-     * @param $orderId
+     * @param string|null $orderId
      * @param $paymentUrl
      * @return void
      */
-    public function logPaymentRedirectInfo($orderId, $paymentUrl): void
+    public function logPaymentRedirectInfo(?string $orderId, $paymentUrl): void
     {
-        $this->debug('(Order ID: ' . $orderId . ') User redirected to the following page: ' . $paymentUrl);
+        $this->debug(
+            '(Order ID: ' . ($orderId ?? 'unknown') . ') User redirected to the following page: ' . $paymentUrl
+        );
     }
 
     /**
-     * @param $orderId
+     * @param string|null $orderId
      */
-    public function logPaymentSuccessInfo($orderId): void
+    public function logPaymentSuccessInfo(?string $orderId): void
     {
-        $this->debug('(Order ID: ' . $orderId . ') User redirected to the success page.');
+        $this->debug('(Order ID: ' . ($orderId ?? 'unknown') . ') User redirected to the success page.');
     }
 
     /**
-     * @param $orderId
+     * @param string|null $orderId
      */
-    public function logMissingSecureToken($orderId): void
+    public function logMissingSecureToken(?string $orderId): void
     {
-        $this->error('(Order ID: ' . $orderId . ') secureToken missing from request parameters.');
+        $this->error(
+            '(Order ID: ' . ($orderId ?? 'unknown') . ') secureToken missing from request parameters.'
+        );
     }
 
     /**
-     * @param $orderId
+     * @param string|null $orderId
      */
-    public function logInvalidSecureToken($orderId): void
+    public function logInvalidSecureToken(?string $orderId): void
     {
-        $this->error('(Order ID: ' . $orderId . ') Invalid secureToken provided in request parameters.');
+        $this->error(
+            '(Order ID: ' . ($orderId ?? 'unknown') . ') Invalid secureToken provided in request parameters.'
+        );
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param InvalidArgumentException $invalidArgumentException
      */
-    public function logInvalidIpAddress(string $orderId, InvalidArgumentException $invalidArgumentException): void
+    public function logInvalidIpAddress(?string $orderId, InvalidArgumentException $invalidArgumentException): void
     {
-        $this->error('(Order ID: ' . $orderId . ') ' . $invalidArgumentException->getMessage());
+        $this->error('(Order ID: ' . ($orderId ?? 'unknown') . ') ' . $invalidArgumentException->getMessage());
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      */
-    public function logMissingPaymentToken(string $orderId): void
+    public function logMissingPaymentToken(?string $orderId): void
     {
-        $this->error('(Order ID: ' . $orderId . ')
+        $this->error('(Order ID: ' . ($orderId ?? 'unknown') . ')
         Payment token not found when trying to create recurring transaction');
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param Exception $exception
      */
-    public function logOrderRequestBuilderException(string $orderId, Exception $exception): void
+    public function logOrderRequestBuilderException(?string $orderId, Exception $exception): void
     {
-        $this->error('(Order ID: ' . $orderId . ') Failed to create Order Request: '
+        $this->error('(Order ID: ' . ($orderId ?? 'unknown') . ') Failed to create Order Request: '
                      . $exception->getMessage());
     }
 
     /**
-     * @param string $orderId
+     * @param string|null $orderId
      * @param ClientExceptionInterface $clientException
      */
-    public function logClientException(string $orderId, ClientExceptionInterface $clientException): void
+    public function logClientException(?string $orderId, ClientExceptionInterface $clientException): void
     {
-        $this->error('(Order ID: ' . $orderId . ') Client exception when trying to place transaction: '
-                     . $clientException->getMessage());
+        $this->error(
+            sprintf(
+                '(Order ID: %1$s): Client exception when trying to place transaction: %2$s',
+                $orderId ?? 'unknown',
+                $clientException->getMessage()
+            )
+        );
     }
 
     /**
