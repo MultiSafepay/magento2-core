@@ -188,7 +188,7 @@ class OrderService
         $transactionType = $paymentDetails['type'] ?? '';
         $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
 
-        $this->processVaultInitialization->execute($orderId, $payment, $paymentDetails, $transactionType);
+        $this->processVaultInitialization->execute($orderId, $payment, $paymentDetails);
         $this->processChangePaymentMethod->execute($order, $payment, $transactionType, $gatewayCode, $transaction);
         $this->processOrderByTransactionStatus->execute(
             $order,

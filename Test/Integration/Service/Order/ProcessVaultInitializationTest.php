@@ -21,7 +21,6 @@ use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Magento\Vault\Model\Ui\VaultConfigProvider;
-use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectCore\Service\Order\ProcessVaultInitialization;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
@@ -65,8 +64,8 @@ class ProcessVaultInitializationTest extends AbstractTestCase
                 'recurring_id' => $gatewayToken,
                 'card_expiry_date' => '2512',
                 'last4' => '1111',
-            ],
-            TransactionStatus::COMPLETED
+                'type' => 'VISA'
+            ]
         );
 
         self::assertTrue($isVaultInitialized);

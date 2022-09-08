@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Asset\File\NotFoundException;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Vault\Model\Ui\VaultConfigProvider;
 use MultiSafepay\ConnectCore\Api\PaymentTokenInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -61,6 +62,8 @@ class VaultUtil
     }
 
     /**
+     * Validate if saving the token was enabled by the user
+     *
      * @param array $additionalInformation
      * @return bool
      */
@@ -68,6 +71,10 @@ class VaultUtil
     {
         if (isset($additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE])) {
             return (bool)$additionalInformation[VaultConfigProvider::IS_ACTIVE_CODE];
+        }
+
+        if (isset($additionalInformation[Transaction::RAW_DETAILS][VaultConfigProvider::IS_ACTIVE_CODE])) {
+            return (bool)$additionalInformation[Transaction::RAW_DETAILS][VaultConfigProvider::IS_ACTIVE_CODE];
         }
 
         return false;

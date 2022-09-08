@@ -19,7 +19,6 @@ namespace MultiSafepay\ConnectCore\Service\Order;
 
 use Exception;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Vault;
 
@@ -48,18 +47,18 @@ class ProcessVaultInitialization
     }
 
     /**
+     * Execute the Magento Vault transaction process
+     *
      * @param string $orderId
      * @param OrderPaymentInterface $payment
      * @param array $paymentDetails
-     * @param string $transactionType
      * @return bool
      * @throws Exception
      */
     public function execute(
         string $orderId,
         OrderPaymentInterface $payment,
-        array $paymentDetails,
-        string $transactionType
+        array $paymentDetails
     ): bool {
         $this->logger->logInfoForOrder(
             $orderId,
@@ -68,7 +67,12 @@ class ProcessVaultInitialization
         );
 
         //Check if Vault needs to be initialized
-        $isVaultInitialized = $this->vault->initialize($payment, $paymentDetails, $transactionType);
+        try {
+            $isVaultInitialized = $this->vault->initialize($payment, $paymentDetails);
+        } catch (Exception $exception) {
+            $isVaultInitialized = false;
+            $this->logger->logExceptionForOrder($orderId, $exception, Logger::DEBUG);
+        }
 
         if ($isVaultInitialized) {
             $this->logger->logInfoForOrder($orderId, __('Vault has been initialized.')->render(), Logger::DEBUG);

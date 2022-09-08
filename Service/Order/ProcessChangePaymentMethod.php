@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
+use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -72,6 +74,8 @@ class ProcessChangePaymentMethod
      * @param string $transactionType
      * @param string $gatewayCode
      * @param array $transaction
+     * @throws LocalizedException
+     * @throws Exception
      */
     public function execute(
         OrderInterface $order,
@@ -105,13 +109,33 @@ class ProcessChangePaymentMethod
     }
 
     /**
+     * Check if the payment method can be changed
+     *
      * @param string $transactionType
      * @param string $gatewayCode
      * @param OrderInterface $order
      * @return bool
+     * @throws LocalizedException
      */
     private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
     {
+        /**
+         * In case Vault is being used, we want the credit card gateway to remain the same, so that Magento can process
+         * Vault as a credit card gateway, since that is also the gateway which the token was saved with
+         */
+        if ($gatewayCode === 'CREDITCARD') {
+            $disallowedTransactionTypes = [
+                'AMEX',
+                'VISA',
+                'MAESTRO',
+                'MASTERCARD'
+            ];
+
+            if (in_array($transactionType, $disallowedTransactionTypes)) {
+                return false;
+            }
+        }
+
         return $transactionType && $transactionType !== $gatewayCode
                && $this->paymentMethodUtil->isMultisafepayOrder($order);
     }

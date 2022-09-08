@@ -99,11 +99,6 @@ class Vault
     private $jsonHandler;
 
     /**
-     * @var MaestroConfigProvider
-     */
-    private $maestroConfigProvider;
-
-    /**
      * @var array
      */
     private $types;
@@ -118,7 +113,6 @@ class Vault
      * @param OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory
      * @param DirectDebitConfigProvider $directDebitConfigProvider
      * @param IdealConfigProvider $idealConfigProvider
-     * @param MaestroConfigProvider $maestroConfigProvider
      * @param PaymentTokenFactoryInterface $paymentTokenFactory
      * @param PaymentTokenManagementInterface $paymentTokenManagement
      * @param PaymentTokenRepositoryInterface $paymentTokenRepository
@@ -130,7 +124,6 @@ class Vault
         OrderPaymentExtensionInterfaceFactory $paymentExtensionFactory,
         DirectDebitConfigProvider $directDebitConfigProvider,
         IdealConfigProvider $idealConfigProvider,
-        MaestroConfigProvider $maestroConfigProvider,
         PaymentTokenFactoryInterface $paymentTokenFactory,
         PaymentTokenManagementInterface $paymentTokenManagement,
         PaymentTokenRepositoryInterface $paymentTokenRepository,
@@ -143,7 +136,6 @@ class Vault
         $this->paymentExtensionFactory = $paymentExtensionFactory;
         $this->vaultUtil = $vaultUtil;
         $this->jsonHandler = $jsonHandler;
-        $this->maestroConfigProvider = $maestroConfigProvider;
         $this->types = [
             $idealConfigProvider->getGatewayCode(),
             $directDebitConfigProvider->getGatewayCode(),
@@ -151,15 +143,16 @@ class Vault
     }
 
     /**
+     * Initialize the Vault payment token process
+     *
      * @param Payment $payment
      * @param array $paymentDetails
-     * @param string $transactionType
      * @return bool
      * @throws Exception
      */
-    public function initialize(Payment $payment, array $paymentDetails, string $transactionType): bool
+    public function initialize(Payment $payment, array $paymentDetails): bool
     {
-        $recurringDetails = $this->getRecurringDetailsFromPaymentDetails($paymentDetails, $transactionType);
+        $recurringDetails = $this->getRecurringDetailsFromPaymentDetails($paymentDetails);
 
         if (!$this->validateRecurringDetails($recurringDetails)
             || !$this->vaultUtil->validateVaultTokenEnabler($payment->getAdditionalInformation())
@@ -237,12 +230,15 @@ class Vault
     }
 
     /**
+     * Get the recurring details from payment details
+     *
      * @param array $paymentDetails
-     * @param string $transactionType
      * @return array
      */
-    private function getRecurringDetailsFromPaymentDetails(array $paymentDetails, string $transactionType): array
+    private function getRecurringDetailsFromPaymentDetails(array $paymentDetails): array
     {
+        $transactionType = $paymentDetails['type'] ?? '';
+
         $isTransactionTypeVault = in_array($transactionType, $this->types, true);
 
         return [
