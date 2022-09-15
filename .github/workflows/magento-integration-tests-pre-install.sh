@@ -15,9 +15,5 @@ fi
 git clone -b ${BRANCH_NAME} --single-branch https://${GITHUB_ACTOR}:$GLOBAL_GITHUB_TOKEN@github.com/MultiSafepay/php-sdk${REPO_SUFFIX}.git ./package-source/multisafepay/php-sdk/
 
 composer config repositories.multisafepay "path" "package-source/multisafepay/*"
-
 composer config minimum-stability dev
 composer config prefer-stable false
-composer update
-
-composer require yireo/magento2-replace-bundled:^4.1 --no-update
