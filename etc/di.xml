@@ -4073,6 +4073,130 @@
         </arguments>
     </virtualType>
 
+    <!-- Amazon Pay Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayAmazonPayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\AmazonPayConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayAmazonPayValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayAmazonPayValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayAmazonPayCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Configuration reader -->
+    <virtualType name="MultiSafepayAmazonPayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\AmazonPayConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Config Value Handler Pool -->
+    <virtualType name="MultiSafepayAmazonPayConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayAmazonPayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Config Value Handler -->
+    <virtualType name="MultiSafepayAmazonPayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayAmazonPayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Logger, initialized with MultiSafepayAmazonPayConfig -->
+    <virtualType name="MultiSafepayAmazonPayLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayAmazonPayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="\MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayAmazonPayLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Amazon Pay Commands infrastructure -->
+    <virtualType name="MultiSafepayAmazonPayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayAmazonPayInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayAmazonPayRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Initialize command -->
+    <virtualType name="MultiSafepayAmazonPayInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayAmazonPayInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Refund command -->
+    <virtualType name="MultiSafepayAmazonPayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayAmazonPayRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Initialization Request -->
+    <virtualType name="MultiSafepayAmazonPayInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Refund Request -->
+    <virtualType name="MultiSafepayAmazonPayRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Validator Pool -->
+    <virtualType name="MultiSafepayAmazonPayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayAmazonPayCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayAmazonPayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayAmazonPayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Amazon Pay Value handlers infrastructure -->
+    <virtualType name="MultiSafepayAmazonPayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayAmazonPayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayAmazonPayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayAmazonPayConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- DirectBankTransfer Payment Method Facade configuration -->
     <virtualType name="MultiSafepayDirectBankTransferFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -8264,6 +8388,7 @@
                 <item name="multisafepay_visa" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider</item>
                 <item name="multisafepay_alipay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayConfigProvider</item>
                 <item name="multisafepay_alipayplus" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayplusConfigProvider</item>
+                <item name="multisafepay_amazonpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AmazonPayConfigProvider</item>
                 <item name="multisafepay_directbanktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectBankTransferConfigProvider</item>
                 <item name="multisafepay_banktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider</item>
                 <item name="multisafepay_santander" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\SantanderConfigProvider</item>
