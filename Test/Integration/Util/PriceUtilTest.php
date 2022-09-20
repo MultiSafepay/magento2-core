@@ -82,7 +82,7 @@ class PriceUtilTest extends AbstractTestCase
         $quote = $this->getQuote('tableRate');
         $order->setQuoteId($quote->getId())->setBaseShippingInclTax(10);
 
-        self::assertEquals(8.2644628099174, $this->getPriceUtilMock(21)->getShippingUnitPrice($order));
+        self::assertEquals(8.264462809917356, $this->getPriceUtilMock(21)->getShippingUnitPrice($order));
     }
 
     /**
