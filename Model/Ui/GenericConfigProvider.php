@@ -239,6 +239,21 @@ class GenericConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * Get the payment type
+     *
+     * @return string
+     */
+    public function getPaymentType(): string
+    {
+        $this->paymentConfig->setMethodCode($this->getCode());
+
+        return (string)$this->paymentConfig->getValue(
+            'payment_type',
+            $this->getStoreIdFromCheckoutSession()
+        );
+    }
+
+    /**
      * @param int|null $storeId
      * @return array
      */
