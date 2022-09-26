@@ -17,10 +17,104 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator\Gateway;
 
-class EinvoicingValidator extends BaseGatewayValidator
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Gateway\Validator\AbstractValidator;
+use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Payment\Model\MethodInterface;
+use Magento\Sales\Model\Order\Payment;
+use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\BankAccountNumberFieldValidator;
+use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\DateOfBirthFieldValidator;
+use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\EmailAddressFieldValidator;
+
+class EinvoicingValidator extends AbstractValidator
 {
-    public const AVAILABLE_VALIDATORS = [
-        'date_of_birth',
-        'bank_account_number',
-    ];
+    /**
+     * @var DateOfBirthFieldValidator
+     */
+    private $dateOfBirthValidator;
+
+    /**
+     * @var BankAccountNumberFieldValidator
+     */
+    private $accountNumberValidator;
+
+    /**
+     * @var EmailAddressFieldValidator
+     */
+    private $emailAddressValidator;
+
+    /**
+     * EinvoicingValidator constructor.
+     *
+     * @param DateOfBirthFieldValidator $dateOfBirthValidator
+     * @param BankAccountNumberFieldValidator $accountNumberValidator
+     * @param EmailAddressFieldValidator $emailAddressValidator
+     * @param ResultInterfaceFactory $resultFactory
+     */
+    public function __construct(
+        DateOfBirthFieldValidator $dateOfBirthValidator,
+        BankAccountNumberFieldValidator $accountNumberValidator,
+        EmailAddressFieldValidator $emailAddressValidator,
+        ResultInterfaceFactory $resultFactory
+    ) {
+        $this->dateOfBirthValidator = $dateOfBirthValidator;
+        $this->accountNumberValidator = $accountNumberValidator;
+        $this->emailAddressValidator = $emailAddressValidator;
+        parent::__construct($resultFactory);
+    }
+
+    /**
+     * Get the configured checkout fields
+     *
+     * @param MethodInterface $payment
+     * @return array
+     */
+    private function getCheckoutFields(MethodInterface $payment): array
+    {
+        $checkoutFields = $payment->getConfigData(Config::CHECKOUT_FIELDS, $payment->getStore()) ?? '';
+
+        if ($checkoutFieldsArray = explode(',', $checkoutFields)) {
+            return $checkoutFieldsArray;
+        }
+
+        return [];
+    }
+
+    /**
+     * Validate the checkout field input
+     *
+     * @param array $validationSubject
+     * @return ResultInterface
+     * @throws LocalizedException
+     */
+    public function validate(array $validationSubject): ResultInterface
+    {
+        /** @var Payment $payment */
+        $payment = $validationSubject['payment'] ?? null;
+
+        if (!$payment) {
+            return $this->createResult(false, [__('Can\'t get the payment information')]);
+        }
+
+        $checkoutFields = $this->getCheckoutFields($payment->getMethodInstance());
+
+        if (in_array('date_of_birth', $checkoutFields, true)
+            && !$this->dateOfBirthValidator->validate($payment->getAdditionalInformation())) {
+                return $this->createResult(false, [$this->dateOfBirthValidator->getValidationMessage()]);
+        }
+
+        if (in_array('account_number', $checkoutFields, true)
+            && !$this->accountNumberValidator->validate($payment->getAdditionalInformation())) {
+                return $this->createResult(false, [$this->accountNumberValidator->getValidationMessage()]);
+        }
+
+        if (in_array('email_address', $checkoutFields, true)
+            && !$this->emailAddressValidator->validate($payment->getAdditionalInformation())) {
+            return $this->createResult(false, [$this->emailAddressValidator->getValidationMessage()]);
+        }
+
+        return $this->createResult(true);
+    }
 }

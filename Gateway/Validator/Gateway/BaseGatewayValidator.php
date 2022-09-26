@@ -56,7 +56,7 @@ class BaseGatewayValidator extends AbstractValidator
         $payment = $validationSubject['payment'] ?? null;
 
         if (!$payment) {
-            return $this->createResult(false, [__('Can\'t get a payment information')]);
+            return $this->createResult(false, [__('Can\'t get the payment information')]);
         }
 
         // If transaction type is set to 'redirect' then do not validate additional fields

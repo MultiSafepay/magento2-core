@@ -87,7 +87,7 @@ class GatewaySpecificFieldsValidatorTest extends AbstractTestCase
         $result = $this->baseGatewayValidator->validate([]);
 
         self::assertFalse($result->isValid());
-        self::assertEquals('Can\'t get a payment information', $result->getFailsDescription()[0]->render());
+        self::assertEquals('Can\'t get the payment information', $result->getFailsDescription()[0]->render());
     }
 
     /**

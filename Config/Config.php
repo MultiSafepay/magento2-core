@@ -46,6 +46,7 @@ class Config
     public const BEFORE_TRANSACTION = 'before_transaction';
     public const USE_MANUAL_CAPTURE = 'use_manual_capture';
     public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
+    public const CHECKOUT_FIELDS = 'checkout_fields';
 
     public const MULTISAFEPAY_INITIALIZED_STATUS = 'initialized_status';
     public const MULTISAFEPAY_UNCLEARED_STATUS = 'uncleared_status';
@@ -56,6 +57,9 @@ class Config
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
     public const CANCEL_PAYMENTLINK = 'second_chance_paymentlink';
+
+    public const USE_CUSTOMER_GROUP_COLLECTING_FLOWS = 'use_customer_group_collecting_flows';
+    public const CUSTOMER_GROUP_COLLECTING_FLOWS = 'customer_group_collecting_flows';
 
     /**
      * @var ScopeConfigInterface

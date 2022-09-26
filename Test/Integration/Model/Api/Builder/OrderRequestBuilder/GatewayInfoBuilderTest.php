@@ -98,7 +98,7 @@ class GatewayInfoBuilderTest extends AbstractTransactionTestCase
                 }
             }
 
-            if (in_array($paymentCode, [EinvoicingConfigProvider::CODE, AfterpayConfigProvider::CODE])) {
+            if ($paymentCode === AfterpayConfigProvider::CODE) {
                 self::assertArrayHasKey('email', $orderRequestData['gateway_info']);
             }
         }

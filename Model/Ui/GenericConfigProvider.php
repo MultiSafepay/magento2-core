@@ -342,7 +342,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      *
      * @return int|null
      */
-    private function getStoreIdFromCheckoutSession(): ?int
+    protected function getStoreIdFromCheckoutSession(): ?int
     {
         try {
             $storeId = $this->checkoutSession->getQuote()->getStoreId();

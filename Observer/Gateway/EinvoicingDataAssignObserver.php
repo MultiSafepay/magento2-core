@@ -41,5 +41,9 @@ class EinvoicingDataAssignObserver extends AbstractDataAssignObserver
         if (isset($additionalData['account_number'])) {
             $payment->setAdditionalInformation('account_number', $additionalData['account_number'] ?? '');
         }
+
+        if (isset($additionalData['email_address'])) {
+            $payment->setAdditionalInformation('email_address', $additionalData['email_address'] ?? '');
+        }
     }
 }
