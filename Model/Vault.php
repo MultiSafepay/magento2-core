@@ -201,11 +201,11 @@ class Vault
         );
 
         if ($paymentToken === null) {
-            $paymentToken = $this->paymentTokenFactory->create(
-                PaymentTokenFactoryInterface::TOKEN_TYPE_CREDIT_CARD
-            );
-
             $publicHash = $this->encryptor->getHash($customerId . $recurringId);
+
+            // Try to retrieve already existing payment token. Only create new token if there is not already a token.
+            $paymentToken = $this->paymentTokenManagement->getByPublicHash($publicHash, $customerId) ??
+                            $this->paymentTokenFactory->create(PaymentTokenFactoryInterface::TOKEN_TYPE_CREDIT_CARD);
 
             $paymentToken->setGatewayToken($recurringId)
                 ->setCustomerId($customerId)
