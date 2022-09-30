@@ -83,6 +83,11 @@ class OrderService
     private $jsonHandler;
 
     /**
+     * @var PaymentLink
+     */
+    private $paymentLink;
+
+    /**
      * OrderService constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
@@ -94,6 +99,7 @@ class OrderService
      * @param ProcessChangePaymentMethod $processChangePaymentMethod
      * @param ProcessOrderByTransactionStatus $processOrderByTransactionStatus
      * @param JsonHandler $jsonHandler
+     * @param PaymentLink $paymentLink
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -105,7 +111,8 @@ class OrderService
         ProcessVaultInitialization $processVaultInitialization,
         ProcessChangePaymentMethod $processChangePaymentMethod,
         ProcessOrderByTransactionStatus $processOrderByTransactionStatus,
-        JsonHandler $jsonHandler
+        JsonHandler $jsonHandler,
+        PaymentLink $paymentLink
     ) {
         $this->orderRepository = $orderRepository;
         $this->emailSender = $emailSender;
@@ -116,6 +123,7 @@ class OrderService
         $this->processChangePaymentMethod = $processChangePaymentMethod;
         $this->processOrderByTransactionStatus = $processOrderByTransactionStatus;
         $this->jsonHandler = $jsonHandler;
+        $this->paymentLink = $paymentLink;
     }
 
     /**
@@ -205,6 +213,12 @@ class OrderService
                 $giftcardData
             );
         }
+
+        $this->paymentLink->addPaymentLinkToOrderComments(
+            $order,
+            $this->paymentLink->getPaymentLinkFromOrder($order) ?? 'not found',
+            true
+        );
 
         $this->orderRepository->save($order);
         $this->logger->logInfoForOrder(

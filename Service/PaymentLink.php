@@ -143,19 +143,86 @@ class PaymentLink
     }
 
     /**
-     * Add the Payment link to the order comments if the order was placed in the admin backend
+     * Add the Payment link to the order comments
+     *
+     * Saving the order when the order is being placed on the frontend can cause issues with the initialized
+     * or completed notification, so we want to save the comments only in the notification process in those cases.
+     * For admin backend orders, a payment link should always be added immediately.
      *
      * @param OrderInterface $order
      * @param string $paymentUrl
+     * @param bool $isNotification
      * @return void
+     * @throws LocalizedException
      * @throws Exception
      */
-    private function addPaymentLinkToOrderComments(OrderInterface $order, string $paymentUrl): void
-    {
-        if ($this->isAreaCodeAdminHtml()) {
-            $order->addCommentToStatusHistory(__('Payment link for this transaction: %1', $paymentUrl)->render());
+    public function addPaymentLinkToOrderComments(
+        OrderInterface $order,
+        string $paymentUrl,
+        bool $isNotification = false
+    ): void {
+        $isAdmin = $this->isAreaCodeAdminHtml();
+
+        if (!$isNotification && !$isAdmin) {
+            return;
+        }
+
+        /** @var Payment $payment */
+        $payment = $order->getPayment();
+        $orderId = $order->getIncrementId();
+
+        if ($payment === null) {
+            $this->logger->logInfoForOrder($orderId, 'Payment object could not be found', Logger::DEBUG);
+
+            return;
+        }
+
+        if ($this->hasMultiSafepayPaymentLinkComment($payment->getAdditionalInformation())) {
+            $this->logger->logInfoForOrder(
+                $orderId,
+                'Payment link comment already added to the comment history, skipping',
+                Logger::DEBUG
+            );
+
+            return;
+        }
+
+        $order->addCommentToStatusHistory(__('Payment link for this transaction: %1', $paymentUrl)->render());
+
+        $this->logger->logInfoForOrder(
+            $orderId,
+            'Payment link comment added to the comment history',
+            Logger::DEBUG
+        );
+
+        $payment->setAdditionalInformation('has_multisafepay_paymentlink_comment', true);
+
+        if ($isAdmin) {
             $this->orderRepository->save($order);
         }
+    }
+
+    /**
+     * Check if the order already has a payment link in the order history
+     *
+     * @param array $additionalInformation
+     * @return bool
+     */
+    private function hasMultiSafepayPaymentLinkComment(array $additionalInformation): bool
+    {
+        if (isset($additionalInformation['has_multisafepay_paymentlink_comment'])
+            && $additionalInformation['has_multisafepay_paymentlink_comment']
+        ) {
+            return true;
+        }
+
+        if (isset($additionalInformation[Transaction::RAW_DETAILS]['has_multisafepay_paymentlink_comment'])
+            && $additionalInformation[Transaction::RAW_DETAILS]['has_multisafepay_paymentlink_comment']
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
