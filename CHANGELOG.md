@@ -5,8 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.19.0] - 2022-10-04
 ### Added
 - Payment links will now always be added to the order comment history again. For backend orders it happens immediately, for frontend orders it now happens when the first MultiSafepay notification arrives.
+- Added Amazon Pay.
+- Added an option for E-invoicing to assign collecting flow ids to specific customer groups.
+- Added an option for E-invoicing to turn on and off certain checkout fields.
+
+### Changed
+- Magento Vault stored payment methods now change to the gateway where the card was last used.
 
 ## [2.18.1] - 2022-09-12
 ### Fixed
