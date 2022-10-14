@@ -27,6 +27,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\BankAccountNumberFieldValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\DateOfBirthFieldValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\EmailAddressFieldValidator;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 class EinvoicingValidator extends AbstractValidator
 {
@@ -96,6 +97,12 @@ class EinvoicingValidator extends AbstractValidator
 
         if (!$payment) {
             return $this->createResult(false, [__('Can\'t get the payment information')]);
+        }
+
+        $transactionType = $payment->getMethodInstance()->getConfigData('transaction_type', $payment->getStore());
+
+        if ($transactionType === TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE) {
+            return $this->createResult(true);
         }
 
         $checkoutFields = $this->getCheckoutFields($payment->getMethodInstance());
