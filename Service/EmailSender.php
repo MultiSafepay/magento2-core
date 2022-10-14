@@ -118,15 +118,13 @@ class EmailSender
             $this->gatewayConfig->setMethodCode($order->getPayment()->getMethod());
         }
 
-        $emailTypes = [
-            $this->config->getOrderConfirmationEmail()
-        ];
+        $emailTypeConfig = $this->config->getOrderConfirmationEmail();
 
         if ($this->gatewayConfig->getValue(Config::OVERRIDE_ORDER_CONFIRMATION_EMAIL)) {
-            $emailTypes[] = $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL) ?? '';
+            $emailTypeConfig = $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL) ?? '';
         }
 
-        if (in_array($emailType, $emailTypes, true)) {
+        if ($emailType === $emailTypeConfig) {
             $this->orderSender->send($order);
 
             return true;
@@ -175,11 +173,11 @@ class EmailSender
     public function checkOrderConfirmationBeforeTransaction(string $methodCode): bool
     {
         $this->gatewayConfig->setMethodCode($methodCode);
-        
+
         if (!$this->gatewayConfig->getValue(Config::OVERRIDE_ORDER_CONFIRMATION_EMAIL)) {
             return $this->config->getOrderConfirmationEmail() === Config::BEFORE_TRANSACTION;
         }
-        
+
         if ($gatewaySpecificSetting = $this->gatewayConfig->getValue(Config::ORDER_CONFIRMATION_EMAIL)) {
             return $gatewaySpecificSetting === Config::BEFORE_TRANSACTION;
         }
