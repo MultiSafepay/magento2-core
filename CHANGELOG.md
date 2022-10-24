@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.19.1] - 2022-10-24
+### Fixed
+- Fixed a TypeError which happened in some instances when trying to retrieve E-invoicing dynamic checkout fields.
+- Fixed an issue where overriding when to send the order confirmation e-mail on gateway level sometimes did not work.
+- Fixed an issue where it was not possible to refund orders created with a generic gateway
+
+### Changed
+- Skipped E-invoicing validation if payment method is set up as redirect
+
 ## [2.19.0] - 2022-10-04
 ### Added
 - Payment links will now always be added to the order comment history again. For backend orders it happens immediately, for frontend orders it now happens when the first MultiSafepay notification arrives.
