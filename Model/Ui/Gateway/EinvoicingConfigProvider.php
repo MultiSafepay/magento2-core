@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Framework\Exception\LocalizedException;
-use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class EinvoicingConfigProvider extends GenericConfigProvider
@@ -39,25 +38,12 @@ class EinvoicingConfigProvider extends GenericConfigProvider
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
                     'transaction_type' => $this->getTransactionType(),
-                    'checkout_fields' => $this->getCheckoutFields()
+                    'checkout_fields' => $this->checkoutFieldsUtil->getCheckoutFields(
+                        self::CODE,
+                        (int)$this->getStoreIdFromCheckoutSession()
+                    )
                 ],
             ],
         ];
-    }
-
-    /**
-     * Returns the selected checkout fields from the config
-     *
-     * @return array
-     */
-    private function getCheckoutFields(): array
-    {
-        $checkoutFields = $this->getPaymentConfig($this->getStoreIdFromCheckoutSession())[Config::CHECKOUT_FIELDS];
-
-        if ($checkoutFieldsArray = explode(',', $checkoutFields)) {
-            return $checkoutFieldsArray;
-        }
-
-        return [];
     }
 }

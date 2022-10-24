@@ -19,6 +19,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\ConnectCore\Util\CheckoutFieldsUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 /**
@@ -62,6 +63,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param PaymentConfig $paymentConfig
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
+     * @param CheckoutFieldsUtil $checkoutFieldsUtil
      * @param Filesystem $filesystem
      * @param StoreManagerInterface $storeManager
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -76,6 +78,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         PaymentConfig $paymentConfig,
         WriterInterface $configWriter,
         JsonHandler $jsonHandler,
+        CheckoutFieldsUtil $checkoutFieldsUtil,
         Filesystem $filesystem,
         StoreManagerInterface $storeManager
     ) {
@@ -90,7 +93,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
             $localeResolver,
             $paymentConfig,
             $configWriter,
-            $jsonHandler
+            $jsonHandler,
+            $checkoutFieldsUtil
         );
     }
 

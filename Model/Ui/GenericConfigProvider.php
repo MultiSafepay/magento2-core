@@ -29,6 +29,7 @@ use Magento\Store\Model\ScopeInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\CheckoutFieldsUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
@@ -40,6 +41,7 @@ use Psr\Http\Client\ClientExceptionInterface;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
+ * @SuppressWarnings(PHPMD.ExcessiveParameterList)
  */
 class GenericConfigProvider implements ConfigProviderInterface
 {
@@ -93,6 +95,11 @@ class GenericConfigProvider implements ConfigProviderInterface
     private $jsonHandler;
 
     /**
+     * @var CheckoutFieldsUtil
+     */
+    protected $checkoutFieldsUtil;
+
+    /**
      * GenericConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
@@ -104,6 +111,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param PaymentConfig $paymentConfig
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
+     * @param CheckoutFieldsUtil $checkoutFieldsUtil
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -114,7 +122,8 @@ class GenericConfigProvider implements ConfigProviderInterface
         ResolverInterface $localeResolver,
         PaymentConfig $paymentConfig,
         WriterInterface $configWriter,
-        JsonHandler $jsonHandler
+        JsonHandler $jsonHandler,
+        CheckoutFieldsUtil $checkoutFieldsUtil
     ) {
         $this->assetRepository = $assetRepository;
         $this->config = $config;
@@ -125,6 +134,7 @@ class GenericConfigProvider implements ConfigProviderInterface
         $this->paymentConfig = $paymentConfig;
         $this->configWriter = $configWriter;
         $this->jsonHandler = $jsonHandler;
+        $this->checkoutFieldsUtil = $checkoutFieldsUtil;
     }
 
     /**

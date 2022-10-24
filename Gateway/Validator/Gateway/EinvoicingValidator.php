@@ -21,13 +21,12 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order\Payment;
-use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\BankAccountNumberFieldValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\DateOfBirthFieldValidator;
 use MultiSafepay\ConnectCore\Gateway\Validator\Gateway\FieldValidator\EmailAddressFieldValidator;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
+use MultiSafepay\ConnectCore\Util\CheckoutFieldsUtil;
 
 class EinvoicingValidator extends AbstractValidator
 {
@@ -47,6 +46,11 @@ class EinvoicingValidator extends AbstractValidator
     private $emailAddressValidator;
 
     /**
+     * @var CheckoutFieldsUtil
+     */
+    private $checkoutFieldsUtil;
+
+    /**
      * EinvoicingValidator constructor.
      *
      * @param DateOfBirthFieldValidator $dateOfBirthValidator
@@ -58,29 +62,14 @@ class EinvoicingValidator extends AbstractValidator
         DateOfBirthFieldValidator $dateOfBirthValidator,
         BankAccountNumberFieldValidator $accountNumberValidator,
         EmailAddressFieldValidator $emailAddressValidator,
-        ResultInterfaceFactory $resultFactory
+        ResultInterfaceFactory $resultFactory,
+        CheckoutFieldsUtil $checkoutFieldsUtil
     ) {
         $this->dateOfBirthValidator = $dateOfBirthValidator;
         $this->accountNumberValidator = $accountNumberValidator;
         $this->emailAddressValidator = $emailAddressValidator;
+        $this->checkoutFieldsUtil = $checkoutFieldsUtil;
         parent::__construct($resultFactory);
-    }
-
-    /**
-     * Get the configured checkout fields
-     *
-     * @param MethodInterface $payment
-     * @return array
-     */
-    private function getCheckoutFields(MethodInterface $payment): array
-    {
-        $checkoutFields = $payment->getConfigData(Config::CHECKOUT_FIELDS, $payment->getStore()) ?? '';
-
-        if ($checkoutFieldsArray = explode(',', $checkoutFields)) {
-            return $checkoutFieldsArray;
-        }
-
-        return [];
     }
 
     /**
@@ -99,13 +88,19 @@ class EinvoicingValidator extends AbstractValidator
             return $this->createResult(false, [__('Can\'t get the payment information')]);
         }
 
-        $transactionType = $payment->getMethodInstance()->getConfigData('transaction_type', $payment->getStore());
+        $transactionType = $payment->getMethodInstance()->getConfigData(
+            'transaction_type',
+            $payment->getMethodInstance()->getStore()
+        );
 
         if ($transactionType === TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE) {
             return $this->createResult(true);
         }
 
-        $checkoutFields = $this->getCheckoutFields($payment->getMethodInstance());
+        $checkoutFields = $this->checkoutFieldsUtil->getCheckoutFields(
+            $payment->getMethod(),
+            $payment->getMethodInstance()->getStore()
+        );
 
         if (in_array('date_of_birth', $checkoutFields, true)
             && !$this->dateOfBirthValidator->validate($payment->getAdditionalInformation())) {

@@ -29,6 +29,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\ConnectCore\Util\CheckoutFieldsUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -63,6 +64,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param PaymentConfig $paymentConfig
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
+     * @param CheckoutFieldsUtil $checkoutFieldsUtil
      * @param StoreManagerInterface $storeManager
      * @param MerchantSessionRequest $merchantSessionRequest
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -77,6 +79,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
         PaymentConfig $paymentConfig,
         WriterInterface $configWriter,
         JsonHandler $jsonHandler,
+        CheckoutFieldsUtil $checkoutFieldsUtil,
         StoreManagerInterface $storeManager,
         MerchantSessionRequest $merchantSessionRequest
     ) {
@@ -91,7 +94,8 @@ class ApplePayConfigProvider extends GenericConfigProvider
             $localeResolver,
             $paymentConfig,
             $configWriter,
-            $jsonHandler
+            $jsonHandler,
+            $checkoutFieldsUtil
         );
     }
 
