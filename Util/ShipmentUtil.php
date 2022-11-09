@@ -31,9 +31,10 @@ class ShipmentUtil
     {
         return [
             "tracktrace_code" => $this->getTrackingNumber($shipment),
-            "carrier" => $order->getShippingDescription(),
-            "ship_date" => $shipment->getCreatedAt(),
+            "carrier" => $order->getShippingDescription() ?? '',
+            "ship_date" => $shipment->getCreatedAt() ?? '',
             "reason" => 'Shipped',
+            "status" => 'shipped'
         ];
     }
 
