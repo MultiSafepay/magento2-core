@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
-use Psr\Http\Client\ClientExceptionInterface;
 
 class IdealConfigProvider extends GenericConfigProvider
 {
@@ -30,7 +30,7 @@ class IdealConfigProvider extends GenericConfigProvider
      * Retrieve assoc array of checkout configuration
      *
      * @return array
-     * @throws ClientExceptionInterface
+     * @throws Exception
      * @throws LocalizedException
      */
     public function getConfig(): array

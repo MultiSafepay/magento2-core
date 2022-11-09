@@ -323,11 +323,9 @@ class GenericConfigProvider implements ConfigProviderInterface
     }
 
     /**
-     * Retrieve issuers through API request if payment method is turned on
+     * Get Issuers if available
      *
      * @return array
-     * @throws ClientExceptionInterface
-     * @throws Exception
      */
     public function getIssuers(): array
     {
@@ -359,7 +357,10 @@ class GenericConfigProvider implements ConfigProviderInterface
                 }
             } catch (InvalidArgumentException $invalidArgumentException) {
                 $this->logger->logException($invalidArgumentException);
-                return $issuers;
+            } catch (ClientExceptionInterface $clientException) {
+                $this->logger->logException($clientException);
+            } catch (ApiException $apiException) {
+                $this->logger->logException($apiException);
             }
         }
 
