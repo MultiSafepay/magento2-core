@@ -57,7 +57,7 @@ class AddressBuilder
             $orderRequestAddress->addState($address->getRegion());
         }
 
-        return $orderRequestAddress->addCity($address->getCity())
+        return $orderRequestAddress->addCity($address->getCity() ?? '')
             ->addCountry(new Country($address->getCountryId()))
             ->addHouseNumber($streetAndHouseNumber[1] ?? '')
             ->addStreetName($streetAndHouseNumber[0] ?? '')
