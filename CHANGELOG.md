@@ -6,12 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added adjustment refund support for [BNPL](https://docs.multisafepay.com/docs/glossary#bnpl) methods
 - Added support for optional customer city argument
 
 ### Fixed
 - Fixed '1000 Required Fields error' in rare cases when creating a shipping update request
 - Make sure checkout loads if API is unreachable
-- 
+
 ### Changed
 - Only retrieve issuers for a gateway when it has been activated
 

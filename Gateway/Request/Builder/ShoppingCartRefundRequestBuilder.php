@@ -94,15 +94,6 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             throw new NoSuchEntityException($message);
         }
 
-        $adjustments = $creditMemo->getAdjustment();
-
-        if ($adjustments !== null && $adjustments !== 0.0) {
-            $message = __('Refunds with adjustments for this payment method are currently not supported');
-            $this->logger->logInfoForOrder($orderId, $message->render());
-
-            throw new CouldNotRefundException($message);
-        }
-
         $message = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount === 0.0) {
             $this->logger->logInfoForOrder($orderId, $message);
@@ -137,12 +128,25 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             $this->amountUtil->getAmount($amount, $order) * 100,
             $this->currencyUtil->getCurrencyCode($order)
         );
-
-        return [
+        
+        $refundRequest = [
             'money' => $money,
             'payload' => $refund,
             'order_id' => $orderId,
-            Store::STORE_ID => (int)$order->getStoreId()
+            Store::STORE_ID => (int)$order->getStoreId(),
+            'credit_memo_id' => $creditMemo->getIncrementId()
         ];
+
+        $adjustments = $creditMemo->getAdjustment();
+
+        if ($adjustments !== null && $adjustments !== 0.0) {
+            $refundRequest['adjustment'] =
+                (new Money(
+                    $adjustments * 100,
+                    $this->currencyUtil->getCurrencyCode($order)
+                ))->negative();
+        }
+
+        return $refundRequest;
     }
 }
