@@ -188,7 +188,7 @@
                 <model>AfterpayFacade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
-                <title>Afterpay</title>
+                <title>Riverty</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_fetch_transaction_information>1</can_fetch_transaction_information>

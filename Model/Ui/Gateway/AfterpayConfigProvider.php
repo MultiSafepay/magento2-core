@@ -24,11 +24,21 @@ use Magento\Framework\Exception\NoSuchEntityException;
 class AfterpayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_afterpay';
+
     private const AFTERPAY_LANGUAGE_URL_MAP = [
-        'NL_NL' => 'https://www.afterpay.nl/nl/algemeen/betalen-met-afterpay/betalingsvoorwaarden',
-        'BE_NL' => 'https://www.afterpay.be/be/footer/betalen-met-afterpay/betalingsvoorwaarden',
-        'BE_FR' => 'https://www.afterpay.be/fr/footer/payer-avec-afterpay/conditions-de-paiement',
-        'DEFAULT' => 'https://www.afterpay.nl/en/about/pay-with-afterpay/payment-conditions'
+        'DE_EN' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/de_en/default',
+        'DE_DE' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/de_de/default',
+        'AT_EN' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/at_en/default',
+        'AT_DE' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/at_de/default',
+        'CH_DE' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/ch_de/default',
+        'CH_FR' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/ch_fr/default',
+        'CH_EN' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/ch_en/default',
+        'NL_EN' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_en/default',
+        'NL_NL' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_nl/default',
+        'BE_NL' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_nl/default',
+        'BE_FR' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/default',
+        'BE_EN' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_en/default',
+        'DEFAULT' => 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_en/default'
     ];
 
     /**
