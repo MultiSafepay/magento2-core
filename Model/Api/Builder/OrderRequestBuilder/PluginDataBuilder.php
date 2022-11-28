@@ -22,6 +22,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PluginDetails;
+use MultiSafepay\ConnectCore\Model\Store;
 use MultiSafepay\ConnectCore\Util\VersionUtil;
 
 class PluginDataBuilder implements OrderRequestBuilderInterface
@@ -42,23 +43,33 @@ class PluginDataBuilder implements OrderRequestBuilderInterface
     private $versionUtil;
 
     /**
+     * @var Store
+     */
+    private $store;
+
+    /**
      * PluginDetails constructor.
      *
      * @param ProductMetadataInterface $metadata
      * @param PluginDetails $pluginDetails
      * @param VersionUtil $versionUtil
+     * @param Store $store
      */
     public function __construct(
         ProductMetadataInterface $metadata,
         PluginDetails $pluginDetails,
-        VersionUtil $versionUtil
+        VersionUtil $versionUtil,
+        Store $store
     ) {
         $this->metadata = $metadata;
         $this->pluginDetails = $pluginDetails;
         $this->versionUtil = $versionUtil;
+        $this->store = $store;
     }
 
     /**
+     * Add plugin details to the order request
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
@@ -75,6 +86,7 @@ class PluginDataBuilder implements OrderRequestBuilderInterface
             )
                 ->addApplicationVersion($this->metadata->getVersion())
                 ->addPluginVersion($this->versionUtil->getPluginVersion())
+                ->addShopRootUrl($this->store->getBaseUrl() ?? 'unknown')
         );
     }
 }
