@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Only retrieve issuers for a gateway when it has been activated
+- The payment will now only be saved after redirect, whenever sensitive information has been detected and removed from the payment additional information
 
 ## [2.19.1] - 2022-10-24
 ### Fixed

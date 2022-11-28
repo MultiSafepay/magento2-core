@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Payment;
 
+use Exception;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -56,11 +57,24 @@ class RemoveAdditionalInformation
     }
 
     /**
+     * Remove sensitive additional information when needed
+     *
      * @param OrderInterface $order
+     * @throws Exception
      */
     public function execute(OrderInterface $order): void
     {
         if ($order->getPayment()) {
+            $additionalInformation = $order->getPayment()->getAdditionalInformation();
+
+            if (!$additionalInformation) {
+                return;
+            }
+
+            if (!$this->needToRemoveAdditionalInformation($additionalInformation)) {
+                return;
+            }
+
             try {
                 $orderPayment = $this->orderPaymentRepository->get($order->getPayment()->getEntityId());
                 $orderPayment->setAdditionalInformation(
@@ -79,5 +93,22 @@ class RemoveAdditionalInformation
                 $this->logger->logInfoForOrder($order->getRealOrderId(), $noSuchEntityException->getMessage());
             }
         }
+    }
+
+    /**
+     * Check if additional information needs to be removed
+     *
+     * @param array $additionalInformation
+     * @return bool
+     */
+    private function needToRemoveAdditionalInformation(array $additionalInformation): bool
+    {
+        foreach (self::ADDITIONAL_INFO_KEYS as $key) {
+            if (array_key_exists($key, $additionalInformation)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
