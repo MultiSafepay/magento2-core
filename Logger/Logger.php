@@ -278,17 +278,25 @@ class Logger extends CoreLogger
     }
 
     /**
+     * Log Apple Pay Merchant Session Exception
+     *
      * @param Exception $exception
+     * @throws Exception
      */
     public function logApplePayGetMerchantSessionException(Exception $exception): void
     {
+        if ($exception->getContextValue('raw_response_body') !== null) {
+            $response = $exception->getContextValue('raw_response_body');
+        }
+
         $this->debug(
             sprintf(
-                '(Get Payment Request API data error): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                '(Apple Pay Merchant Session error): %1$s (code: %2$d, line: %3$d, file: %4$s, response: %5$s)',
                 $exception->getMessage(),
                 $exception->getCode(),
                 $exception->getLine(),
-                $exception->getFile()
+                $exception->getFile(),
+                $response ?? ''
             )
         );
     }
