@@ -101,7 +101,7 @@ class PaymentOptionsBuilderTest extends AbstractTransactionTestCase
         self::assertEquals(
             $getUrlMetod->invoke(
                 $this->paymentOptionsBuilder,
-                PaymentOptionsBuilder::NOTIFICATION_URL,
+                PaymentOptionsBuilder::NOTIFICATION_URL . '?store_id=1',
                 $storeId
             ),
             $orderRequestData['payment_options']['notification_url']

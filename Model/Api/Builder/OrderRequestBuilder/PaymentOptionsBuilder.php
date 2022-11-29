@@ -90,7 +90,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
             'secureToken' => $this->secureToken->generate((string)$order->getRealOrderId()),
         ];
 
-        $notificationUrl = $this->getUrl(self::NOTIFICATION_URL, $storeId);
+        $notificationUrl = $this->getUrl(self::NOTIFICATION_URL, $storeId, ['store_id' => $storeId]);
         $redirectUrl = $this->getUrl(self::REDIRECT_URL, $storeId, $params);
         $cancelUrl = $this->getUrl(self::CANCEL_URL, $storeId, $params);
         $paymentOptions = $this->paymentOptions->addNotificationUrl($notificationUrl)
