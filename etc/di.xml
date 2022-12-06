@@ -530,6 +530,7 @@
             <argument name="requestBuilder" xsi:type="object">PayafterRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -654,6 +655,7 @@
             <argument name="requestBuilder" xsi:type="object">KlarnaRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
 
