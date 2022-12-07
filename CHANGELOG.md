@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added adjustment refund support for [BNPL](https://docs.multisafepay.com/docs/glossary#bnpl) methods
 - Added support for optional customer city argument
 - Added raw response data to Apple Pay Merchant Session request logs for better debugging possibilities
 - Added improved response handling for Pay After Delivery and Klarna refunds

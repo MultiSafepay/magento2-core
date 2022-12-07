@@ -28,7 +28,6 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
-use MultiSafepay\ValueObject\CartItem;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class ShoppingCartRefundClient implements ClientInterface
@@ -74,6 +73,8 @@ class ShoppingCartRefundClient implements ClientInterface
     }
 
     /**
+     * Place the refund request
+     *
      * @param TransferInterface $transferObject
      * @return array
      * @throws Exception
@@ -89,20 +90,10 @@ class ShoppingCartRefundClient implements ClientInterface
             $refundRequest = $transactionManager->createRefundRequest($transaction);
             $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
             $refundRequest->addDescription($description);
+            $refundRequest->addMoney($request['money']);
 
             foreach ($request['payload'] as $refundItem) {
                 $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
-            }
-
-            if (isset($request['adjustment'])) {
-                $refundRequest->getCheckoutData()->addItem(
-                    (new CartItem())->addName(__('Adjustment')->render())
-                    ->addDescription(__('Adjustment for order')->render())
-                    ->addQuantity(1)
-                    ->addUnitPrice($request['adjustment'])
-                    ->addMerchantItemId('adjustment_' . $request['credit_memo_id'])
-                    ->addTaxTableSelector('0')
-                );
             }
 
             return $transactionManager->refund($transaction, $refundRequest)->getResponseData();

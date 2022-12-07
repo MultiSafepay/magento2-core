@@ -99,8 +99,6 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
         $stateObject = new DataObject();
         $order = $this->getOrder();
         $order->getPayment()->setCreditMemo($this->getCreditMemo());
-        $order->getPayment()->getCreditMemo()->setAdjustment(10);
-
         $paymentDataObject = $this->getNewPaymentDataObject($order);
 
         $buildSubject = [
@@ -116,8 +114,6 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
         self::assertArrayHasKey('payload', $result);
         self::assertArrayHasKey('order_id', $result);
         self::assertArrayHasKey(Store::STORE_ID, $result);
-        self::assertArrayHasKey('credit_memo_id', $result);
-        self::assertArrayHasKey('adjustment', $result);
     }
 
     /**
