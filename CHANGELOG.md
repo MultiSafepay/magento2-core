@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.20.0] - 2022-12-07
 ### Added
 - Added support for optional customer city argument
 - Added raw response data to Apple Pay Merchant Session request logs for better debugging possibilities
@@ -17,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Only retrieve issuers for a gateway when it has been activated
 - The payment will now only be saved after redirect, whenever sensitive information has been detected and removed from the payment additional information
+- Changed the POST notification process to only retrieve the order after POST validation has passed
 
 ## [2.19.1] - 2022-10-24
 ### Fixed
