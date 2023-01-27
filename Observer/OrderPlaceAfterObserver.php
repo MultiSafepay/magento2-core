@@ -85,24 +85,23 @@ class OrderPlaceAfterObserver implements ObserverInterface
                 $this->logger->logInfoForOrder($orderId, 'Payment URL is: ' . $paymentUrl);
             } catch (InvalidApiKeyException $invalidApiKeyException) {
                 $this->logger->logInvalidApiKeyException($invalidApiKeyException);
-                $this->messageManager->addErrorMessage(__('The order can not be created, because the
-                MultiSafepay API key is invalid'));
+                //phpcs:ignore
+                $this->messageManager->addErrorMessage(__('The transaction can not be created, because the MultiSafepay API key is invalid'));
                 return;
             } catch (ApiException $apiException) {
                 $this->logger->logPaymentLinkError($orderId, $apiException);
-                $this->messageManager->addErrorMessage(__('The order can not be created,
-                because there was a MultiSafepay error: ') .
-                    $apiException->getCode() . ' ' . $apiException->getMessage());
+                //phpcs:ignore
+                $this->messageManager->addErrorMessage(__('The transaction can not be created, because there was a MultiSafepay error: ') . $apiException->getCode() . ' ' . $apiException->getMessage());
                 return;
             } catch (ClientExceptionInterface $clientException) {
                 $this->logger->logClientException($orderId, $clientException);
-                $this->messageManager->addErrorMessage(__('Something went wrong when connecting to MultiSafepay.
-                 Please check the logs for more details.'));
+                //phpcs:ignore
+                $this->messageManager->addErrorMessage(__('Something went wrong when connecting to MultiSafepay. Please check the logs for more details.'));
                 return;
             } catch (Exception $exception) {
                 $this->logger->logOrderRequestBuilderException($order->getIncrementId(), $exception);
-                $this->messageManager->addErrorMessage(__('Something went wrong when creating the transaction at
-                MultiSafepay. Please check the logs for more details.'));
+                //phpcs:ignore
+                $this->messageManager->addErrorMessage(__('Something went wrong when creating the transaction at MultiSafepay. Please check the logs for more details.'));
                 return;
             }
         }
