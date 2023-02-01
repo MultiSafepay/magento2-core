@@ -6,7 +6,7 @@ if [[ $GITHUB_REPOSITORY == *"internal"* ]] ; then
     REPO_SUFFIX="-internal"
 fi
 
-if [[ $(curl -s -u ${GITHUB_ACTOR}:$GLOBAL_GITHUB_TOKEN https://api.github.com/repos/MultiSafepay/php-sdk${REPO_SUFFIX}/branches | grep -iGc '"name": "'${CURRENT_HEAD_REF}'"') == 1 ]]; then
+if [[ $(curl -s -u ${GITHUB_ACTOR}:$GLOBAL_GITHUB_TOKEN https://api.github.com/repos/MultiSafepay/php-sdk${REPO_SUFFIX}/branches/${CURRENT_HEAD_REF} | grep -iGc '"name": "'${CURRENT_HEAD_REF}'"') == 1 ]]; then
     BRANCH_NAME=${CURRENT_HEAD_REF}
 else
     BRANCH_NAME="master"
