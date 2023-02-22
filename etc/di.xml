@@ -581,6 +581,130 @@
         </arguments>
     </virtualType>
 
+    <!-- Pay After Delivery Instalments Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayBnplinstmFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayBnplinstmValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayBnplinstmValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayBnplinstmCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Configuration reader -->
+    <virtualType name="MultiSafepayBnplinstmConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Config Value Handler Pool -->
+    <virtualType name="MultiSafepayBnplinstmConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayBnplinstmConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Config Value Handler -->
+    <virtualType name="MultiSafepayBnplinstmConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayBnplinstmConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Logger, initialized with MultiSafepayBnplinstmConfig -->
+    <virtualType name="MultiSafepayBnplinstmLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayBnplinstmConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="\MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayBnplinstmLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Pay After Delivery Instalments Commands infrastructure -->
+    <virtualType name="MultiSafepayBnplinstmCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayBnplinstmInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayBnplinstmRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Initialize command -->
+    <virtualType name="MultiSafepayBnplinstmInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayBnplinstmInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Refund command -->
+    <virtualType name="MultiSafepayBnplinstmRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayBnplinstmRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Initialization Request -->
+    <virtualType name="MultiSafepayBnplinstmInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Refund Request -->
+    <virtualType name="MultiSafepayBnplinstmRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Validator Pool -->
+    <virtualType name="MultiSafepayBnplinstmValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayBnplinstmCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayBnplinstmCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayBnplinstmConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Pay After Delivery Instalments Value handlers infrastructure -->
+    <virtualType name="MultiSafepayBnplinstmValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayBnplinstmConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayBnplinstmConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayBnplinstmConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- Klarna Payment Method Facade configuration -->
     <virtualType name="KlarnaFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -8371,6 +8495,7 @@
                 <item name="multisafepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MultiSafepayConfigProvider</item>
                 <item name="multisafepay_ideal" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider</item>
                 <item name="multisafepay_payafter" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider</item>
+                <item name="multisafepay_bnplinstm" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider</item>
                 <item name="multisafepay_klarna" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider</item>
                 <item name="multisafepay_afterpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider</item>
                 <item name="multisafepay_bancontact" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactConfigProvider</item>
