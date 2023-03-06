@@ -53,6 +53,11 @@ class CustomReturnUrlUtil
     private $quoteIdToMaskedQuoteId;
 
     /**
+     * @var SecureToken
+     */
+    private $secureToken;
+
+    /**
      * CustomReturnUrlUtil constructor.
      *
      * @param Config $config
