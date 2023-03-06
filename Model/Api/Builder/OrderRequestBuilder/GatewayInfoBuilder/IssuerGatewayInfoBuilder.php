@@ -38,9 +38,13 @@ class IssuerGatewayInfoBuilder implements GatewayInfoBuilderInterface
     }
 
     /**
+     * Build the gateway info
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @return GatewayInfoInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment): GatewayInfoInterface
     {

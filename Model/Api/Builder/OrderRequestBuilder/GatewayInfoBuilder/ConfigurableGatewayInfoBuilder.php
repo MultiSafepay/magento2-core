@@ -22,10 +22,6 @@ use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Meta;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Api\Validator\EmailAddressValidator;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
-use MultiSafepay\ValueObject\BankAccount;
-use MultiSafepay\ValueObject\Customer\EmailAddress;
-use MultiSafepay\ValueObject\Customer\PhoneNumber;
-use MultiSafepay\ValueObject\Date;
 
 class ConfigurableGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
@@ -100,18 +96,18 @@ class ConfigurableGatewayInfoBuilder implements GatewayInfoBuilderInterface
         $additionalInformation = $payment->getAdditionalInformation();
 
         if (isset($additionalInformation['date_of_birth'])) {
-            $this->meta->addBirthday(new Date($additionalInformation['date_of_birth']));
+            $this->meta->addBirthdayAsString($additionalInformation['date_of_birth']);
         }
 
         if (isset($additionalInformation['account_number'])) {
-            $this->meta->addBankAccount(new BankAccount($additionalInformation['account_number']));
+            $this->meta->addBankAccountAsString($additionalInformation['account_number']);
         }
 
         if (isset($additionalInformation['email_address'])) {
             $this->addEmailAddress($additionalInformation['email_address'], $order->getCustomerEmail());
         }
 
-        $this->meta->addPhone(new PhoneNumber($billingAddress->getTelephone()));
+        $this->meta->addPhoneAsString($billingAddress->getTelephone());
 
         $this->paymentConfig->setMethodCode($payment->getMethod());
         $this->addCollectingFlowIds((string)$order->getCustomerGroupId());
@@ -155,10 +151,10 @@ class ConfigurableGatewayInfoBuilder implements GatewayInfoBuilderInterface
     private function addEmailAddress(string $emailAddress, string $orderEmailAddress): void
     {
         if ($this->emailAddressValidator->validate($emailAddress)) {
-            $this->meta->addEmailAddress(new EmailAddress($emailAddress));
+            $this->meta->addEmailAddressAsString($emailAddress);
             return;
         }
 
-        $this->meta->addEmailAddress(new EmailAddress($orderEmailAddress));
+        $this->meta->addEmailAddressAsString($orderEmailAddress);
     }
 }

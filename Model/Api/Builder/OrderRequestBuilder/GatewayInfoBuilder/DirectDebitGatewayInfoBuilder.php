@@ -37,9 +37,13 @@ class DirectDebitGatewayInfoBuilder implements GatewayInfoBuilderInterface
     }
 
     /**
+     * Build the gateway info
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @return Meta
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment): Meta
     {

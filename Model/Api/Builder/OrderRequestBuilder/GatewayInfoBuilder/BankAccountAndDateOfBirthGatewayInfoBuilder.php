@@ -18,10 +18,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Meta;
-use MultiSafepay\ValueObject\BankAccount;
-use MultiSafepay\ValueObject\Customer\EmailAddress;
-use MultiSafepay\ValueObject\Customer\PhoneNumber;
-use MultiSafepay\ValueObject\Date;
 
 class BankAccountAndDateOfBirthGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
@@ -42,6 +38,8 @@ class BankAccountAndDateOfBirthGatewayInfoBuilder implements GatewayInfoBuilderI
     }
 
     /**
+     * Build the gateway info
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @return Meta
@@ -57,15 +55,15 @@ class BankAccountAndDateOfBirthGatewayInfoBuilder implements GatewayInfoBuilderI
             );
         }
 
-        if ($billingAddress->getTelephone() == null) {
+        if ($billingAddress->getTelephone() === null) {
             throw new LocalizedException(__('This payment gateway requires a valid telephone number'));
         }
 
         $additionalInformation = $payment->getAdditionalInformation();
 
-        return $this->meta->addBankAccount(new BankAccount($additionalInformation['account_number']))
-            ->addBirthday(new Date($additionalInformation['date_of_birth']))
-            ->addEmailAddress(new EmailAddress($order->getCustomerEmail()))
-            ->addPhone(new PhoneNumber($billingAddress->getTelephone()));
+        return $this->meta->addBankAccountAsString($additionalInformation['account_number'])
+            ->addBirthdayAsString($additionalInformation['date_of_birth'])
+            ->addEmailAddressAsString($order->getCustomerEmail())
+            ->addPhoneAsString($billingAddress->getTelephone());
     }
 }
