@@ -53,7 +53,7 @@ class VersionUtil
      */
     public function getPluginVersion(): string
     {
-        return '2.22.0';
+        return '2.23.0';
     }
 
     /**

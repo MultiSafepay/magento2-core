@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.21.0] - 2023-03-07
+### Added
+- Added missing class variables for deprecation support with PHP 8.2
+- Added Pay After Delivery installments payment method
+
+### Fixed
+- Fixed the customer ID not being able to be null, thanks to @Jade-GG
+- Fixed a bug where payment methods were missing after a cancelled order
+- Fixed translations for OrderPlaceAfterObserver error messages, thanks to @mlaurense
+
+### Changed
+- Gateway info objects are now passed as a string instead of an object
+- Rebrand Pay After Delivery
+
+### Removed
+- Copyright mention has been removed from the files and is only mentioned from now on in the disclaimer. Please read it if you haven't already
+
 ## [2.20.0] - 2022-12-07
 ### Added
 - Added support for optional customer city argument
