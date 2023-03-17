@@ -17,7 +17,6 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Custome
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use MultiSafepay\ValueObject\Customer\Address;
 use MultiSafepay\ValueObject\Customer\AddressParser;
-use MultiSafepay\ValueObject\Customer\Country;
 
 class AddressBuilder
 {
@@ -55,7 +54,7 @@ class AddressBuilder
         }
 
         return $orderRequestAddress->addCity($address->getCity() ?? '')
-            ->addCountry(new Country($address->getCountryId()))
+            ->addCountryCode($address->getCountryId())
             ->addHouseNumber($streetAndHouseNumber[1] ?? '')
             ->addStreetName($streetAndHouseNumber[0] ?? '')
             ->addZipCode(trim($address->getPostcode() ?? ''));

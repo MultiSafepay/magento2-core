@@ -12,23 +12,22 @@
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\IpAddressUtil;
 use MultiSafepay\Exception\InvalidArgumentException;
-use MultiSafepay\ValueObject\IpAddress;
 
 class IpAddressBuilder
 {
     /**
-     * @var IpAddressUtil
-     */
-    private $ipAddressUtil;
-
-    /**
      * @var Logger
      */
     private $logger;
+    /**
+     * @var IpAddressUtil
+     */
+    private $ipAddressUtil;
 
     /**
      * IpAddressBuilder constructor.
@@ -45,32 +44,33 @@ class IpAddressBuilder
     }
 
     /**
+     * Build the IP Address
+     *
      * @param CustomerDetails $customerDetails
-     * @param string $ipAddress
-     * @param string $orderId
+     * @param OrderInterface $order
      */
-    public function build(CustomerDetails $customerDetails, string $ipAddress, string $orderId): void
+    public function build(CustomerDetails $customerDetails, OrderInterface $order): void
     {
-        $filteredIp = $this->ipAddressUtil->validateIpAddress($ipAddress);
-        try {
-            $customerDetails->addIpAddress(new IpAddress($filteredIp));
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            $this->logger->logInvalidIpAddress($orderId, $invalidArgumentException);
-        }
-    }
+        $orderId = $order->getIncrementId();
 
-    /**
-     * @param CustomerDetails $customerDetails
-     * @param string $ipAddress
-     * @param string $orderId
-     */
-    public function buildForwardedIp(CustomerDetails $customerDetails, string $ipAddress, string $orderId): void
-    {
-        $filteredIp = $this->ipAddressUtil->validateIpAddress($ipAddress);
-        try {
-            $customerDetails->addForwardedIp(new IpAddress($filteredIp));
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            $this->logger->logInvalidIpAddress($orderId, $invalidArgumentException);
+        if ($order->getRemoteIp() !== null) {
+            $filteredIp = $this->ipAddressUtil->validateIpAddress($order->getRemoteIp());
+
+            try {
+                $customerDetails->addIpAddressAsString($filteredIp);
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                $this->logger->logInvalidIpAddress($orderId, $invalidArgumentException);
+            }
+        }
+
+        if ($order->getXForwardedFor() !== null) {
+            $filteredForwardedIp = $this->ipAddressUtil->validateIpAddress($order->getXForwardedFor());
+
+            try {
+                $customerDetails->addForwardedIpAsString($filteredForwardedIp);
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                $this->logger->logInvalidIpAddress($orderId, $invalidArgumentException);
+            }
         }
     }
 }

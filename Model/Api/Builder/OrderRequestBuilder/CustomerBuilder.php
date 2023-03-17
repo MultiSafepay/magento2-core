@@ -24,8 +24,6 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\IpAddressBuilder;
-use MultiSafepay\ValueObject\Customer\EmailAddress;
-use MultiSafepay\ValueObject\Customer\PhoneNumber;
 
 class CustomerBuilder implements OrderRequestBuilderInterface
 {
@@ -108,19 +106,11 @@ class CustomerBuilder implements OrderRequestBuilderInterface
             ->addFirstName($billingAddress->getFirstname())
             ->addLastName($billingAddress->getLastname())
             ->addAddress($customerAddress)
-            ->addPhoneNumber(new PhoneNumber($billingAddress->getTelephone() ?? ''))
-            ->addEmailAddress(new EmailAddress($billingAddress->getEmail()))
+            ->addPhoneNumberAsString($billingAddress->getTelephone() ?? '')
+            ->addEmailAddressAsString($billingAddress->getEmail())
             ->addUserAgent($this->httpHeader->getHttpUserAgent());
 
-        $orderId = $order->getIncrementId();
-
-        if ($order->getRemoteIp() !== null) {
-            $this->ipAddressBuilder->build($this->customerDetails, $order->getRemoteIp(), $orderId);
-        }
-
-        if ($order->getXForwardedFor() !== null) {
-            $this->ipAddressBuilder->buildForwardedIp($this->customerDetails, $order->getXForwardedFor(), $orderId);
-        }
+        $this->ipAddressBuilder->build($this->customerDetails, $order);
 
         if ($this->customerSession->isLoggedIn()) {
             $this->customerDetails->addReference((string) $order->getCustomerId());

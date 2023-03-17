@@ -20,12 +20,9 @@ use Magento\Sales\Model\Order\Address;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
-use MultiSafepay\ValueObject\Customer\EmailAddress;
-use MultiSafepay\ValueObject\Customer\PhoneNumber;
 
 class DeliveryBuilder implements OrderRequestBuilderInterface
 {
-
     /**
      * @var AddressBuilder
      */
@@ -59,8 +56,8 @@ class DeliveryBuilder implements OrderRequestBuilderInterface
             $deliveryDetails->addFirstName($shippingAddress->getFirstname())
                     ->addLastName($shippingAddress->getLastname())
                     ->addAddress($address)
-                    ->addPhoneNumber(new PhoneNumber($shippingAddress->getTelephone() ?? ''))
-                    ->addEmailAddress(new EmailAddress($shippingAddress->getEmail()));
+                    ->addPhoneNumberAsString($shippingAddress->getTelephone() ?? '')
+                    ->addEmailAddressAsString($shippingAddress->getEmail());
 
             $orderRequest->addDelivery($deliveryDetails);
         }
