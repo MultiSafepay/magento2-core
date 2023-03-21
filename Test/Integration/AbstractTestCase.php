@@ -314,6 +314,15 @@ abstract class AbstractTestCase extends TestCase
     }
 
     /**
+     * @return array|null
+     * @throws Exception
+     */
+    protected function getTransactionData(): array
+    {
+        return $this->includeFixtureFile('transaction_data', true);
+    }
+
+    /**
      * @param MockObject $sdkReturnMock
      * @return MockObject
      */

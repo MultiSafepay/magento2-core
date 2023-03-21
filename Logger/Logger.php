@@ -315,4 +315,63 @@ class Logger extends CoreLogger
             )
         );
     }
+
+    /**
+     * Log an exception for the notification
+     *
+     * @param string $orderId
+     * @param array $transaction
+     * @param Exception $exception
+     * @param int $logLevel
+     * @return void
+     * @throws Exception
+     */
+    public function logNotificationException(
+        string $orderId,
+        array $transaction,
+        Exception $exception,
+        int $logLevel = self::DEBUG
+    ): void {
+        $this->addRecord(
+            $logLevel,
+            sprintf(
+                '(Order ID: %1$s, PSP ID: %8$s, Status: %7$s) %2$s: %6$s (code: %3$d, line: %4$d, file: %5$s)',
+                $orderId ?? 'unknown',
+                static::getLevelName($logLevel),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile(),
+                $exception->getMessage(),
+                $transaction['status'] ?? 'unknown',
+                $transaction['transaction_id'] ?? 'unknown'
+            )
+        );
+    }
+
+    /**
+     * Log info for notification
+     *
+     * @param string|null $orderId
+     * @param string $message
+     * @param array $transaction
+     * @param int $logLevel
+     * @throws Exception
+     */
+    public function logInfoForNotification(
+        ?string $orderId,
+        string $message,
+        array $transaction,
+        int $logLevel = self::INFO
+    ): void {
+        $this->addRecord(
+            $logLevel,
+            sprintf(
+                '(Order ID: %1$s, PSP ID: %3$s, Status: %4$s): %2$s',
+                $orderId ?? 'unknown',
+                $message,
+                $transaction['transaction_id'] ?? 'unknown',
+                $transaction['status'] ?? 'unknown'
+            )
+        );
+    }
 }

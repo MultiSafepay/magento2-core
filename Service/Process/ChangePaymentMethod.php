@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace MultiSafepay\ConnectCore\Service\Order;
+namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
@@ -22,8 +22,9 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\GiftcardUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
+use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
 
-class ProcessChangePaymentMethod
+class ChangePaymentMethod implements ProcessInterface
 {
     /**
      * @var Logger
@@ -46,48 +47,54 @@ class ProcessChangePaymentMethod
     private $config;
 
     /**
-     * ProcessChangePaymentMethod constructor.
-     *
      * @param Logger $logger
+     * @param Config $config
      * @param GiftcardUtil $giftcardUtil
      * @param PaymentMethodUtil $paymentMethodUtil
-     * @param Config $config
      */
     public function __construct(
         Logger $logger,
+        Config $config,
         GiftcardUtil $giftcardUtil,
-        PaymentMethodUtil $paymentMethodUtil,
-        Config $config
+        PaymentMethodUtil $paymentMethodUtil
     ) {
         $this->logger = $logger;
+        $this->config = $config;
         $this->giftcardUtil = $giftcardUtil;
         $this->paymentMethodUtil = $paymentMethodUtil;
-        $this->config = $config;
     }
 
     /**
+     * Execute the process to change the payment method
+     *
      * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
-     * @param string $transactionType
-     * @param string $gatewayCode
      * @param array $transaction
-     * @throws LocalizedException
+     * @return array
      * @throws Exception
      */
-    public function execute(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        string $transactionType,
-        string $gatewayCode,
-        array $transaction
-    ): void {
+    public function execute(OrderInterface $order, array $transaction): array
+    {
         $orderId = $order->getIncrementId();
+        $payment = $order->getPayment();
 
-        $this->logger->logInfoForOrder(
+        if ($payment === null) {
+            $message = 'Payment method could not be changed, because the payment was not found';
+            $this->logger->logInfoForNotification($orderId, $message, $transaction);
+            return [
+                StatusOperationInterface::SUCCESS_PARAMETER => false,
+                StatusOperationInterface::MESSAGE_PARAMETER => $message
+            ];
+        }
+
+        $gatewayCode = (string)$payment->getMethodInstance()->getConfigData('gateway_code');
+
+        $this->logger->logInfoForNotification(
             $orderId,
-            __('MultiSafepay change payment process has been started')->render(),
-            Logger::DEBUG
+            'MultiSafepay change payment process has been started',
+            $transaction
         );
+
+        $transactionType = $transaction['payment_details']['type'] ?? '';
 
         if ($this->canChangePaymentMethod($transactionType, $gatewayCode, $order)) {
             if ($this->giftcardUtil->isFullGiftcardTransaction($transaction)) {
@@ -95,14 +102,16 @@ class ProcessChangePaymentMethod
                     $transactionType;
             }
 
-            $this->changePaymentMethod($order, $payment, $transactionType);
+            $this->changePaymentMethod($order, $payment, $transaction, $transactionType);
         }
 
-        $this->logger->logInfoForOrder(
+        $this->logger->logInfoForNotification(
             $orderId,
-            __('MultiSafepay change payment process has ended')->render(),
-            Logger::DEBUG
+            'MultiSafepay change payment process has ended',
+            $transaction
         );
+
+        return [StatusOperationInterface::SUCCESS_PARAMETER => true];
     }
 
     /**
@@ -138,13 +147,18 @@ class ProcessChangePaymentMethod
     }
 
     /**
+     * Change the payment method if needed
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
+     * @param array $transaction
      * @param string $transactionType
+     * @throws Exception
      */
     private function changePaymentMethod(
         OrderInterface $order,
         OrderPaymentInterface $payment,
+        array $transaction,
         string $transactionType
     ): void {
         $methodList = $this->config->getValueByPath('payment');
@@ -155,7 +169,7 @@ class ProcessChangePaymentMethod
                 $payment->setMethod($code);
                 $logMessage = __('Payment method changed to ') . $transactionType;
                 $order->addCommentToStatusHistory($logMessage);
-                $this->logger->logInfoForOrder($order->getIncrementId(), $logMessage, Logger::DEBUG);
+                $this->logger->logInfoForNotification($order->getIncrementId(), $logMessage, $transaction);
 
                 return;
             }

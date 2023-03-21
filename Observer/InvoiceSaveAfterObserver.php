@@ -23,9 +23,9 @@ use Magento\Sales\Model\Order\Invoice;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
+use MultiSafepay\ConnectCore\Service\Process\CreateInvoice;
 use Psr\Http\Client\ClientExceptionInterface;
 use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEmail;
-use MultiSafepay\ConnectCore\Service\Order\PayMultisafepayOrder;
 
 class InvoiceSaveAfterObserver implements ObserverInterface
 {
@@ -89,7 +89,7 @@ class InvoiceSaveAfterObserver implements ObserverInterface
         }
 
         if ($order->getBaseTotalDue() === 0.0
-            && $payment->getAdditionalInformation(PayMultisafepayOrder::INVOICE_CREATE_AFTER_PARAM_NAME)
+            && $payment->getAdditionalInformation(CreateInvoice::INVOICE_CREATE_AFTER)
         ) {
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
             $this->addInvoicesDataToTransactionAndSendEmail->execute($order, $payment, $transactionManager);
