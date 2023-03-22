@@ -106,8 +106,8 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
@@ -359,8 +359,8 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
@@ -423,8 +423,8 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
@@ -461,8 +461,8 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
@@ -666,8 +666,8 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <can_void>1</can_void>
                 <can_cancel>1</can_cancel>
                 <allowspecific>0</allowspecific>
@@ -730,8 +730,8 @@
                 <can_use_internal>1</can_use_internal>
                 <can_refund>1</can_refund>
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <can_void>1</can_void>
                 <can_cancel>1</can_cancel>
                 <is_gateway>1</is_gateway>
@@ -866,8 +866,8 @@
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
                 <can_authorize>1</can_authorize>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <can_void>1</can_void>
                 <can_cancel>1</can_cancel>
                 <allowspecific>0</allowspecific>
@@ -1108,8 +1108,8 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <can_capture>1</can_capture>
-                <can_capture_partial>1</can_capture_partial>
+                <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
