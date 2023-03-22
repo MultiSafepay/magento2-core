@@ -11,10 +11,18 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Client;
 
 use Magento\Framework\HTTP\Adapter\Curl;
-use Zend_Http_Client;
 
 class CurlAdapter extends Curl
 {
+    public const POST = 'POST';
+    public const PUT = 'PUT';
+    public const GET = 'GET';
+    public const DELETE = 'DELETE';
+    public const PATCH = 'PATCH';
+
+    public const HTTP_11 = '1.1';
+    public const HTTP_10 = '1.0';
+
     /**
      * Extend the original adapter and add support for PATCH requests
      *
@@ -33,27 +41,27 @@ class CurlAdapter extends Curl
         // set url to post to
         curl_setopt($this->_getResource(), CURLOPT_URL, $url);
         curl_setopt($this->_getResource(), CURLOPT_RETURNTRANSFER, true);
-        if ($method === Zend_Http_Client::POST) {
+        if ($method === self::POST) {
             curl_setopt($this->_getResource(), CURLOPT_POST, true);
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
-        } elseif ($method === Zend_Http_Client::PUT) {
+        } elseif ($method === self::PUT) {
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
-        } elseif ($method === Zend_Http_Client::GET) {
+        } elseif ($method === self::GET) {
             curl_setopt($this->_getResource(), CURLOPT_HTTPGET, true);
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'GET');
-        } elseif ($method === Zend_Http_Client::DELETE) {
+        } elseif ($method === self::DELETE) {
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'DELETE');
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
-        } elseif ($method === Zend_Http_Client::PATCH) {
-            curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, Zend_Http_Client::PATCH);
+        } elseif ($method === self::PATCH) {
+            curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, self::PATCH);
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
         }
 
-        if ($http_ver === Zend_Http_Client::HTTP_1) {
+        if ($http_ver === self::HTTP_11) {
             curl_setopt($this->_getResource(), CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        } elseif ($http_ver === Zend_Http_Client::HTTP_0) {
+        } elseif ($http_ver === self::HTTP_10) {
             curl_setopt($this->_getResource(), CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
         }
 

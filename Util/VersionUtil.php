@@ -16,8 +16,8 @@ namespace MultiSafepay\ConnectCore\Util;
 
 use Exception;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
-use Zend_Http_Client;
-use Zend_Http_Response;
+use MultiSafepay\ConnectCore\Client\CurlAdapter;
+use MultiSafepay\ConnectCore\Client\Response;
 
 class VersionUtil
 {
@@ -35,20 +35,30 @@ class VersionUtil
     private $curlFactory;
 
     /**
+     * @var Response
+     */
+    private $response;
+
+    /**
      * VersionUtil constructor.
      *
      * @param JsonHandler $jsonHandler
      * @param CurlFactory $curlFactory
+     * @param Response $response
      */
     public function __construct(
         JsonHandler $jsonHandler,
-        CurlFactory $curlFactory
+        CurlFactory $curlFactory,
+        Response $response
     ) {
         $this->jsonHandler = $jsonHandler;
         $this->curlFactory = $curlFactory;
+        $this->response = $response;
     }
 
     /**
+     * Get the current meta package version
+     *
      * @return string
      */
     public function getPluginVersion(): string
@@ -57,6 +67,8 @@ class VersionUtil
     }
 
     /**
+     * Try to get the latest version through a GitHub API request
+     *
      * @return array
      */
     public function getNewVersionsDataIfExist(): array
@@ -70,21 +82,21 @@ class VersionUtil
 
             $curl = $this->curlFactory->create();
             $curl->write(
-                Zend_Http_Client::GET,
+                CurlAdapter::GET,
                 self::MULTISAFEPAY_MAGENTO_GITHUB_REPO_LINK,
-                Zend_Http_Client::HTTP_1,
+                CurlAdapter::HTTP_11,
                 $headers
             );
-            $curlData = Zend_Http_Response::fromString($curl->read());
+            $curlData = $this->response->fromString($curl->read());
             $curl->close();
 
-            if ($content = $curlData->getBody()) {
+            $content = $curlData['body'] ?? '';
+
+            if ($content) {
                 $pluginData = $this->jsonHandler->readJSON($content);
                 $latestVersionRelease = $pluginData['tag_name'] ?? null;
 
-                if ($latestVersionRelease
-                    && version_compare($latestVersionRelease, $this->getPluginVersion(), '>')
-                ) {
+                if ($latestVersionRelease && version_compare($latestVersionRelease, $this->getPluginVersion(), '>')) {
                     return [
                         'version' => (string)$latestVersionRelease,
                         'changelog' => $pluginData['body'] ?? '',

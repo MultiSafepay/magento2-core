@@ -6,7 +6,7 @@
  * It is also available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
  *
- * Copyright © 2022 MultiSafepay, Inc. All rights reserved.
+ * Copyright © MultiSafepay, Inc. All rights reserved.
  * See DISCLAIMER.md for disclaimer details.
  */
 
@@ -14,13 +14,12 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Client;
 
+use Exception;
 use MultiSafepay\Exception\ApiException;
-use Nyholm\Psr7\Response;
+use Nyholm\Psr7\Response as Psr7Response;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Zend_Http_Exception;
-use Zend_Http_Response;
 
 class Client implements ClientInterface
 {
@@ -30,14 +29,22 @@ class Client implements ClientInterface
     private $curlAdapter;
 
     /**
+     * @var Response
+     */
+    private $response;
+
+    /**
      * Client constructor.
      *
      * @param CurlAdapter $curlAdapter
+     * @param Response $response
      */
     public function __construct(
-        CurlAdapter $curlAdapter
+        CurlAdapter $curlAdapter,
+        Response    $response
     ) {
         $this->curlAdapter = $curlAdapter;
+        $this->response = $response;
     }
 
     /**
@@ -59,18 +66,14 @@ class Client implements ClientInterface
         );
 
         try {
-            $curlResponse = Zend_Http_Response::fromString($this->curlAdapter->read());
-        } catch (Zend_Http_Exception $zendHttpException) {
-            throw (new ApiException('Unable to read Curl response', 500, $zendHttpException));
+            $curlResponse = $this->response->fromString($this->curlAdapter->read());
+        } catch (Exception $exception) {
+            throw (new ApiException('Unable to read Curl response', 500, $exception));
         }
 
         $this->curlAdapter->close();
 
-        try {
-            return $this->createPsr7Response($curlResponse);
-        } catch (Zend_Http_Exception $zendHttpException) {
-            throw (new ApiException('Unable to create Psr-7 response', 500, $zendHttpException));
-        }
+        return $this->createPsr7Response($curlResponse);
     }
 
     /**
@@ -91,17 +94,16 @@ class Client implements ClientInterface
     /**
      * Create a Psr-7 response based on the response received from Curl
      *
-     * @param Zend_Http_Response $curlResponse
-     * @return Response
-     * @throws Zend_Http_Exception
+     * @param array $curlResponse
+     * @return Psr7Response
      */
-    private function createPsr7Response(Zend_Http_Response $curlResponse): Response
+    private function createPsr7Response(array $curlResponse): Psr7Response
     {
-        $response = new Response(
-            $curlResponse->getStatus(),
-            $curlResponse->getHeaders(),
-            $curlResponse->getBody(),
-            $curlResponse->getVersion()
+        $response = new Psr7Response(
+            $curlResponse['status_code'],
+            $curlResponse['headers'],
+            $curlResponse['body'],
+            $curlResponse['http_version']
         );
         $response->getBody()->rewind();
 
