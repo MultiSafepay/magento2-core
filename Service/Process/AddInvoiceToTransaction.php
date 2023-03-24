@@ -89,7 +89,28 @@ class AddInvoiceToTransaction implements ProcessInterface
 
         /** @var Invoice $invoice */
         $invoice = $payment->getCreatedInvoice();
-        $invoiceId = $invoice->getIncrementId();
+
+        if (!$invoice) {
+            $this->logger->logInfoForNotification(
+                $orderId,
+                'Invoice not found, could not update at MultiSafepay, skipping action..',
+                $transaction
+            );
+
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
+
+        $invoiceId = $invoice->getIncrementId() ?? '';
+
+        if (!$invoiceId) {
+            $this->logger->logInfoForNotification(
+                $orderId,
+                'Invoice ID not found, could not update at MultiSafepay',
+                $transaction
+            );
+
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
 
         $updateRequest = $this->updateRequest->addData([
             "invoice_id" => $invoiceId,
