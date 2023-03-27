@@ -59,8 +59,9 @@ class SetOrderProcessingStatus implements ProcessInterface
     public function execute(OrderInterface $order, array $transaction): array
     {
         $status = $this->orderStatusUtil->getProcessingStatus($order);
+        $defaultStatuses = [Order::STATE_PROCESSING, Order::STATE_COMPLETE];
 
-        if (in_array($status, [Order::STATE_PROCESSING, Order::STATE_COMPLETE], true)) {
+        if (in_array($status, $defaultStatuses, true) && $order->getStatus() === $status) {
             $this->logger->logInfoForNotification(
                 $order->getIncrementId(),
                 'Order already has correct status, status not changed',
