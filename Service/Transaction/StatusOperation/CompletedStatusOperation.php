@@ -30,7 +30,6 @@ use MultiSafepay\ConnectCore\Service\Process\SendInvoice;
 use MultiSafepay\ConnectCore\Service\Process\SendOrderConfirmation;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderProcessingState;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderProcessingStatus;
-use MultiSafepay\ConnectCore\Service\Process\UpdateOrderStatus;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -41,11 +40,6 @@ class CompletedStatusOperation implements StatusOperationInterface
      * @var LogTransactionStatus
      */
     private $logTransactionStatus;
-
-    /**
-     * @var UpdateOrderStatus
-     */
-    private $updateOrderStatus;
 
     /**
      * @var ChangePaymentMethod
@@ -111,7 +105,6 @@ class CompletedStatusOperation implements StatusOperationInterface
      * CompletedStatusOperation constructor
      *
      * @param LogTransactionStatus $logTransactionStatus
-     * @param UpdateOrderStatus $updateOrderStatus
      * @param ChangePaymentMethod $changePaymentMethod
      * @param AddPaymentLink $addPaymentLink
      * @param ReopenOrder $reopenOrder
@@ -128,7 +121,6 @@ class CompletedStatusOperation implements StatusOperationInterface
      */
     public function __construct(
         LogTransactionStatus $logTransactionStatus,
-        UpdateOrderStatus $updateOrderStatus,
         ChangePaymentMethod $changePaymentMethod,
         AddPaymentLink $addPaymentLink,
         ReopenOrder $reopenOrder,
@@ -143,7 +135,6 @@ class CompletedStatusOperation implements StatusOperationInterface
         AddInvoiceToTransaction $addInvoiceToTransaction
     ) {
         $this->logTransactionStatus = $logTransactionStatus;
-        $this->updateOrderStatus = $updateOrderStatus;
         $this->changePaymentMethod = $changePaymentMethod;
         $this->addPaymentLink = $addPaymentLink;
         $this->reopenOrder = $reopenOrder;
@@ -169,7 +160,6 @@ class CompletedStatusOperation implements StatusOperationInterface
     {
         $processes = [
             $this->logTransactionStatus,
-            $this->updateOrderStatus,
             $this->sendOrderConfirmation,
             $this->reopenOrder,
             $this->initializeVault,
