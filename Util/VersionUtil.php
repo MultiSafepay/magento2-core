@@ -16,8 +16,8 @@ namespace MultiSafepay\ConnectCore\Util;
 
 use Exception;
 use Magento\Framework\HTTP\Adapter\CurlFactory;
-use Zend_Http_Client;
-use Zend_Http_Response;
+use \Laminas\Http\Request as LaminasRequest;
+use \Laminas\Http\Response as LaminasResponse;
 
 class VersionUtil
 {
@@ -70,12 +70,12 @@ class VersionUtil
 
             $curl = $this->curlFactory->create();
             $curl->write(
-                Zend_Http_Client::GET,
+                LaminasRequest::METHOD_GET,
                 self::MULTISAFEPAY_MAGENTO_GITHUB_REPO_LINK,
-                Zend_Http_Client::HTTP_1,
+                CURL_HTTP_VERSION_1_0,
                 $headers
             );
-            $curlData = Zend_Http_Response::fromString($curl->read());
+            $curlData = LaminasResponse::fromString($curl->read());
             $curl->close();
 
             if ($content = $curlData->getBody()) {

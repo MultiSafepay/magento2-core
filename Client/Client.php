@@ -19,8 +19,8 @@ use Nyholm\Psr7\Response;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Zend_Http_Exception;
-use Zend_Http_Response;
+use Laminas\Http\Exception as LaminasException;
+use Laminas\Http\Response as LaminasResponse;
 
 class Client implements ClientInterface
 {
@@ -59,17 +59,17 @@ class Client implements ClientInterface
         );
 
         try {
-            $curlResponse = Zend_Http_Response::fromString($this->curlAdapter->read());
-        } catch (Zend_Http_Exception $zendHttpException) {
-            throw (new ApiException('Unable to read Curl response', 500, $zendHttpException));
+            $curlResponse = LaminasResponse::fromString($this->curlAdapter->read());
+        } catch (LaminasException $laminasHttpException) {
+            throw (new ApiException('Unable to read Curl response', 500, $laminasHttpException));
         }
 
         $this->curlAdapter->close();
 
         try {
             return $this->createPsr7Response($curlResponse);
-        } catch (Zend_Http_Exception $zendHttpException) {
-            throw (new ApiException('Unable to create Psr-7 response', 500, $zendHttpException));
+        } catch (LaminasException $laminasHttpException) {
+            throw (new ApiException('Unable to create Psr-7 response', 500, $laminasHttpException));
         }
     }
 
@@ -91,15 +91,15 @@ class Client implements ClientInterface
     /**
      * Create a Psr-7 response based on the response received from Curl
      *
-     * @param Zend_Http_Response $curlResponse
+     * @param LaminasResponse $curlResponse
      * @return Response
-     * @throws Zend_Http_Exception
+     * @throws LaminasException
      */
-    private function createPsr7Response(Zend_Http_Response $curlResponse): Response
+    private function createPsr7Response(LaminasResponse $curlResponse): Response
     {
         $response = new Response(
-            $curlResponse->getStatus(),
-            $curlResponse->getHeaders(),
+            $curlResponse->getStatusCode(),
+            $curlResponse->getHeaders()->toArray(),
             $curlResponse->getBody(),
             $curlResponse->getVersion()
         );

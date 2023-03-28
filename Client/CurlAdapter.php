@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Client;
 
 use Magento\Framework\HTTP\Adapter\Curl;
-use Zend_Http_Client;
+use Laminas\Http\Request as LaminasRequest;
 
 class CurlAdapter extends Curl
 {
@@ -33,27 +33,27 @@ class CurlAdapter extends Curl
         // set url to post to
         curl_setopt($this->_getResource(), CURLOPT_URL, $url);
         curl_setopt($this->_getResource(), CURLOPT_RETURNTRANSFER, true);
-        if ($method === Zend_Http_Client::POST) {
+        if ($method === LaminasRequest::METHOD_POST) {
             curl_setopt($this->_getResource(), CURLOPT_POST, true);
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
-        } elseif ($method === Zend_Http_Client::PUT) {
+        } elseif ($method === LaminasRequest::METHOD_PUT) {
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
-        } elseif ($method === Zend_Http_Client::GET) {
+        } elseif ($method === LaminasRequest::METHOD_GET) {
             curl_setopt($this->_getResource(), CURLOPT_HTTPGET, true);
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'GET');
-        } elseif ($method === Zend_Http_Client::DELETE) {
+        } elseif ($method === LaminasRequest::METHOD_DELETE) {
             curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, 'DELETE');
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
-        } elseif ($method === Zend_Http_Client::PATCH) {
-            curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, Zend_Http_Client::PATCH);
+        } elseif ($method === LaminasRequest::METHOD_PATCH) {
+            curl_setopt($this->_getResource(), CURLOPT_CUSTOMREQUEST, LaminasRequest::METHOD_PATCH);
             curl_setopt($this->_getResource(), CURLOPT_POSTFIELDS, $body);
         }
 
-        if ($http_ver === Zend_Http_Client::HTTP_1) {
+        if ($http_ver === CURL_HTTP_VERSION_1_1) {
             curl_setopt($this->_getResource(), CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        } elseif ($http_ver === Zend_Http_Client::HTTP_0) {
+        } elseif ($http_ver === CURL_HTTP_VERSION_1_0) {
             curl_setopt($this->_getResource(), CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
         }
 
