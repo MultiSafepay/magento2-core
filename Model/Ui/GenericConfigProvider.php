@@ -46,6 +46,7 @@ class GenericConfigProvider implements ConfigProviderInterface
     public const CODE = '';
     private const DEFAULT_CONFIG_PAYMENT_PATH = 'payment/%s';
     private const GATEWAY_CODE = 'gateway_code';
+    protected const IMAGE_PATH = 'MultiSafepay_ConnectCore::images/';
 
     /**
      * @var AssetRepository
@@ -160,7 +161,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getImage(): string
     {
-        $path = 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '.png';
+        $path = self::IMAGE_PATH . $this->getCode() . '.png';
 
         $this->assetRepository->createAsset($path);
 
@@ -327,22 +328,22 @@ class GenericConfigProvider implements ConfigProviderInterface
     public function getIssuers(): array
     {
         $issuers = [];
-        
+
         $paymentConfig = $this->getPaymentConfig($this->getStoreIdFromCheckoutSession());
-        
+
         if (!$paymentConfig) {
             $this->logger->debug('Payment config not found when retrieving issuers');
         }
-        
+
         if (!isset($paymentConfig['active'])) {
             $this->logger->debug('Could not check if payment method is activated when retrieving issuers');
         }
-        
+
         if (!$paymentConfig['active']) {
             // Payment method not activated, issuer request not sent
             return [];
         }
-        
+
         if ($multiSafepaySdk = $this->getSdk()) {
             try {
                 $issuerListing = $multiSafepaySdk->getIssuerManager()->getIssuersByGatewayCode($this->getGatewayCode());

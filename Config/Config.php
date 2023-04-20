@@ -44,6 +44,7 @@ class Config
     public const USE_MANUAL_CAPTURE = 'use_manual_capture';
     public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
     public const CHECKOUT_FIELDS = 'checkout_fields';
+    public const PAYMENT_ICON = 'payment_icon';
 
     public const MULTISAFEPAY_INITIALIZED_STATUS = 'initialized_status';
     public const MULTISAFEPAY_UNCLEARED_STATUS = 'uncleared_status';

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Framework\Exception\LocalizedException;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
 class CreditCardConfigProvider extends GenericConfigProvider
@@ -40,5 +41,26 @@ class CreditCardConfigProvider extends GenericConfigProvider
                 ]
             ]
         ];
+    }
+
+    /**
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getImage(): string
+    {
+        $paymentConfig = $this->getPaymentConfig($this->getStoreIdFromCheckoutSession());
+
+        if (!isset($paymentConfig[Config::PAYMENT_ICON]) || !$paymentConfig[Config::PAYMENT_ICON]) {
+            $path = self::IMAGE_PATH . $this->getCode() . '_default' . '.png';
+            $this->assetRepository->createAsset($path);
+
+            return $this->assetRepository->getUrl($path);
+        }
+
+        $path = self::IMAGE_PATH . $this->getCode() . '_' . $paymentConfig[Config::PAYMENT_ICON] . '.png';
+        $this->assetRepository->createAsset($path);
+
+        return $this->assetRepository->getUrl($path);
     }
 }

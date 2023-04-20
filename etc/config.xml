@@ -361,6 +361,7 @@
                 <sort_order>1</sort_order>
                 <can_capture>0</can_capture>
                 <can_capture_partial>0</can_capture_partial>
+                <payment_icon>default</payment_icon>
                 <allowspecific>0</allowspecific>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
