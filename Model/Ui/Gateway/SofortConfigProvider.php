@@ -20,27 +20,4 @@ use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 class SofortConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_sofort';
-
-    /**
-     * @return string
-     * @throws LocalizedException
-     */
-    public function getImage(): string
-    {
-        $path = $this->getPath();
-        $this->assetRepository->createAsset($path);
-
-        return $this->assetRepository->getUrl($path);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath(): string
-    {
-        if ($this->localeResolver->getLocale() === 'de_DE') {
-            return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-de.png';
-        }
-        return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-en.png';
-    }
 }
