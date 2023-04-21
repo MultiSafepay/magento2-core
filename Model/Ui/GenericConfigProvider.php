@@ -32,6 +32,7 @@ use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Exception\InvalidArgumentException;
+use MultiSafepay\Exception\InvalidDataInitializationException;
 use MultiSafepay\Sdk;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -307,6 +308,8 @@ class GenericConfigProvider implements ConfigProviderInterface
                 $this->logger->logInvalidApiKeyException($invalidApiKeyException);
             } catch (ClientExceptionInterface $clientException) {
                 $this->logger->logClientException('', $clientException);
+            } catch (InvalidDataInitializationException $invalidDataInitializationException) {
+                $this->logger->logException($invalidDataInitializationException);
             }
 
             $this->configWriter->save(

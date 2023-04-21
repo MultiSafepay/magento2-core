@@ -261,11 +261,11 @@ class Logger extends CoreLogger
     /**
      * @param Exception $exception
      */
-    public function logPaymentRequestGetCustomerDataException(Exception $exception): void
+    public function logPaymentComponentException(Exception $exception): void
     {
         $this->debug(
             sprintf(
-                '(Get Payment Request API data error): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                '(Exception when trying to load payment component data): %1$s (code: %2$d, line: %3$d, file: %4$s)',
                 $exception->getMessage(),
                 $exception->getCode(),
                 $exception->getLine(),

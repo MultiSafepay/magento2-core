@@ -272,7 +272,7 @@ class Config
      */
     public function getAccountData($storeId = null): string
     {
-        return $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId);
+        return $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId) ?? '';
     }
 
     /**
