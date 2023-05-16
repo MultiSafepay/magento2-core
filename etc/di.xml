@@ -8427,19 +8427,34 @@
         <arguments>
             <argument name="additionalDataBuilders" xsi:type="array">
                 <item name="multisafepay_visa" xsi:type="array">
-                    <item name="credit_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
                 </item>
                 <item name="multisafepay_mastercard" xsi:type="array">
-                    <item name="credit_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
                 </item>
                 <item name="multisafepay_maestro" xsi:type="array">
-                    <item name="credit_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
                 </item>
                 <item name="multisafepay_creditcard" xsi:type="array">
-                    <item name="credit_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
                 </item>
                 <item name="multisafepay_amex" xsi:type="array">
-                    <item name="credit_cart_builder" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder</item>
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
+                </item>
+                <item name="multisafepay_bnplinstm" xsi:type="array">
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
                 </item>
             </argument>
         </arguments>

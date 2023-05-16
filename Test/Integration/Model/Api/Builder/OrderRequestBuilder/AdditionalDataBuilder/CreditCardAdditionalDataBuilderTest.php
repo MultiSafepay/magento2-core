@@ -17,23 +17,23 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderReque
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 // phpcs:ignore
-use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\CreditCardAdditionalDataBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
-class CreditCardAdditionalDataBuilderTest extends AbstractTestCase
+class PaymentComponentAdditionalDataBuilderTest extends AbstractTestCase
 {
     /**
-     * @var CreditCardAdditionalDataBuilder
+     * @var PaymentComponentAdditionalDataBuilder
      */
-    private $creditCardAdditionalDataBuilder;
+    private $PaymentComponentAdditionalDataBuilder;
 
     /**
      * @inheritDoc
      */
     protected function setUp(): void
     {
-        $this->creditCardAdditionalDataBuilder =
-            $this->getObjectManager()->create(CreditCardAdditionalDataBuilder::class);
+        $this->PaymentComponentAdditionalDataBuilder =
+            $this->getObjectManager()->create(PaymentComponentAdditionalDataBuilder::class);
     }
 
     /**
@@ -54,14 +54,14 @@ class CreditCardAdditionalDataBuilderTest extends AbstractTestCase
         $payment = $order->getPayment();
         $payment->setAdditionalInformation(['payload' => $payload]);
 
-        self::assertSame($expectedResult, $this->creditCardAdditionalDataBuilder->build($order, $payment));
+        self::assertSame($expectedResult, $this->PaymentComponentAdditionalDataBuilder->build($order, $payment));
 
         $payment->setAdditionalInformation([]);
 
-        self::assertNotEquals($expectedResult, $this->creditCardAdditionalDataBuilder->build($order, $payment));
+        self::assertNotEquals($expectedResult, $this->PaymentComponentAdditionalDataBuilder->build($order, $payment));
 
         $payment->setAdditionalInformation(['payload' => null]);
 
-        self::assertEmpty($this->creditCardAdditionalDataBuilder->build($order, $payment));
+        self::assertEmpty($this->PaymentComponentAdditionalDataBuilder->build($order, $payment));
     }
 }

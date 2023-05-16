@@ -17,7 +17,7 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Additio
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 
-class CreditCardAdditionalDataBuilder implements AdditionalDataBuilderInterface
+class PaymentComponentAdditionalDataBuilder implements AdditionalDataBuilderInterface
 {
     /**
      * @param OrderInterface $order

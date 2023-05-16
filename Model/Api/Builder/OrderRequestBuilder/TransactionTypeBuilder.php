@@ -40,6 +40,8 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
     }
 
     /**
+     * Retrieve the transaction type with a fallback to redirect
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
@@ -50,11 +52,9 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
         OrderPaymentInterface $payment,
         OrderRequest $orderRequest
     ): void {
-        $transactionType = (string)$this->config->getValue('transaction_type');
-        if (!$transactionType) {
-            $transactionType = $payment->getAdditionalInformation()['transaction_type']
-                               ?? self::TRANSACTION_TYPE_REDIRECT_VALUE;
-        }
+        $transactionType = $payment->getAdditionalInformation()['transaction_type'] ??
+            $this->config->getValue('transaction_type') ??
+            self::TRANSACTION_TYPE_REDIRECT_VALUE;
 
         $orderRequest->addType($transactionType);
     }

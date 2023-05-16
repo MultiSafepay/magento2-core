@@ -38,23 +38,21 @@
     <event name="payment_method_assign_data_multisafepay_amex">
         <observer name="multisafepay_amex_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver" />
     </event>
-
     <event name="payment_method_assign_data_multisafepay_applepay">
         <observer name="multisafepay_applepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\WalletDataAssignObserver" />
     </event>
-
     <event name="payment_method_assign_data_multisafepay_googlepay">
         <observer name="multisafepay_googlepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\WalletDataAssignObserver" />
     </event>
-
+    <event name="payment_method_assign_data_multisafepay_bnplinstm">
+        <observer name="multisafepay_bnplinstm_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver" />
+    </event>
     <event name="email_order_set_template_vars_before">
         <observer name="payment_link_email_var" instance="MultiSafepay\ConnectCore\Observer\SetTemplateVarsBefore" />
     </event>
-
     <event name="email_order_comment_set_template_vars_before">
         <observer name="payment_link_email_comment_var" instance="MultiSafepay\ConnectCore\Observer\SetTemplateVarsBefore" />
     </event>
-
     <event name="sales_order_shipment_save_after">
         <observer name="multisafepay_shipment_save_after" instance="MultiSafepay\ConnectCore\Observer\ShipmentSaveAfterObserver" />
     </event>

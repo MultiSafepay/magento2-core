@@ -16,6 +16,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
@@ -29,6 +30,7 @@ class PaymentComponentRequest
         MastercardConfigProvider::CODE,
         VisaConfigProvider::CODE,
         CreditCardConfigProvider::CODE,
+        BnplinstmConfigProvider::CODE
     ];
 
     /**
