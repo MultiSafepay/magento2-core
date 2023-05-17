@@ -45,6 +45,7 @@ class Config
     public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
     public const CHECKOUT_FIELDS = 'checkout_fields';
     public const PAYMENT_ICON = 'payment_icon';
+    public const DISABLE_UTM_NOOVERRIDE = 'disable_utm_nooverride';
 
     public const MULTISAFEPAY_INITIALIZED_STATUS = 'initialized_status';
     public const MULTISAFEPAY_UNCLEARED_STATUS = 'uncleared_status';
@@ -346,5 +347,14 @@ class Config
     public function getStatusByTransactionStatus(string $transactionStatus, $storeId = null): string
     {
         return (string)$this->getStatusValue($transactionStatus . '_status', $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return bool
+     */
+    public function isUtmNoOverrideDisabled($storeId = null): bool
+    {
+        return (bool)$this->getAdvancedValue(self::DISABLE_UTM_NOOVERRIDE, $storeId);
     }
 }
