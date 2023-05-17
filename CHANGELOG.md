@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2023-05-17
+### Added
+- Add payment component for Pay After Delivery installments
+- Give the option to set 3 different icons for payment method Credit Card
+- Add a setting field to exclude utm_nooverride from the redirect_url
+
+### Changed
+- Refactor Credit Card Payment Components
+- Rebrand Sofort
+
 ## [3.0.0] - 2023-04-03
 ### Added
 - Added new service interfaces, processes and a controller for processing notification webhooks
