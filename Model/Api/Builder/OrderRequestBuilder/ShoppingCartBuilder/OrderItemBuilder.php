@@ -71,11 +71,20 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
                 ->addUnitPrice(new Money(round($unitPrice * 100, 10), $currency))
                 ->addQuantity((float)$item->getQtyOrdered())
                 ->addDescription($item->getDescription() ?? '')
-                ->addMerchantItemId($item->getSku())
+                ->addMerchantItemId($this->getMerchantItemId($item))
                 ->addTaxRate((float)$item->getTaxPercent());
         }
 
         return $this->weeeTaxBuilder->addWeeeTaxToItems($items, $orderItems, (int)$storeId, $currency);
+    }
+
+    /**
+     * @param OrderItemInterface $item
+     * @return string
+     */
+    public function getMerchantItemId(OrderItemInterface $item): string
+    {
+        return $item->getSku();
     }
 
     /**
