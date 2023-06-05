@@ -349,7 +349,7 @@
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
                 <payment_type>redirect</payment_type>
-                <title>Credit Card</title>
+                <title>Card payment</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_authorize_vault>1</can_authorize_vault>
