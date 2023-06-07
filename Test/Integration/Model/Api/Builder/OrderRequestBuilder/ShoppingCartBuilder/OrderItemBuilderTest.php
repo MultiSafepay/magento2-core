@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder;
@@ -24,6 +25,30 @@ use ReflectionException;
 
 class OrderItemBuilderTest extends AbstractTestCase
 {
+    /**
+     * @magentoDataFixture   Magento/Customer/_files/customer.php
+     * @magentoDataFixture   Magento/Catalog/_files/product_simple.php
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testOrderItemTax(): void
+    {
+        $this->includeFixtureFile('order_with_tax', true);
+        $order = $this->getOrder();
+
+        $currency = $this->getCurrencyUtil()->getCurrencyCode($order);
+
+        $items = $this->getOrderItemBuilder()->build($order, $currency);
+        $item = $this->convertObjectToArray($items[0]);
+
+        $expectedItems = $order->getItems();
+        $expectedItem = reset($expectedItems);
+
+        self::assertSame((float)$expectedItem->getTaxPercent(), $item['taxRate']);
+    }
+
     /**
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/general/mode 0

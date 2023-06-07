@@ -68,9 +68,23 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
                 ->addQuantity(1)
                 ->addDescription('Shipping')
                 ->addMerchantItemId(self::SHIPPING_ITEM_MERCHANT_ITEM_ID)
-                ->addTaxRate($this->taxUtil->getShippingTaxRate($order));
+                ->addTaxRate($this->getTaxRate($order));
         }
 
         return $items;
+    }
+
+    /**
+     * Get the shipping tax rate
+     *
+     * @throws NoSuchEntityException
+     */
+    public function getTaxRate(OrderInterface $order): float
+    {
+        if ($order->getShippingTaxAmount() > 0) {
+            return $this->taxUtil->getShippingTaxRate($order);
+        }
+
+        return 0.0;
     }
 }

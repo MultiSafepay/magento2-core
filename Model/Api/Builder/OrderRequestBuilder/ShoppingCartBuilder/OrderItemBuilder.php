@@ -72,10 +72,25 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
                 ->addQuantity((float)$item->getQtyOrdered())
                 ->addDescription($item->getDescription() ?? '')
                 ->addMerchantItemId($this->getMerchantItemId($item))
-                ->addTaxRate((float)$item->getTaxPercent());
+                ->addTaxRate($this->getTaxRate($item));
         }
 
         return $this->weeeTaxBuilder->addWeeeTaxToItems($items, $orderItems, (int)$storeId, $currency);
+    }
+
+    /**
+     * Get the tax percentage
+     *
+     * @param OrderItemInterface $item
+     * @return float
+     */
+    public function getTaxRate(OrderItemInterface $item): float
+    {
+        if (($item->getTaxAmount() > 0)) {
+            return (float)$item->getTaxPercent();
+        }
+
+        return 0.0;
     }
 
     /**
