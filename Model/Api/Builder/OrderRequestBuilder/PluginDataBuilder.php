@@ -14,54 +14,36 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PluginDetails;
-use MultiSafepay\ConnectCore\Model\Store;
-use MultiSafepay\ConnectCore\Util\VersionUtil;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PluginDataBuilder\DefaultPluginDataBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PluginDataBuilder\ThirdPartyPluginDataBuilder;
 
 class PluginDataBuilder implements OrderRequestBuilderInterface
 {
     /**
-     * @var ProductMetadataInterface
+     * @var DefaultPluginDataBuilder
      */
-    private $metadata;
+    private $defaultPluginDataBuilder;
 
     /**
-     * @var PluginDetails
+     * @var ThirdPartyPluginDataBuilder
      */
-    private $pluginDetails;
-
-    /**
-     * @var VersionUtil
-     */
-    private $versionUtil;
-
-    /**
-     * @var Store
-     */
-    private $store;
+    private $thirdPartyPluginDataBuilder;
 
     /**
      * PluginDetails constructor.
      *
-     * @param ProductMetadataInterface $metadata
-     * @param PluginDetails $pluginDetails
-     * @param VersionUtil $versionUtil
-     * @param Store $store
+     * @param DefaultPluginDataBuilder $defaultPluginDataBuilder
+     * @param ThirdPartyPluginDataBuilder $thirdPartyPluginDataBuilder
      */
     public function __construct(
-        ProductMetadataInterface $metadata,
-        PluginDetails $pluginDetails,
-        VersionUtil $versionUtil,
-        Store $store
+        DefaultPluginDataBuilder $defaultPluginDataBuilder,
+        ThirdPartyPluginDataBuilder $thirdPartyPluginDataBuilder
     ) {
-        $this->metadata = $metadata;
-        $this->pluginDetails = $pluginDetails;
-        $this->versionUtil = $versionUtil;
-        $this->store = $store;
+        $this->defaultPluginDataBuilder = $defaultPluginDataBuilder;
+        $this->thirdPartyPluginDataBuilder = $thirdPartyPluginDataBuilder;
     }
 
     /**
@@ -77,13 +59,7 @@ class PluginDataBuilder implements OrderRequestBuilderInterface
         OrderPaymentInterface $payment,
         OrderRequest $orderRequest
     ): void {
-        $orderRequest->addPluginDetails(
-            $this->pluginDetails->addApplicationName(
-                $this->metadata->getName() . ' ' . $this->metadata->getEdition()
-            )
-                ->addApplicationVersion($this->metadata->getVersion())
-                ->addPluginVersion($this->versionUtil->getPluginVersion())
-                ->addShopRootUrl($this->store->getBaseUrl() ?? 'unknown')
-        );
+        $this->defaultPluginDataBuilder->build($orderRequest);
+        $this->thirdPartyPluginDataBuilder->build($order, $orderRequest);
     }
 }

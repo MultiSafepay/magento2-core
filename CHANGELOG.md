@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Added the functionality to add plugin data information for other enabled third party plugins, starting with Hyva React Checkout
+
 ### Fixed
 - Fixed an issue where incorrect item prices would show in combination with the Meetanshi Vat Excemption module
 
