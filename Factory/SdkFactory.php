@@ -25,17 +25,17 @@ class SdkFactory
     /**
      * @var Config
      */
-    private $config;
+    protected $config;
 
     /**
      * @var Client
      */
-    private $client;
+    protected $client;
 
     /**
      * @var Psr17Factory
      */
-    private $psr17Factory;
+    protected $psr17Factory;
 
     /**
      * Client constructor.

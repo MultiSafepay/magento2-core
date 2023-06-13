@@ -68,7 +68,7 @@ class Config
     /**
      * @var EncryptorUtil
      */
-    private $encryptorUtil;
+    protected $encryptorUtil;
 
     /**
      * Config constructor.
