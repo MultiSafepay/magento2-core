@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Payment\Model\MethodInterface;
@@ -32,11 +33,18 @@ class PaymentMethodUtil
     }
 
     /**
+     * Check if it is a MultiSafepay order
+     *
      * @param OrderInterface $order
      * @return bool
+     * @throws LocalizedException
      */
     public function isMultisafepayOrder(OrderInterface $order): bool
     {
+        if ($order->getPayment() === null) {
+            return false;
+        }
+
         return $this->checkIsMultisafepayMethodByPayment($order->getPayment()->getMethodInstance());
     }
 
