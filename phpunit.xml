@@ -13,12 +13,12 @@
     <!-- Test suites definition -->
     <testsuites>
         <testsuite name="MultiSafepay">
-            <directory>../../../vendor/multisafepay/**/Test/Integration</directory>
+            <directory>../../../vendor/multisafepay/magento2-core/Test/Integration</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="false">
-            <directory>../../../vendor/multisafepay/**/Test/Integration</directory>
+            <directory>../../../vendor/multisafepay/magento2-core/Test/Integration</directory>
         </whitelist>
     </filter>
 
