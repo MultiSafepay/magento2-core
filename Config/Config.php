@@ -253,7 +253,7 @@ class Config
      * @param null $storeId
      * @return bool
      */
-    public function isCreateOrderInvoiceAutomatically($storeId = null): bool
+    public function createOrderInvoiceAutomatically($storeId = null): bool
     {
         return (bool)$this->getValue(self::CREATE_INVOICE_AUTOMATICALLY, $storeId);
     }

@@ -18,7 +18,7 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -28,7 +28,7 @@ use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperation
 
 class CreateInvoice implements ProcessInterface
 {
-    public const INVOICE_CREATE_AFTER = 'multisafepay_create_inovice_after';
+    public const INVOICE_CREATE_AFTER = 'multisafepay_create_invoice_after';
 
     /**
      * @var Logger
@@ -82,9 +82,20 @@ class CreateInvoice implements ProcessInterface
     {
         $orderId = $order->getIncrementId();
 
+        if (!$this->config->createOrderInvoiceAutomatically()) {
+            $this->logger->logInfoForNotification(
+                $orderId,
+                'Invoice creation process was skipped by selected setting.',
+                $transaction
+            );
+
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
+
         if (!$order->canInvoice()) {
             $message = 'Order can not be invoiced';
             $this->logger->logInfoForNotification($orderId, $message, $transaction);
+
             return [
                 StatusOperationInterface::SUCCESS_PARAMETER => false,
                 StatusOperationInterface::MESSAGE_PARAMETER => $message
@@ -96,6 +107,7 @@ class CreateInvoice implements ProcessInterface
         if ($payment === null) {
             $message = 'Order can not be invoiced, because the payment was not found';
             $this->logger->logInfoForNotification($orderId, $message, $transaction);
+
             return [
                 StatusOperationInterface::SUCCESS_PARAMETER => false,
                 StatusOperationInterface::MESSAGE_PARAMETER => $message
@@ -105,26 +117,26 @@ class CreateInvoice implements ProcessInterface
         $invoiceAmount = $order->getBaseTotalDue();
         $isManualCaptureTransaction = $this->captureUtil->isCaptureManualTransaction($transaction);
 
-        $automaticallyCreateInvoice = $this->config->isCreateOrderInvoiceAutomatically($order->getStoreId());
         $payment->setTransactionId($transaction['transaction_id'] ?? '')
             ->setAdditionalInformation(
                 [
                     PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                    self::INVOICE_CREATE_AFTER => !$automaticallyCreateInvoice,
+                    self::INVOICE_CREATE_AFTER => false,
                 ]
             )->setShouldCloseParentTransaction(false)
             ->setIsTransactionClosed(0)
             ->setIsTransactionPending(false);
 
         if (!$isManualCaptureTransaction) {
-            $this->createInvoice($automaticallyCreateInvoice, $payment, $invoiceAmount, $orderId, $transaction);
+            $payment->registerCaptureNotification($invoiceAmount, true);
+            $this->logger->logInfoForNotification($orderId, 'Invoice created', $transaction);
         }
 
         $payment->setParentTransactionId($transaction['transaction_id'] ?? '');
         $this->logger->logInfoForNotification($orderId, 'Order payment was updated', $transaction);
         $paymentTransaction = $payment->addTransaction(
-            $isManualCaptureTransaction ? PaymentTransaction::TYPE_AUTH
-                : PaymentTransaction::TYPE_CAPTURE,
+            $isManualCaptureTransaction ? TransactionInterface::TYPE_AUTH
+                : TransactionInterface::TYPE_CAPTURE,
             null,
             true
         );
@@ -146,47 +158,14 @@ class CreateInvoice implements ProcessInterface
         $this->transactionRepository->save($paymentTransaction);
         $this->logger->logInfoForNotification($orderId, 'Transaction saved', $transaction);
 
-        if (!$automaticallyCreateInvoice) {
-            $order->addCommentToStatusHistory(
-                __(
-                    'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
-                    $order->getBaseCurrency()->formatTxt($invoiceAmount),
-                    $paymentTransaction->getTxnId()
-                )
-            );
-        }
+        $order->addCommentToStatusHistory(
+            __(
+                'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                $order->getBaseCurrency()->formatTxt($invoiceAmount),
+                $paymentTransaction->getTxnId()
+            )
+        );
 
         return [StatusOperationInterface::SUCCESS_PARAMETER => true];
-    }
-
-    /**
-     * Create the invoice
-     *
-     * @param bool $automaticallyCreateInvoice
-     * @param OrderPaymentInterface $payment
-     * @param float $captureAmount
-     * @param string $orderId
-     * @param array $transaction
-     * @throws Exception
-     */
-    private function createInvoice(
-        bool $automaticallyCreateInvoice,
-        OrderPaymentInterface $payment,
-        float $captureAmount,
-        string $orderId,
-        array $transaction
-    ): void {
-        if ($automaticallyCreateInvoice) {
-            $payment->registerCaptureNotification($captureAmount, true);
-            $this->logger->logInfoForNotification($orderId, 'Invoice created', $transaction);
-
-            return;
-        }
-
-        $this->logger->logInfoForNotification(
-            $orderId,
-            'Invoice creation process was skipped by selected setting.',
-            $transaction
-        );
     }
 }
