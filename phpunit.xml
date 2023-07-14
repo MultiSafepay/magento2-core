@@ -17,8 +17,12 @@
         </testsuite>
     </testsuites>
     <filter>
-        <whitelist addUncoveredFilesFromWhitelist="false">
-            <directory>../../../vendor/multisafepay/magento2-core/Test/Integration</directory>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../../../vendor/multisafepay/magento2-core</directory>
+                <exclude>
+                    <directory suffix=".php">../../../vendor/multisafepay/magento2-core/Test</directory>
+                    <file>registration.php</file>
+                </exclude>
         </whitelist>
     </filter>
 
@@ -68,7 +72,4 @@
     <logging>
         <log type="coverage-clover" target="./coverage.xml"/>
     </logging>
-    <report>
-        <clover outputFile="./coverage.xml"/>
-    </report>
 </phpunit>
