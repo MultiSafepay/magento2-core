@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.2] - 2023-07-17
+### Fixed
+- PLGMAG2V2-675: Fixed an issue where cron job sales_clean_orders failed when order contains no payment method
+- PLGMAG2V2-679: Fixed an issue where the integration tests were reporting the wrong code coverage percentages 
+
+### Changed
+- PLGMAG2V2-664: Refactored the CreateInvoice procedure.
+
 ## [3.1.1] - 2023-06-13
 ### Added
 - PLGMAG2V2-671: Added the functionality to add plugin data information for other enabled third party plugins, starting with Hyva React Checkout
