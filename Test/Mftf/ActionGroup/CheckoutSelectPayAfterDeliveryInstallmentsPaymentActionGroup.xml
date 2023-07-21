@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * See DISCLAIMER.md for disclaimer details.
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="CheckoutSelectPayAfterDeliveryInstallmentsPaymentActionGroup">
+        <annotations>
+            <description>Selects the 'Pay After Delivery Installments' Payment Method on the Storefront Checkout page and fills in the payment details.</description>
+        </annotations>
+        <arguments>
+            <argument name="paymentDetailsVar" defaultValue="PayAfterDeliveryInstallmentsComponentPaymentDetails"/>
+        </arguments>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <conditionalClick selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Pay After Delivery Installments')}}" dependentSelector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Pay After Delivery Installments')}}" visible="true" stepKey="selectPayAfterDeliveryInstallmentsPaymentMethod"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
+        <waitForElement selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.day}}" stepKey="waitForDayField"/>
+        <waitForElement selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.month}}" stepKey="waitForMonthField"/>
+        <waitForElement selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.year}}" stepKey="waitForYearField"/>
+        <waitForElement selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.email}}" stepKey="waitForEmailField"/>
+        <waitForElement selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.phone}}" stepKey="waitForPhoneField"/>
+        <selectOption userInput="{{paymentDetailsVar.day}}" selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.day}}" stepKey="selectDay"/>
+        <selectOption userInput="{{paymentDetailsVar.month}}" selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.month}}" stepKey="selectMonth"/>
+        <selectOption userInput="{{paymentDetailsVar.year}}" selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.year}}" stepKey="selectYear"/>
+        <fillField userInput="{{paymentDetailsVar.email}}" selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.email}}" stepKey="enterEmail"/>
+        <fillField userInput="{{paymentDetailsVar.phone}}" selector="{{StorefrontCheckoutPayAfterDeliveryInstallmentsComponentSection.phone}}" stepKey="enterPhone"/>
+    </actionGroup>
+</actionGroups>

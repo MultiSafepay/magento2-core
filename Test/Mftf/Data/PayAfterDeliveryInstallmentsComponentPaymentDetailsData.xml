@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * See DISCLAIMER.md for disclaimer details.
+ */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="PayAfterDeliveryInstallmentsComponentPaymentDetails" type="paymentDetails">
+        <data key="day">10</data>
+        <data key="month">01</data>
+        <data key="year">2000</data>
+        <data key="email">test@example.com</data>
+        <data key="phone">0208500500</data>
+    </entity>
+</entities>

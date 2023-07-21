@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * See DISCLAIMER.md for disclaimer details.
+ */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="CheckoutTriggerNotificationURLGroup">
+        <annotations>
+            <description>Triggers the notification URL and asserts an 'ok' in the body.</description>
+        </annotations>
+        <arguments>
+            <argument name="orderId" defaultValue="" type="string"/>
+        </arguments>
+
+        <!--Trigger Notification URL-->
+        <amOnUrl url="{{_ENV.MAGENTO_BASE_URL}}/multisafepay/connect/notification?transactionid={{orderId}}&amp;timestamp=1" stepKey="TriggerNotificationUrl"/>
+        <waitForText userInput="ok" selector="body" stepKey="waitForOK"/>
+    </actionGroup>
+</actionGroups>

@@ -22,7 +22,7 @@
             <argument name="subTotal" defaultValue="1.23" type="string"/>
             <argument name="adjustmentRefund" defaultValue="0.10" type="string"/>
             <argument name="adjustmentFee" defaultValue="0.20" type="string"/>
-            <argument name="grandTotal" defaultValue="2.34" type="string"/>
+            <argument name="grandTotal" defaultValue="7.44" type="string"/>
         </arguments>
 
         <!-- Perform all assertions: assert refund success create message -->

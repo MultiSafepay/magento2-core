@@ -14,14 +14,14 @@
 
 <tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
-    <test name="StorefrontGuestCheckoutBankTransferTest">
+    <test name="StorefrontGuestCheckoutPayAfterDeliveryInstallmentsTest">
         <annotations>
             <features value="Checkout"/>
             <stories value="Order with MultiSafepay payment method is successfully created for a guest"/>
-            <title value="MultiSafepay checkout - check if success page is reached after placing an Bank Transfer order for guest order"/>
-            <description value="To be sure that an Bank Transfer order can be placed successfully for a guest"/>
+            <title value="MultiSafepay checkout - check if success page is reached after placing an Pay After Delivery order for guest order"/>
+            <description value="To be sure that an Pay After Delivery order can be placed successfully for a guest"/>
             <severity value="CRITICAL"/>
-            <testCaseId value="MSP-MFTF-BANKTRANSFER-DIRECT"/>
+            <testCaseId value="MSP-MFTF-PAYAFTERINST-DIRECT"/>
             <group value="multisafepay_checkout"/>
         </annotations>
 
@@ -32,14 +32,14 @@
             <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
 
             <!-- Enable payment method -->
-            <magentoCLI command="config:set {{BankTransferEnableConfigData.path}} {{BankTransferEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
-            <magentoCLI command="config:set {{BankTransferDirectConfigData.path}} {{BankTransferDirectConfigData.value}}" stepKey="enableDirectTransactionType"/>
+            <magentoCLI command="config:set {{PayAfterDeliveryInstallmentsEnableConfigData.path}} {{PayAfterDeliveryInstallmentsEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
+            <magentoCLI command="config:set {{PayAfterDeliveryInstallmentsComponentEnableConfigData.path}} {{PayAfterDeliveryInstallmentsComponentEnableConfigData.value}}" stepKey="enablePayAfterDeliveryInstallmentsComponent"/>
             <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
         </before>
 
         <after>
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
-            <magentoCLI command="config:set {{BankTransferDisableConfigData.path}} {{BankTransferDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
+            <magentoCLI command="config:set {{PayAfterDeliveryInstallmentsDisableConfigData.path}} {{PayAfterDeliveryInstallmentsDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
         </after>
 
         <!--Go to product page-->
@@ -59,21 +59,25 @@
             <argument name="customerAddressVar" value="MultiSafepayDeliveryAddress"/>
         </actionGroup>
 
-        <!-- Checkout select Bank Transfer Order payment -->
-        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
-        <waitForPageLoad stepKey="waitForPaymentPageLoad"/>
-        <selectOption userInput="multisafepay_banktransfer" selector="#multisafepay_banktransfer" stepKey="selectBankTransferPaymentMethod"/>
-        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
+        <!-- Checkout select Pay After Delivery Installments Order payment -->
+        <actionGroup ref="CheckoutSelectPayAfterDeliveryInstallmentsPaymentActionGroup" stepKey="selectPayAfterDeliveryInstallmentsPayment"/>
 
         <!--Click Place Order button-->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
-        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage"/>
+
+        <!--Verify payment page URL-->
+        <seeInCurrentUrl url="https://testpayv2.multisafepay.com/connect" stepKey="assertCheckoutMultiSafepayPaymentPage"/>
+
+        <!-- Choose ING -->
+        <waitForElement selector="//span[text()='ING']" stepKey="seeButton"/>
+        <click selector="//span[text()='ING']" stepKey="clickButton"/>
+
+        <!-- Click TEST Button -->
+        <waitForElement selector="//button[@name='pay']" stepKey="seePayButton"/>
+        <click selector="//button[@name='pay']" stepKey="clickPayButton"/>
 
         <!--See success messages-->
         <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
         <see selector="{{CheckoutSuccessMainSection.orderNumberText}}" userInput="Your order # is: " stepKey="seeOrderNumber"/>
-
-        <!--Grab Order ID from Success Page-->
-        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderId"/>
     </test>
 </tests>

@@ -26,18 +26,32 @@
         </annotations>
 
         <before>
-            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
-
-            <!-- Enable test mode -->
-            <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
-
             <!-- Enable payment method -->
             <magentoCLI command="config:set {{AfterPayEnableConfigData.path}} {{AfterPayEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
-            <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
+
+            <!-- Enable MultiSafepay Settings -->
+            <actionGroup ref="AdminEnableMultiSafepaySettingsActionGroup" stepKey="enableMultiSafepaySettings"/>
+
+            <!-- Create New Product -->
+            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
+
+            <!-- Create New Tax Rule -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AssertAdminSuccessLoginActionGroup" stepKey="assertLoggedIn"/>
+            <actionGroup ref="AdminCreateMultiSafepayTaxRuleActionGroup" stepKey="CreateNewTaxRule"/>
         </before>
 
         <after>
+            <!-- Delete New Product -->
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+
+            <!-- Delete New Tax Rule -->
+            <actionGroup ref="AdminDeleteMultiSafepayTaxRuleActionGroup" stepKey="DeleteNewTaxRule"/>
+
+            <!-- Enable Form Key -->
+            <magentoCLI command="config:set admin/security/use_form_key	1" stepKey="enableFormKey"/>
+
+            <!-- Disable Payment Method -->
             <magentoCLI command="config:set {{AfterPayDisableConfigData.path}} {{AfterPayDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
         </after>
 
@@ -73,12 +87,12 @@
         <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderId"/>
 
         <!--Trigger Notification URL-->
-        <amOnPage url="multisafepay/connect/notification?transactionid={$grabOrderId}&amp;timestamp=1" stepKey="TriggerNotificationUrl"/>
-        <waitForText userInput="ok" selector="body" stepKey="waitForOK"/>
+        <actionGroup ref="CheckoutTriggerNotificationURLGroup" stepKey="triggerNotification">
+            <argument name="orderId" value="{$grabOrderId}"/>
+        </actionGroup>
 
-        <!--Log in to admin backend-->
-        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
-        <actionGroup ref="AssertAdminSuccessLoginActionGroup" stepKey="assertLoggedIn"/>
+        <!-- Navigate to admin -->
+        <amOnPage url="{{AdminLoginPage.url}}" stepKey="navigateToAdmin"/>
 
         <!--Navigate to the order-->
         <assertNotEmpty stepKey="assertOrderIdIsNotEmpty" after="grabOrderId">
@@ -96,10 +110,9 @@
 
         <!-- Assert the credit memo to be successful -->
         <actionGroup ref="AdminAssertCreditMemoSuccessfullyCreatedActionGroup" stepKey="AssertCreditMemoSuccess">
-            <argument name="subTotal" value="1.23"/>
             <argument name="adjustmentRefund" value="0.00"/>
             <argument name="adjustmentFee" value="0.00"/>
-            <argument name="grandTotal" value="2.44"/>
+            <argument name="grandTotal" value="7.54"/>
         </actionGroup>
     </test>
 </tests>

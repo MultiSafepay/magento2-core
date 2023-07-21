@@ -26,31 +26,45 @@
         </annotations>
 
         <before>
-            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
-
-            <!-- Enable test mode -->
-            <magentoCLI command="config:set {{TestEnvironmentEnableConfigData.path}} {{TestEnvironmentEnableConfigData.value}}" stepKey="enableTestMode"/>
-
             <!-- Enable payment method -->
             <magentoCLI command="config:set {{BancontactEnableConfigData.path}} {{BancontactEnableConfigData.value}}" stepKey="enablePaymentMethod"/>
-            <magentoCLI command="config:set {{TestApiKeyConfigData.path}} {{_CREDS.multisafepay/test_api_key}}" stepKey="addTestApiKey"/>
+
+            <!-- Enable MultiSafepay Settings -->
+            <actionGroup ref="AdminEnableMultiSafepaySettingsActionGroup" stepKey="enableMultiSafepaySettings"/>
+
+            <!-- Create New Product -->
+            <createData entity="SimpleTwo" stepKey="createSimpleProduct"/>
+
+            <!-- Create New Tax Rule -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AssertAdminSuccessLoginActionGroup" stepKey="assertLoggedIn"/>
+            <actionGroup ref="AdminCreateMultiSafepayTaxRuleActionGroup" stepKey="CreateNewTaxRule"/>
         </before>
 
         <after>
+            <!-- Delete New Product -->
             <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+
+            <!-- Delete New Tax Rule -->
+            <actionGroup ref="AdminDeleteMultiSafepayTaxRuleActionGroup" stepKey="DeleteNewTaxRule"/>
+
+            <!-- Enable Form Key -->
+            <magentoCLI command="config:set admin/security/use_form_key	1" stepKey="enableFormKey"/>
+
+            <!-- Disable Payment Method -->
             <magentoCLI command="config:set {{BancontactDisableConfigData.path}} {{BancontactDisableConfigData.value}}" stepKey="disablePaymentMethod"/>
         </after>
 
-        <!--Go to product page-->
+        <!-- Go to product page -->
         <amOnPage url="$$createSimpleProduct.custom_attributes[url_key]$$.html" stepKey="navigateToSimpleProductPage"/>
         <waitForPageLoad stepKey="waitForCatalogPageLoad"/>
 
-        <!--Add Product to Shopping Cart-->
+        <!-- Add Product to Shopping Cart -->
         <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addToCartFromStorefrontProductPage">
             <argument name="productName" value="$$createSimpleProduct.name$$"/>
         </actionGroup>
 
-        <!--Go to Checkout-->
+        <!-- Go to Checkout -->
         <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
 
         <actionGroup ref="GuestCheckoutFillingShippingSectionWithCountryActionGroup" stepKey="guestCheckoutFillingShippingSectionWithCountry">
@@ -64,12 +78,12 @@
         <selectOption userInput="multisafepay_bancontact" selector="#multisafepay_bancontact" stepKey="selectBancontactPaymentMethod"/>
         <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskAfterPaymentMethodSelection"/>
 
-        <!--Click Place Order button-->
+        <!-- Click Place Order button -->
         <click selector="{{CheckoutPaymentSection.placeOrder}}" stepKey="clickPlaceOrder"/>
 
         <waitForPageLoad stepKey="waitForPageLoad"/>
 
-        <!--Verify payment page URL-->
+        <!-- Verify payment page URL -->
         <seeInCurrentUrl url="https://testpayv2.multisafepay.com/connect" stepKey="assertCheckoutMultiSafepayPaymentPage"/>
 
         <!-- Enter Bancontact payment details -->
@@ -78,26 +92,26 @@
         <selectOption userInput="string:24" selector="//select[@name='expiry-year']" stepKey="selectYear"/>
 
         <!-- Click on Confirm button -->
-        <click selector="//input[@value='Confirm']" stepKey="clickPayButton"/>
+        <click selector="//input[@type='submit']" stepKey="clickPayButton"/>
 
         <wait time="15" stepKey="waitFor3DS"/>
 
-        <!--See success messages-->
+        <!-- See success messages -->
         <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="seeSuccessTitle"/>
         <see selector="{{CheckoutSuccessMainSection.orderNumberText}}" userInput="Your order # is: " stepKey="seeOrderNumber"/>
 
-        <!--Grab Order ID from Success Page-->
+        <!-- Grab Order ID from Success Page -->
         <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderId"/>
 
-        <!--Trigger Notification URL-->
-        <amOnPage url="multisafepay/connect/notification?transactionid={$grabOrderId}&amp;timestamp=1" stepKey="TriggerNotificationUrl"/>
-        <waitForText userInput="ok" selector="body" stepKey="waitForOK"/>
+        <!-- Trigger Notification URL -->
+        <actionGroup ref="CheckoutTriggerNotificationURLGroup" stepKey="triggerNotification">
+            <argument name="orderId" value="{$grabOrderId}"/>
+        </actionGroup>
 
-        <!--Log in to admin backend-->
-        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
-        <actionGroup ref="AssertAdminSuccessLoginActionGroup" stepKey="assertLoggedIn"/>
+        <!-- Navigate to admin -->
+        <amOnPage url="{{AdminLoginPage.url}}" stepKey="navigateToAdmin"/>
 
-        <!--Navigate to the order-->
+        <!-- Navigate to the order -->
         <assertNotEmpty stepKey="assertOrderIdIsNotEmpty" after="grabOrderId">
             <actualResult type="const">$grabOrderId</actualResult>
         </assertNotEmpty>
