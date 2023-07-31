@@ -217,7 +217,9 @@ class GenericConfigProvider implements ConfigProviderInterface
         if ($multiSafepaySdk = $this->getSdk($storeId)) {
             try {
                 return $multiSafepaySdk->getApiTokenManager()->get()->getApiToken();
-            } catch (ClientExceptionInterface $clientException) {
+            } catch (ClientExceptionInterface | ApiException $exception) {
+                $this->logger->logExceptionForApiToken($exception);
+
                 return '';
             }
         }

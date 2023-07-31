@@ -374,4 +374,22 @@ class Logger extends CoreLogger
             )
         );
     }
+
+    /**
+     * Log exceptions related to the retrieval and processing of the API Token
+     *
+     * @param Exception $exception
+     */
+    public function logExceptionForApiToken(Exception $exception): void
+    {
+        $this->debug(
+            sprintf(
+                '(Exception when trying to retrieve API token): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile()
+            )
+        );
+    }
 }

@@ -26,9 +26,6 @@
     <action name="checkout/sidebar/updateItemQty">
         <section name="multisafepay-payment-request"/>
     </action>
-    <action name="checkout/onepage/success">
-        <section name="multisafepay-payment-request"/>
-    </action>
     <action name="checkout/cart/estimatePost">
         <section name="multisafepay-payment-request"/>
     </action>

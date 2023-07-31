@@ -22,10 +22,10 @@ use Magento\Framework\Locale\ResolverInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\ApplePayRequest;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\GooglePayRequest;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\PaymentComponentRequest;
+use MultiSafepay\ConnectCore\Util\ApiTokenUtil;
 use MultiSafepay\Exception\ApiException;
 
 class PaymentRequest implements SectionSourceInterface
@@ -36,11 +36,6 @@ class PaymentRequest implements SectionSourceInterface
      * @var CartInterface|null
      */
     private $quote = null;
-
-    /**
-     * @var GenericConfigProvider
-     */
-    private $genericConfigProvider;
 
     /**
      * @var Logger
@@ -78,35 +73,40 @@ class PaymentRequest implements SectionSourceInterface
     private $googlePayRequest;
 
     /**
+     * @var ApiTokenUtil
+     */
+    private $apiTokenUtil;
+
+    /**
      * PaymentRequest constructor.
      *
      * @param ApplePayRequest $applePayRequest
-     * @param GenericConfigProvider $genericConfigProvider
      * @param GooglePayRequest $googlePayRequest
      * @param Logger $logger
      * @param Config $config
      * @param ResolverInterface $localeResolver
      * @param PaymentComponentRequest $paymentComponentRequest
      * @param Session $session
+     * @param ApiTokenUtil $apiTokenUtil
      */
     public function __construct(
         ApplePayRequest $applePayRequest,
-        GenericConfigProvider $genericConfigProvider,
         GooglePayRequest $googlePayRequest,
         Logger $logger,
         Config $config,
         ResolverInterface $localeResolver,
         PaymentComponentRequest $paymentComponentRequest,
-        Session $session
+        Session $session,
+        ApiTokenUtil $apiTokenUtil
     ) {
         $this->applePayRequest = $applePayRequest;
-        $this->genericConfigProvider = $genericConfigProvider;
         $this->googlePayRequest = $googlePayRequest;
         $this->logger = $logger;
         $this->config = $config;
         $this->localeResolver = $localeResolver;
         $this->paymentComponentRequest = $paymentComponentRequest;
         $this->session = $session;
+        $this->apiTokenUtil = $apiTokenUtil;
     }
 
     /**
@@ -134,7 +134,7 @@ class PaymentRequest implements SectionSourceInterface
                     [
                         "paymentComponentContainerId" => self::PAYMENT_COMPONENT_CONTAINER_ID,
                         "paymentComponentConfig" => $paymentComponentData,
-                        'apiToken' => $this->genericConfigProvider->getApiToken($storeId)
+                        'apiToken' => $this->apiTokenUtil->getApiTokenFromCache($quote)
                     ]
                 );
             } catch (ApiException $apiException) {
@@ -175,6 +175,11 @@ class PaymentRequest implements SectionSourceInterface
         return $this->quote;
     }
 
+    /**
+     * Get the Store ID from the quote
+     *
+     * @return int|null
+     */
     private function getStoreIdFromQuote():?int
     {
         if (method_exists($this->getQuote(), 'getStoreId')) {

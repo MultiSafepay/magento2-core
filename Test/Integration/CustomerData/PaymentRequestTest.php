@@ -85,6 +85,7 @@ class PaymentRequestTest extends AbstractTestCase
     /**
      * Test if the payment component data is in the payment request when payment component is activated
      *
+     * @magentoDbIsolation enabled
      * @magentoDataFixture   Magento/Sales/_files/quote.php
      * @magentoConfigFixture default_store payment/multisafepay_creditcard/active 1
      * @magentoConfigFixture default_store payment/multisafepay_creditcard/payment_type payment_component
@@ -102,6 +103,7 @@ class PaymentRequestTest extends AbstractTestCase
     /**
      * Test if the Google Pay data is in the payment request when Google Pay Direct is activated
      *
+     * @magentoDbIsolation enabled
      * @magentoDataFixture   Magento/Sales/_files/quote.php
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/active 1
      * @magentoConfigFixture default_store payment/multisafepay_googlepay/direct_button 1
