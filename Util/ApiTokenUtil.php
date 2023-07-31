@@ -57,15 +57,16 @@ class ApiTokenUtil
      */
     public function getApiTokenFromCache(CartInterface $quote): string
     {
-        $cacheData = $this->cache->load(self::MULTISAFEPAY_API_TOKEN_CACHE);
+        $storeId = $quote->getStoreId();
+        $cacheData = $this->cache->load(self::MULTISAFEPAY_API_TOKEN_CACHE . '-' . $storeId);
 
         if ($cacheData) {
             return $cacheData;
         }
 
-        $apiToken = $this->genericConfigProvider->getApiToken($quote->getStoreId()) ?? '';
+        $apiToken = $this->genericConfigProvider->getApiToken($storeId) ?? '';
 
-        $this->cache->save($apiToken, self::MULTISAFEPAY_API_TOKEN_CACHE, [], 540);
+        $this->cache->save($apiToken, self::MULTISAFEPAY_API_TOKEN_CACHE . '-' . $storeId, [], 540);
 
         return $apiToken;
     }
