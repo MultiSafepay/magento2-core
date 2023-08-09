@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Http\Client;
 
+use Exception;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
+use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -52,9 +54,10 @@ class RefundClient implements ClientInterface
 
     /**
      * @param TransferInterface $transferObject
-     * @return array|null
+     * @return array
+     * @throws Exception
      */
-    public function placeRequest(TransferInterface $transferObject): ?array
+    public function placeRequest(TransferInterface $transferObject): array
     {
         $request = $transferObject->getBody();
         $orderId = (string)$request['order_id'];
@@ -67,15 +70,15 @@ class RefundClient implements ClientInterface
         } catch (InvalidApiKeyException $invalidApiKeyException) {
             $this->logger->logInvalidApiKeyException($invalidApiKeyException);
 
-            return null;
+            throw new CouldNotRefundException(__($invalidApiKeyException->getMessage()));
         } catch (ApiException $apiException) {
             $this->logger->logExceptionForOrder($orderId, $apiException);
 
-            return null;
+            throw new CouldNotRefundException(__($apiException->getMessage()));
         } catch (ClientExceptionInterface $clientException) {
             $this->logger->logClientException($orderId, $clientException);
 
-            return null;
+            throw new CouldNotRefundException(__($clientException->getMessage()));
         }
     }
 }

@@ -654,7 +654,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">MultiSafepayBnplinstmRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
-            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
@@ -672,7 +672,7 @@
     <virtualType name="MultiSafepayBnplinstmRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
-                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBuilder</item>
             </argument>
         </arguments>
     </virtualType>
