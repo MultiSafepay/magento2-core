@@ -16,7 +16,6 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Shoppin
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
-use Magento\GiftCardAccount\Model\Giftcardaccount;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -158,7 +157,7 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
         $couponCodes = '';
 
         foreach ($giftCardsData as $data) {
-            $couponCodes .= $data[Giftcardaccount::CODE] . ',';
+            $couponCodes .= $data[\Magento\GiftCardAccount\Model\Giftcardaccount::CODE] . ',';
         }
 
         return $this->getTitle($total) . ' (' . rtrim($couponCodes, ',') . ')';
