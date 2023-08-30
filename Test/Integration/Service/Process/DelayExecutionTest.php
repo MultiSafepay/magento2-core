@@ -40,15 +40,15 @@ class DelayExecutionTest extends AbstractTestCase
      */
     public function testDelayExecution(): void
     {
-        $startTime = date('s', time() + 10);
+        $startTime = date('s', time() + DelayExecution::TIMEOUT);
         $this->delayExecution->execute(Transaction::COMPLETED);
         $endTime = date('s');
 
         self::assertThat(
             $endTime,
             self::logicalAnd(
-                $this->greaterThanOrEqual($startTime - 1),
-                $this->lessThanOrEqual($startTime + 1)
+                $this->greaterThanOrEqual($startTime - 0.5),
+                $this->lessThanOrEqual($startTime + 0.5)
             )
         );
     }

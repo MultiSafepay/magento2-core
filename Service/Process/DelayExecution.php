@@ -19,6 +19,8 @@ use MultiSafepay\Api\Transactions\Transaction;
 
 class DelayExecution
 {
+    public const TIMEOUT = 1;
+
     /**
      * Give the first process time to end to avoid saving the order with the wrong status
      *
@@ -27,9 +29,9 @@ class DelayExecution
      */
     public function execute(string $transactionStatus): void
     {
-        if ($transactionStatus !== Transaction::INITIALIZED) {
+        if ($transactionStatus === Transaction::COMPLETED) {
             // phpcs:ignore Magento2.Functions.DiscouragedFunction
-            sleep(10);
+            sleep(self::TIMEOUT);
         }
     }
 }
