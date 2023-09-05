@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.3] - 2023-09-04
+### Fixed
+- PLGMAG2V2-691: Fixed an issue with Pay After Delivery Installments refunds
+- PLGMAG2V2-696: Fixed an issue where notification requests would require a lot of time to process, in some cases causing a timeout
+
+### Changed
+- PLGMAG2V2-683: API tokens are now stored and retrieved through the cache
+
+### Removed
+- PLGMAG2V2-694: Removed class import dependency on Magento_Giftcardaccount for CustomTotalBuilder
+
 ## [3.1.2] - 2023-07-17
 ### Fixed
 - PLGMAG2V2-675: Fixed an issue where cron job sales_clean_orders failed when order contains no payment method
