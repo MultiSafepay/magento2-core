@@ -21,6 +21,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider;
 
 class PaymentComponentRequest
 {
@@ -30,7 +31,8 @@ class PaymentComponentRequest
         MastercardConfigProvider::CODE,
         VisaConfigProvider::CODE,
         CreditCardConfigProvider::CODE,
-        BnplinstmConfigProvider::CODE
+        BnplinstmConfigProvider::CODE,
+        ZiniaConfigProvider::CODE
     ];
 
     /**

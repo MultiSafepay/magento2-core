@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * See DISCLAIMER.md for disclaimer details.
+ */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCheckoutZiniaComponentSection">
+        <element name="dateOfBirth" type="text" selector="#extvar1"/>
+        <element name="email" type="text" selector="#extvar3"/>
+        <element name="phone" type="text" selector="#extvar4"/>
+        <element name="gender" type="text" selector="radio-extvar5-M"/>
+    </section>
+</sections>

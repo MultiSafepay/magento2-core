@@ -6002,6 +6002,130 @@
         </arguments>
     </virtualType>
 
+    <!-- Zinia Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayZiniaFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayZiniaValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayZiniaValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayZiniaCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Configuration reader -->
+    <virtualType name="MultiSafepayZiniaConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Config Value Handler Pool -->
+    <virtualType name="MultiSafepayZiniaConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayZiniaConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Config Value Handler -->
+    <virtualType name="MultiSafepayZiniaConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayZiniaConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Logger, initialized with MultiSafepayZiniaConfig -->
+    <virtualType name="MultiSafepayZiniaLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayZiniaConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="\MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayZiniaLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Zinia Commands infrastructure -->
+    <virtualType name="MultiSafepayZiniaCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayZiniaInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayZiniaRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Initialize command -->
+    <virtualType name="MultiSafepayZiniaInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayZiniaInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Refund command -->
+    <virtualType name="MultiSafepayZiniaRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayZiniaRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Initialization Request -->
+    <virtualType name="MultiSafepayZiniaInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Refund Request -->
+    <virtualType name="MultiSafepayZiniaRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Validator Pool -->
+    <virtualType name="MultiSafepayZiniaValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayZiniaCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayZiniaCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayZiniaConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zinia Value handlers infrastructure -->
+    <virtualType name="MultiSafepayZiniaValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayZiniaConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayZiniaConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayZiniaConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- MultiSafepayGenericGateway Payment Method Facade configuration -->
     <virtualType name="MultiSafepayGenericGatewayFacade" type="MultiSafepay\ConnectCore\Model\Method\GenericAdapter">
         <arguments>
@@ -8456,6 +8580,11 @@
                         MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
                     </item>
                 </item>
+                <item name="multisafepay_zinia" xsi:type="array">
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -8546,6 +8675,7 @@
                 <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3ConfigProvider</item>
                 <item name="multisafepay_genericgateway" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider</item>
                 <item name="multisafepay_wechatpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider</item>
+                <item name="multisafepay_zinia" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider</item>
 
                 <!-- Recurring -->
                 <item name="multisafepay_creditcard_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider</item>

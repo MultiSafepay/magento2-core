@@ -64,5 +64,10 @@ class EventsTest extends EventsTestCase
             PaymentComponentDataAssignObserver::class,
             'payment_method_assign_data_multisafepay_bnplinstm'
         );
+
+        $this->findObserverForEvent(
+            PaymentComponentDataAssignObserver::class,
+            'payment_method_assign_data_multisafepay_zinia'
+        );
     }
 }
