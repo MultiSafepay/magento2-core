@@ -132,8 +132,10 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
     {
         $title = $this->getTitle($total);
 
-        if ($total->getCode() === 'giftcardaccount' && ($giftCards = $total->getGiftCards())) {
-            $title = $this->getGiftCardAccountTitle($total, $giftCards);
+        if (class_exists(\Magento\GiftCardAccount\Model\Giftcardaccount::class)) {
+            if ($total->getCode() === 'giftcardaccount' && ($giftCards = $total->getGiftCards())) {
+                $title = $this->getGiftCardAccountTitle($total, $giftCards);
+            }
         }
 
         $unitPrice = $total->getAmount() ? $this->getAmount($total, $storeId) : $total->getValue();
