@@ -17,10 +17,10 @@ namespace MultiSafepay\ConnectCore\Observer\Gateway;
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 class DirectDebitDataAssignObserver extends AbstractDataAssignObserver
 {
-
     /**
      * @inheritDoc
      */
@@ -31,6 +31,10 @@ class DirectDebitDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
+        if (empty($additionalData)) {
+            return;
+        }
+
         if (isset($additionalData['account_holder_name'])) {
             $payment->setAdditionalInformation('account_holder_name', $additionalData['account_holder_name']);
         }
@@ -38,5 +42,7 @@ class DirectDebitDataAssignObserver extends AbstractDataAssignObserver
         if (isset($additionalData['account_holder_iban'])) {
             $payment->setAdditionalInformation('account_holder_iban', $additionalData['account_holder_iban']);
         }
+
+        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
     }
 }

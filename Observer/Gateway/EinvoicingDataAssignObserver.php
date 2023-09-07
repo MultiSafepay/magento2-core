@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Observer\Gateway;
 use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
 
 class EinvoicingDataAssignObserver extends AbstractDataAssignObserver
 {
@@ -31,6 +32,10 @@ class EinvoicingDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
+        if (empty($additionalData)) {
+            return;
+        }
+
         if (isset($additionalData['date_of_birth'])) {
             $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth']);
         }
@@ -42,5 +47,7 @@ class EinvoicingDataAssignObserver extends AbstractDataAssignObserver
         if (isset($additionalData['email_address'])) {
             $payment->setAdditionalInformation('email_address', $additionalData['email_address'] ?? '');
         }
+
+        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
     }
 }
