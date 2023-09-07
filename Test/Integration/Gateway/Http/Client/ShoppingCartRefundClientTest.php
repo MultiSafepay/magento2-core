@@ -14,28 +14,23 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Http\Client;
 
-use Magento\Payment\Gateway\Http\ClientException;
-use Magento\Payment\Gateway\Http\ConverterException;
+use Exception;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use MultiSafepay\Api\Base\Response;
 use MultiSafepay\Api\TransactionManager;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\Api\Transactions\RefundRequest\Arguments\CheckoutData;
 use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
-use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use MultiSafepay\ConnectCore\Util\RefundUtil;
 use MultiSafepay\Sdk;
 use MultiSafepay\ValueObject\CartItem;
 use MultiSafepay\ValueObject\Money;
 use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Http\Client\ClientExceptionInterface;
 
 /**
- * phpcs:ignoreFile
- * Class ShoppingCartRefundClientTest
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ShoppingCartRefundClientTest extends AbstractTestCase
@@ -44,9 +39,9 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
     public const FAKE_REFUND_ID = '11223344';
 
     /**
-     * @throws ClientExceptionInterface
-     * @throws ClientException
-     * @throws ConverterException
+     * Test if the ShoppingCartRefundClient executes with given data
+     *
+     * @throws Exception
      */
     public function testShoppingCartRefundClient(): void
     {
@@ -70,23 +65,24 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
             );
 
         $refundClientMock = $this->getMockBuilder(ShoppingCartRefundClient::class)->setConstructorArgs([
-            $this->getConfig(),
-            $this->getDescription(),
             $this->setupSdkFactory($this->getSdkMockWithRefundMethod($refundRequestPayload)),
-            $this->getObjectManager()->get(Logger::class)
+            $this->getObjectManager()->get(Logger::class),
+            $this->getObjectManager()->get(RefundUtil::class)
         ])->setMethodsExcept(['placeRequest'])->getMock();
 
         /** @var TransferInterface $transferObject */
         $transferObject = $this->prepareTransferObjectMock([
-            'money' => new Money(1000, 'USD'),
-            'payload' => [
+            'order_id' => '1000010010',
+            'store_id' => 1,
+            'currency' => 'EUR',
+            'items' => [
                 [
                     'sku' => 'simple',
                     'quantity' => 1,
                 ],
             ],
-            'order_id' => '1000010010',
-            'store_id' => 1,
+            'shipping' => 5,
+            'adjustment' => 3
         ]);
 
         $result = $refundClientMock->placeRequest($transferObject);
@@ -101,22 +97,6 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
     private function getRefundRequest(): RefundRequest
     {
         return $this->getObjectManager()->get(RefundRequest::class);
-    }
-
-    /**
-     * @return Config
-     */
-    private function getConfig(): Config
-    {
-        return $this->getObjectManager()->get(Config::class);
-    }
-
-    /**
-     * @return Description
-     */
-    private function getDescription(): Description
-    {
-        return $this->getObjectManager()->get(Description::class);
     }
 
     /**

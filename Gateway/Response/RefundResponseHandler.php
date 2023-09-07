@@ -27,7 +27,7 @@ class RefundResponseHandler implements HandlerInterface
     private $logger;
 
     /**
-     * CancelResponseHandler constructor.
+     * RefundResponseHandler constructor.
      *
      * @param Logger $logger
      */
@@ -37,11 +37,13 @@ class RefundResponseHandler implements HandlerInterface
     }
 
     /**
+     * Set the refund ID retrieved from the MultiSafepay refund request as the Magento refund transaction ID
+     *
      * @param array $handlingSubject
      * @param array $response
-     * @return $this|void
+     * @return $this
      */
-    public function handle(array $handlingSubject, array $response)
+    public function handle(array $handlingSubject, array $response): RefundResponseHandler
     {
         $paymentDataObject = SubjectReader::readPayment($handlingSubject);
         /** @var OrderPaymentInterface $payment */

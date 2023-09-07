@@ -148,7 +148,6 @@ class CreateInvoice implements ProcessInterface
                 $message = 'Exception occurred when trying to set the parent transaction ID';
                 $this->logger->logInfoForNotification($order->getIncrementId(), $message, $transaction);
             }
-
         }
 
         if (!$isManualCaptureTransaction) {

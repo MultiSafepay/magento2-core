@@ -21,12 +21,9 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
-use Magento\Sales\Model\Order\Creditmemo\Item;
-use Magento\Store\Model\Store;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
-use MultiSafepay\ValueObject\Money;
 
 class ShoppingCartRefundRequestBuilder implements BuilderInterface
 {
@@ -36,35 +33,33 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
     private $currencyUtil;
 
     /**
-     * @var AmountUtil
-     */
-    private $amountUtil;
-
-    /**
      * @var Logger
      */
     private $logger;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * ShoppingCartRefundRequestBuilder constructor.
      *
-     * @param AmountUtil $amountUtil
      * @param CurrencyUtil $currencyUtil
      * @param Logger $logger
+     * @param Config $config
      */
     public function __construct(
-        AmountUtil $amountUtil,
         CurrencyUtil $currencyUtil,
-        Logger $logger
+        Logger $logger,
+        Config $config
     ) {
         $this->currencyUtil = $currencyUtil;
-        $this->amountUtil = $amountUtil;
         $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     *
      * @param array $buildSubject
      * @return array
      * @throws CouldNotRefundException
@@ -73,12 +68,15 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
+        $response = [];
+
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $amount = (float)SubjectReader::readAmount($buildSubject);
         $payment = $paymentDataObject->getPayment();
 
         /** @var OrderInterface $order */
         $order = $payment->getOrder();
+
         $orderId = $order->getIncrementId();
 
         /** @var CreditmemoInterface $creditMemo */
@@ -91,15 +89,6 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             throw new NoSuchEntityException($message);
         }
 
-        $adjustments = $creditMemo->getAdjustment();
-
-        if ($adjustments !== null && $adjustments !== 0.0) {
-            $message = __('Refunds with adjustments for this payment method are currently not supported');
-            $this->logger->logInfoForOrder($orderId, $message->render());
-
-            throw new CouldNotRefundException($message);
-        }
-
         $message = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount === 0.0) {
             $this->logger->logInfoForOrder($orderId, $message);
@@ -107,39 +96,69 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             throw new CouldNotRefundException(__($message));
         }
 
-        $refund = [];
+        $response['order_id'] = $orderId;
+        $response['store_id'] = (int)$order->getStoreId();
+        $response['currency'] = $this->currencyUtil->getCurrencyCode($order);
+        $response['items'] = $this->buildItems($creditMemo);
+        $response['shipping'] = $this->getShippingAmount($creditMemo);
+        $response['adjustment'] = $this->getAdjustment($creditMemo);
 
-        /** @var Item $item */
+        return $response;
+    }
+
+    /**
+     * Build the items that need to be refunded
+     *
+     * @param CreditmemoInterface $creditMemo
+     * @return array
+     */
+    private function buildItems(CreditmemoInterface $creditMemo): array
+    {
+        $itemsToRefund = [];
+
         foreach ($creditMemo->getItems() as $item) {
             if (($item->getOrderItem() !== null) && $item->getOrderItem()->getParentItem() !== null) {
                 continue;
             }
 
             if ($item->getQty() > 0) {
-                $refund[] = [
+                $itemsToRefund[] = [
                     'sku' => $item->getSku(),
-                    'quantity' => (int) $item->getQty()
+                    'quantity' => (int) $item->getQty(),
                 ];
             }
         }
 
-        if (!empty($creditMemo->getShippingAmount())) {
-            $refund[] = [
-                'sku' => 'msp-shipping',
-                'quantity' => 1
-            ];
+        return $itemsToRefund;
+    }
+
+    /**
+     * Retrieve the shipping amount from the credit memo
+     *
+     * @param CreditmemoInterface $creditMemo
+     * @return float|null
+     */
+    private function getShippingAmount(CreditmemoInterface $creditMemo): ?float
+    {
+        if ($this->config->useBaseCurrency($creditMemo->getStoreId())) {
+            return $creditMemo->getBaseShippingAmount();
         }
 
-        $money = new Money(
-            $this->amountUtil->getAmount($amount, $order) * 100,
-            $this->currencyUtil->getCurrencyCode($order)
-        );
+        return $creditMemo->getShippingAmount();
+    }
 
-        return [
-            'money' => $money,
-            'payload' => $refund,
-            'order_id' => $orderId,
-            Store::STORE_ID => (int)$order->getStoreId()
-        ];
+    /**
+     * Retrieve the correct adjustment from the credit memo
+     *
+     * @param CreditmemoInterface $creditMemo
+     * @return float|null
+     */
+    private function getAdjustment(CreditmemoInterface $creditMemo): ?float
+    {
+        if ($this->config->useBaseCurrency($creditMemo->getStoreId())) {
+            return $creditMemo->getBaseAdjustment();
+        }
+
+        return $creditMemo->getAdjustment();
     }
 }

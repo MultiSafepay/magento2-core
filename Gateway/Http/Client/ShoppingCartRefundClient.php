@@ -18,11 +18,9 @@ use Exception;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
-use Magento\Store\Model\Store;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
-use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\RefundUtil;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -35,38 +33,30 @@ class ShoppingCartRefundClient implements ClientInterface
     private $sdkFactory;
 
     /**
-     * @var Description
-     */
-    private $description;
-
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
      * @var Logger
      */
     private $logger;
 
     /**
+     * @var RefundUtil
+     */
+    private $refundUtil;
+
+    /**
      * ShoppingCartRefundClient constructor.
      *
-     * @param Config $config
-     * @param Description $description
      * @param SdkFactory $sdkFactory
      * @param Logger $logger
+     * @param RefundUtil $refundUtil
      */
     public function __construct(
-        Config $config,
-        Description $description,
         SdkFactory $sdkFactory,
-        Logger $logger
+        Logger $logger,
+        RefundUtil $refundUtil
     ) {
-        $this->description = $description;
         $this->sdkFactory = $sdkFactory;
-        $this->config = $config;
         $this->logger = $logger;
+        $this->refundUtil = $refundUtil;
     }
 
     /**
@@ -80,17 +70,27 @@ class ShoppingCartRefundClient implements ClientInterface
     {
         $request = $transferObject->getBody();
 
+        $orderId = $request['order_id'];
+        $storeId = $request['store_id'];
+
         try {
-            $orderId = $request['order_id'];
-            $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
+            $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
             $transaction = $transactionManager->get($orderId);
             $refundRequest = $transactionManager->createRefundRequest($transaction);
-            $description = $this->description->addDescription($this->config->getRefundDescription($orderId));
-            $refundRequest->addDescription($description);
-            $refundRequest->addMoney($request['money']);
+            $refundRequest->addDescription($this->refundUtil->buildDescription($orderId, $storeId));
 
-            foreach ($request['payload'] as $refundItem) {
+            foreach ($request['items'] as $refundItem) {
                 $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
+            }
+
+            $adjustmentAmount = $request['adjustment'];
+
+            if ($adjustmentAmount && $adjustmentAmount !== 0.0) {
+                $refundRequest->getCheckoutData()->addItem($this->refundUtil->buildAdjustment($request));
+            }
+
+            if (!empty($request['shipping'])) {
+                $refundRequest->getCheckoutData()->addItem($this->refundUtil->buildShipping($request));
             }
 
             return $transactionManager->refund($transaction, $refundRequest)->getResponseData();

@@ -95,6 +95,7 @@ $order->setAddresses([$billingAddress, $shippingAddress]);
 $order->setPayment($payment);
 $order->addItem($orderItem);
 $order->setStoreId($objectManager->get(\Magento\Store\Model\StoreManagerInterface::class)->getStore()->getId());
+$order->setQuoteId(1);
 $order->setSubtotal(100);
 $order->setBaseSubtotal(100);
 $order->setBaseGrandTotal(100);

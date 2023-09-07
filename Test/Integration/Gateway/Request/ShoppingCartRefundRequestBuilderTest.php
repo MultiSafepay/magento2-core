@@ -23,7 +23,6 @@ use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
-use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBuilder;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
@@ -107,10 +106,12 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
 
         $result = $refundRequest->build($buildSubject);
 
-        self::assertArrayHasKey('money', $result);
-        self::assertArrayHasKey('payload', $result);
         self::assertArrayHasKey('order_id', $result);
-        self::assertArrayHasKey(Store::STORE_ID, $result);
+        self::assertArrayHasKey('store_id', $result);
+        self::assertArrayHasKey('currency', $result);
+        self::assertArrayHasKey('items', $result);
+        self::assertArrayHasKey('shipping', $result);
+        self::assertArrayHasKey('adjustment', $result);
     }
 
     /**
