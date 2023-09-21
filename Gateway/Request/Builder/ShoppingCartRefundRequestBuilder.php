@@ -20,6 +20,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -117,7 +118,19 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         $itemsToRefund = [];
 
         foreach ($creditMemo->getItems() as $item) {
-            if (($item->getOrderItem() !== null) && $item->getOrderItem()->getParentItem() !== null) {
+            $orderItem = $item->getOrderItem();
+
+            if ($orderItem === null) {
+                continue;
+            }
+
+            // Don't add the item if it's a bundle product
+            if ($orderItem->getProductType() === 'bundle') {
+                continue;
+            }
+
+            // Don't add the item if it has a parent item and the parent item is not a bundle
+            if ($orderItem->getParentItem() !== null && !$this->isParentItemBundle($orderItem)) {
                 continue;
             }
 
@@ -160,5 +173,27 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         }
 
         return $creditMemo->getAdjustment();
+    }
+
+    /**
+     * Check if the parent item is bundle
+     *
+     * @param OrderItemInterface $orderItem
+     * @return bool
+     */
+    private function isParentItemBundle(OrderItemInterface $orderItem): bool
+    {
+        $parentItem = $orderItem->getParentItem();
+
+        // Parent item is not bundle, because it doesn't exist
+        if ($parentItem === null) {
+            return false;
+        }
+
+        if ($parentItem->getProductType() === 'bundle') {
+            return true;
+        }
+
+        return false;
     }
 }
