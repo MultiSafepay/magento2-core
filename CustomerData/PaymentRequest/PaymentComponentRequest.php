@@ -21,6 +21,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
+use MultiSafepay\ConnectCore\Util\RecurringTokensUtil;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider;
 
 class PaymentComponentRequest
@@ -46,17 +47,25 @@ class PaymentComponentRequest
     protected $configProviderPool;
 
     /**
+     * @var RecurringTokensUtil
+     */
+    private $recurringTokensUtil;
+
+    /**
      * PaymentConfig constructor.
      *
      * @param ConfigProviderPool $configProviderPool
      * @param UrlInterface $url
+     * @param RecurringTokensUtil $recurringTokensUtil
      */
     public function __construct(
         ConfigProviderPool $configProviderPool,
-        UrlInterface $url
+        UrlInterface $url,
+        RecurringTokensUtil $recurringTokensUtil
     ) {
         $this->configProviderPool = $configProviderPool;
         $this->url = $url;
+        $this->recurringTokensUtil = $recurringTokensUtil;
     }
 
     /**
@@ -86,21 +95,54 @@ class PaymentComponentRequest
                 continue;
             }
 
-            if ($this->isPaymentComponentEnabled($paymentConfig)) {
-                $result[$methodCode] = [
-                    "paymentMethod" => $methodCode,
-                    "gatewayCode" => $paymentConfig['gateway_code'],
-                    "paymentType" => $paymentConfig['payment_type'],
-                    "additionalInfo" => $configProvider->getConfig()['payment'][$methodCode] ?? [],
-                ];
+            // Don't need to add payment component data if it is disabled
+            if (!$this->isPaymentComponentEnabled($paymentConfig)) {
+                continue;
+            }
 
-                if (isset($paymentConfig['tokenization']) && (bool)$paymentConfig['tokenization'] === true) {
-                    $result[$methodCode]['customerReference'] = $this->getCustomerReference($quote);
-                }
+            $result[$methodCode] = [
+                "paymentMethod" => $methodCode,
+                "gatewayCode" => $paymentConfig['gateway_code'],
+                "paymentType" => $paymentConfig['payment_type'],
+                "additionalInfo" => $configProvider->getConfig()['payment'][$methodCode] ?? [],
+            ];
+
+            if (!isset($result[$methodCode]['tokens'])) {
+                $result[$methodCode]['tokens'] = $this->getTokens($quote, $paymentConfig);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Get the customer recurring tokens from the API if needed
+     *
+     * @param CartInterface $quote
+     * @param array $paymentConfig
+     * @return array|null
+     */
+    private function getTokens(CartInterface $quote, array $paymentConfig): ?array
+    {
+        // Don't need to add tokens if the customer is a guest
+        if ($quote->getCustomerIsGuest()) {
+            return null;
+        }
+
+        // Don't need to add tokens if tokenization is turned off
+        if (isset($paymentConfig['tokenization']) && !$paymentConfig['tokenization']) {
+            return null;
+        }
+
+        if (isset($paymentConfig['tokenization']) && (bool)$paymentConfig['tokenization'] === true) {
+            return $this->recurringTokensUtil->getListByGatewayCode(
+                (string)$quote->getCustomer()->getId(),
+                $paymentConfig,
+                (int)$quote->getStoreId() ?? null
+            );
+        }
+
+        return null;
     }
 
     /**
@@ -124,20 +166,5 @@ class PaymentComponentRequest
         }
 
         return false;
-    }
-
-    /**
-     * Get the customer reference which is needed for tokenization inside component
-     *
-     * @param CartInterface $quote
-     * @return int|null
-     */
-    private function getCustomerReference(CartInterface $quote): ?int
-    {
-        if ($quote->getCustomerIsGuest()) {
-            return null;
-        }
-
-        return (int)$quote->getCustomer()->getId();
     }
 }

@@ -110,7 +110,9 @@ class PaymentRequest implements SectionSourceInterface
     }
 
     /**
-     * @return array|false[]
+     * Load all the customer data that is necessary for
+     *
+     * @return array
      */
     public function getSectionData(): array
     {
@@ -140,6 +142,10 @@ class PaymentRequest implements SectionSourceInterface
             } catch (ApiException $apiException) {
                 $this->logger->logPaymentComponentException($apiException);
             }
+
+            if (isset($paymentComponentData['tokens'])) {
+                $result['tokens'] = $paymentComponentData['tokens'];
+            }
         }
 
         $applePayRequest = $this->applePayRequest->create($quote);
@@ -160,7 +166,7 @@ class PaymentRequest implements SectionSourceInterface
     /**
      * Retrieve the quote from the checkout session
      *
-     * @return CartInterface
+     * @return CartInterface|null
      */
     private function getQuote(): ?CartInterface
     {
@@ -169,7 +175,7 @@ class PaymentRequest implements SectionSourceInterface
                 $this->quote = $this->session->getQuote();
             }
         } catch (LocalizedException | NoSuchEntityException $exception) {
-            $this->logger->logPaymentComponentException($exception);
+            $this->logger->logException($exception);
         }
 
         return $this->quote;

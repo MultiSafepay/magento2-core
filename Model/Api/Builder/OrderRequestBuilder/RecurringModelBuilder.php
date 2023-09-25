@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
+use MultiSafepay\ConnectCore\Util\RecurringDataUtil;
 use MultiSafepay\ConnectCore\Util\VaultUtil;
 
 class RecurringModelBuilder implements OrderRequestBuilderInterface
@@ -27,19 +28,19 @@ class RecurringModelBuilder implements OrderRequestBuilderInterface
     public const RECURRING_MODEL_TYPE = 'cardOnFile';
 
     /**
-     * @var VaultUtil
+     * @var RecurringDataUtil
      */
-    private $vaultUtil;
+    private $recurringDataUtil;
 
     /**
      * RecurringModelBuilder constructor.
      *
-     * @param VaultUtil $vaultUtil
+     * @param RecurringDataUtil $recurringDataUtil
      */
     public function __construct(
-        VaultUtil $vaultUtil
+        RecurringDataUtil $recurringDataUtil
     ) {
-        $this->vaultUtil = $vaultUtil;
+        $this->recurringDataUtil = $recurringDataUtil;
     }
 
     /**
@@ -47,13 +48,14 @@ class RecurringModelBuilder implements OrderRequestBuilderInterface
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
      * @return void
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(
         OrderInterface $order,
         OrderPaymentInterface $payment,
         OrderRequest $orderRequest
     ): void {
-        if ($this->vaultUtil->validateVaultTokenEnabler($payment->getAdditionalInformation())) {
+        if ($this->recurringDataUtil->shouldAddRecurringData($payment->getAdditionalInformation())) {
             $orderRequest->addRecurringModel(self::RECURRING_MODEL_TYPE);
         }
     }

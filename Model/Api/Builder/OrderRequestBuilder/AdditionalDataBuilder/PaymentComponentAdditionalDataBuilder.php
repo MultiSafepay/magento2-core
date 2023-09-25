@@ -20,20 +20,27 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 class PaymentComponentAdditionalDataBuilder implements AdditionalDataBuilderInterface
 {
     /**
+     * Build the additional data that is required for the payment component transaction request
+     *
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment): array
     {
-        $additionalInformation = $payment->getAdditionalInformation();
+        $additionalInformation = $payment->getAdditionalInformation() ?? [];
 
-        return isset($additionalInformation['payload']) && $additionalInformation['payload']
-            ? [
-                'payment_data' => [
-                    'payload' => $payment->getAdditionalInformation()['payload'] ?? '',
-                ],
-            ]
-            : [];
+        if (!isset($additionalInformation['payload']) || !$additionalInformation['payload']) {
+            return [];
+        }
+
+        $paymentData = ['payload' => $additionalInformation['payload']];
+
+        if (isset($additionalInformation['tokenize']) && $additionalInformation['tokenize']) {
+            $paymentData['tokenize'] = true;
+        }
+
+        return ['payment_data' => $paymentData];
     }
 }

@@ -24,6 +24,7 @@ use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\IpAddressBuilder;
+use MultiSafepay\ConnectCore\Util\RecurringDataUtil;
 
 class CustomerBuilder implements OrderRequestBuilderInterface
 {
@@ -58,6 +59,11 @@ class CustomerBuilder implements OrderRequestBuilderInterface
     private $customerSession;
 
     /**
+     * @var RecurringDataUtil
+     */
+    private $recurringDataUtil;
+
+    /**
      * Customer constructor.
      *
      * @param AddressBuilder $address
@@ -66,6 +72,7 @@ class CustomerBuilder implements OrderRequestBuilderInterface
      * @param IpAddressBuilder $ipAddressBuilder
      * @param ResolverInterface $localeResolver
      * @param Session $customerSession
+     * @param RecurringDataUtil $recurringDataUtil
      */
     public function __construct(
         AddressBuilder $address,
@@ -73,7 +80,8 @@ class CustomerBuilder implements OrderRequestBuilderInterface
         Header $httpHeader,
         IpAddressBuilder $ipAddressBuilder,
         ResolverInterface $localeResolver,
-        Session $customerSession
+        Session $customerSession,
+        RecurringDataUtil $recurringDataUtil
     ) {
         $this->address = $address;
         $this->customerDetails = $customerDetails;
@@ -81,6 +89,7 @@ class CustomerBuilder implements OrderRequestBuilderInterface
         $this->localeResolver = $localeResolver;
         $this->ipAddressBuilder = $ipAddressBuilder;
         $this->customerSession = $customerSession;
+        $this->recurringDataUtil = $recurringDataUtil;
     }
 
     /**
@@ -112,7 +121,9 @@ class CustomerBuilder implements OrderRequestBuilderInterface
 
         $this->ipAddressBuilder->build($this->customerDetails, $order);
 
-        if ($this->customerSession->isLoggedIn()) {
+        if ($this->customerSession->isLoggedIn() &&
+            $this->recurringDataUtil->shouldAddRecurringData($payment->getAdditionalInformation())
+        ) {
             $this->customerDetails->addReference((string) $order->getCustomerId());
         }
 

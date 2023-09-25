@@ -50,5 +50,9 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
 
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
         $payment->setAdditionalInformation('payload', $additionalData['payload']);
+
+        if (isset($additionalData['tokenize']) && $additionalData['tokenize']) {
+            $payment->setAdditionalInformation('tokenize', (bool)$additionalData['tokenize']);
+        }
     }
 }
