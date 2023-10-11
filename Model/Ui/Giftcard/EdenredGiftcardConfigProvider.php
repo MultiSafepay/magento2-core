@@ -27,6 +27,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
     public const EDENECO_COUPON_CODE = 'edeneco';
     public const EDENRES_COUPON_CODE = 'edenres';
     public const EDENSPORTS_COUPON_CODE = 'edensports';
+    public const CVE_COUPON_CODE = 'edenconsum';
     public const CONFIG_ALL_CATEGORIES_VALUE = 'all_categories';
 
     /**
@@ -70,6 +71,10 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
             ),
             self::EDENSPORTS_COUPON_CODE => $this->getAvailableCategoriesByCouponCode(
                 self::EDENSPORTS_COUPON_CODE,
+                $storeId
+            ),
+            self::CVE_COUPON_CODE => $this->getAvailableCategoriesByCouponCode(
+                self::CVE_COUPON_CODE,
                 $storeId
             ),
         ]);
