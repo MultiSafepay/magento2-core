@@ -36,6 +36,7 @@ class CustomTotalBuilder implements ShoppingCartBuilderInterface
         'fooman_surcharge_tax_after',
         'mp_reward_spent',
         'mp_reward_earn',
+        'marketplace_shipping',
     ];
 
     /**
