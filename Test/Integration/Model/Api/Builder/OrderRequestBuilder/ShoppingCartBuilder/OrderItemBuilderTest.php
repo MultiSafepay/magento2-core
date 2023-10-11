@@ -70,7 +70,7 @@ class OrderItemBuilderTest extends AbstractTestCase
 
         self::assertSame($expectedItem->getName(), $item['name']);
         self::assertSame((float)$expectedItem->getQtyOrdered(), $item['quantity']);
-        self::assertSame($expectedItem->getSku(), $item['merchantItemId']);
+        self::assertSame($expectedItem->getSku() . '_', $item['merchantItemId']);
         self::assertSame($expectedItem->getDescription() ?? '', $item['description']);
         self::assertSame((float)$expectedItem->getTaxPercent(), $item['taxRate']);
 

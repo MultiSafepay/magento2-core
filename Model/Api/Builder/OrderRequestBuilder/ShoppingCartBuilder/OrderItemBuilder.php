@@ -99,7 +99,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
      */
     public function getMerchantItemId(OrderItemInterface $item): string
     {
-        return $item->getSku();
+        return $item->getSku() . '_' . $item->getQuoteItemId();
     }
 
     /**

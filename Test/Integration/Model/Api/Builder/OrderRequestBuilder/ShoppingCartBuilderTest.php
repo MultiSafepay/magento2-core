@@ -99,7 +99,7 @@ class ShoppingCartBuilderTest extends AbstractTestCase
             $merchantItemIds[] = $item['merchant_item_id'];
         }
 
-        self::assertSame(['simple', 'simple-2'], $merchantItemIds);
+        self::assertSame(['simple_', 'simple-2_'], $merchantItemIds);
     }
 
     /**

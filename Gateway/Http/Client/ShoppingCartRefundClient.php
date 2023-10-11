@@ -72,15 +72,18 @@ class ShoppingCartRefundClient implements ClientInterface
 
         $orderId = $request['order_id'];
         $storeId = $request['store_id'];
+        $transaction = $request['transaction'];
 
         try {
             $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
-            $transaction = $transactionManager->get($orderId);
             $refundRequest = $transactionManager->createRefundRequest($transaction);
             $refundRequest->addDescription($this->refundUtil->buildDescription($orderId, $storeId));
 
             foreach ($request['items'] as $refundItem) {
-                $refundRequest->getCheckoutData()->refundByMerchantItemId($refundItem['sku'], $refundItem['quantity']);
+                $refundRequest->getCheckoutData()->refundByMerchantItemId(
+                    $refundItem['merchant_item_id'],
+                    $refundItem['quantity']
+                );
             }
 
             $adjustmentAmount = $request['adjustment'];

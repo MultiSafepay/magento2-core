@@ -23,9 +23,17 @@ use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
+use MultiSafepay\Api\Transactions\TransactionResponse;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBuilder;
+use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\ConnectCore\Util\TransactionUtil;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
 {
     /**
@@ -91,7 +99,19 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
      */
     public function testBuildShoppingCartRefund(): void
     {
-        $refundRequest = $this->getShoppingcartRefundRequestBuilder();
+        $transactionUtilMock = $this->getMockBuilder(TransactionUtil::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $transactionUtilMock->method('getTransaction')->willReturn($this->getTransactionResponse());
+
+        $refundRequest = $this->getMockBuilder(ShoppingCartRefundRequestBuilder::class)->setConstructorArgs([
+            $this->getObjectManager()->get(CurrencyUtil::class),
+            $this->getObjectManager()->get(Logger::class),
+            $this->getObjectManager()->get(Config::class),
+            $transactionUtilMock
+        ])->setMethodsExcept(['build'])->getMock();
+
         $stateObject = new DataObject();
         $order = $this->getOrder();
         $order->getPayment()->setCreditMemo($this->getCreditMemo());
@@ -107,17 +127,26 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
         $result = $refundRequest->build($buildSubject);
 
         self::assertArrayHasKey('order_id', $result);
+        self::assertEquals('100000001', $result['order_id']);
+
         self::assertArrayHasKey('store_id', $result);
+        self::assertEquals(1, $result['store_id']);
+
         self::assertArrayHasKey('currency', $result);
+        self::assertEquals('USD', $result['currency']);
+
         self::assertArrayHasKey('items', $result);
         self::assertArrayHasKey('shipping', $result);
         self::assertArrayHasKey('adjustment', $result);
+
+        self::assertArrayHasKey('transaction', $result);
+        self::assertInstanceOf(TransactionResponse::class, $result['transaction']);
     }
 
     /**
      * @return ShoppingCartRefundRequestBuilder
      */
-    private function getShoppingcartRefundRequestBuilder(): ShoppingCartRefundRequestBuilder
+    private function getShoppingCartRefundRequestBuilder(): ShoppingCartRefundRequestBuilder
     {
         return $this->getObjectManager()->get(ShoppingCartRefundRequestBuilder::class);
     }
@@ -135,10 +164,17 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
 
     /**
      * @return CreditmemoInterface
-     * @throws Exception
      */
     protected function getCreditMemo(): CreditmemoInterface
     {
         return $this->getObjectManager()->create(CreditmemoInterface::class);
+    }
+
+    /**
+     * @return TransactionResponse
+     */
+    protected function getTransactionResponse(): TransactionResponse
+    {
+        return $this->getObjectManager()->create(TransactionResponse::class);
     }
 }

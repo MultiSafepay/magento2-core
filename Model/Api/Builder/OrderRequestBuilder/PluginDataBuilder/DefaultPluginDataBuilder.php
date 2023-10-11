@@ -78,5 +78,7 @@ class DefaultPluginDataBuilder
                 ->addPluginVersion($this->versionUtil->getPluginVersion())
                 ->addShopRootUrl($this->store->getBaseUrl() ?? 'unknown')
         );
+
+        $orderRequest->addData(['var1' => $this->versionUtil->getPluginVersion()]);
     }
 }

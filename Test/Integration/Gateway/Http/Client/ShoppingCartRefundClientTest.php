@@ -20,7 +20,7 @@ use MultiSafepay\Api\Base\Response;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\Api\Transactions\RefundRequest\Arguments\CheckoutData;
-use MultiSafepay\Api\Transactions\TransactionResponse as Transaction;
+use MultiSafepay\Api\Transactions\TransactionResponse;
 use MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -77,12 +77,13 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
             'currency' => 'EUR',
             'items' => [
                 [
-                    'sku' => 'simple',
+                    'merchant_item_id' => 'simple',
                     'quantity' => 1,
                 ],
             ],
             'shipping' => 5,
-            'adjustment' => 3
+            'adjustment' => 3,
+            'transaction' => $this->getTransactionResponseMock()
         ]);
 
         $result = $refundClientMock->placeRequest($transferObject);
@@ -100,6 +101,16 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
     }
 
     /**
+     * @return MockObject
+     */
+    private function getTransactionResponseMock(): MockObject
+    {
+        return $this->getMockBuilder(TransactionResponse::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    /**
      * @param RefundRequest $refundRequestPayload
      * @return MockObject
      */
@@ -114,7 +125,7 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $transactionMock = $this->getMockBuilder(Transaction::class)
+        $transactionMock = $this->getMockBuilder(TransactionResponse::class)
             ->disableOriginalConstructor()
             ->getMock();
 

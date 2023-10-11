@@ -19,12 +19,16 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\CreditmemoItemInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
+use Magento\Sales\Model\Order\Payment;
+use MultiSafepay\Api\Transactions\TransactionResponse;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\ConnectCore\Util\TransactionUtil;
 
 class ShoppingCartRefundRequestBuilder implements BuilderInterface
 {
@@ -44,20 +48,28 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
     private $config;
 
     /**
+     * @var TransactionUtil
+     */
+    private $transactionUtil;
+
+    /**
      * ShoppingCartRefundRequestBuilder constructor.
      *
      * @param CurrencyUtil $currencyUtil
      * @param Logger $logger
      * @param Config $config
+     * @param TransactionUtil $transactionUtil
      */
     public function __construct(
         CurrencyUtil $currencyUtil,
         Logger $logger,
-        Config $config
+        Config $config,
+        TransactionUtil $transactionUtil
     ) {
         $this->currencyUtil = $currencyUtil;
         $this->logger = $logger;
         $this->config = $config;
+        $this->transactionUtil = $transactionUtil;
     }
 
     /**
@@ -73,6 +85,8 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
 
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $amount = (float)SubjectReader::readAmount($buildSubject);
+
+        /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
 
         /** @var OrderInterface $order */
@@ -90,19 +104,22 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             throw new NoSuchEntityException($message);
         }
 
-        $message = 'Refunds with 0 amount can not be processed. Please set a different amount';
         if ($amount === 0.0) {
+            $message = 'Refunds with 0 amount can not be processed. Please set a different amount';
             $this->logger->logInfoForOrder($orderId, $message);
 
             throw new CouldNotRefundException(__($message));
         }
 
+        $transaction = $this->transactionUtil->getTransaction($order);
+
         $response['order_id'] = $orderId;
         $response['store_id'] = (int)$order->getStoreId();
         $response['currency'] = $this->currencyUtil->getCurrencyCode($order);
-        $response['items'] = $this->buildItems($creditMemo);
+        $response['items'] = $this->buildItems($creditMemo, $transaction);
         $response['shipping'] = $this->getShippingAmount($creditMemo);
         $response['adjustment'] = $this->getAdjustment($creditMemo);
+        $response['transaction'] = $transaction;
 
         return $response;
     }
@@ -111,9 +128,10 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
      * Build the items that need to be refunded
      *
      * @param CreditmemoInterface $creditMemo
+     * @param TransactionResponse $transaction
      * @return array
      */
-    private function buildItems(CreditmemoInterface $creditMemo): array
+    private function buildItems(CreditmemoInterface $creditMemo, TransactionResponse $transaction): array
     {
         $itemsToRefund = [];
 
@@ -136,7 +154,7 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
 
             if ($item->getQty() > 0) {
                 $itemsToRefund[] = [
-                    'sku' => $item->getSku(),
+                    'merchant_item_id' => $this->getMerchantItemId($item, $transaction->getVar1()),
                     'quantity' => (int) $item->getQty(),
                 ];
             }
@@ -195,5 +213,21 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         }
 
         return false;
+    }
+
+    /**
+     * Retrieve the merchant item id. It should be SKU for versions older than 3.2.0 or SKU_QuoteItemID
+     *
+     * @param CreditmemoItemInterface $item
+     * @param string $var1
+     * @return string
+     */
+    private function getMerchantItemId(CreditmemoItemInterface $item, string $var1): string
+    {
+        if (empty($var1) || $var1 < '3.2.0') {
+            return $item->getSku();
+        }
+
+        return $item->getSku() . '_' . $item->getOrderItem()->getQuoteItemId();
     }
 }
