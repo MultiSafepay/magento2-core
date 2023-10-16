@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.1] - 2023-10-16
+### Fixed
+- PLGMAG2V2-702: Fixed an issue where in some cases the wrong transaction_type would be used for some 'Direct' payment methods
+
 ## [3.2.0] - 2023-10-11
 ### Added
 - PLGMAG2V2-700: Added Edenred Consumption Voucher (EDENCONSUM)
