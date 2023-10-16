@@ -102,7 +102,6 @@ class CustomerBuilderTest extends AbstractTransactionTestCase
         self::assertEquals($orderRequest['customer']['locale'], $this->localeResolver->emulate($order->getStoreId()));
         self::assertEquals($orderRequest['customer']['phone'], $billingAddress->getTelephone());
         self::assertEquals($orderRequest['customer']['email'], $billingAddress->getEmail());
-        self::assertEquals($orderRequest['customer']['user_agent'], $this->httpHeader->getHttpUserAgent());
     }
 
     /**

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Observer\Gateway;
 
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
@@ -24,6 +25,7 @@ class PayafterDataAssignObserver extends AbstractDataAssignObserver
 
     /**
      * @inheritDoc
+     * @throws LocalizedException
      */
     public function execute(Observer $observer)
     {
@@ -31,6 +33,10 @@ class PayafterDataAssignObserver extends AbstractDataAssignObserver
 
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
+
+        if ($payment->getMethodInstance()->getConfigData('transaction_type') === 'redirect') {
+            return;
+        }
 
         if (empty($additionalData)) {
             return;

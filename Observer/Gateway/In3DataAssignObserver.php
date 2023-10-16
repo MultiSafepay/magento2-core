@@ -31,6 +31,10 @@ class In3DataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
+        if ($payment->getMethodInstance()->getConfigData('transaction_type') === 'redirect') {
+            return;
+        }
+
         if (empty($additionalData)) {
             return;
         }
