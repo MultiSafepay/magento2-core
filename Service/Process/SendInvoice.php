@@ -22,11 +22,7 @@ use Magento\Sales\Model\Order\Email\Container\InvoiceIdentity;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\KlarnaConfigProvider;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 use MultiSafepay\ConnectCore\Util\InvoiceUtil;
-use MultiSafepay\ConnectCore\Util\LegacyUtil;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
 
 class SendInvoice implements ProcessInterface
@@ -129,14 +125,7 @@ class SendInvoice implements ProcessInterface
             return [StatusOperationInterface::SUCCESS_PARAMETER => true];
         }
 
-        $disallowedMethods = [
-            PayafterConfigProvider::CODE,
-            KlarnaConfigProvider::CODE,
-            AfterpayConfigProvider::CODE,
-            LegacyUtil::LEGACY_AFTERPAY_CODE,
-            LegacyUtil::LEGACY_KLARNA_CODE,
-            LegacyUtil::LEGACY_PAYAFTER_CODE,
-        ];
+        $disallowedMethods = $this->invoiceUtil->getDisallowedPaymentMethods();
 
         if (!$invoice->getEmailSent() && !in_array($payment->getMethod(), $disallowedMethods, true)) {
             $this->invoiceSender->send($invoice);

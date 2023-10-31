@@ -19,4 +19,5 @@ class LegacyUtil
     public const LEGACY_AFTERPAY_CODE = 'afterpaymsp';
     public const LEGACY_KLARNA_CODE = 'klarnainvoice';
     public const LEGACY_PAYAFTER_CODE = 'betaalnaontvangst';
+    public const LEGACY_EINVOICING_CODE = 'einvoice';
 }
