@@ -96,7 +96,7 @@ class PostNotification
     public function execute(RequestInterface $request, int $storeId): array
     {
         $requestBody = $request->getContent();
-        $authHeader = $request->getHeader('Auth');
+        $authHeader = (string)$request->getHeader('Auth');
 
         // Validate the POST notification
         try {
