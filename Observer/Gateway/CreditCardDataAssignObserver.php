@@ -32,6 +32,14 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
+        /**
+         * Return early because the event is being triggered by a GraphQL request which contains a different structure,
+         * and for that reason the request will be wrongly set as a redirect in next step.
+         */
+        if (isset($additionalData['additional_information']['payload'])) {
+            return;
+        }
+        
         if (empty($additionalData['payload'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
