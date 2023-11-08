@@ -1314,11 +1314,14 @@
                 <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
                 <is_gateway>1</is_gateway>
                 <sort_order>1</sort_order>
-                <allowspecific>0</allowspecific>
+                <allowspecific>1</allowspecific>
+                <specificcountry>NL</specificcountry>
                 <allow_specific_currency>0</allow_specific_currency>
                 <allow_specific_shipping_method>0</allow_specific_shipping_method>
                 <allow_specific_customer_group>0</allow_specific_customer_group>
-                <allow_amount>0</allow_amount>
+                <allow_amount>1</allow_amount>
+                <min_amount>50</min_amount>
+                <max_amount>750</max_amount>
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
