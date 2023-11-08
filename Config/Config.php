@@ -56,6 +56,7 @@ class Config
 
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
     public const CANCEL_PAYMENTLINK = 'second_chance_paymentlink';
+    public const PAYMENT_COMPONENT_TEMPLATE_ID = 'payment_component_template_id';
 
     public const USE_CUSTOMER_GROUP_COLLECTING_FLOWS = 'use_customer_group_collecting_flows';
     public const CUSTOMER_GROUP_COLLECTING_FLOWS = 'customer_group_collecting_flows';
@@ -356,5 +357,14 @@ class Config
     public function isUtmNoOverrideDisabled($storeId = null): bool
     {
         return (bool)$this->getAdvancedValue(self::DISABLE_UTM_NOOVERRIDE, $storeId);
+    }
+
+    /**
+     * @param null $storeId
+     * @return string
+     */
+    public function getPaymentComponentTemplateId($storeId = null): string
+    {
+        return (string)$this->getAdvancedValue(self::PAYMENT_COMPONENT_TEMPLATE_ID, $storeId);
     }
 }

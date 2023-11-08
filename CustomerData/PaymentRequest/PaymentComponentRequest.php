@@ -14,6 +14,7 @@ namespace MultiSafepay\ConnectCore\CustomerData\PaymentRequest;
 
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\CartInterface;
+use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider;
@@ -52,20 +53,28 @@ class PaymentComponentRequest
     private $recurringTokensUtil;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * PaymentConfig constructor.
      *
      * @param ConfigProviderPool $configProviderPool
      * @param UrlInterface $url
      * @param RecurringTokensUtil $recurringTokensUtil
+     * @param Config $config
      */
     public function __construct(
         ConfigProviderPool $configProviderPool,
         UrlInterface $url,
-        RecurringTokensUtil $recurringTokensUtil
+        RecurringTokensUtil $recurringTokensUtil,
+        Config $config
     ) {
         $this->configProviderPool = $configProviderPool;
         $this->url = $url;
         $this->recurringTokensUtil = $recurringTokensUtil;
+        $this->config = $config;
     }
 
     /**
@@ -81,6 +90,7 @@ class PaymentComponentRequest
         }
 
         $result = [];
+        $paymentComponentTemplateId = $this->config->getPaymentComponentTemplateId($quote->getStoreId());
 
         foreach (self::PAYMENT_COMPONENT_METHODS as $methodCode) {
             $configProvider = $this->configProviderPool->getConfigProviderByCode($methodCode);
@@ -109,6 +119,10 @@ class PaymentComponentRequest
 
             if (!isset($result[$methodCode]['tokens'])) {
                 $result[$methodCode]['tokens'] = $this->getTokens($quote, $paymentConfig);
+            }
+            
+            if (!isset($result['payment_component_template_id']) && $paymentComponentTemplateId) {
+                $result['payment_component_template_id'] = $paymentComponentTemplateId;
             }
         }
 

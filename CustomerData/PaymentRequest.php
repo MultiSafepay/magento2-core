@@ -130,6 +130,11 @@ class PaymentRequest implements SectionSourceInterface
         $paymentComponentData = $this->paymentComponentRequest->create($quote);
 
         if ($paymentComponentData) {
+            if (isset($paymentComponentData['payment_component_template_id'])) {
+                $result['payment_component_template_id'] = $paymentComponentData['payment_component_template_id'];
+                unset($paymentComponentData['payment_component_template_id']);
+            }
+
             try {
                 $result = array_merge(
                     $result,
