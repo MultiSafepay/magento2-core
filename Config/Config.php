@@ -45,6 +45,7 @@ class Config
     public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
     public const CHECKOUT_FIELDS = 'checkout_fields';
     public const PAYMENT_ICON = 'payment_icon';
+    public const ICON_TYPE = 'icon_type';
     public const DISABLE_UTM_NOOVERRIDE = 'disable_utm_nooverride';
 
     public const MULTISAFEPAY_INITIALIZED_STATUS = 'initialized_status';
@@ -275,6 +276,17 @@ class Config
     public function getAccountData($storeId = null): string
     {
         return $this->getValue(self::MULTISAFEPAY_ACCOUNT_DATA, $storeId) ?? '';
+    }
+
+    /**
+     * Retrieve the icon type
+     *
+     * @param $storeId
+     * @return string
+     */
+    public function getIconType($storeId = null): string
+    {
+        return (string)$this->getValue(self::ICON_TYPE, $storeId);
     }
 
     /**

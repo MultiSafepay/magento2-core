@@ -157,16 +157,56 @@ class GenericConfigProvider implements ConfigProviderInterface
     }
 
     /**
+     * Retrieve the payment gateway image
+     *
      * @return string
      * @throws LocalizedException
      */
     public function getImage(): string
     {
-        $path = self::IMAGE_PATH . $this->getCode() . '.png';
+        $url = '';
+        $storeId = $this->getStoreIdFromCheckoutSession();
 
-        $this->assetRepository->createAsset($path);
+        if ($this->config->getIconType($storeId) === 'default') {
+            $url = $this->getPaymentConfig()['icon_url_default'] ?? '';
+        }
 
-        return $this->assetRepository->getUrl($path);
+        if ($this->config->getIconType($storeId) === 'svg') {
+            $url = $this->getPaymentConfig()['icon_url_svg'] ?? '';
+        }
+
+        if (empty($url)) {
+            $path = self::IMAGE_PATH . $this->getCode() . '.png';
+
+            $this->assetRepository->createAsset($path);
+
+            return $this->assetRepository->getUrl($path);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Get the gateway image path
+     *
+     * @param string $gatewayCode
+     * @return string
+     */
+    public function getImagePath(string $gatewayCode): string
+    {
+        $extension = '.png';
+        $locale = 'en';
+        $storeId = $this->getStoreIdFromCheckoutSession();
+
+        if ($this->config->getIconType($storeId) === 'svg') {
+            $extension = '.svg';
+        }
+
+        if ($this->localeResolver->getLocale() === 'nl_NL') {
+            $locale = 'nl';
+        }
+
+        return 'MultiSafepay_ConnectCore::images/' . $gatewayCode . '-' . $locale . $extension;
     }
 
     /**

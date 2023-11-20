@@ -27,32 +27,44 @@ class BankTransferConfigProvider extends GenericConfigProvider
      */
     public function getImage(): string
     {
-        $path = $this->getImagePath();
+        $path = $this->getImagePath($this->getCode());
         $this->assetRepository->createAsset($path);
 
         return $this->assetRepository->getUrl($path);
     }
 
     /**
+     * Get the gateway image path
+     *
+     * @param string $gatewayCode
      * @return string
      */
-    public function getImagePath(): string
+    public function getImagePath(string $gatewayCode): string
     {
+        $extension = '.png';
+        $storeId = $this->getStoreIdFromCheckoutSession();
+
+        if ($this->config->getIconType($storeId) === 'svg') {
+            $extension = '.svg';
+        }
+
         switch ($this->localeResolver->getLocale()) {
             case 'nl_NL':
-                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-nl.png';
-
+                $locale = 'nl';
+                break;
             case 'fr_FR':
-                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-fr.png';
-
+                $locale = 'fr';
+                break;
             case 'de_DE':
-                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-de.png';
-
+                $locale = 'de';
+                break;
             case 'es_ES':
-                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-es.png';
-
+                $locale = 'es';
+                break;
             default:
-                return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-en.png';
+                $locale = 'en';
         }
+
+        return 'MultiSafepay_ConnectCore::images/' . $gatewayCode . '-' . $locale . $extension;
     }
 }

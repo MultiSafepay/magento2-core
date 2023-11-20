@@ -27,21 +27,9 @@ class PayafterConfigProvider extends GenericConfigProvider
      */
     public function getImage(): string
     {
-        $path = $this->getPath();
+        $path = $this->getImagePath($this->getCode());
         $this->assetRepository->createAsset($path);
 
         return $this->assetRepository->getUrl($path);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath(): string
-    {
-        if ($this->localeResolver->getLocale() === 'nl_NL') {
-            return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-nl.png';
-        }
-
-        return 'MultiSafepay_ConnectCore::images/' . $this->getCode() . '-en.png';
     }
 }

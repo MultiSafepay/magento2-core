@@ -49,16 +49,23 @@ class CreditCardConfigProvider extends GenericConfigProvider
      */
     public function getImage(): string
     {
+        $extension = '.png';
+
+        if ($this->config->getIconType() === 'svg') {
+            $extension = '.svg';
+        }
+
         $paymentConfig = $this->getPaymentConfig($this->getStoreIdFromCheckoutSession());
 
+        // Return the default image if nothing can be found in the config
         if (!isset($paymentConfig[Config::PAYMENT_ICON]) || !$paymentConfig[Config::PAYMENT_ICON]) {
-            $path = self::IMAGE_PATH . $this->getCode() . '_default' . '.png';
+            $path = self::IMAGE_PATH . $this->getCode() . '_default' . $extension;
             $this->assetRepository->createAsset($path);
 
             return $this->assetRepository->getUrl($path);
         }
 
-        $path = self::IMAGE_PATH . $this->getCode() . '_' . $paymentConfig[Config::PAYMENT_ICON] . '.png';
+        $path = self::IMAGE_PATH . $this->getCode() . '_' . $paymentConfig[Config::PAYMENT_ICON] . $extension;
         $this->assetRepository->createAsset($path);
 
         return $this->assetRepository->getUrl($path);
