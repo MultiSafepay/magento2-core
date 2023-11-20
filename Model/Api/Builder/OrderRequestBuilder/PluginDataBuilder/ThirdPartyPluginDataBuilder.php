@@ -18,6 +18,8 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use OutOfBoundsException;
 
 class ThirdPartyPluginDataBuilder
 {
@@ -27,14 +29,22 @@ class ThirdPartyPluginDataBuilder
     private $scopeConfig;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * ThirdPartyPluginDataBuilder constructor
      *
      * @param ScopeConfigInterface $scopeConfig
+     * @param Logger $logger
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger
     ) {
         $this->scopeConfig = $scopeConfig;
+        $this->logger = $logger;
     }
 
     /**
@@ -70,7 +80,13 @@ class ThirdPartyPluginDataBuilder
             $reactCheckoutVersion = 'unknown';
 
             if (method_exists('\Composer\InstalledVersions', 'getVersion')) {
-                $reactCheckoutVersion = \Composer\InstalledVersions::getVersion('hyva-themes/magento2-react-checkout');
+                try {
+                    $reactCheckoutVersion = \Composer\InstalledVersions::getVersion(
+                        'hyva-themes/magento2-react-checkout'
+                    );
+                } catch (OutOfBoundsException $exception) {
+                    $this->logger->logExceptionForOrder($orderRequest->getOrderId(), $exception);
+                }
             }
 
             $applicationVersion = $pluginDetails->getApplicationVersion();
