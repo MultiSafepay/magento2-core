@@ -4,10 +4,10 @@ on:
     branches:
       - master
   pull_request:
+    types: [opened]
     branches:
       - 'master'
       - 'release/**'
-
 jobs:
   integration-tests:
     strategy:
