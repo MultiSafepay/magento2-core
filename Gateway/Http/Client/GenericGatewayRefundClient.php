@@ -63,7 +63,10 @@ class GenericGatewayRefundClient implements ClientInterface
      */
     public function placeRequest(TransferInterface $transferObject): ?array
     {
-        $this->config->setMethodCode(GenericGatewayConfigProvider::CODE);
+        $request = $transferObject->getBody();
+        $methodCode = $request['method_code'];
+
+        $this->config->setMethodCode($methodCode);
 
         if ($this->config->getValue(GenericGatewayConfigProvider::REQUIRE_SHOPPING_CART)) {
             return $this->shoppingCartRefundClient->placeRequest($transferObject);
