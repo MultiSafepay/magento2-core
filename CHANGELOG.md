@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2023-11-30
+### Fixed
+- PLGMAG2V2-705: Fixed a bug where the notification process would not finish due to an empty 'Auth' header in the POST webhook request
+- PLGMAG2V2-708: Fixed Hyva React Checkout OutOfBoundsException when it is installed through app/code
+- PLGMAG2V2-688: Fixed an issue where coupons would not be restored if the payment was canceled/declined
+- PLGMAG2V2-711: Fixed an issue where it was not possible to do refunds for a generic gateway that requires the shopping cart
+
+### Added
+- DAVAMS-531: Added an advanced setting for adding a template ID to be used for payment components
+- DAVAMS-676: Added preset gateway filters for Zinia
+- DAVAMS-596: Added a setting to choose SVG icons instead PNG.
+
+### Changed
+- PLGMAG2V2-704: For E-invoicing, there will be no invoice e-mails sent from Magento, since E-invoicing handles invoice e-mails on the payment side
+
 ## [3.2.1] - 2023-10-16
 ### Fixed
 - PLGMAG2V2-702: Fixed an issue where in some cases the wrong transaction_type would be used for some 'Direct' payment methods
