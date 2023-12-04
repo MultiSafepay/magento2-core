@@ -8540,7 +8540,7 @@
                 <item name="multisafepay_directbanktransfer" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\DirectBankTransferGatewayInfoBuilder</item>
                 <item name="multisafepay_directdebit" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\DirectDebitGatewayInfoBuilder</item>
                 <item name="multisafepay_einvoicing" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\ConfigurableGatewayInfoBuilder</item>
-                <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GenderAndDateOfBirthGatewayInfoBuilder</item>
+                <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GenderGatewayInfoBuilder</item>
                 <item name="multisafepay_applepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\WalletPaymentTokenGatewayInfoBuilder</item>
                 <item name="multisafepay_googlepay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\WalletPaymentTokenGatewayInfoBuilder</item>
             </argument>

@@ -39,16 +39,8 @@ class In3DataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
-        if (isset($additionalData['date_of_birth'])) {
-            $payment->setAdditionalInformation('date_of_birth', $additionalData['date_of_birth']);
-        }
-
         if (isset($additionalData['gender'])) {
             $payment->setAdditionalInformation('gender', $additionalData['gender']);
-        }
-
-        if (isset($additionalData['phone_number'])) {
-            $payment->setAdditionalInformation('phone_number', $additionalData['phone_number']);
         }
 
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
