@@ -20,6 +20,7 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderReque
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\ShippingItemBuilder;
@@ -54,6 +55,7 @@ class ShippingItemBuilderTest extends AbstractTestCase
     }
 
     /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
      * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
      * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
@@ -62,36 +64,51 @@ class ShippingItemBuilderTest extends AbstractTestCase
      */
     public function testBuildWithUseBaseCurrencySettingEnabled(): void
     {
-        $this->checkBuiltShippingItem($this->getBuiltShippingItem(20));
+        $order = $this->getOrder();
+        $this->checkBuiltShippingItem($order, 20);
     }
 
     /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
+     * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
     public function testBuildWithUseBaseCurrencySettingDisabled(): void
     {
-        $this->checkBuiltShippingItem($this->getBuiltShippingItem(25));
+        $order = $this->getOrder();
+        $this->checkBuiltShippingItem($order, 25);
     }
 
     /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
+     * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
     public function testBuildWithShippingAmountEqualsZero(): void
     {
-        self::assertNull($this->getBuiltShippingItem(0));
+        $order = $this->getOrder();
+        $shippingItem = $this->getBuiltShippingItem($order, 0);
+
+        self::assertNull($shippingItem);
     }
 
     /**
-     * @param Item $shippingItem
+     * @param OrderInterface $order
+     * @param float|null $customShippingAmount
+     * @return void
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    private function checkBuiltShippingItem(Item $shippingItem): void
+    private function checkBuiltShippingItem(OrderInterface $order, float $customShippingAmount = null): void
     {
-        $order = $this->getOrder();
+        $shippingItem = $this->getBuiltShippingItem($order, $customShippingAmount);
+
         $shippingAmount = $this->config->useBaseCurrency($order->getStoreId()) ? $order->getBaseShippingAmount() :
             $order->getShippingAmount();
 
@@ -103,19 +120,20 @@ class ShippingItemBuilderTest extends AbstractTestCase
             ShippingItemBuilder::SHIPPING_ITEM_MERCHANT_ITEM_ID,
             $shippingItem->getMerchantItemId()
         );
+
         self::assertEquals(0.0, $shippingItem->getTaxRate());
     }
 
     /**
+     * @param OrderInterface $order
      * @param float|null $customShippingAmount
      * @return Item|null
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws Exception
      */
-    private function getBuiltShippingItem(float $customShippingAmount = null): ?Item
+    private function getBuiltShippingItem(OrderInterface $order, float $customShippingAmount = null): ?Item
     {
-        $order = $this->getOrder();
         $quote = $this->getQuote('tableRate');
         $order->setShippingDescription('test_shipping')
             ->setQuoteId($quote->getId())
@@ -123,8 +141,8 @@ class ShippingItemBuilderTest extends AbstractTestCase
             ->setBaseShippingInclTax($customShippingAmount)
             ->setShippingInclTax($customShippingAmount);
 
-        $buildedItems = $this->shippingItemBuilder->build($order, $this->currencyUtil->getCurrencyCode($order));
+        $builtItems = $this->shippingItemBuilder->build($order, $this->currencyUtil->getCurrencyCode($order));
 
-        return $buildedItems && isset($buildedItems[0]) ? $buildedItems[0] : null;
+        return $builtItems && isset($builtItems[0]) ? $builtItems[0] : null;
     }
 }

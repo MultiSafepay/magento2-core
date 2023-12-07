@@ -81,11 +81,6 @@ abstract class AbstractTestCase extends TestCase
      */
     protected function getOrder(): OrderInterface
     {
-        static $order = null;
-        if ($order instanceof OrderInterface) {
-            return $order;
-        }
-
         /** @var OrderRepositoryInterface $orderRepository */
         $orderRepository = $this->getObjectManager()->get(OrderRepositoryInterface::class);
 
@@ -109,12 +104,17 @@ abstract class AbstractTestCase extends TestCase
 
     /**
      * @param string $type
+     * @param OrderInterface|null $order
      * @return PaymentDataObjectInterface
      * @throws LocalizedException
      */
-    protected function getPaymentDataObject(string $type = 'direct'): PaymentDataObjectInterface
-    {
-        $order = $this->getOrder();
+    protected function getPaymentDataObject(
+        string $type = 'direct',
+        OrderInterface $order = null
+    ): PaymentDataObjectInterface {
+        if (!$order) {
+            $order = $this->getOrder();
+        }
 
         /** @var PaymentDataObjectFactoryInterface $paymentDataObjectFactory */
         $paymentDataObjectFactory = $this->getObjectManager()->get(PaymentDataObjectFactoryInterface::class);

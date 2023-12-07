@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Request;
 use Exception;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\RecurringTransactionBuilder;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 
@@ -29,18 +30,20 @@ class RecurringTransactionBuilderTest extends AbstractTestCase
      */
     public function testBuildRecurringTransaction(): void
     {
-        self::assertEquals($this->prepareRecurringTransactionBuilder(), ['order' => $this->getOrder()]);
+        $order = $this->getOrder();
+
+        self::assertEquals($this->prepareRecurringTransactionBuilder($order), ['order' => $order]);
     }
 
     /**
+     * @param OrderInterface $order
      * @return array
      * @throws LocalizedException
-     * @throws Exception
      */
-    private function prepareRecurringTransactionBuilder(): array
+    private function prepareRecurringTransactionBuilder(OrderInterface $order): array
     {
         $buildSubject = [
-            'payment' => $this->getPaymentDataObject(),
+            'payment' => $this->getPaymentDataObject('direct', $order),
             'stateObject' => new DataObject(),
         ];
 

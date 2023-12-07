@@ -40,11 +40,6 @@ class CustomerBuilderTest extends AbstractTransactionTestCase
     private $pluginDetailsBuilder;
 
     /**
-     * @var Header
-     */
-    private $httpHeader;
-
-    /**
      * @var ResolverInterface
      */
     private $localeResolver;
@@ -56,11 +51,11 @@ class CustomerBuilderTest extends AbstractTransactionTestCase
     {
         $this->customerBuilder = $this->getObjectManager()->create(CustomerBuilder::class);
         $this->pluginDetailsBuilder = $this->getObjectManager()->create(PluginDataBuilder::class);
-        $this->httpHeader = $this->getObjectManager()->create(Header::class);
         $this->localeResolver = $this->getObjectManager()->create(ResolverInterface::class);
     }
 
     /**
+     * @magentoDataFixture   Magento/Sales/_files/address.php
      * @magentoDataFixture   Magento/Customer/_files/customer.php
      * @magentoDataFixture   Magento/Catalog/_files/product_simple.php
      *

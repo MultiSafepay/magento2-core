@@ -18,6 +18,7 @@ use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
@@ -43,13 +44,15 @@ class RedirectTransactionBuilderTest extends AbstractGatewayTestCase
         bool $isNotified,
         string $areaCode
     ): void {
+        $order = $this->getOrder();
+
         if ($paymentMethod) {
-            $this->getOrder()->getPayment()->setMethod($paymentMethod);
+            $order->getPayment()->setMethod($paymentMethod);
         }
 
         $this->getAreaStateObject()->setAreaCode($areaCode);
 
-        $modifiedStateObject = $this->prepareRedirectTransactionBuilder();
+        $modifiedStateObject = $this->prepareRedirectTransactionBuilder($order);
 
         self::assertEquals($status, $modifiedStateObject->getStatus());
         self::assertEquals($state, $modifiedStateObject->getState());
@@ -57,13 +60,14 @@ class RedirectTransactionBuilderTest extends AbstractGatewayTestCase
     }
 
     /**
+     * @param OrderInterface $order
      * @return DataObject
      * @throws LocalizedException
      */
-    private function prepareRedirectTransactionBuilder(): DataObject
+    private function prepareRedirectTransactionBuilder(OrderInterface $order): DataObject
     {
         $buildSubject = [
-            'payment' => $this->getPaymentDataObject(),
+            'payment' => $this->getPaymentDataObject('direct', $order),
             'stateObject' => new DataObject(),
         ];
         $this->getRedirectTransactionBuilder()->build($buildSubject);

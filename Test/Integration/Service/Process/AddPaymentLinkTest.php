@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Service\Process;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Service\Process\AddPaymentLink;
@@ -67,10 +68,10 @@ class AddPaymentLinkTest extends AbstractTestCase
     public function testAddPaymentLink(): void
     {
         $order = $this->getOrder();
-        $this->getOrder()->getPayment()->setAdditionalInformation(['payment_link' => self::TEST_PAYMENT_LINK]);
+        $order->getPayment()->setAdditionalInformation(['payment_link' => self::TEST_PAYMENT_LINK]);
 
         $result = $this->addPaymentLink->execute($order, $this->getTransactionData());
-        $additionalInformation = $this->getOrder()->getPayment()->getAdditionalInformation();
+        $additionalInformation = $order->getPayment()->getAdditionalInformation();
 
         self::assertSame(
             [StatusOperationInterface::SUCCESS_PARAMETER => true, ProcessInterface::SAVE_ORDER => true],

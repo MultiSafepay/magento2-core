@@ -71,9 +71,9 @@ class CaptureBuilderTest extends AbstractTransactionTestCase
         bool $expected
     ): void {
         $payment = $this->getPayment($paymentCode, TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE);
-        $order = $this->getObjectManager()->get(OrderInterfaceFactory::class)->create()->loadByIncrementId('100000001');
+        $order = $this->getOrder();
         $this->updatePaymentActionConfig($paymentCode, $paymentAction);
-        $orderRequestData = $this->getBuildedOrderRequest($order, $payment)->getData();
+        $orderRequestData = $this->getBuiltOrderRequest($order, $payment)->getData();
 
         if (!$expected) {
             self::assertNotTrue(isset($orderRequestData['capture']));
@@ -131,7 +131,7 @@ class CaptureBuilderTest extends AbstractTransactionTestCase
      * @return OrderRequest
      * @throws LocalizedException
      */
-    private function getBuildedOrderRequest(
+    private function getBuiltOrderRequest(
         OrderInterface $order,
         OrderPaymentInterface $payment
     ): OrderRequest {

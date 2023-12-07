@@ -12,7 +12,7 @@ jobs:
   integration-tests:
     strategy:
       matrix:
-        magento_version: [2.3.7-p3, 2.4.2]
+        magento_version: [2.3.7-p3, 2.4.6-p3]
     name: Magento 2 Integration Tests
     if: ${{!contains(github.head_ref, 'release/')}}
     runs-on: ubuntu-latest
@@ -42,20 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - if: matrix.magento_version == '2.3.7-p3'
-        name: M2 Integration Tests on ${{ matrix.magento_version }}
-        uses: MultiSafepay/github-actions-m2/magento-integration-tests/7.3@with-coverage-support
-        env:
-            MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
-            MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
-            GLOBAL_GITHUB_TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
-            CURRENT_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        with:
-            module_name: MultiSafepay_ConnectCore
-            composer_name: multisafepay/magento2-core
-            ce_version: '${{ matrix.magento_version }}'
-            magento_pre_install_script: .github/workflows/magento-integration-tests-pre-install.sh
-      - if: matrix.magento_version == '2.4.2'
-        name: M2 Integration Tests on ${{ matrix.magento_version }}
+        name: M2 Integration Tests on 2.3.7-p3
         uses: MultiSafepay/github-actions-m2/magento-integration-tests/7.4@with-coverage-support
         env:
             MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
@@ -67,6 +54,19 @@ jobs:
             composer_name: multisafepay/magento2-core
             ce_version: '${{ matrix.magento_version }}'
             phpunit_file: './phpunit.xml'
+            magento_pre_install_script: .github/workflows/magento-integration-tests-pre-install.sh
+      - if: matrix.magento_version == '2.4.6-p3'
+        name: M2 Integration Tests on 2.4.6-p3
+        uses: extdn/github-actions-m2/magento-integration-tests/8.1@master
+        env:
+            MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
+            MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
+            GLOBAL_GITHUB_TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+            CURRENT_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        with:
+            module_name: MultiSafepay_ConnectCore
+            composer_name: multisafepay/magento2-core
+            ce_version: '${{ matrix.magento_version }}'
             magento_pre_install_script: .github/workflows/magento-integration-tests-pre-install.sh
             magento_post_install_script: .github/workflows/magento-integration-tests-post-install.sh
       - name: Send clover to codecov
