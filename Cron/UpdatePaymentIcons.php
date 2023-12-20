@@ -35,14 +35,14 @@ class UpdatePaymentIcons
         // Payment methods that have multiple icons based on locale
         DirectDebitConfigProvider::CODE,
         BankTransferConfigProvider::CODE,
-        SantanderConfigProvider::CODE,
         PayafterConfigProvider::CODE,
 
         // Payment methods that give the option for alternative icons
         CreditCardConfigProvider::CODE,
 
         // Payment methods that are deprecated
-        INGHomePayConfigProvider::CODE
+        INGHomePayConfigProvider::CODE,
+        SantanderConfigProvider::CODE
     ];
 
     /**
