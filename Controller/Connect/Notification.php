@@ -32,7 +32,6 @@ use MultiSafepay\ConnectCore\Service\PostNotification;
 
 class Notification extends Action implements CsrfAwareActionInterface
 {
-
     /**
      * @var PostNotification
      */
@@ -106,9 +105,10 @@ class Notification extends Action implements CsrfAwareActionInterface
     public function execute()
     {
         $params = $this->getRequest()->getParams();
+        $response = $this->checkParams($params);
 
-        if (!isset($params['transactionid'], $params['timestamp'])) {
-            return $this->getResponse()->setContent('ng: Missing transaction id or timestamp');
+        if ($response !== null) {
+            return $this->getResponse()->setContent($response);
         }
 
         $orderIncrementId = $params['transactionid'];
@@ -180,5 +180,58 @@ class Notification extends Action implements CsrfAwareActionInterface
 
         $order = $this->orderUtil->getOrderByIncrementId($params['transactionid']);
         return (int)$order->getStoreId();
+    }
+
+    /**
+     * Check if it is a pretransaction
+     *
+     * @param array $params
+     * @return bool
+     * @throws Exception
+     */
+    private function isPreTransaction(array $params): bool
+    {
+        if (isset($params['payload_type']) && $params['payload_type'] === 'pretransaction') {
+            $this->logger->logInfoForNotification($params['transactionid'], 'pretransaction, skipping', []);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the request has the required parameters
+     *
+     * @param array $params
+     * @return bool
+     */
+    private function hasRequiredParams(array $params): bool
+    {
+        if (isset($params['transactionid'], $params['timestamp'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check the params and return the appropriate response
+     *
+     * @param array $params
+     * @return string|null
+     * @throws Exception
+     */
+    private function checkParams(array $params): ?string
+    {
+        if ($this->isPreTransaction($params)) {
+            return 'ok';
+        }
+
+        if (!$this->hasRequiredParams($params)) {
+            return 'ng: Missing transaction id or timestamp';
+        }
+
+        return null;
     }
 }
