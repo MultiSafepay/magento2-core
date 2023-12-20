@@ -98,18 +98,25 @@ class PostNotification
         $requestBody = $request->getContent();
         $authHeader = (string)$request->getHeader('Auth');
 
-        // Validate the POST notification
-        try {
-            if (!SdkNotification::verifyNotification($requestBody, $authHeader, $this->config->getApiKey($storeId))) {
-                $this->logger->logFailedPOSTNotification($request->getHeaders()->toString(), $requestBody);
-                return ['success' => false, 'message' => 'Unable to verify POST notification'];
-            }
-        } catch (Exception $exception) {
-            return ['success' => false, 'message' => 'Exception occurred when verifying POST notification'];
-        }
+        $this->logger->logPOSTNotification($request->getHeaders()->toString(), $requestBody);
 
         $transaction = $this->jsonHandler->readJSON($requestBody);
         $orderIncrementId = $transaction['order_id'] ?? '';
+
+        // Validate the POST notification
+        try {
+            if (!SdkNotification::verifyNotification($requestBody, $authHeader, $this->config->getApiKey($storeId))) {
+                $message = 'Unable to verify POST notification';
+
+                $this->logger->logInfoForNotification($orderIncrementId, $message, $transaction);
+
+                return ['success' => false, 'message' => $message];
+            }
+        } catch (Exception $exception) {
+            $this->logger->logNotificationException($orderIncrementId, $transaction, $exception);
+
+            return ['success' => false, 'message' => 'Exception occurred when verifying POST notification'];
+        }
 
         $this->delayExecution->execute($transaction['status'] ?? '');
 

@@ -305,11 +305,11 @@ class Logger extends CoreLogger
      * @param string $body
      * @throws Exception
      */
-    public function logFailedPOSTNotification(string $headers, string $body): void
+    public function logPOSTNotification(string $headers, string $body): void
     {
         $this->debug(
             sprintf(
-                '(Failed POST notification) Headers: %1$s, Body: %2$s',
+                '(POST notification) Headers: %1$s, Body: %2$s',
                 $headers,
                 $body
             )
