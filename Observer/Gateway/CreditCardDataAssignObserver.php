@@ -32,6 +32,11 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
+        // Payload already in additional information array, so can return early
+        if (isset($additionalData['additional_information']['payload'])) {
+            return;
+        }
+
         if (empty($additionalData['payload'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
