@@ -33,15 +33,23 @@ class ApiTokenUtil
     private $cache;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * @param GenericConfigProvider $genericConfigProvider
      * @param CacheInterface $cache
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         GenericConfigProvider $genericConfigProvider,
-        CacheInterface $cache
+        CacheInterface $cache,
+        JsonHandler $jsonHandler
     ) {
         $this->genericConfigProvider = $genericConfigProvider;
         $this->cache = $cache;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -53,21 +61,29 @@ class ApiTokenUtil
      * If the cache expires, $cacheData will be false instead of a string and the process will repeat
      *
      * @param CartInterface $quote
-     * @return string
+     * @return array
      */
-    public function getApiTokenFromCache(CartInterface $quote): string
+    public function getApiTokenFromCache(CartInterface $quote): array
     {
         $storeId = $quote->getStoreId();
         $cacheData = $this->cache->load(self::MULTISAFEPAY_API_TOKEN_CACHE . '-' . $storeId);
 
         if ($cacheData) {
-            return $cacheData;
+            return $this->jsonHandler->readJSON($cacheData);
         }
 
-        $apiToken = $this->genericConfigProvider->getApiToken($storeId) ?? '';
+        $apiTokenData = [
+            'apiToken' => $this->genericConfigProvider->getApiToken($storeId) ?? '',
+            'lifeTime' => time()
+        ];
 
-        $this->cache->save($apiToken, self::MULTISAFEPAY_API_TOKEN_CACHE . '-' . $storeId, [], 540);
+        $this->cache->save(
+            $this->jsonHandler->convertToJSON($apiTokenData),
+            self::MULTISAFEPAY_API_TOKEN_CACHE . '-' . $storeId,
+            [],
+            540
+        );
 
-        return $apiToken;
+        return $apiTokenData;
     }
 }

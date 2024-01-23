@@ -136,12 +136,15 @@ class PaymentRequest implements SectionSourceInterface
             }
 
             try {
+                $apiTokenData = $this->apiTokenUtil->getApiTokenFromCache($quote);
+
                 $result = array_merge(
                     $result,
                     [
                         "paymentComponentContainerId" => self::PAYMENT_COMPONENT_CONTAINER_ID,
                         "paymentComponentConfig" => $paymentComponentData,
-                        'apiToken' => $this->apiTokenUtil->getApiTokenFromCache($quote)
+                        'apiToken' => $apiTokenData['apiToken'],
+                        'apiTokenLifeTime' => $apiTokenData['lifeTime']
                     ]
                 );
             } catch (ApiException $apiException) {
