@@ -66,7 +66,7 @@ jobs:
         with:
             module_name: MultiSafepay_ConnectCore
             composer_name: multisafepay/magento2-core
-            ce_version: '${{ matrix.magento_version }}'
+            magento_version: '${{ matrix.magento_version }}'
             magento_pre_install_script: .github/workflows/magento-integration-tests-pre-install.sh
             magento_post_install_script: .github/workflows/magento-integration-tests-post-install.sh
       - name: Send clover to codecov
