@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.2] - 2024-01-24
+### Changed
+- PLGMAG2V2-716: Refresh API Token and component after expiry
+
 ## [3.3.1] - 2023-12-28
 ### Fixed
 - PLGMAG2V2-715: Fixed an issue where pretransaction notifications would be processed for canceled orders
