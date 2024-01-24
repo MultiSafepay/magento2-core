@@ -51,7 +51,7 @@ jobs:
 
             -   if: matrix.magento_version == '2.3.7-p3'
                 name: M2 Integration Tests on ${{ matrix.magento_version }}
-                uses: extdn/github-actions-m2/magento-integration-tests/7.3@master
+                uses: MultiSafepay/github-actions-m2/magento-integration-tests/7.4@with-coverage-support
                 env:
                     MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
                     MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
@@ -63,7 +63,7 @@ jobs:
                     magento_pre_install_script: .github/workflows/magento-integration-tests-pre-phpunit.sh
             -   if: matrix.magento_version == '2.4.3-p1'
                 name: M2 Integration Tests on ${{ matrix.magento_version }}
-                uses: MultiSafepay/github-actions-m2/magento-integration-tests/7.4@master
+                uses: extdn/github-actions-m2/magento-integration-tests/8.1@master
                 env:
                     MAGENTO_MARKETPLACE_USERNAME: ${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}
                     MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
@@ -71,7 +71,7 @@ jobs:
                 with:
                     module_name: MultiSafepay_ConnectCore
                     composer_name: multisafepay/magento2-core
-                    ce_version: '${{ matrix.magento_version }}'
+                    magento_version: '${{ matrix.magento_version }}'
                     magento_pre_install_script: .github/workflows/magento-integration-tests-pre-install.sh
                     magento_post_install_script: .github/workflows/magento-integration-tests-post-install.sh
             -   name: Get Release Version
