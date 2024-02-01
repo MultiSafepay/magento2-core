@@ -1419,7 +1419,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>BEAUTYANDWELLNESS</gateway_code>
+                <gateway_code>BEAUTYWELL</gateway_code>
             </multisafepay_beautyandwellness>
             <multisafepay_boekenbon>
                 <active>0</active>
@@ -1461,7 +1461,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>FASHIONCHEQUE</gateway_code>
+                <gateway_code>FASHIONCHQ</gateway_code>
             </multisafepay_fashioncheque>
             <multisafepay_fashiongiftcard>
                 <active>0</active>
@@ -1482,7 +1482,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>FASHIONGIFTCARD</gateway_code>
+                <gateway_code>FASHIONGFT</gateway_code>
             </multisafepay_fashiongiftcard>
             <multisafepay_fietsenbon>
                 <active>0</active>
@@ -1545,7 +1545,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>GEZONDHEIDSBON</gateway_code>
+                <gateway_code>GEZONDHEID</gateway_code>
             </multisafepay_gezondheidsbon>
             <multisafepay_givacard>
                 <active>0</active>
@@ -1629,7 +1629,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>NATIONALETUINBON</gateway_code>
+                <gateway_code>NATNLETUIN</gateway_code>
             </multisafepay_nationaletuinbon>
             <multisafepay_parfumcadeaukaart>
                 <active>0</active>
@@ -1651,7 +1651,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>PARFUMCADEAUKAART</gateway_code>
+                <gateway_code>PARFUMCADE</gateway_code>
             </multisafepay_parfumcadeaukaart>
             <multisafepay_podiumcadeaukaart>
                 <active>0</active>
@@ -1735,7 +1735,7 @@
                 <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
                 <transaction_type>redirect</transaction_type>
                 <is_multisafepay>1</is_multisafepay>
-                <gateway_code>WEBSHOPGIFTCARD</gateway_code>
+                <gateway_code>WEBSHOPGFT</gateway_code>
             </multisafepay_webshopgiftcard>
             <multisafepay_wellnessgiftcard>
                 <active>0</active>
