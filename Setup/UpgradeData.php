@@ -56,8 +56,6 @@ class UpgradeData implements UpgradeDataInterface
      */
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
-        $setup->startSetup();
-
         $stores = $this->storeRepository->getList();
 
         // Disable Santander for all stores
@@ -77,7 +75,5 @@ class UpgradeData implements UpgradeDataInterface
 
         // Disable Santander for default store view
         $this->configWriter->save(self::SANTANDER_PATH, 0);
-
-        $setup->endSetup();
     }
 }
