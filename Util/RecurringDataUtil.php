@@ -41,10 +41,14 @@ class RecurringDataUtil
      */
     public function shouldAddRecurringData(array $additionalInformation): bool
     {
+        if (empty($additionalInformation)) {
+            return false;
+        }
+
         if ($this->vaultUtil->validateVaultTokenEnabler($additionalInformation)) {
             return true;
         }
 
-        return $additionalInformation && isset($additionalInformation['tokenize']);
+        return isset($additionalInformation['customer_id']) || isset($additionalInformation['tokenize']);
     }
 }
