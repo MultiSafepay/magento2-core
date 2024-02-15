@@ -8000,6 +8000,129 @@
         </arguments>
     </virtualType>
 
+    <!-- Mbway Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayMbwayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\MbwayConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayMbwayValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayMbwayValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayMbwayCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Configuration reader -->
+    <virtualType name="MultiSafepayMbwayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\MbwayConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Config Value Handler Pool -->
+    <virtualType name="MultiSafepayMbwayConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayMbwayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Config Value Handler -->
+    <virtualType name="MultiSafepayMbwayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayMbwayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Logger, initialized with ApplePayConfig -->
+    <virtualType name="MultiSafepayMbwayLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayMbwayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayMbwayLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Mbway Commands infrastructure -->
+    <virtualType name="MultiSafepayMbwayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayMbwayInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayMbwayRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Initialize command -->
+    <virtualType name="MultiSafepayMbwayInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMbwayInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Refund command -->
+    <virtualType name="MultiSafepayMbwayRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMbwayRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Initialization Request -->
+    <virtualType name="MultiSafepayMbwayInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Refund Request -->
+    <virtualType name="MultiSafepayMbwayRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Validator Pool -->
+    <virtualType name="MultiSafepayMbwayValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayMbwayCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayMbwayCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayMbwayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mbway Value handlers infrastructure -->
+    <virtualType name="MultiSafepayMbwayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayMbwayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayMbwayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayMbwayConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- WellnessGiftcard Payment Method Facade configuration -->
     <virtualType name="MultiSafepayWellnessGiftcardFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -8676,6 +8799,7 @@
                 <item name="multisafepay_genericgateway" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider</item>
                 <item name="multisafepay_wechatpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider</item>
                 <item name="multisafepay_zinia" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider</item>
+                <item name="multisafepay_mbway" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MbwayConfigProvider</item>
 
                 <!-- Recurring -->
                 <item name="multisafepay_creditcard_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider</item>
