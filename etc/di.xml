@@ -8123,6 +8123,129 @@
         </arguments>
     </virtualType>
 
+    <!-- Multibanco Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayMultibancoFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\MultibancoConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayMultibancoValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayMultibancoValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayMultibancoCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Configuration reader -->
+    <virtualType name="MultiSafepayMultibancoConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\MultibancoConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Config Value Handler Pool -->
+    <virtualType name="MultiSafepayMultibancoConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayMultibancoConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Config Value Handler -->
+    <virtualType name="MultiSafepayMultibancoConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayMultibancoConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Logger, initialized with ApplePayConfig -->
+    <virtualType name="MultiSafepayMultibancoLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayMultibancoConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayMultibancoLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Multibanco Commands infrastructure -->
+    <virtualType name="MultiSafepayMultibancoCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayMultibancoInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayMultibancoRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Initialize command -->
+    <virtualType name="MultiSafepayMultibancoInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMultibancoInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Refund command -->
+    <virtualType name="MultiSafepayMultibancoRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMultibancoRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Initialization Request -->
+    <virtualType name="MultiSafepayMultibancoInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Refund Request -->
+    <virtualType name="MultiSafepayMultibancoRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RefundTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Validator Pool -->
+    <virtualType name="MultiSafepayMultibancoValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayMultibancoCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayMultibancoCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayMultibancoConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Multibanco Value handlers infrastructure -->
+    <virtualType name="MultiSafepayMultibancoValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayMultibancoConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayMultibancoConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayMultibancoConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- WellnessGiftcard Payment Method Facade configuration -->
     <virtualType name="MultiSafepayWellnessGiftcardFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -8800,6 +8923,7 @@
                 <item name="multisafepay_wechatpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider</item>
                 <item name="multisafepay_zinia" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider</item>
                 <item name="multisafepay_mbway" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MbwayConfigProvider</item>
+                <item name="multisafepay_multibanco" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\MultibancoConfigProvider</item>
 
                 <!-- Recurring -->
                 <item name="multisafepay_creditcard_recurring" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider</item>
