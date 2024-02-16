@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.0] - 2024-02-16
+### Added
+- DAVAMS-716: Add Multibanco payment method
+- DAVAMS-724: Add MB WAY payment method
+
+### Fixed
+- PLGMAG2V2-728: Add recurring data when customer_id is in additional info
+- PLGMAG2V2-725: Fix broken gift card gateway ids
+
+### Removed
+- PLGMAG2V2-726: Remove startSetup and endSetup commands from UpgradeData
+
 ## [3.3.2] - 2024-01-24
 ### Changed
 - PLGMAG2V2-716: Refresh API Token and component after expiry
