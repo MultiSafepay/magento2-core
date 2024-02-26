@@ -44,6 +44,9 @@
     <event name="payment_method_assign_data_multisafepay_googlepay">
         <observer name="multisafepay_googlepay_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\WalletDataAssignObserver" />
     </event>
+    <event name="payment_method_assign_data_multisafepay_bnplmf">
+        <observer name="multisafepay_bnplmf_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver" />
+    </event>
     <event name="payment_method_assign_data_multisafepay_bnplinstm">
         <observer name="multisafepay_bnplinstm_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver" />
     </event>

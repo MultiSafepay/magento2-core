@@ -18,6 +18,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplmfConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
@@ -34,7 +35,8 @@ class PaymentComponentRequest
         VisaConfigProvider::CODE,
         CreditCardConfigProvider::CODE,
         BnplinstmConfigProvider::CODE,
-        ZiniaConfigProvider::CODE
+        ZiniaConfigProvider::CODE,
+        BnplmfConfigProvider::CODE
     ];
 
     /**
@@ -120,7 +122,7 @@ class PaymentComponentRequest
             if (!isset($result[$methodCode]['tokens'])) {
                 $result[$methodCode]['tokens'] = $this->getTokens($quote, $paymentConfig);
             }
-            
+
             if (!isset($result['payment_component_template_id']) && $paymentComponentTemplateId) {
                 $result['payment_component_template_id'] = $paymentComponentTemplateId;
             }
