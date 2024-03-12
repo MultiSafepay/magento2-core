@@ -18,9 +18,24 @@ use Magento\Framework\Event\Observer;
 use Magento\Payment\Observer\AbstractDataAssignObserver;
 use Magento\Quote\Api\Data\PaymentInterface;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTypeBuilder;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 class WalletDataAssignObserver extends AbstractDataAssignObserver
 {
+    /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
+     * @param JsonHandler $jsonHandler
+     */
+    public function __construct(
+        JsonHandler $jsonHandler
+    ) {
+        $this->jsonHandler = $jsonHandler;
+    }
+
     /**
      * @inheritDoc
      */
@@ -30,7 +45,7 @@ class WalletDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
-        if (empty($additionalData['token'])) {
+        if (empty($additionalData['payload'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
                 TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
@@ -39,7 +54,10 @@ class WalletDataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
+        $additionalData = $this->jsonHandler->readJSON($additionalData['payload']);
+
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
         $payment->setAdditionalInformation('payment_token', $additionalData['token']);
+        $payment->setAdditionalInformation('browser_info', $additionalData['browser_info']);
     }
 }

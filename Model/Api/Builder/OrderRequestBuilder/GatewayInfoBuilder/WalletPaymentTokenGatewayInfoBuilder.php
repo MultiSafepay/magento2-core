@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\Gateway
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\GatewayInfo\Wallet;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 
 class WalletPaymentTokenGatewayInfoBuilder implements GatewayInfoBuilderInterface
 {
@@ -26,14 +27,22 @@ class WalletPaymentTokenGatewayInfoBuilder implements GatewayInfoBuilderInterfac
     private $walletGatewayInfoBuilder;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * WalletPaymentTokenGatewayInfoBuilder constructor.
      *
      * @param Wallet $walletGatewayInfoBuilder
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
-        Wallet $walletGatewayInfoBuilder
+        Wallet $walletGatewayInfoBuilder,
+        JsonHandler $jsonHandler
     ) {
         $this->walletGatewayInfoBuilder = $walletGatewayInfoBuilder;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -43,8 +52,12 @@ class WalletPaymentTokenGatewayInfoBuilder implements GatewayInfoBuilderInterfac
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment): ?Wallet
     {
-        return $this->walletGatewayInfoBuilder->addPaymentToken(
-            (string)($payment->getAdditionalInformation()['payment_token'] ?? null)
-        );
+        if (is_array($payment->getAdditionalInformation()['payment_token'])) {
+            return $this->walletGatewayInfoBuilder->addPaymentToken(
+                $this->jsonHandler->convertToJSON((array)$payment->getAdditionalInformation()['payment_token'])
+            );
+        }
+
+        return $this->walletGatewayInfoBuilder->addPaymentToken($payment->getAdditionalInformation()['payment_token']);
     }
 }

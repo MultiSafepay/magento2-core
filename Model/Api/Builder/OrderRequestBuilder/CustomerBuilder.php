@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Locale\ResolverInterface;
@@ -23,8 +22,10 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\BrowserInfoBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\IpAddressBuilder;
-use MultiSafepay\ConnectCore\Util\RecurringDataUtil;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\ReferenceBuilder;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class CustomerBuilder implements OrderRequestBuilderInterface
 {
@@ -41,7 +42,7 @@ class CustomerBuilder implements OrderRequestBuilderInterface
     /**
      * @var AddressBuilder
      */
-    private $address;
+    private $addressBuilder;
 
     /**
      * @var Header
@@ -54,42 +55,42 @@ class CustomerBuilder implements OrderRequestBuilderInterface
     private $ipAddressBuilder;
 
     /**
-     * @var Session
+     * @var BrowserInfoBuilder
      */
-    private $customerSession;
+    private $browserInfoBuilder;
 
     /**
-     * @var RecurringDataUtil
+     * @var ReferenceBuilder
      */
-    private $recurringDataUtil;
+    private $referenceBuilder;
 
     /**
      * Customer constructor.
      *
-     * @param AddressBuilder $address
+     * @param AddressBuilder $addressBuilder
+     * @param BrowserInfoBuilder $browserInfoBuilder
      * @param CustomerDetails $customerDetails
      * @param Header $httpHeader
      * @param IpAddressBuilder $ipAddressBuilder
      * @param ResolverInterface $localeResolver
-     * @param Session $customerSession
-     * @param RecurringDataUtil $recurringDataUtil
+     * @param ReferenceBuilder $referenceBuilder
      */
     public function __construct(
-        AddressBuilder $address,
+        AddressBuilder $addressBuilder,
+        BrowserInfoBuilder $browserInfoBuilder,
         CustomerDetails $customerDetails,
         Header $httpHeader,
         IpAddressBuilder $ipAddressBuilder,
         ResolverInterface $localeResolver,
-        Session $customerSession,
-        RecurringDataUtil $recurringDataUtil
+        ReferenceBuilder $referenceBuilder
     ) {
-        $this->address = $address;
+        $this->addressBuilder = $addressBuilder;
+        $this->browserInfoBuilder = $browserInfoBuilder;
         $this->customerDetails = $customerDetails;
         $this->httpHeader = $httpHeader;
         $this->localeResolver = $localeResolver;
         $this->ipAddressBuilder = $ipAddressBuilder;
-        $this->customerSession = $customerSession;
-        $this->recurringDataUtil = $recurringDataUtil;
+        $this->referenceBuilder = $referenceBuilder;
     }
 
     /**
@@ -97,6 +98,7 @@ class CustomerBuilder implements OrderRequestBuilderInterface
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
      * @throws NoSuchEntityException
+     * @throws InvalidArgumentException
      */
     public function build(
         OrderInterface $order,
@@ -109,7 +111,7 @@ class CustomerBuilder implements OrderRequestBuilderInterface
             throw new NoSuchEntityException($msg);
         }
 
-        $customerAddress = $this->address->build($order->getBillingAddress());
+        $customerAddress = $this->addressBuilder->build($order->getBillingAddress());
 
         $this->customerDetails->addLocale((string)$this->localeResolver->emulate($order->getStoreId()))
             ->addFirstName($billingAddress->getFirstname())
@@ -120,12 +122,8 @@ class CustomerBuilder implements OrderRequestBuilderInterface
             ->addUserAgent($this->httpHeader->getHttpUserAgent());
 
         $this->ipAddressBuilder->build($this->customerDetails, $order);
-
-        if ($this->customerSession->isLoggedIn() &&
-            $this->recurringDataUtil->shouldAddRecurringData($payment->getAdditionalInformation())
-        ) {
-            $this->customerDetails->addReference((string) $order->getCustomerId());
-        }
+        $this->browserInfoBuilder->build($this->customerDetails, $payment);
+        $this->referenceBuilder->build($this->customerDetails, $payment, (string)$order->getCustomerId());
 
         $orderRequest->addCustomer($this->customerDetails);
     }

@@ -83,7 +83,10 @@ class WalletDataAssignObserverTest extends AbstractTestCase
                 'data' => new DataObject(
                     [
                         PaymentInterface::KEY_ADDITIONAL_DATA => [
-                            'token' => self::TEST_TOKEN,
+                            'payload' => json_encode([
+                                'token' => self::TEST_TOKEN,
+                                'browser_info' => ''
+                            ]),
                         ],
                     ]
                 ),
