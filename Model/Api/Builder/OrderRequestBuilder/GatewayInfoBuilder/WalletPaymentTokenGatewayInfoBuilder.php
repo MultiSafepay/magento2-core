@@ -52,6 +52,10 @@ class WalletPaymentTokenGatewayInfoBuilder implements GatewayInfoBuilderInterfac
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment): ?Wallet
     {
+        if (!isset($payment->getAdditionalInformation()['payment_token'])) {
+            return $this->walletGatewayInfoBuilder->addPaymentToken('');
+        }
+
         if (is_array($payment->getAdditionalInformation()['payment_token'])) {
             return $this->walletGatewayInfoBuilder->addPaymentToken(
                 $this->jsonHandler->convertToJSON((array)$payment->getAdditionalInformation()['payment_token'])

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace MultiSafepay\Test\Integration\Util;
 
 use Magento\Framework\Exception\LocalizedException;
+use MultiSafepay\ConnectCore\Api\PaymentTokenInterface;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\VaultUtil;
 
@@ -57,6 +58,28 @@ class VaultUtilTest extends AbstractTestCase
     public function testValidateVaultTokenEnablerIsEmpty(): void
     {
         $this->validateVaultTokenEnablerByType('');
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetIconWillReturnEmptyString()
+    {
+        $vaultUtil = $this->getVaulUtiltObject();
+        $icon = $vaultUtil->getIcon('')[PaymentTokenInterface::ICON_URL];
+
+        self::assertStringContainsString('', $icon);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetActiveConfigPath()
+    {
+        $vaultUtil = $this->getVaulUtiltObject();
+        $activeConfigPath = $vaultUtil->getActiveConfigPath('multisafepay_visa');
+
+        self::assertStringContainsString('payment/multisafepay_visa_vault/active', $activeConfigPath);
     }
 
     /**

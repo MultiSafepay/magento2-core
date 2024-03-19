@@ -46,7 +46,7 @@ class WalletPaymentTokenGatewayInfoBuilderTest extends AbstractTestCase
      */
     public function testCreditCardPayloadBuild(): void
     {
-        $token = 'qwqweqweqwe';
+        $token = 'test-token';
         $expectedResult = [
             'payment_token' => $token,
         ];
