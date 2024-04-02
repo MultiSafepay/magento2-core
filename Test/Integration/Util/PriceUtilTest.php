@@ -72,6 +72,22 @@ class PriceUtilTest extends AbstractTestCase
     /**
      * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
      * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
+     * @magentoConfigFixture default_store multisafepay/general/use_base_currency 0
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testGetShippingUnitPriceWithBaseShippingAmount(): void
+    {
+        $order = $this->getOrder();
+        $quote = $this->getQuote('tableRate');
+        $order->setQuoteId($quote->getId())->setShippingInclTax(10)->setBaseShippingAmount(10);
+
+        self::assertEquals(10.0, $this->getPriceUtilMock(0)->getShippingUnitPrice($order));
+    }
+
+    /**
+     * @magentoDataFixture   Magento/Sales/_files/order_with_shipping_and_invoice.php
+     * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/use_base_currency 1
      * @throws LocalizedException
      * @throws Exception

@@ -149,9 +149,16 @@ class PriceUtil
         $shippingTaxRate = 1 + ($this->taxUtil->getShippingTaxRate($order) / 100);
 
         if ($this->config->useBaseCurrency($order->getStoreId())) {
+            if ($order->getBaseShippingInclTax() === $order->getBaseShippingAmount()) {
+                return $order->getBaseShippingAmount() - $order->getBaseShippingDiscountAmount();
+            }
 
             return ($order->getBaseShippingInclTax() - ($order->getBaseShippingDiscountAmount() * $shippingTaxRate))
                    / $shippingTaxRate;
+        }
+
+        if ($order->getShippingInclTax() === $order->getShippingAmount()) {
+            return $order->getShippingAmount() - $order->getShippingDiscountAmount();
         }
 
         return ($order->getShippingInclTax() - ($order->getShippingDiscountAmount() * $shippingTaxRate))
