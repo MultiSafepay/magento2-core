@@ -1347,7 +1347,7 @@
                 <model>MultiSafepayIn3Facade</model>
                 <order_status>pending</order_status>
                 <payment_action>initialize</payment_action>
-                <title>in3</title>
+                <title>iDEAL+in3</title>
                 <currency>EUR</currency>
                 <can_initialize>1</can_initialize>
                 <can_fetch_transaction_information>1</can_fetch_transaction_information>
