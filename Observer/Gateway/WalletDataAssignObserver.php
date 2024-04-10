@@ -45,19 +45,15 @@ class WalletDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
-        if (empty($additionalData['payload'])) {
+        if (!empty($additionalData['payload'])) {
+            $additionalData = $this->jsonHandler->readJSON($additionalData['payload']);
+
             $payment->setAdditionalInformation(
                 'transaction_type',
-                TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
+                TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
             );
-
-            return;
+            $payment->setAdditionalInformation('payment_token', $additionalData['token'] ?? '');
+            $payment->setAdditionalInformation('browser_info', $additionalData['browser_info'] ?? '');
         }
-
-        $additionalData = $this->jsonHandler->readJSON($additionalData['payload']);
-
-        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
-        $payment->setAdditionalInformation('payment_token', $additionalData['token']);
-        $payment->setAdditionalInformation('browser_info', $additionalData['browser_info']);
     }
 }

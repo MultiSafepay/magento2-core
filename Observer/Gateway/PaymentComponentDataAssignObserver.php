@@ -30,16 +30,12 @@ class PaymentComponentDataAssignObserver extends AbstractDataAssignObserver
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
 
-        if (empty($additionalData['payload'])) {
+        if (!empty($additionalData['payload'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
-                TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
+                TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
             );
-
-            return;
+            $payment->setAdditionalInformation('payload', $additionalData['payload']);
         }
-
-        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
-        $payment->setAdditionalInformation('payload', $additionalData['payload']);
     }
 }

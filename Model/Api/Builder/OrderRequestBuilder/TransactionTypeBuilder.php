@@ -18,6 +18,7 @@ use Magento\Payment\Gateway\Config\Config;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class TransactionTypeBuilder implements OrderRequestBuilderInterface
 {
@@ -46,6 +47,7 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
      * @return void
+     * @throws InvalidArgumentException
      */
     public function build(
         OrderInterface $order,

@@ -39,16 +39,12 @@ class IssuersDataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
-        if (empty($additionalData['issuer_id'])) {
+        if (!empty($additionalData['issuer_id'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
-                TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
+                TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
             );
-
-            return;
+            $payment->setAdditionalInformation('issuer_id', $additionalData['issuer_id']);
         }
-
-        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
-        $payment->setAdditionalInformation('issuer_id', $additionalData['issuer_id']);
     }
 }

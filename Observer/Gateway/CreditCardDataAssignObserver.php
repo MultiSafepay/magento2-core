@@ -37,27 +37,23 @@ class CreditCardDataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
-        if (empty($additionalData['payload'])) {
+        if (!empty($additionalData['payload'])) {
             $payment->setAdditionalInformation(
                 'transaction_type',
-                TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE
+                TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
             );
+            $payment->setAdditionalInformation('payload', $additionalData['payload']);
 
-            return;
-        }
+            if (isset($additionalData['tokenize']) && $additionalData['tokenize']) {
+                $payment->setAdditionalInformation('tokenize', (bool)$additionalData['tokenize']);
+            }
 
-        if (!empty($additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME])) {
-            $payment->setAdditionalInformation(
-                self::CREDIT_CARD_BRAND_PARAM_NAME,
-                $additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME]
-            );
-        }
-
-        $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
-        $payment->setAdditionalInformation('payload', $additionalData['payload']);
-
-        if (isset($additionalData['tokenize']) && $additionalData['tokenize']) {
-            $payment->setAdditionalInformation('tokenize', (bool)$additionalData['tokenize']);
+            if (!empty($additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME])) {
+                $payment->setAdditionalInformation(
+                    self::CREDIT_CARD_BRAND_PARAM_NAME,
+                    $additionalData[self::CREDIT_CARD_BRAND_PARAM_NAME]
+                );
+            }
         }
     }
 }
