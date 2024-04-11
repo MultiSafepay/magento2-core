@@ -14,14 +14,17 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Observer;
 
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\ConnectCore\Service\Process\CreateInvoice;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -29,6 +32,11 @@ use MultiSafepay\ConnectCore\Service\Order\AddInvoicesDataToTransactionAndSendEm
 
 class InvoiceSaveAfterObserver implements ObserverInterface
 {
+    public const ORDER_STATES = [
+        Order::STATE_PENDING_PAYMENT,
+        Order::STATE_NEW,
+    ];
+
     /**
      * @var SdkFactory
      */
@@ -50,23 +58,31 @@ class InvoiceSaveAfterObserver implements ObserverInterface
     private $logger;
 
     /**
+     * @var OrderStatusUtil
+     */
+    private $orderStatusUtil;
+
+    /**
      * InvoiceSaveAfterObserver constructor.
      *
      * @param SdkFactory $sdkFactory
      * @param PaymentMethodUtil $paymentMethodUtil
      * @param AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail
      * @param Logger $logger
+     * @param OrderStatusUtil $orderStatusUtil
      */
     public function __construct(
         SdkFactory $sdkFactory,
         PaymentMethodUtil $paymentMethodUtil,
         AddInvoicesDataToTransactionAndSendEmail $addInvoicesDataToTransactionAndSendEmail,
-        Logger $logger
+        Logger $logger,
+        OrderStatusUtil $orderStatusUtil
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->paymentMethodUtil = $paymentMethodUtil;
         $this->addInvoicesDataToTransactionAndSendEmail = $addInvoicesDataToTransactionAndSendEmail;
         $this->logger = $logger;
+        $this->orderStatusUtil = $orderStatusUtil;
     }
 
     /**
@@ -74,6 +90,8 @@ class InvoiceSaveAfterObserver implements ObserverInterface
      *
      * @param Observer $observer
      * @throws ClientExceptionInterface
+     * @throws LocalizedException
+     * @throws Exception
      */
     public function execute(Observer $observer): void
     {
@@ -97,12 +115,16 @@ class InvoiceSaveAfterObserver implements ObserverInterface
             return;
         }
 
-        if ($invoice->getRequestedCaptureCase() === Invoice::CAPTURE_OFFLINE
-            && $order->getState() === Order::STATE_PENDING_PAYMENT) {
-            $order->setState(Order::STATE_NEW);
+        if (!in_array($order->getState(), self::ORDER_STATES, true)) {
+            return;
+        }
+
+        if ($invoice->getRequestedCaptureCase() === Invoice::CAPTURE_OFFLINE || $invoice->canCapture() === false) {
+            $order->setState(Order::STATE_PROCESSING);
+            $order->setStatus($this->orderStatusUtil->getProcessingStatus($order));
             $this->logger->logInfoForOrder(
                 $order->getRealOrderId(),
-                'Invoice has been captured offline, pending status has been applied'
+                'Invoice has been created and processing status has been applied by InvoiceSaveAfterObserver'
             );
         }
     }
