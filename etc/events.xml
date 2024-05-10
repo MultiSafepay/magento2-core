@@ -23,6 +23,9 @@
     <event name="payment_method_assign_data_multisafepay_in3">
         <observer name="in3_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\In3DataAssignObserver" />
     </event>
+    <event name="payment_method_assign_data_multisafepay_in3b2b">
+        <observer name="multisafepay_in3b2b_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver" />
+    </event>
     <event name="payment_method_assign_data_multisafepay_visa">
         <observer name="visa_assign_credit_card_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver" />
     </event>

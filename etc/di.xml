@@ -6003,6 +6003,130 @@
         </arguments>
     </virtualType>
 
+    <!-- In3B2b Payment Method Facade configuration -->
+    <virtualType name="MultiSafepayIn3B2bFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3B2bConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\ConfigurableInfo</argument>
+            <argument name="validatorPool" xsi:type="object">MultiSafepayIn3B2bValidatorPool</argument>
+            <argument name="valueHandlerPool" xsi:type="object">MultiSafepayIn3B2bValueHandlerPool</argument>
+            <argument name="commandPool" xsi:type="object">MultiSafepayIn3B2bCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Configuration reader -->
+    <virtualType name="MultiSafepayIn3B2bConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3B2bConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Config Value Handler Pool -->
+    <virtualType name="MultiSafepayIn3B2bConfigValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayIn3B2bConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Config Value Handler -->
+    <virtualType name="MultiSafepayIn3B2bConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayIn3B2bConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Logger, initialized with MultiSafepayIn3B2bConfig -->
+    <virtualType name="MultiSafepayIn3B2bLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIn3B2bConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="\MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">MultiSafepayIn3B2bLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- In3B2b Commands infrastructure -->
+    <virtualType name="MultiSafepayIn3B2bCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">MultiSafepayIn3B2bInitializeCommand</item>
+                <item name="refund" xsi:type="string">MultiSafepayIn3B2bRefundCommand</item>
+                <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Initialize command -->
+    <virtualType name="MultiSafepayIn3B2bInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayIn3B2bInitializeRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RedirectClient</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Refund command -->
+    <virtualType name="MultiSafepayIn3B2bRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayIn3B2bRefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Initialization Request -->
+    <virtualType name="MultiSafepayIn3B2bInitializeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\RedirectTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Refund Request -->
+    <virtualType name="MultiSafepayIn3B2bRefundRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Validator Pool -->
+    <virtualType name="MultiSafepayIn3B2bValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">MultiSafepayIn3B2bCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayIn3B2bCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">MultiSafepayIn3B2bConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- In3B2b Value handlers infrastructure -->
+    <virtualType name="MultiSafepayIn3B2bValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">MultiSafepayIn3B2bConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="MultiSafepayIn3B2bConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">MultiSafepayIn3B2bConfig</argument>
+        </arguments>
+    </virtualType>
+
     <!-- MyBank Payment Method Facade configuration -->
     <virtualType name="MyBankFacade" type="Magento\Payment\Model\Method\Adapter">
         <arguments>
@@ -9083,6 +9207,11 @@
                         MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
                     </item>
                 </item>
+                <item name="multisafepay_in3b2b" xsi:type="array">
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
+                </item>
             </argument>
         </arguments>
     </type>
@@ -9172,6 +9301,7 @@
                 <item name="multisafepay_paypal" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\PaypalConfigProvider</item>
                 <item name="multisafepay_trustly" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\TrustlyConfigProvider</item>
                 <item name="multisafepay_in3" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3ConfigProvider</item>
+                <item name="multisafepay_in3b2b" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\In3B2bConfigProvider</item>
                 <item name="multisafepay_genericgateway" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\GenericGatewayConfigProvider</item>
                 <item name="multisafepay_wechatpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\WeChatPayConfigProvider</item>
                 <item name="multisafepay_zinia" xsi:type="object">MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider</item>
