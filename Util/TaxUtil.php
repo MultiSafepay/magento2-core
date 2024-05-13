@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Util;
 use Magento\Customer\Model\Session;
 use Magento\Customer\Model\Vat;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
@@ -90,6 +91,7 @@ class TaxUtil
      * @param CartInterface $cart
      * @param $taxRateId
      * @return float
+     * @throws LocalizedException
      */
     public function getTaxRateByTaxRateIdAndCart(CartInterface $cart, $taxRateId): float
     {
@@ -100,7 +102,7 @@ class TaxUtil
             $cart->getStore()
         );
 
-        return $this->calculation->getRate($request->setProductClassId($taxRateId));
+        return (float)$this->calculation->getRate($request->setProductClassId($taxRateId));
     }
 
     /**
