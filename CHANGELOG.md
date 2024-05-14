@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.0] - 2024-05-15
+### Added
+- DAVAMS-764: Add in3 B2B
+
+### Fixed
+- PLGMAG2V2-755: Fixed an issue where a type error can occur when retrieving the tax rate during transaction creation 
+
 ## [3.5.1] - 2024-05-01
 ### Fixed
 - PLGMAG2V2-738: Fixed orders stuck on pending after REST API Invoice creation
