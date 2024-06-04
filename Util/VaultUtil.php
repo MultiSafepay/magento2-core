@@ -119,8 +119,11 @@ class VaultUtil
      */
     private function getImagePathByType(string $type): string
     {
+        $paymentMethodCode = $this->directDebitConfigProvider->getCode();
+
         if ($type === $this->directDebitConfigProvider->getGatewayCode()) {
-            return $this->directDebitConfigProvider->getImagePath($type);
+            $image = $this->directDebitConfigProvider->getImagePath($paymentMethodCode);
+            return str_replace('svg', 'png', $image);
         }
 
         return 'MultiSafepay_ConnectCore::images/multisafepay_' . strtolower($type) . '.png';
