@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Transaction\StatusOperation;
 
 use Magento\Sales\Api\Data\OrderInterface;
+use MultiSafepay\ConnectCore\Service\Process\AddCardPaymentInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddGiftCardInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddInvoiceToTransaction;
 use MultiSafepay\ConnectCore\Service\Process\AddPaymentLink;
@@ -102,6 +103,11 @@ class CompletedStatusOperation implements StatusOperationInterface
     private $setOrderProcessingState;
 
     /**
+     * @var AddCardPaymentInformation
+     */
+    private $addCardPaymentInformation;
+
+    /**
      * CompletedStatusOperation constructor
      *
      * @param LogTransactionStatus $logTransactionStatus
@@ -112,6 +118,7 @@ class CompletedStatusOperation implements StatusOperationInterface
      * @param InitializeVault $initializeVault
      * @param CreateInvoice $createInvoice
      * @param AddGiftCardInformation $addGiftcardInformation
+     * @param AddCardPaymentInformation $addCardPaymentInformation
      * @param SetOrderProcessingState $setOrderProcessingState
      * @param SetOrderProcessingStatus $setOrderProcessingStatus
      * @param SaveOrder $saveOrder
@@ -128,6 +135,7 @@ class CompletedStatusOperation implements StatusOperationInterface
         InitializeVault $initializeVault,
         CreateInvoice $createInvoice,
         AddGiftCardInformation $addGiftcardInformation,
+        AddCardPaymentInformation $addCardPaymentInformation,
         SetOrderProcessingState $setOrderProcessingState,
         SetOrderProcessingStatus $setOrderProcessingStatus,
         SaveOrder $saveOrder,
@@ -142,6 +150,7 @@ class CompletedStatusOperation implements StatusOperationInterface
         $this->initializeVault = $initializeVault;
         $this->createInvoice = $createInvoice;
         $this->addGiftcardInformation = $addGiftcardInformation;
+        $this->addCardPaymentInformation = $addCardPaymentInformation;
         $this->setOrderProcessingState = $setOrderProcessingState;
         $this->setOrderProcessingStatus = $setOrderProcessingStatus;
         $this->saveOrder = $saveOrder;
@@ -168,6 +177,7 @@ class CompletedStatusOperation implements StatusOperationInterface
             $this->setOrderProcessingState,
             $this->createInvoice,
             $this->addGiftcardInformation,
+            $this->addCardPaymentInformation,
             $this->setOrderProcessingStatus,
             $this->saveOrder,
             $this->sendInvoice,
