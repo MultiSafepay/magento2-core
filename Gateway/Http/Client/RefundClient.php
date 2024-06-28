@@ -21,6 +21,7 @@ use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Store\Model\Store;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -39,6 +40,11 @@ class RefundClient implements ClientInterface
     private $logger;
 
     /**
+     * @var JsonHandler
+     */
+    private $jsonHandler;
+
+    /**
      * RefundClient constructor.
      *
      * @param SdkFactory $sdkFactory
@@ -46,10 +52,12 @@ class RefundClient implements ClientInterface
      */
     public function __construct(
         SdkFactory $sdkFactory,
-        Logger $logger
+        Logger $logger,
+        JsonHandler $jsonHandler
     ) {
         $this->sdkFactory = $sdkFactory;
         $this->logger = $logger;
+        $this->jsonHandler = $jsonHandler;
     }
 
     /**
@@ -66,7 +74,10 @@ class RefundClient implements ClientInterface
             $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
             $transaction = $transactionManager->get($orderId);
 
-            $this->logger->logRefundRequest($orderId, $request['payload']);
+            $this->logger->logRefundRequest(
+                $orderId,
+                $this->jsonHandler->convertToJSON($request['payload']->getData())
+            );
 
             return $transactionManager->refund($transaction, $request['payload'], $orderId)->getResponseData();
         } catch (InvalidApiKeyException $invalidApiKeyException) {

@@ -321,16 +321,15 @@ class Logger extends CoreLogger
      * Log the refund request
      *
      * @param string|null $orderId
-     * @param RefundRequest $refundRequest
-     * @throws InvalidArgumentException
+     * @param string $refundRequest
      */
-    public function logRefundRequest(?string $orderId, RefundRequest $refundRequest): void
+    public function logRefundRequest(?string $orderId, string $refundRequest): void
     {
         $this->debug(
             sprintf(
                 '(Order ID %1$s): Refund Request: %2$s',
                 $orderId ?? 'unknown',
-                json_encode($refundRequest->getData())
+                $refundRequest
             )
         );
     }
