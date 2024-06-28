@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Logger;
 use Exception;
 use Magento\Framework\Exception\FileSystemException;
 use Monolog\Logger as CoreLogger;
+use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Exception\InvalidArgumentException;
@@ -312,6 +313,24 @@ class Logger extends CoreLogger
                 '(POST notification) Headers: %1$s, Body: %2$s',
                 $headers,
                 $body
+            )
+        );
+    }
+
+    /**
+     * Log the refund request
+     *
+     * @param string|null $orderId
+     * @param RefundRequest $refundRequest
+     * @throws InvalidArgumentException
+     */
+    public function logRefundRequest(?string $orderId, RefundRequest $refundRequest): void
+    {
+        $this->debug(
+            sprintf(
+                '(Order ID %1$s): Refund Request: %2$s',
+                $orderId ?? 'unknown',
+                json_encode($refundRequest->getData())
             )
         );
     }

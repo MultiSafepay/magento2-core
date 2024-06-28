@@ -66,6 +66,8 @@ class RefundClient implements ClientInterface
             $transactionManager = $this->sdkFactory->create($request[Store::STORE_ID])->getTransactionManager();
             $transaction = $transactionManager->get($orderId);
 
+            $this->logger->logRefundRequest($orderId, $request['payload']);
+
             return $transactionManager->refund($transaction, $request['payload'], $orderId)->getResponseData();
         } catch (InvalidApiKeyException $invalidApiKeyException) {
             $this->logger->logInvalidApiKeyException($invalidApiKeyException);

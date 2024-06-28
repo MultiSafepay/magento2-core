@@ -70,7 +70,7 @@ class ShoppingCartRefundClient implements ClientInterface
     {
         $request = $transferObject->getBody();
 
-        $orderId = $request['order_id'];
+        $orderId = (string)$request['order_id'];
         $storeId = $request['store_id'];
         $transaction = $request['transaction'];
 
@@ -95,6 +95,8 @@ class ShoppingCartRefundClient implements ClientInterface
             if (!empty($request['shipping'])) {
                 $refundRequest->getCheckoutData()->addItem($this->refundUtil->buildShipping($request));
             }
+
+            $this->logger->logRefundRequest($orderId, $refundRequest);
 
             return $transactionManager->refund($transaction, $refundRequest)->getResponseData();
         } catch (InvalidApiKeyException $invalidApiKeyException) {
