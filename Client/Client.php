@@ -52,6 +52,7 @@ class Client implements ClientInterface
      *
      * @param RequestInterface $request
      * @return ResponseInterface
+     * @throws ApiException
      */
     public function sendRequest(RequestInterface $request): ResponseInterface
     {

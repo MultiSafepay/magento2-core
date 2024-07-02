@@ -42,7 +42,7 @@ class Response
      */
     private function extractCode(string $response_str): int
     {
-        preg_match("|^HTTP/[\dx]+ (\d+)|", $response_str, $m);
+        preg_match("|^HTTP/[\d\.x]+ (\d+)|", $response_str, $m);
 
         if (isset($m[1])) {
             return (int) $m[1];
