@@ -47,7 +47,7 @@ class CaptureBuilder implements OrderRequestBuilderInterface
      */
     public function build(OrderInterface $order, OrderPaymentInterface $payment, OrderRequest $orderRequest): void
     {
-        if ($this->captureUtil->isCaptureManualPayment($payment)) {
+        if ($this->captureUtil->isManualCaptureEnabled($payment)) {
             $orderRequest->addData(
                 ['capture' => CaptureUtil::CAPTURE_TRANSACTION_TYPE_MANUAL]
             );

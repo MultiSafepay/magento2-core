@@ -17,10 +17,8 @@ namespace MultiSafepay\ConnectCore\Util;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
@@ -51,22 +49,14 @@ class CaptureUtil
     private $dateTime;
 
     /**
-     * @var Config
-     */
-    private $config;
-
-    /**
      * CaptureUtil constructor.
      *
      * @param DateTime $dateTime
-     * @param Config $config
      */
     public function __construct(
-        DateTime $dateTime,
-        Config $config
+        DateTime $dateTime
     ) {
         $this->dateTime = $dateTime;
-        $this->config = $config;
     }
 
     /**
@@ -113,27 +103,17 @@ class CaptureUtil
     /**
      * @param OrderPaymentInterface $payment
      * @return bool
+     * @throws LocalizedException
      */
-    public function isCaptureManualPayment(OrderPaymentInterface $payment): bool
+    public function isManualCaptureEnabled(OrderPaymentInterface $payment): bool
     {
-        $storeId = $payment->getOrder() ? $payment->getOrder()->getStoreId() : Store::DEFAULT_STORE_ID;
-
-        if (!$this->config->isManualCaptureEnabled($storeId)
-            || !in_array($payment->getMethod(), self::AVAILABLE_MANUAL_CAPTURE_METHODS, true)
-            || !($payment->getMethodInstance()->getConfigPaymentAction() === self::PAYMENT_ACTION_AUTHORIZE_ONLY)
+        if ($payment->getMethodInstance()->getConfigData('manual_capture') === '1'
+            && $payment->getMethodInstance()->getConfigPaymentAction() === 'authorize'
         ) {
-            return false;
-        }
-
-        if (in_array($payment->getMethod(), [CreditCardConfigProvider::CODE, CreditCardConfigProvider::VAULT_CODE])) {
-            //$cardBrand = $payment->getMethod() === CreditCardConfigProvider::VAULT_CODE ? $payment->getType()
-            //    : $payment->getAdditionalInformation(CreditCardDataAssignObserver::CREDIT_CARD_BRAND_PARAM_NAME);
-
-            //return $cardBrand && in_array($cardBrand, self::AVAILABLE_MANUAL_CAPTURE_CARD_BRANDS);
             return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -143,15 +123,17 @@ class CaptureUtil
      */
     public function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
     {
-        if ($captureData = $payment->getAdditionalInformation(
-            self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME
-        )) {
-            foreach ($captureData as $captureDataItem) {
-                if (isset($captureDataItem['transaction_id'])
-                    && $transactionId === (string)$captureDataItem['transaction_id']
-                ) {
-                    return $captureDataItem;
-                }
+        $captures = $payment->getAdditionalInformation(self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME);
+
+        if (!$captures) {
+            return null;
+        }
+
+        foreach ($captures as $capture) {
+            if (isset($capture['transaction_id'])
+                && $transactionId === (string)$capture['transaction_id']
+            ) {
+                return $capture;
             }
         }
 

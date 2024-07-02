@@ -16,6 +16,7 @@ namespace MultiSafepay\ConnectCore\Factory;
 
 use Exception;
 use MultiSafepay\ConnectCore\Client\Client;
+use MultiSafepay\Exception\InvalidApiKeyException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\Sdk;
@@ -70,6 +71,7 @@ class SdkFactory
      * @param bool $isLive
      * @param string $apiKey
      * @return Sdk
+     * @throws InvalidApiKeyException
      */
     public function createWithModeAndApiKey(bool $isLive, string $apiKey): Sdk
     {

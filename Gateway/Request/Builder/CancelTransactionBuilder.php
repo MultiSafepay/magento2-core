@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -81,6 +82,8 @@ class CancelTransactionBuilder implements BuilderInterface
     /**
      * @param array $buildSubject
      * @return array
+     * @throws LocalizedException
+     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
@@ -95,7 +98,7 @@ class CancelTransactionBuilder implements BuilderInterface
 
         try {
             if ($this->paymentMethodUtil->isMultisafepayOrder($order)
-                && $this->captureUtil->isCaptureManualPayment($order->getPayment())
+                && $this->captureUtil->isManualCaptureEnabled($order->getPayment())
             ) {
                 $transaction = $this->sdkFactory->create($storeId)
                     ->getTransactionManager()

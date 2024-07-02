@@ -3,6 +3,7 @@
 namespace MultiSafepay\Test\Integration\Util;
 
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Observer\Gateway\CreditCardDataAssignObserver;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -30,6 +31,11 @@ class CaptureUtilTest extends AbstractTestCase
         $this->transactionData = $this->getManualCaptureTransactionData();
     }
 
+    /**
+     * Test if manual capture is possible for provided amount
+     *
+     * @return void
+     */
     public function testIsManualCapturePossibleForAmount(): void
     {
         self::assertTrue($this->captureUtil->isManualCapturePossibleForAmount(
@@ -48,6 +54,11 @@ class CaptureUtilTest extends AbstractTestCase
         ));
     }
 
+    /**
+     * Test if the transaction is a manual capture transaction
+     *
+     * @return void
+     */
     public function testIsCaptureManualTransaction(): void
     {
         self::assertTrue($this->captureUtil->isCaptureManualTransaction(
@@ -55,6 +66,11 @@ class CaptureUtilTest extends AbstractTestCase
         ));
     }
 
+    /**
+     * Test if the manual capture reservation has been expired
+     *
+     * @return void
+     */
     public function testIsCaptureManualReservationExpired(): void
     {
         $transactionData = $this->transactionData;
@@ -67,20 +83,22 @@ class CaptureUtilTest extends AbstractTestCase
     }
 
     /**
+     * Test if manual capture is enabled for the payment method
+     *
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
+     * @magentoConfigFixture default_store payment/multisafepay_visa/manual_capture 1
      *
      * @throws LocalizedException
      */
-    public function testIsCaptureManualPayment(): void
+    public function testIsManualCaptureEnabled(): void
     {
         $order = $this->getOrderWithVisaPaymentMethod();
         $payment = $order->getPayment();
 
-        self::assertTrue($this->captureUtil->isCaptureManualPayment($payment));
+        self::assertTrue($this->captureUtil->isManualCaptureEnabled($payment));
 
         $payment->setMethod(CreditCardConfigProvider::CODE);
         $payment->setAdditionalInformation(
@@ -88,17 +106,61 @@ class CaptureUtilTest extends AbstractTestCase
             'VISA'
         );
 
-        self::assertTrue($this->captureUtil->isCaptureManualPayment($payment));
+        self::assertTrue($this->captureUtil->isManualCaptureEnabled($payment));
 
         $payment->setAdditionalInformation(
             CreditCardDataAssignObserver::CREDIT_CARD_BRAND_PARAM_NAME,
             'AMEX'
         );
+    }
 
-        //self::assertFalse($this->captureUtil->isCaptureManualPayment($payment));
+    /**
+     * Test if captured data is returned for the transaction id
+     *
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    public function testCaptureDataByTransactionIdReturnsExpectedData(): void
+    {
+        $order = $this->getOrderWithVisaPaymentMethod();
+        $payment = $order->getPayment();
 
-        //$payment->setMethod(CreditCardConfigProvider::VAULT_CODE);
-        //
-        //self::assertFalse($this->captureUtil->isCaptureManualPayment($payment));
+        $transactionId = '12345';
+        $expectedData = ['some' => 'data'];
+
+        $captureUtilMock = $this->getMockBuilder(CaptureUtil::class)->setConstructorArgs(
+            [
+                $this->getObjectManager()->get(DateTime::class)
+            ]
+        )->getMock();
+
+        $captureUtilMock->expects(self::once())
+            ->method('getCaptureDataByTransactionId')->with($transactionId)->willReturn($expectedData);
+
+        $actualData = $captureUtilMock->getCaptureDataByTransactionId($transactionId, $payment);
+
+        self::assertSame($expectedData, $actualData);
+    }
+
+    /**
+     * Test if captured data is null for non-existing transaction id
+     *
+     * @magentoDataFixture   Magento/Sales/_files/order.php
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    public function testCaptureDataByTransactionIdReturnsNullForNonExistingId(): void
+    {
+        $order = $this->getOrderWithVisaPaymentMethod();
+        $payment = $order->getPayment();
+
+        $nonExistingTransactionId = 'non-existing-id';
+
+        $actualData = $this->captureUtil->getCaptureDataByTransactionId($nonExistingTransactionId, $payment);
+
+        self::assertNull($actualData);
     }
 }

@@ -129,14 +129,7 @@ class RefundTransactionBuilder implements BuilderInterface
         $captureData = $payment->getParentTransactionId()
             ? $this->captureUtil->getCaptureDataByTransactionId($payment->getParentTransactionId(), $payment) : null;
 
-        if (($this->captureUtil->isCaptureManualPayment($payment) && $captureData) || $captureData) {
-            if (!$captureData) {
-                $exceptionMessage = __('Can\'t find manual capture data');
-                $this->logger->logInfoForOrder($orderId, $exceptionMessage->render());
-
-                throw new CouldNotRefundException($exceptionMessage);
-            }
-
+        if (($this->captureUtil->isManualCaptureEnabled($payment) && $captureData) || $captureData) {
             if ($amount > $captureData['amount']) {
                 $exceptionMessage =
                     __('Refund amount for manual captured invoice is not valid. Please set a different amount');

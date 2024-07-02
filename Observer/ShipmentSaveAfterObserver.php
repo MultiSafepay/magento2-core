@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Observer;
 
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\ShipmentInterface;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -24,7 +26,6 @@ use MultiSafepay\ConnectCore\Service\Shipment\ProcessManualCaptureShipment;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use MultiSafepay\Exception\ApiException;
-use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class ShipmentSaveAfterObserver implements ObserverInterface
@@ -87,6 +88,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
 
     /**
      * @param Observer $observer
+     * @throws Exception
      * @throws ClientExceptionInterface
      */
     public function execute(Observer $observer): void
@@ -112,12 +114,12 @@ class ShipmentSaveAfterObserver implements ObserverInterface
 
                 return;
             }
-        } catch (ApiException $apiException) {
-            $this->logger->logExceptionForOrder($orderId, $apiException);
-        } catch (InvalidApiKeyException $invalidApiKeyException) {
-            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
-        } catch (ClientExceptionInterface $clientException) {
-            $this->logger->logClientException($orderId, $clientException);
+        } catch (ApiException | ClientExceptionInterface $exception) {
+            $this->logger->logExceptionForOrder($orderId, $exception);
+
+            throw new LocalizedException(__(
+                'The manual capture could not be created at MultiSafepay, please check the logs.'
+            ));
         }
 
         $this->addShippingToTransaction->execute($shipment, $order);

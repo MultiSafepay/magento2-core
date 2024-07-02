@@ -30,6 +30,8 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTy
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CaptureBuilder;
 use Magento\TestFramework\App\MutableScopeConfig;
+use MultiSafepay\Exception\InvalidArgumentException;
+use MultiSafepay\Exception\InvalidTotalAmountException;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -42,28 +44,26 @@ class CaptureBuilderTest extends AbstractTransactionTestCase
     private $captureBuilder;
 
     /**
-     * @var MutableScopeConfig
-     */
-    private $mutableScopeConfig;
-
-    /**
      * @inheritdoc
      */
     protected function setUp(): void
     {
         $this->captureBuilder = $this->getObjectManager()->create(CaptureBuilder::class);
-        $this->mutableScopeConfig = $this->getObjectManager()->get(MutableScopeConfig::class);
     }
 
     /**
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @dataProvider         gatewaysDataProvider
-     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
+     * @magentoConfigFixture default_store payment/multisafepay_visa/manual_capture 1
+     * @magentoConfigFixture default_store payment/multisafepay_creditcard/manual_capture 1
+     * @magentoConfigFixture default_store payment/multisafepay_maestro/manual_capture 1
      *
      * @param string $paymentCode
      * @param string $paymentAction
      * @param bool $expected
      * @throws LocalizedException
+     * @throws InvalidArgumentException
+     * @throws InvalidTotalAmountException
      */
     public function testCaptureBuilderWithDifferentPaymentMethods(
         string $paymentCode,

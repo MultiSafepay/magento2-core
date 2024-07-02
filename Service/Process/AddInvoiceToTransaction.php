@@ -24,6 +24,7 @@ use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -45,20 +46,28 @@ class AddInvoiceToTransaction implements ProcessInterface
     private $logger;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
      * AddInvoiceDataToTransaction constructor
      *
      * @param Logger $logger
      * @param UpdateRequest $updateRequest
      * @param SdkFactory $sdkFactory
+     * @param CaptureUtil $captureUtil
      */
     public function __construct(
         Logger $logger,
         UpdateRequest $updateRequest,
-        SdkFactory $sdkFactory
+        SdkFactory $sdkFactory,
+        CaptureUtil $captureUtil
     ) {
         $this->logger = $logger;
         $this->updateRequest = $updateRequest;
         $this->sdkFactory = $sdkFactory;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -82,6 +91,16 @@ class AddInvoiceToTransaction implements ProcessInterface
                 'No invoice e-mail sent, because the payment was not found',
                 $transaction,
                 Logger::WARNING
+            );
+
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
+
+        if ($this->captureUtil->isCaptureManualTransaction($transaction)) {
+            $this->logger->logInfoForNotification(
+                $orderId,
+                'No invoice update sent to MultiSafepay, because manual capture is enabled',
+                $transaction
             );
 
             return [StatusOperationInterface::SUCCESS_PARAMETER => true];

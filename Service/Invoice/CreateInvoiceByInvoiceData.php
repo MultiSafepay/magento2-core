@@ -16,10 +16,10 @@ namespace MultiSafepay\ConnectCore\Service\Invoice;
 
 use Exception;
 use Magento\Framework\DB\TransactionFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Exception\CouldNotInvoiceException;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class CreateInvoiceByInvoiceData
@@ -53,7 +53,7 @@ class CreateInvoiceByInvoiceData
      * @param OrderPaymentInterface $payment
      * @param array $invoiceData
      * @return InvoiceInterface|null
-     * @throws LocalizedException
+     * @throws CouldNotInvoiceException
      */
     public function execute(
         OrderInterface $order,
@@ -66,7 +66,7 @@ class CreateInvoiceByInvoiceData
             $message = __("Invoice can't be created");
             $this->logger->logInfoForOrder($orderIncrementId, $message->render());
 
-            throw new LocalizedException($message);
+            throw new CouldNotInvoiceException($message);
         }
 
         try {
@@ -92,7 +92,7 @@ class CreateInvoiceByInvoiceData
         } catch (Exception $exception) {
             $this->logger->logExceptionForOrder($orderIncrementId, $exception);
 
-            return null;
+            throw new CouldNotInvoiceException(__($exception->getMessage()));
         }
     }
 }

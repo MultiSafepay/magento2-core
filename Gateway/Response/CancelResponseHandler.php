@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Response;
 
+use Exception;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
@@ -38,14 +39,16 @@ class CancelResponseHandler implements HandlerInterface
      * @param array $handlingSubject
      * @param array|null $response
      *
+     * @throws Exception
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function handle(array $handlingSubject, ?array $response): void
     {
+        $orderId = $response['order_id'] ?? 'unknown';
+
         $this->logger->logInfoForOrder(
-            $response['order_id'] ?: '',
-            'Reservation for MultiSafepay order '
-            . (isset($response['success']) ? 'was' : 'wasn\'t') . ' canceled.'
+            (string)$orderId,
+            'Order canceled by CancelResponseHandler'
         );
     }
 }

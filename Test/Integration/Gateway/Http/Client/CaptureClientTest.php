@@ -49,7 +49,6 @@ class CaptureClientTest extends AbstractGatewayTestCase
 
     /**
      * @throws Exception
-     * @throws ClientExceptionInterface
      */
     public function testSuccessCancelBuildForPartialCaptureTransaction(): void
     {

@@ -118,12 +118,8 @@ class CreateInvoice implements ProcessInterface
         $isManualCaptureTransaction = $this->captureUtil->isCaptureManualTransaction($transaction);
 
         $payment->setTransactionId($transaction['transaction_id'] ?? '')
-            ->setAdditionalInformation(
-                [
-                    PaymentTransaction::RAW_DETAILS => (array)$payment->getAdditionalInformation(),
-                    self::INVOICE_CREATE_AFTER => false,
-                ]
-            )->setShouldCloseParentTransaction(false)
+            ->setAdditionalInformation(self::INVOICE_CREATE_AFTER, false)
+            ->setShouldCloseParentTransaction(false)
             ->setIsTransactionClosed(0)
             ->setIsTransactionPending(false);
 
@@ -152,18 +148,18 @@ class CreateInvoice implements ProcessInterface
 
         if (!$isManualCaptureTransaction) {
             $paymentTransaction->setIsClosed(1);
+
+            $order->addCommentToStatusHistory(
+                __(
+                    'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
+                    $order->getBaseCurrency()->formatTxt($invoiceAmount),
+                    $paymentTransaction->getTxnId()
+                )
+            );
         }
 
         $this->transactionRepository->save($paymentTransaction);
         $this->logger->logInfoForNotification($orderId, 'Transaction saved', $transaction);
-
-        $order->addCommentToStatusHistory(
-            __(
-                'Captured amount %1 by MultiSafepay. Transaction ID: "%2"',
-                $order->getBaseCurrency()->formatTxt($invoiceAmount),
-                $paymentTransaction->getTxnId()
-            )
-        );
 
         return [StatusOperationInterface::SUCCESS_PARAMETER => true];
     }

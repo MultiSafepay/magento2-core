@@ -56,7 +56,7 @@ class PaymentPlugin
         $paymentMethodInstance = $subject->getMethodInstance();
 
         if ($this->paymentMethodUtil->checkIsMultisafepayMethodByPayment($paymentMethodInstance)) {
-            return $paymentMethodInstance->canVoid() && $this->captureUtil->isCaptureManualPayment($subject);
+            return $paymentMethodInstance->canVoid() && $this->captureUtil->isManualCaptureEnabled($subject);
         }
 
         return $result;

@@ -385,7 +385,6 @@
                 <item name="authorize" xsi:type="string">MultiSafepayIdealRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayIdealRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayIdealVaultAuthorizeCommand</item>
-                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
@@ -1629,8 +1628,31 @@
                 <item name="authorize" xsi:type="string">MultiSafepayCreditCardRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayCreditCardRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayCreditCardVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayCreditCardRecurringCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayCreditCardRecurringCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayCreditCardRecurringCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCardRecurring Capture command -->
+    <virtualType name="MultiSafepayCreditCardRecurringCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardRecurringCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCardRecurring Cancel command -->
+    <virtualType name="MultiSafepayCreditCardRecurringCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardRecurringCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1650,6 +1672,24 @@
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCardRecurring Cancel Request -->
+    <virtualType name="MultiSafepayCreditCardRecurringCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCardRecurring Capture Request -->
+    <virtualType name="MultiSafepayCreditCardRecurringCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 
@@ -1754,9 +1794,31 @@
                 <item name="authorize" xsi:type="string">MultiSafepayVisaRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayVisaRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayVisaVaultAuthorizeCommand</item>
-                <item name="capture" xsi:type="string">MultiSafepayVisaCaptureCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayVisaRecurringCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayVisaRecurringCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayVisaRecurringCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- VisaRecurring Capture command -->
+    <virtualType name="MultiSafepayVisaRecurringCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardRecurringCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- VisaRecurring Cancel command -->
+    <virtualType name="MultiSafepayVisaRecurringCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardRecurringCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1776,6 +1838,24 @@
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- VisaRecurring Cancel Request -->
+    <virtualType name="MultiSafepayVisaRecurringCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- VisaRecurring Capture Request -->
+    <virtualType name="MultiSafepayVisaRecurringCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 
@@ -1941,9 +2021,31 @@
                 <item name="authorize" xsi:type="string">MultiSafepayMastercardRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayMastercardVaultAuthorizeCommand</item>
-                <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayMastercardRecurringCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayMastercardRecurringCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayMastercardRecurringCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MastercardRecurring Capture command -->
+    <virtualType name="MultiSafepayMastercardRecurringCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMastercardRecurringCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MastercardRecurring Cancel command -->
+    <virtualType name="MultiSafepayMastercardRecurringCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMastercardRecurringCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -1963,6 +2065,24 @@
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MastercardRecurring Cancel Request -->
+    <virtualType name="MultiSafepayMastercardRecurringCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MastercardRecurring Capture Request -->
+    <virtualType name="MultiSafepayMastercardRecurringCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 
@@ -2050,7 +2170,7 @@
         </arguments>
     </virtualType>
 
-    <!-- Visa Vault Authorize Request -->
+    <!-- Mastercard Vault Authorize Request -->
     <virtualType name="MultiSafepayMastercardVaultAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
@@ -2236,7 +2356,7 @@
         </arguments>
     </virtualType>
 
-    <!-- Visa Vault Authorize Request -->
+    <!-- Amex Vault Authorize Request -->
     <virtualType name="MultiSafepayAmexVaultAuthorizeRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
@@ -2313,7 +2433,48 @@
             <argument name="commands" xsi:type="array">
                 <item name="initialize" xsi:type="string">MultiSafepayCreditCardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayCreditCardRefundCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayCreditCardCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayCreditCardCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayCreditCardCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCard Capture command -->
+    <virtualType name="MultiSafepayCreditCardCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCard Cancel command -->
+    <virtualType name="MultiSafepayCreditCardCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayCreditCardCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCard Cancel Request -->
+    <virtualType name="MultiSafepayCreditCardCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- CreditCard Capture Request -->
+    <virtualType name="MultiSafepayCreditCardCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3120,7 +3281,28 @@
                 <item name="initialize" xsi:type="string">MultiSafepayMaestroInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMaestroRefundCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayMaestroCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayMaestroCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayMaestroCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Maestro Cancel command -->
+    <virtualType name="MultiSafepayMaestroCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMaestroCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Maestro Cancel Request -->
+    <virtualType name="MultiSafepayMaestroCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -3325,8 +3507,31 @@
                 <item name="authorize" xsi:type="string">MultiSafepayMaestroRecurringAuthorizeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMaestroRecurringRefundCommand</item>
                 <item name="vault_authorize" xsi:type="string">MultiSafepayMaestroVaultAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">MultiSafepayMaestroRecurringCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayMaestroRecurringCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayMaestroRecurringCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MaestroRecurring Capture command -->
+    <virtualType name="MultiSafepayMaestroRecurringCaptureCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMaestroRecurringCaptureRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CaptureClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CaptureResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MaestroRecurring Cancel command -->
+    <virtualType name="MultiSafepayMaestroRecurringCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMaestroRecurringCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
         </arguments>
     </virtualType>
 
@@ -3346,6 +3551,24 @@
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MaestroRecurring Cancel Request -->
+    <virtualType name="MultiSafepayMaestroRecurringCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- MaestroRecurring Capture Request -->
+    <virtualType name="MultiSafepayMaestroRecurringCaptureRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 
@@ -3450,6 +3673,8 @@
                 <item name="initialize" xsi:type="string">MultiSafepayMastercardInitializeCommand</item>
                 <item name="refund" xsi:type="string">MultiSafepayMastercardRefundCommand</item>
                 <item name="capture" xsi:type="string">MultiSafepayMastercardCaptureCommand</item>
+                <item name="cancel" xsi:type="string">MultiSafepayMastercardCancelCommand</item>
+                <item name="void" xsi:type="string">MultiSafepayMastercardCancelCommand</item>
                 <item name="fetch_transaction_information" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Command\FetchTransactionInfo</item>
             </argument>
         </arguments>
@@ -3490,6 +3715,25 @@
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
             <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mastercard Cancel command -->
+    <virtualType name="MultiSafepayMastercardCancelCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">MultiSafepayMastercardCancelRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\CancelClient</argument>
+            <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\CancelResponseHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Mastercard Cancel Request -->
+    <virtualType name="MultiSafepayMastercardCancelRequestBuilder" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="transaction" xsi:type="string">MultiSafepay\ConnectCore\Gateway\Request\Builder\CancelTransactionBuilder</item>
+            </argument>
         </arguments>
     </virtualType>
 

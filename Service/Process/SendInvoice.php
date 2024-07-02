@@ -22,6 +22,7 @@ use Magento\Sales\Model\Order\Email\Container\InvoiceIdentity;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
 
@@ -48,23 +49,31 @@ class SendInvoice implements ProcessInterface
     private $invoiceUtil;
 
     /**
+     * @var CaptureUtil
+     */
+    private $captureUtil;
+
+    /**
      * SendInvoice constructor
      *
      * @param ScopeConfigInterface $scopeConfig
      * @param Logger $logger
      * @param InvoiceSender $invoiceSender
      * @param InvoiceUtil $invoiceUtil
+     * @param CaptureUtil $captureUtil
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
         InvoiceSender $invoiceSender,
-        InvoiceUtil $invoiceUtil
+        InvoiceUtil $invoiceUtil,
+        CaptureUtil $captureUtil
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->logger = $logger;
         $this->invoiceSender = $invoiceSender;
         $this->invoiceUtil = $invoiceUtil;
+        $this->captureUtil = $captureUtil;
     }
 
     /**
@@ -79,16 +88,6 @@ class SendInvoice implements ProcessInterface
     {
         $orderId = $order->getIncrementId();
 
-        if ((bool)$this->scopeConfig->getValue(InvoiceIdentity::XML_PATH_EMAIL_ENABLED) === false) {
-            $this->logger->logInfoForNotification(
-                $orderId,
-                'No invoice e-mail sent, because the setting is disabled',
-                $transaction
-            );
-
-            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
-        }
-
         /** @var Payment $payment */
         $payment = $order->getPayment();
 
@@ -98,6 +97,26 @@ class SendInvoice implements ProcessInterface
                 'No invoice e-mail sent, because the payment was not found',
                 $transaction,
                 Logger::WARNING
+            );
+
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
+
+        if ($this->captureUtil->isManualCaptureEnabled($payment)) {
+            $this->logger->logInfoForNotification(
+                $orderId,
+                'No invoice e-mail sent, because manual capture is enabled',
+                $transaction
+            );
+
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
+
+        if ((bool)$this->scopeConfig->getValue(InvoiceIdentity::XML_PATH_EMAIL_ENABLED) === false) {
+            $this->logger->logInfoForNotification(
+                $orderId,
+                'No invoice e-mail sent, because the setting is disabled',
+                $transaction
             );
 
             return [StatusOperationInterface::SUCCESS_PARAMETER => true];

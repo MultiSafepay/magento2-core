@@ -30,6 +30,7 @@ use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
+use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
@@ -155,10 +156,10 @@ class CaptureTransactionBuilder implements BuilderInterface
         try {
             $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
             $transaction = $transactionManager->get($orderIncrementId)->getData();
-        } catch (ClientExceptionInterface $clientException) {
-            $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
+        } catch (ClientExceptionInterface | ApiException $exception) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $exception);
 
-            throw new CouldNotInvoiceException(__($clientException->getMessage()));
+            throw new CouldNotInvoiceException(__($exception->getMessage()));
         }
 
         $exceptionMessage = __('Manual MultiSafepay online capture can\'t be processed for non manual capture orders');

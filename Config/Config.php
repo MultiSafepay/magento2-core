@@ -262,15 +262,6 @@ class Config
 
     /**
      * @param null $storeId
-     * @return bool
-     */
-    public function isManualCaptureEnabled($storeId = null): bool
-    {
-        return (bool)$this->getValue(self::USE_MANUAL_CAPTURE, $storeId);
-    }
-
-    /**
-     * @param null $storeId
      * @return string
      */
     public function getAccountData($storeId = null): string
