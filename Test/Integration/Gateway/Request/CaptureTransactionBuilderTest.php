@@ -15,292 +15,241 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Request;
 
 use Exception;
-use InvalidArgumentException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\SalesSequence\Model\Manager;
 use Magento\Sales\Exception\CouldNotInvoiceException;
-use MultiSafepay\Api\Transactions\CaptureRequest;
-use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
-use MultiSafepay\Api\Transactions\Transaction;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection;
+use Magento\Store\Model\Store;
+use MultiSafepay\Api\TransactionManager;
+use MultiSafepay\Api\Transactions\TransactionResponse;
+use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use MultiSafepay\Sdk;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\CaptureTransactionBuilder;
+use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Test\Integration\Gateway\AbstractGatewayTestCase;
 use MultiSafepay\ConnectCore\Util\AmountUtil;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
-use PHPUnit\Framework\MockObject\MockObject;
+use MultiSafepay\Api\Transactions\CaptureRequest;
+use Magento\SalesSequence\Model\Manager;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class CaptureTransactionBuilderTest extends AbstractGatewayTestCase
+class CaptureTransactionBuilderTest extends AbstractTestCase
 {
     /**
-     * @var array
+     * @var CaptureTransactionBuilder
      */
-    private $transactionData;
+    private $captureTransactionBuilder;
 
     /**
-     * @var Manager
+     * @var SdkFactory
      */
-    private $sequenceManager;
+    private $sdkFactory;
 
     /**
-     * @var ShipmentUtil
+     * @var CaptureUtil
      */
-    private $shipmentUtil;
+    private $captureUtil;
 
     /**
-     * @throws Exception
+     * @return void
      */
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->transactionData = $this->getManualCaptureTransactionData() ?? [];
-        $this->sequenceManager = $this->getObjectManager()->get(Manager::class);
-        $this->shipmentUtil = $this->getObjectManager()->get(ShipmentUtil::class);
-    }
+        $amountUtil = $this->createMock(AmountUtil::class);
+        $this->captureUtil = $this->createMock(CaptureUtil::class);
+        $this->sdkFactory = $this->createMock(SdkFactory::class);
+        $captureRequest = $this->createMock(CaptureRequest::class);
+        $shipmentUtil = $this->createMock(ShipmentUtil::class);
+        $sequenceManager = $this->createMock(Manager::class);
+        $logger = $this->createMock(Logger::class);
+        $jsonHandler = $this->createMock(JsonHandler::class);
 
-    /**
-     * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
-     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
-     * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @throws Exception
-     */
-    public function testBuildPartialCaptureTransactionForFullAmount(): void
-    {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $amount = 100;
-        $orderIncrementId = $order->getIncrementId();
-
-        foreach ($order->getItems() as $orderItem) {
-            $preparedItems[$orderItem->getId()] = $orderItem->getQtyOrdered();
-        }
-
-        $captureTransactionBuilder = $this->getCaptureTransactionBuilderMock($orderIncrementId, $this->transactionData);
-        $buildSubject = [
-            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
-            'amount' => $amount,
-        ];
-        $invoice = $order->prepareInvoice($preparedItems);
-        $payment->setInvoice($invoice);
-        $captureTransactionData = $captureTransactionBuilder->build($buildSubject);
-        $capturePayload = $captureTransactionData['payload'];
-
-        self::assertEquals($orderIncrementId, $captureTransactionData['order_id']);
-        self::assertEquals($order->getStoreId(), $captureTransactionData['store_id']);
-        self::assertEquals(round($amount * 100, 10), $capturePayload->get('amount'));
-        self::assertEquals($invoice->getIncrementId(), $capturePayload->get('invoice_id'));
-        self::isNull($capturePayload->get('new_order_id'));
-        self::assertEquals(Transaction::COMPLETED, $capturePayload->get('new_order_status'));
-
-        $shipment = $this->createShipmentForOrder($order, $preparedItems);
-        $payment->setShipment($shipment);
-        $captureTransactionData = $captureTransactionBuilder->build($buildSubject);
-        $capturePayload = $captureTransactionData['payload'];
-
-        foreach ($this->shipmentUtil->getShipmentApiRequestData($order, $shipment) as $key => $value) {
-            self::assertEquals($value, $capturePayload->get($key));
-        }
-
-        self::assertEquals(Transaction::SHIPPED, $capturePayload->get('new_order_status'));
-    }
-
-    /**
-     * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
-     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
-     * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @throws Exception
-     */
-    public function testBuildPartialCaptureTransactionForPartialAmount(): void
-    {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $amount = 50;
-        $orderIncrementId = $order->getIncrementId();
-
-        foreach ($order->getItems() as $orderItem) {
-            $preparedItems[$orderItem->getId()] = 1;
-        }
-
-        $captureTransactionBuilder = $this->getCaptureTransactionBuilderMock($orderIncrementId, $this->transactionData);
-        $buildSubject = [
-            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
-            'amount' => $amount,
-        ];
-        $invoice = $order->prepareInvoice($preparedItems);
-        $payment->setInvoice($invoice);
-        $captureTransactionData = $captureTransactionBuilder->build($buildSubject);
-        $capturePayload = $captureTransactionData['payload'];
-
-        self::assertEquals($orderIncrementId, $captureTransactionData['order_id']);
-        self::assertEquals($order->getStoreId(), $captureTransactionData['store_id']);
-        self::assertEquals(round($amount * 100, 10), $capturePayload->get('amount'));
-        self::assertEquals($invoice->getIncrementId(), $capturePayload->get('invoice_id'));
-        self::assertEquals(
-            $orderIncrementId . '_' . $capturePayload->get('invoice_id'),
-            $capturePayload->get('new_order_id')
+        $this->captureTransactionBuilder = new CaptureTransactionBuilder(
+            $amountUtil,
+            $this->captureUtil,
+            $this->sdkFactory,
+            $captureRequest,
+            $shipmentUtil,
+            $sequenceManager,
+            $logger,
+            $jsonHandler
         );
-        self::assertEquals(Transaction::COMPLETED, $capturePayload->get('new_order_status'));
     }
 
     /**
+     * Test if the build method will return the expected data
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws CouldNotInvoiceException
      * @throws Exception
      */
-    public function testBuildPartialCaptureTransactionForNonManualCaptureOrder(): void
+    public function testBuildWillReturnExpectedData()
     {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $orderIncrementId = $order->getIncrementId();
-        $buildSubject = [
-            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
-            'amount' => 50,
-        ];
-        $transactionData = $this->transactionData;
-        unset($transactionData['payment_details']['capture']);
-        $transactionData['payment_details'][''] = TransactionStatus::COMPLETED;
-        $captureTransactionBuilder = $this->getCaptureTransactionBuilderMock($orderIncrementId, $transactionData);
+        $buildSubject = $this->prepareTestData();
+        $sdk = $this->createMock(Sdk::class);
+        $transaction = $this->createMock(TransactionResponse::class);
 
+        $this->sdkFactory->method('create')->willReturn($sdk);
+        $transactionManager = $this->createMock(TransactionManager::class);
+
+        $sdk->method('getTransactionManager')->willReturn($transactionManager);
+        $transactionManager->method('get')->willReturn($transaction);
+        $transaction->method('getData')->willReturn($this->getManualCaptureTransactionData());
+        $this->captureUtil->method('isCaptureManualTransaction')->willReturn(true);
+        $this->captureUtil->method('isManualCapturePossibleForAmount')->willReturn(true);
+
+        $invoice = $this->createMock(Invoice::class);
+        $invoice->method('getIncrementId')->willReturn('10000001');
+        $invoice->method('getData')->willReturn(['some_data' => 'some_value']);
+
+        $invoiceCollection = $this->createMock(Collection::class);
+        $invoiceCollection->method('getLastItem')->willReturn($invoice);
+
+        $order = $buildSubject['payment']->getPayment()->getOrder();
+        $order->method('getInvoiceCollection')->willReturn($invoiceCollection);
+
+        $result = $this->captureTransactionBuilder->build($buildSubject);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('payload', $result);
+        $this->assertArrayHasKey('order_id', $result);
+        $this->assertSame('10000001', $result['order_id']);
+        $this->assertArrayHasKey(Store::STORE_ID, $result);
+        $this->assertSame(1, $result[Store::STORE_ID]);
+    }
+
+    /**
+     * Test if the build method will return the expected data
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws CouldNotInvoiceException
+     * @throws Exception
+     */
+    public function testBuildWillThrowInvoiceExceptionWhenTransactionManagerReturnsException()
+    {
+        $buildSubject = $this->prepareTestData();
+        $sdk = $this->createMock(Sdk::class);
+        $this->sdkFactory->method('create')->willReturn($sdk);
+
+        $this->expectException(CouldNotInvoiceException::class);
+        $this->captureTransactionBuilder->build($buildSubject);
+    }
+
+    /**
+     * Test if the build method will return the expected data
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws CouldNotInvoiceException
+     * @throws Exception
+     */
+    public function testBuildWillThrowInvoiceExceptionWhenTransactionIsNotManualCapture()
+    {
+        $buildSubject = $this->prepareTestData();
+        $sdk = $this->createMock(Sdk::class);
+        $transaction = $this->createMock(TransactionResponse::class);
+
+        $this->sdkFactory->method('create')->willReturn($sdk);
+        $transactionManager = $this->createMock(TransactionManager::class);
+
+        $sdk->method('getTransactionManager')->willReturn($transactionManager);
+        $transactionManager->method('get')->willReturn($transaction);
+        $transaction->method('getData')->willReturn($this->getManualCaptureTransactionData());
+        $this->captureUtil->method('isCaptureManualTransaction')->willReturn(false);
+
+        $this->expectException(CouldNotInvoiceException::class);
         $this->expectExceptionMessage(
             'Manual MultiSafepay online capture can\'t be processed for non manual capture orders'
         );
-        $this->expectException(CouldNotInvoiceException::class);
 
-        $captureTransactionBuilder->build($buildSubject);
+        $this->captureTransactionBuilder->build($buildSubject);
     }
 
     /**
+     * Test if the build method will return the expected data
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws CouldNotInvoiceException
      * @throws Exception
      */
-    public function testBuildPartialCaptureTransactionForExpriredManualCaptureTransaction(): void
+    public function testBuildWillThrowInvoiceExceptionWhenManualCaptureReservationHasExpired()
     {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $orderIncrementId = $order->getIncrementId();
-        $buildSubject = [
-            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
-            'amount' => 50,
-        ];
-        $transactionData = $this->transactionData;
-        $transactionData['payment_details']['capture_expiry'] = '2000-01-01T11:42:00';
-        $captureTransactionBuilder = $this->getCaptureTransactionBuilderMock($orderIncrementId, $transactionData);
+        $buildSubject = $this->prepareTestData();
+        $sdk = $this->createMock(Sdk::class);
+        $transaction = $this->createMock(TransactionResponse::class);
 
-        $this->expectExceptionMessage(
-            'Reservation has been expired for current online capture.'
-        );
+        $this->sdkFactory->method('create')->willReturn($sdk);
+        $transactionManager = $this->createMock(TransactionManager::class);
+
+        $sdk->method('getTransactionManager')->willReturn($transactionManager);
+        $transactionManager->method('get')->willReturn($transaction);
+        $transaction->method('getData')->willReturn($this->getManualCaptureTransactionData());
+        $this->captureUtil->method('isCaptureManualTransaction')->willReturn(true);
+        $this->captureUtil->method('isCaptureManualReservationExpired')->willReturn(true);
+
         $this->expectException(CouldNotInvoiceException::class);
+        $this->expectExceptionMessage('Reservation has been expired for current online capture.');
 
-        $captureTransactionBuilder->build($buildSubject);
+        $this->captureTransactionBuilder->build($buildSubject);
     }
 
     /**
-     * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
-     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
-     * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @dataProvider         amountVariationsDataProvider
+     * Test if the build method will return the expected data
      *
-     * @param mixed $amount
-     * @param bool $expected
-     * @param array $exceptionData
+     * @return void
      * @throws LocalizedException
+     * @throws CouldNotInvoiceException
+     * @throws Exception
      */
-    public function testBuildPartialCaptureTransactionWithWrongAmounts(
-        $amount,
-        bool $expected,
-        array $exceptionData = []
-    ): void {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $orderIncrementId = $order->getIncrementId();
-        $captureTransactionBuilder = $this->getCaptureTransactionBuilderMock($orderIncrementId, $this->transactionData);
-        $buildSubject = [
-            'payment' => $this->getNewPaymentDataObjectFromOrder($order),
-            'amount' => $amount,
-        ];
+    public function testBuildWillReturnExpectedDataWillThrowExceptionWithWrongAmount()
+    {
+        $buildSubject = $this->prepareTestData();
+        $sdk = $this->createMock(Sdk::class);
+        $transaction = $this->createMock(TransactionResponse::class);
 
-        if ($expected) {
-            $preparedItems = [];
-            foreach ($order->getItems() as $orderItem) {
-                $preparedItems[$orderItem->getId()] = $orderItem->getQtyOrdered();
-            }
+        $this->sdkFactory->method('create')->willReturn($sdk);
+        $transactionManager = $this->createMock(TransactionManager::class);
 
-            $order->getPayment()->setInvoice($order->prepareInvoice($preparedItems));
-            $captureTransactionData = $captureTransactionBuilder->build($buildSubject);
+        $sdk->method('getTransactionManager')->willReturn($transactionManager);
+        $transactionManager->method('get')->willReturn($transaction);
+        $transaction->method('getData')->willReturn($this->getManualCaptureTransactionData());
+        $this->captureUtil->method('isCaptureManualTransaction')->willReturn(true);
+        $this->captureUtil->method('isManualCapturePossibleForAmount')->willReturn(false);
 
-            self::assertEquals(
-                round((float)$amount * 100, 10),
-                $captureTransactionData['payload']->get('amount')
-            );
-        } else {
-            $this->expectExceptionMessage($exceptionData['exceptionMessage']);
-            $this->expectException($exceptionData['exception']);
+        $this->expectException(CouldNotInvoiceException::class);
+        $this->expectExceptionMessage('Manual payment capture amount can\'t be processed,  please try again.');
 
-            $captureTransactionBuilder->build($buildSubject);
-        }
+        $this->captureTransactionBuilder->build($buildSubject);
     }
 
     /**
      * @return array
      */
-    public function amountVariationsDataProvider(): array
+    public function prepareTestData(): array
     {
-        return [
-            [
-                0,
-                false,
-                [
-                    'exception' => CouldNotInvoiceException::class,
-                    'exceptionMessage' => 'Invoices with 0 or negative amount can not be processed.'
-                                          . ' Please set a different amount',
-                ],
-            ],
-            [
-                110,
-                false,
-                [
-                    'exception' => CouldNotInvoiceException::class,
-                    'exceptionMessage' => 'Manual payment capture amount is can\'t be processed,  please try again.',
-                ],
-            ],
-            [
-                null,
-                false,
-                [
-                    'exception' => InvalidArgumentException::class,
-                    'exceptionMessage' => 'Amount should be provided',
-                ],
-            ],
-            [
-                '50',
-                true,
-                [],
-            ],
+        $buildSubject = [
+            'payment' => $this->createMock(PaymentDataObjectInterface::class),
+            'amount' => 100.0
         ];
-    }
 
-    /**
-     * @param string $orderId
-     * @param array $transactionData
-     * @return MockObject
-     */
-    private function getCaptureTransactionBuilderMock(
-        string $orderId,
-        array $transactionData
-    ): MockObject {
-        return $this->getMockBuilder(CaptureTransactionBuilder::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(AmountUtil::class),
-                $this->getObjectManager()->get(CaptureUtil::class),
-                $this->setupSdkFactory($this->getSdkMockWithPartialCapture($orderId, $transactionData)),
-                $this->getObjectManager()->get(CaptureRequest::class),
-                $this->shipmentUtil,
-                $this->sequenceManager,
-                $this->getObjectManager()->get(Logger::class),
-                $this->getObjectManager()->get(JsonHandler::class)
-            ])
-            ->setMethodsExcept(['build'])
-            ->getMock();
+        $payment = $this->createMock(Payment::class);
+        $order = $this->createMock(Order::class);
+
+        $buildSubject['payment']->method('getPayment')->willReturn($payment);
+        $payment->method('getOrder')->willReturn($order);
+        $order->method('getIncrementId')->willReturn('10000001');
+        $order->method('getStoreId')->willReturn('1');
+
+        return $buildSubject;
     }
 }

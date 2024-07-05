@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Shipment;
 
+use Exception;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
@@ -22,7 +23,6 @@ use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use MultiSafepay\Exception\ApiException;
-use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class AddShippingToTransaction
@@ -78,7 +78,7 @@ class AddShippingToTransaction
     /**
      * @param ShipmentInterface $shipment
      * @param OrderInterface $order
-     * @throws ClientExceptionInterface
+     * @throws Exception
      */
     public function execute(
         ShipmentInterface $shipment,
@@ -100,16 +100,13 @@ class AddShippingToTransaction
                 It can be manually updated in MultiSafepay Control'));
 
             return;
-        } catch (InvalidApiKeyException $invalidApiKeyException) {
-            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
-
-            return;
         } catch (ClientExceptionInterface $clientException) {
             $this->logger->logClientException($orderId, $clientException);
 
             return;
         }
 
+        $this->logger->logInfoForOrder($orderId, 'The shipping status has been updated at MultiSafepay');
         $this->messageManager->addSuccessMessage(__('The order status has succesfully been updated at MultiSafepay'));
     }
 }

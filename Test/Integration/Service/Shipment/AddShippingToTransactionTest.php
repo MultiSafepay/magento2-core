@@ -15,16 +15,20 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration\Service\Shipment;
 
 use Exception;
-use Magento\Framework\Message\ManagerInterface;
 use MultiSafepay\Api\Base\Response;
 use MultiSafepay\Api\TransactionManager;
-use MultiSafepay\Api\Transactions\UpdateRequest;
-use MultiSafepay\ConnectCore\Logger\Logger;
-use MultiSafepay\ConnectCore\Service\Shipment\AddShippingToTransaction;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
-use MultiSafepay\ConnectCore\Util\ShipmentUtil;
+use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\ApiUnavailableException;
 use MultiSafepay\Sdk;
-use PHPUnit\Framework\MockObject\MockObject;
+use MultiSafepay\ConnectCore\Service\Shipment\AddShippingToTransaction;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\ShipmentInterface;
+use MultiSafepay\Api\Transactions\UpdateRequest;
+use MultiSafepay\ConnectCore\Factory\SdkFactory;
+use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
@@ -33,84 +37,106 @@ use Psr\Http\Client\ClientExceptionInterface;
 class AddShippingToTransactionTest extends AbstractTestCase
 {
     /**
-     * @var UpdateRequest
+     * @var Logger
      */
-    private $updateRequest;
+    private $logger;
 
     /**
-     * {@inheritdoc}
+     * @var SdkFactory
+     */
+    private $sdkFactory;
+
+    /**
+     * @var AddShippingToTransaction
+     */
+    private $addShippingToTransaction;
+
+    /**
+     * @return void
      */
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->updateRequest = $this->getObjectManager()->get(UpdateRequest::class);
+        $this->logger = $this->createMock(Logger::class);
+        $updateRequest = $this->getObjectManager()->get(UpdateRequest::class);
+        $shipmentUtil = $this->getObjectManager()->get(ShipmentUtil::class);
+        $messageManager = $this->getObjectManager()->get(ManagerInterface::class);
+        $this->sdkFactory = $this->createMock(SdkFactory::class);
+
+        $this->addShippingToTransaction = new AddShippingToTransaction(
+            $this->logger,
+            $updateRequest,
+            $shipmentUtil,
+            $messageManager,
+            $this->sdkFactory
+        );
     }
 
     /**
-     * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
-     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
-     * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
-     * @throws Exception
+     * Test if the execute function is successful
+     *
      * @throws ClientExceptionInterface
+     * @throws ApiException
+     * @throws ApiUnavailableException
+     * @throws Exception
      */
-    public function testCreateFullShipmentForManualCaptureCreatedOrder()
+    public function testExecuteWillLogInfoForOrderOnSuccess()
     {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $shipmentItems = [];
+        $testData = $this->prepareTestData();
 
-        foreach ($order->getItems() as $orderItem) {
-            $shipmentItems[$orderItem->getId()] = $orderItem->getQtyOrdered();
-        }
+        $shipment = $testData['shipment'];
+        $order = $testData['order'];
+        $transactionManager = $testData['transactionManager'];
 
-        $shipment = $this->createShipmentForOrder($order, $shipmentItems);
-        $addShippingToTransactionService = $this->getMockBuilder(AddShippingToTransaction::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(Logger::class),
-                $this->updateRequest,
-                $this->getObjectManager()->get(ShipmentUtil::class),
-                $this->getObjectManager()->get(ManagerInterface::class),
-                $this->setupSdkFactory($this->getSdkMock($order->getIncrementId())),
-            ])
-            ->setMethodsExcept(['execute'])
-            ->getMock();
+        $response = new Response(['data' => ['success' => true]]);
+        $transactionManager->method('update')->willReturn($response);
 
-        $addShippingToTransactionService->execute($shipment, $order);
+        $this->logger->expects($this->once())
+            ->method('logInfoForOrder')
+            ->with(
+                $this->equalTo('100000001'),
+                $this->equalTo('The shipping status has been updated at MultiSafepay')
+            );
+
+        $this->addShippingToTransaction->execute($shipment, $order);
     }
 
     /**
-     * @param string $orderId
-     * @return MockObject
+     * Test if the execute function will log an error message when an ApiException is thrown
+     *
+     * @throws ClientExceptionInterface
+     * @throws Exception
      */
-    private function getSdkMock(
-        string $orderId
-    ): MockObject {
-        $sdk = $this->getMockBuilder(Sdk::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+    public function testExecuteWillLogApiExceptionWhenThrown()
+    {
+        $testData = $this->prepareTestData();
 
-        $transactionManagerMock = $this->getMockBuilder(TransactionManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $shipment = $testData['shipment'];
+        $order = $testData['order'];
+        $transactionManager = $testData['transactionManager'];
 
-        $mockResponse = $this->getMockBuilder(Response::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $exception = new ApiException('ApiException Error', 404);
+        $transactionManager->method('update')->willThrowException($exception);
 
-        $mockResponse->expects(self::once())
-            ->method('getResponseData')
-            ->willReturn([]);
+        $this->logger->expects($this->once())
+            ->method('logUpdateRequestApiException')
+            ->with($this->equalTo('100000001'), $this->equalTo($exception));
 
-        $transactionManagerMock->expects(self::once())
-            ->method('update')
-            ->with($orderId, $this->updateRequest)
-            ->willReturn($mockResponse);
+        $this->addShippingToTransaction->execute($shipment, $order);
+    }
 
-        $sdk->expects(self::once())
-            ->method('getTransactionManager')
-            ->willReturn($transactionManagerMock);
+    /**
+     * @return array
+     */
+    private function prepareTestData(): array
+    {
+        $shipment = $this->createMock(ShipmentInterface::class);
+        $order = $this->createMock(OrderInterface::class);
+        $order->method('getIncrementId')->willReturn('100000001');
+        $sdk = $this->createMock(Sdk::class);
+        $this->sdkFactory->method('create')->willReturn($sdk);
+        $transactionManager = $this->createMock(TransactionManager::class);
+        $sdk->method('getTransactionManager')->willReturn($transactionManager);
 
-        return $sdk;
+        return ['shipment' => $shipment, 'order' => $order, 'transactionManager' => $transactionManager];
     }
 }

@@ -28,7 +28,6 @@ use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\ConnectCore\Service\Invoice\CreateInvoiceAfterShipment;
 use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
-use Psr\Http\Client\ClientExceptionInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -111,8 +110,8 @@ class ProcessManualCaptureShipment
      * @param ShipmentInterface $shipment
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
-     * @throws ClientExceptionInterface
      * @throws CouldNotInvoiceException
+     * @throws Exception
      */
     public function execute(
         ShipmentInterface $shipment,

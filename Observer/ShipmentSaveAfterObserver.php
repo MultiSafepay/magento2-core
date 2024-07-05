@@ -116,7 +116,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             }
         } catch (ApiException | ClientExceptionInterface $exception) {
             $this->logger->logExceptionForOrder($orderId, $exception);
-
+            
             throw new LocalizedException(__(
                 'The manual capture could not be created at MultiSafepay, please check the logs.'
             ));

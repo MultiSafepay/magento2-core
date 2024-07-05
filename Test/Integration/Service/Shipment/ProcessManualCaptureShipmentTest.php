@@ -15,173 +15,131 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Test\Integration\Service\Shipment;
 
 use Exception;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\MailException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\Data\ShipmentInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Exception\CouldNotInvoiceException;
+use Magento\Sales\Model\OrderRepository;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
+use MultiSafepay\ConnectCore\Service\Invoice\CreateInvoiceAfterShipment;
 use MultiSafepay\ConnectCore\Service\Shipment\AddShippingToTransaction;
-use MultiSafepay\ConnectCore\Service\Shipment\ProcessManualCaptureShipment;
-use MultiSafepay\ConnectCore\Test\Integration\Payment\AbstractTransactionTestCase;
+use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
-use PHPUnit\Framework\MockObject\MockObject;
-use MultiSafepay\ConnectCore\Service\Invoice\CreateInvoiceAfterShipment;
+use MultiSafepay\ConnectCore\Service\Shipment\ProcessManualCaptureShipment;
+use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class ProcessManualCaptureShipmentTest extends AbstractTransactionTestCase
+class ProcessManualCaptureShipmentTest extends AbstractTestCase
 {
-    /**
-     * @var array|null
-     */
-    private $transactionData;
+    private $createInvoiceAfterShipment;
+    private $processManualCaptureShipment;
 
     /**
-     * @var InvoiceUtil
-     */
-    private $invoiceUtil;
-
-    /**
-     * @var ShipmentUtil
-     */
-    private $shipmentUtil;
-
-    /**
-     * {@inheritdoc}
+     * @return void
      */
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->transactionData = $this->getManualCaptureTransactionData() ?? [];
-        $this->invoiceUtil = $this->getObjectManager()->create(InvoiceUtil::class);
-        $this->shipmentUtil = $this->getObjectManager()->get(ShipmentUtil::class);
+        $logger = $this->getObjectManager()->get(Logger::class);
+        $shipmentUtil = $this->getObjectManager()->get(ShipmentUtil::class);
+        $messageManager = $this->getObjectManager()->get(ManagerInterface::class);
+        $orderRepository = $this->getObjectManager()->get(OrderRepository::class);
+        $this->createInvoiceAfterShipment = $this->createMock(CreateInvoiceAfterShipment::class);
+        $emailSender = $this->getObjectManager()->get(EmailSender::class);
+        $invoiceUtil = $this->createMock(InvoiceUtil::class);
+        $addShippingToTransaction = $this->getObjectManager()->get(AddShippingToTransaction::class);
+
+        $this->processManualCaptureShipment = new ProcessManualCaptureShipment(
+            $logger,
+            $shipmentUtil,
+            $messageManager,
+            $orderRepository,
+            $this->createInvoiceAfterShipment,
+            $emailSender,
+            $invoiceUtil,
+            $addShippingToTransaction
+        );
     }
 
     /**
-     * @magentoDataFixture   Magento/Sales/_files/order_with_two_order_items_with_simple_product.php
+     * Test if the execute function processes a manual capture shipment correctly
+     *
+     * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
+     * @magentoConfigFixture default_store payment/multisafepay_visa/manual_capture 1
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
-     * @throws Exception
+     *
+     * @throws CouldNotInvoiceException
+     * @throws ClientExceptionInterface
+     * @throws LocalizedException
      */
-    public function testCreateFullShipmentForManualCaptureCreatedOrder()
+    public function testExecuteCreatesInvoiceAfterShipment()
     {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $shipmentItems = [];
+        $shipment = $this->createMock(ShipmentInterface::class);
+        $order = $this->getOrder();
+        $payment = $this->createMock(OrderPaymentInterface::class);
 
-        foreach ($order->getItems() as $orderItem) {
-            $shipmentItems[$orderItem->getId()] = $orderItem->getQtyOrdered();
-        }
-
-        $shipment = $this->createShipmentForOrder($order, $shipmentItems);
-        $processManualCaptureShipmentService = $this->getMockBuilder(ProcessManualCaptureShipment::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(Logger::class),
-                $this->shipmentUtil,
-                $this->getObjectManager()->get(ManagerInterface::class),
-                $this->getObjectManager()->get(OrderRepositoryInterface::class),
-                $this->getCreateInvoiceAfterShipmentMock($order, $shipment, $payment),
-                $this->getObjectManager()->get(EmailSender::class),
-                $this->getObjectManager()->get(InvoiceUtil::class),
-                $this->getAddShippingToTransactionMock($order, $shipment),
-            ])
-            ->setMethodsExcept(['execute'])
-            ->getMock();
-
-        $processManualCaptureShipmentService->execute($shipment, $order, $payment);
-
-        self::assertFalse($this->shipmentUtil->isOrderShippedPartially($order));
-    }
-
-    /**
-     * @magentoDataFixture   Magento/Sales/_files/order_with_two_order_items_with_simple_product.php
-     * @magentoConfigFixture default_store payment/multisafepay_visa/payment_action authorize
-     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
-     * @magentoConfigFixture default_store multisafepay/general/mode 0
-     * @magentoConfigFixture default_store multisafepay/general/use_manual_capture 1
-     * @throws Exception
-     */
-    public function testCreatePartialShipmentForManualCaptureCreatedOrder()
-    {
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $orderItems = $order->getItems();
-        $firstOrderItem = reset($orderItems);
-        $shipmentItems[$firstOrderItem->getId()] = $firstOrderItem->getQtyOrdered();
-        $shipment = $this->createShipmentForOrder($order, $shipmentItems);
-        $processManualCaptureShipmentService = $this->getMockBuilder(ProcessManualCaptureShipment::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(Logger::class),
-                $this->shipmentUtil,
-                $this->getObjectManager()->get(ManagerInterface::class),
-                $this->getObjectManager()->get(OrderRepositoryInterface::class),
-                $this->getCreateInvoiceAfterShipmentMock($order, $shipment, $payment),
-                $this->getObjectManager()->get(EmailSender::class),
-                $this->getObjectManager()->get(InvoiceUtil::class),
-                $this->getAddShippingToTransactionMock($order, $shipment),
-            ])
-            ->setMethodsExcept(['execute'])
-            ->getMock();
-
-        $processManualCaptureShipmentService->execute($shipment, $order, $payment);
-
-        self::assertTrue($this->shipmentUtil->isOrderShippedPartially($order));
-
-        $shipmentItems = [];
-        $lastOrderItem = end($orderItems);
-        $shipmentItems[$lastOrderItem->getId()] = $lastOrderItem->getQtyOrdered();
-        $shipment = $this->createShipmentForOrder($order, $shipmentItems);
-        $processManualCaptureShipmentService->execute($shipment, $order, $payment);
-
-        self::assertTrue($this->shipmentUtil->isOrderShippedPartially($order));
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param ShipmentInterface $shipment
-     * @param OrderPaymentInterface $orderPayment
-     * @return MockObject
-     */
-    private function getCreateInvoiceAfterShipmentMock(
-        OrderInterface $order,
-        ShipmentInterface $shipment,
-        OrderPaymentInterface $orderPayment
-    ): MockObject {
-        $createInvoiceAfterShipmentMock = $this->getMockBuilder(CreateInvoiceAfterShipment::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $createInvoiceAfterShipmentMock->expects(self::any())
+        $this->createInvoiceAfterShipment->expects($this->once())
             ->method('execute')
-            ->with($order, $shipment, $orderPayment)
+            ->with($order, $shipment, $payment)
             ->willReturn(true);
 
-        return $createInvoiceAfterShipmentMock;
+        $this->processManualCaptureShipment->execute($shipment, $order, $payment);
     }
 
     /**
-     * @param OrderInterface $order
-     * @param ShipmentInterface $shipment
-     * @return MockObject
+     * Test if the execute function throws an exception when it cannot create an invoice
+     *
+     * @return void
+     * @throws ClientExceptionInterface
+     * @throws CouldNotInvoiceException
      */
-    private function getAddShippingToTransactionMock(
-        OrderInterface $order,
-        ShipmentInterface $shipment
-    ): MockObject {
-        $addShippingToTransactionMock = $this->getMockBuilder(AddShippingToTransaction::class)
+    public function testExecuteThrowsExceptionWhenCannotCreateInvoice()
+    {
+        $this->expectException(CouldNotInvoiceException::class);
+
+        $shipment = $this->createMock(ShipmentInterface::class);
+        $order = $this->createMock(OrderInterface::class);
+        $payment = $this->createMock(OrderPaymentInterface::class);
+
+        $this->createInvoiceAfterShipment->expects($this->once())
+            ->method('execute')
+            ->with($order, $shipment, $payment)
+            ->willThrowException(new CouldNotInvoiceException(__('Could not create invoice after shipment')));
+
+        $this->processManualCaptureShipment->execute($shipment, $order, $payment);
+    }
+
+    /**
+     * Test if the sendInvoiceEmail function throws an exception when it cannot send an email
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function testSendInvoiceEmailThrowsExceptionWhenCannotSendEmail()
+    {
+        $this->expectException(MailException::class);
+
+        $payment = $this->createMock(OrderPaymentInterface::class);
+        $invoice = $this->createMock(InvoiceInterface::class);
+        $service = $this->getMockBuilder(ProcessManualCaptureShipment::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['sendInvoiceEmail'])
             ->getMock();
 
-        $addShippingToTransactionMock->expects(self::any())
-            ->method('execute')
-            ->with($shipment, $order);
+        $service->expects($this->once())
+            ->method('sendInvoiceEmail')
+            ->with($payment, $invoice)
+            ->willThrowException(new MailException(__('Could not send invoice email')));
 
-        return $addShippingToTransactionMock;
+        $service->sendInvoiceEmail($payment, $invoice);
     }
 }

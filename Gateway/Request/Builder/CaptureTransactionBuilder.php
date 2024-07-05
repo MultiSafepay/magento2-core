@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -150,6 +151,7 @@ class CaptureTransactionBuilder implements BuilderInterface
      * @param string $orderIncrementId
      * @param int $storeId
      * @throws CouldNotInvoiceException
+     * @throws Exception
      */
     private function validateManualCapture(float $invoiceAmount, string $orderIncrementId, int $storeId): void
     {
@@ -178,7 +180,7 @@ class CaptureTransactionBuilder implements BuilderInterface
         }
 
         if (!$this->captureUtil->isManualCapturePossibleForAmount($transaction, $invoiceAmount)) {
-            $exceptionMessage = __('Manual payment capture amount is can\'t be processed,  please try again.');
+            $exceptionMessage = __('Manual payment capture amount can\'t be processed,  please try again.');
             $this->logger->logInfoForOrder($orderIncrementId, $exceptionMessage->render());
 
             throw new CouldNotInvoiceException($exceptionMessage);
@@ -214,7 +216,7 @@ class CaptureTransactionBuilder implements BuilderInterface
         }
 
         $shipment = $payment->getShipment();
-        $invoiceIncrementId = $invoice ? $invoice->getIncrementId() : "";
+        $invoiceIncrementId = $invoice->getIncrementId();
         $result = [
             "amount" => round($this->amountUtil->getAmount($amount, $order) * 100, 10),
             "invoice_id" => $invoiceIncrementId,
