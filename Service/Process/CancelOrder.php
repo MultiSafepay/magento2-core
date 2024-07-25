@@ -18,7 +18,9 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Service\OrderService;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
 
@@ -30,14 +32,30 @@ class CancelOrder implements ProcessInterface
     private $logger;
 
     /**
+     * @var OrderService
+     */
+    private $orderService;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
      * CancelOrder constructor
      *
      * @param Logger $logger
+     * @param OrderService $orderService
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-        Logger $logger
+        Logger $logger,
+        OrderService $orderService,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->logger = $logger;
+        $this->orderService = $orderService;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -70,7 +88,7 @@ class CancelOrder implements ProcessInterface
         }
 
         try {
-            $order->cancel();
+            $this->orderService->cancel($order->getEntityId());
         } catch (LocalizedException $localizedException) {
             $message = 'Exception occurred when trying to cancel the order';
             $this->logger->logInfoForNotification($order->getIncrementId(), $message, $transaction);
@@ -79,11 +97,15 @@ class CancelOrder implements ProcessInterface
                 StatusOperationInterface::MESSAGE_PARAMETER => $message
             ];
         }
+
+        $order = $this->orderRepository->get($order->getEntityId());
         $this->logger->logInfoForNotification($order->getIncrementId(), 'Order has been canceled', $transaction);
         $transactionStatus = $transaction['status'] ?? 'unknown';
         $order->addCommentToStatusHistory(
             __('Order canceled by MultiSafepay, Transaction status: ' . $transactionStatus)
         );
+        $this->orderRepository->save($order);
+
         return [StatusOperationInterface::SUCCESS_PARAMETER => true];
     }
 }

@@ -15,24 +15,23 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Transaction\StatusOperation;
 
+use Exception;
 use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\ConnectCore\Service\Process\AddCardPaymentInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddGiftCardInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddInvoiceToTransaction;
 use MultiSafepay\ConnectCore\Service\Process\AddPaymentLink;
-use MultiSafepay\ConnectCore\Service\Process\CancelOrder;
 use MultiSafepay\ConnectCore\Service\Process\ChangePaymentMethod;
 use MultiSafepay\ConnectCore\Service\Process\CreateInvoice;
 use MultiSafepay\ConnectCore\Service\Process\InitializeVault;
 use MultiSafepay\ConnectCore\Service\Process\LogTransactionStatus;
-use MultiSafepay\ConnectCore\Service\Process\ProcessInterface;
 use MultiSafepay\ConnectCore\Service\Process\ReopenOrder;
 use MultiSafepay\ConnectCore\Service\Process\SaveOrder;
 use MultiSafepay\ConnectCore\Service\Process\SendInvoice;
 use MultiSafepay\ConnectCore\Service\Process\SendOrderConfirmation;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderProcessingState;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderProcessingStatus;
-use MultiSafepay\ConnectCore\Service\Process\UpdateOrderStatus;
+use MultiSafepay\ConnectCore\Util\ProcessUtil;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -106,19 +105,19 @@ class CompletedStatusOperation implements StatusOperationInterface
     private $setOrderProcessingState;
 
     /**
-     * @var CancelOrder
-     */
-    private $cancelOrder;
-
-    /**
-     * @var UpdateOrderStatus
-     */
-    private $updateOrderStatus;
-
-    /**
      * @var AddCardPaymentInformation
      */
     private $addCardPaymentInformation;
+
+    /**
+     * @var CanceledStatusOperation
+     */
+    private $canceledStatusOperation;
+
+    /**
+     * @var ProcessUtil
+     */
+    private $processUtil;
 
     /**
      * CompletedStatusOperation constructor
@@ -137,8 +136,8 @@ class CompletedStatusOperation implements StatusOperationInterface
      * @param SaveOrder $saveOrder
      * @param SendInvoice $sendInvoice
      * @param AddInvoiceToTransaction $addInvoiceToTransaction
-     * @param CancelOrder $cancelOrder
-     * @param UpdateOrderStatus $updateOrderStatus
+     * @param CanceledStatusOperation $canceledStatusOperation
+     * @param ProcessUtil $processUtil
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -156,8 +155,8 @@ class CompletedStatusOperation implements StatusOperationInterface
         SaveOrder $saveOrder,
         SendInvoice $sendInvoice,
         AddInvoiceToTransaction $addInvoiceToTransaction,
-        CancelOrder $cancelOrder,
-        UpdateOrderStatus $updateOrderStatus
+        CanceledStatusOperation $canceledStatusOperation,
+        ProcessUtil $processUtil
     ) {
         $this->logTransactionStatus = $logTransactionStatus;
         $this->changePaymentMethod = $changePaymentMethod;
@@ -173,41 +172,19 @@ class CompletedStatusOperation implements StatusOperationInterface
         $this->saveOrder = $saveOrder;
         $this->sendInvoice = $sendInvoice;
         $this->addInvoiceToTransaction = $addInvoiceToTransaction;
-        $this->cancelOrder = $cancelOrder;
-        $this->updateOrderStatus = $updateOrderStatus;
+        $this->canceledStatusOperation = $canceledStatusOperation;
+        $this->processUtil = $processUtil;
     }
 
     /**
-     * Execute the completed status operation
+     * Execute the cancel or completed status operation depending on the transaction type
      *
      * @param OrderInterface $order
      * @param array $transaction
      * @return array
+     * @throws Exception
      */
     public function execute(OrderInterface $order, array $transaction): array
-    {
-        $processes = $this->getProcessesToExecute($transaction);
-
-        /** @var ProcessInterface $process */
-        foreach ($processes as $process) {
-            $response = $process->execute($order, $transaction);
-
-            if (!$response[self::SUCCESS_PARAMETER]) {
-                return $response;
-            }
-        }
-
-        return [self::SUCCESS_PARAMETER => true];
-    }
-
-    /**
-     * There are multiple types of webhooks being sent towards the notification controller with status completed.
-     * This method will determine which processes need to be executed based on the transaction data.
-     *
-     * @param array $transaction
-     * @return array
-     */
-    private function getProcessesToExecute(array $transaction): array
     {
         $relatedTransactions = $transaction['related_transactions'] ?? [];
 
@@ -218,32 +195,30 @@ class CompletedStatusOperation implements StatusOperationInterface
 
                 // Check if completed notification is a partial capture reservation cancellation
                 if ($type === 'auth-cancellation' && $status === 'void') {
-                    return [
-                        $this->logTransactionStatus,
-                        $this->cancelOrder,
-                        $this->updateOrderStatus,
-                        $this->saveOrder
-                    ];
+                    return $this->canceledStatusOperation->execute($order, $transaction);
                 }
             }
         }
 
-        // Completed transaction is not a partial capture reservation cancellation and can be processed normally
-        return [
-            $this->logTransactionStatus,
-            $this->sendOrderConfirmation,
-            $this->reopenOrder,
-            $this->initializeVault,
-            $this->changePaymentMethod,
-            $this->addPaymentLink,
-            $this->setOrderProcessingState,
-            $this->createInvoice,
-            $this->addGiftcardInformation,
-            $this->addCardPaymentInformation,
-            $this->setOrderProcessingStatus,
-            $this->saveOrder,
-            $this->sendInvoice,
-            $this->addInvoiceToTransaction
-        ];
+        return $this->processUtil->executeProcesses(
+            [
+                $this->logTransactionStatus,
+                $this->sendOrderConfirmation,
+                $this->reopenOrder,
+                $this->initializeVault,
+                $this->changePaymentMethod,
+                $this->addPaymentLink,
+                $this->setOrderProcessingState,
+                $this->createInvoice,
+                $this->addGiftcardInformation,
+                $this->addCardPaymentInformation,
+                $this->setOrderProcessingStatus,
+                $this->saveOrder,
+                $this->sendInvoice,
+                $this->addInvoiceToTransaction
+            ],
+            $order,
+            $transaction
+        );
     }
 }

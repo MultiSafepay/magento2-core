@@ -51,6 +51,10 @@ class CancelOrderTest extends AbstractTestCase
         $result = $this->cancelOrder->execute($order, $this->getTransactionData());
 
         self::assertSame([StatusOperationInterface::SUCCESS_PARAMETER => true], $result);
+
+        // Refresh the order
+        $order = $this->getOrder();
+
         self::assertSame(Order::STATE_CANCELED, $order->getState());
     }
 }
