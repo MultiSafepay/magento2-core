@@ -58,6 +58,11 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
             $this->config->getValue('transaction_type') ??
             self::TRANSACTION_TYPE_REDIRECT_VALUE;
 
+        if ($transactionType === 'payment_component') {
+            $orderRequest->addType(self::TRANSACTION_TYPE_DIRECT_VALUE);
+            return;
+        }
+
         $orderRequest->addType($transactionType);
     }
 }

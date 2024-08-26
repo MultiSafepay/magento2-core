@@ -25,7 +25,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\MyBankConfigProvider;
 class GatewayInfoBuilder implements OrderRequestBuilderInterface
 {
     public const GATEWAY_WITH_ISSUER_LIST = [IdealConfigProvider::CODE, MyBankConfigProvider::CODE];
-    
+
     /**
      * @var GatewayInfoBuilderInterface[]
      */
@@ -56,14 +56,17 @@ class GatewayInfoBuilder implements OrderRequestBuilderInterface
             return;
         }
 
-        // If transaction type is set to 'redirect' then do not add gateway info
-        if ($payment->getMethodInstance()->getConfigData('transaction_type') === 'redirect') {
-            return;
-        }
-
         if (in_array($paymentCode, self::GATEWAY_WITH_ISSUER_LIST, true)
             && !isset($payment->getAdditionalInformation()['issuer_id'])
         ) {
+            return;
+        }
+
+        $transactionType = $payment->getMethodInstance()->getConfigData('transaction_type') ?:
+            $payment->getAdditionalInformation()['transaction_type'];
+
+        // If transaction type is not set to 'direct' then do not add gateway info
+        if ($transactionType !== 'direct') {
             return;
         }
 

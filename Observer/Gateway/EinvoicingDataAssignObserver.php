@@ -33,12 +33,19 @@ class EinvoicingDataAssignObserver extends AbstractDataAssignObserver
 
         $additionalData = $data->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
         $payment = $this->readPaymentModelArgument($observer);
+        $transactionType = $payment->getMethodInstance()->getConfigData('transaction_type');
 
-        if ($payment->getMethodInstance()->getConfigData('transaction_type') === 'redirect') {
+        if ($transactionType === 'redirect') {
             return;
         }
 
         if (empty($additionalData)) {
+            return;
+        }
+
+        if ($transactionType === 'payment_component' && isset($additionalData['payload'])) {
+            $payment->setAdditionalInformation('payload', $additionalData['payload']);
+
             return;
         }
 

@@ -16,10 +16,13 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplmfConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\EinvoicingConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\In3ConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
@@ -39,6 +42,9 @@ class PaymentComponentRequest
         ZiniaConfigProvider::CODE,
         BnplmfConfigProvider::CODE,
         In3B2bConfigProvider::CODE,
+        AfterpayConfigProvider::CODE,
+        EinvoicingConfigProvider::CODE,
+        In3ConfigProvider::CODE
     ];
 
     /**

@@ -39,6 +39,14 @@ class In3DataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
+        if ($payment->getMethodInstance()->getConfigData('transaction_type') === 'payment_component'
+            && isset($additionalData['payload'])
+        ) {
+            $payment->setAdditionalInformation('payload', $additionalData['payload']);
+
+            return;
+        }
+
         if (isset($additionalData['gender'])) {
             $payment->setAdditionalInformation('gender', $additionalData['gender']);
         }

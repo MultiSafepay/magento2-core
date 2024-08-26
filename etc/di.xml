@@ -9456,6 +9456,21 @@
                         MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
                     </item>
                 </item>
+                <item name="multisafepay_afterpay" xsi:type="array">
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
+                </item>
+                <item name="multisafepay_einvoicing" xsi:type="array">
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
+                </item>
+                <item name="multisafepay_in3" xsi:type="array">
+                    <item name="payment_component_builder" xsi:type="object">
+                        MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\PaymentComponentAdditionalDataBuilder
+                    </item>
+                </item>
             </argument>
         </arguments>
     </type>
