@@ -21,7 +21,6 @@ use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\TransactionTy
 
 class IssuersDataAssignObserver extends AbstractDataAssignObserver
 {
-
     /**
      * @inheritDoc
      */

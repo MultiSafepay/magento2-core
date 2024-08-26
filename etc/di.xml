@@ -9394,7 +9394,6 @@
     <type name="MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder">
         <arguments>
             <argument name="gatewayBuilders" xsi:type="array">
-                <item name="multisafepay_ideal" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\IssuerGatewayInfoBuilder</item>
                 <item name="multisafepay_mybank" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\IssuerGatewayInfoBuilder</item>
                 <item name="multisafepay_payafter" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\BankAccountAndDateOfBirthGatewayInfoBuilder</item>
                 <item name="multisafepay_afterpay" xsi:type="object">MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GenderAndDateOfBirthGatewayInfoBuilder</item>

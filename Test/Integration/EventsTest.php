@@ -31,11 +31,6 @@ class EventsTest extends EventsTestCase
     public function testForAdminObservers()
     {
         $this->findObserverForEvent(
-            IssuersDataAssignObserver::class,
-            'payment_method_assign_data_multisafepay_ideal'
-        );
-
-        $this->findObserverForEvent(
             PayafterDataAssignObserver::class,
             'payment_method_assign_data_multisafepay_payafter'
         );

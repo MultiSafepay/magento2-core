@@ -19,12 +19,11 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\GatewayInfoBuilder\GatewayInfoBuilderInterface;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MyBankConfigProvider;
 
 class GatewayInfoBuilder implements OrderRequestBuilderInterface
 {
-    public const GATEWAY_WITH_ISSUER_LIST = [IdealConfigProvider::CODE, MyBankConfigProvider::CODE];
+    public const GATEWAY_WITH_ISSUER_LIST = [MyBankConfigProvider::CODE];
 
     /**
      * @var GatewayInfoBuilderInterface[]

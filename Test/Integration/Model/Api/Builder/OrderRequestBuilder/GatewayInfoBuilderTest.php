@@ -144,14 +144,6 @@ class GatewayInfoBuilderTest extends AbstractTransactionTestCase
             [
                 IdealConfigProvider::CODE,
                 [
-                    'issuer_id' => '0031',
-                    'transaction_type' => TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
-                ],
-                true
-            ],
-            [
-                IdealConfigProvider::CODE,
-                [
                     'transaction_type' => TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE
                 ],
                 false

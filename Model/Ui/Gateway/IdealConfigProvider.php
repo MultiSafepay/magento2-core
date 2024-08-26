@@ -35,7 +35,6 @@ class IdealConfigProvider extends GenericConfigProvider
         return [
             'payment' => [
                 $this->getCode() => [
-                    'issuers' => $this->getIssuers(),
                     'image' => $this->getImage(),
                     'vaultCode' => self::VAULT_CODE,
                     'is_preselected' => $this->isPreselected(),
