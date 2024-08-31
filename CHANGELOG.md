@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.8.0] - 2024-08-30
+### Added
+- PLGMAG2V2-779: Added payment component for BNPL methods
+
+### Changed
+- PLGMAG2V2-785: Upgraded payment icon for MultiSafepay method
+
+### Removed
+- PLGMAG2V2-784: Removed issuers from iDEAL
+
 ## [3.7.1] - 2024-08-06
 ### Fixed
 - PLGMAG2V2-753: Fixed an issue where a coupon could be decremented multiple times on multiple calls to the 'Cancel' controller
