@@ -585,7 +585,7 @@ class GenericAdapter extends Adapter
     /**
      * @inheritdoc
      */
-    public function sale(InfoInterface $payment, float $amount): ?ResultInterface
+    public function sale(InfoInterface $payment, float $amount)
     {
         $this->executeCommand(
             'sale',
