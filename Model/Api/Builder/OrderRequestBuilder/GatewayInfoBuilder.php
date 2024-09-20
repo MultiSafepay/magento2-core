@@ -62,10 +62,11 @@ class GatewayInfoBuilder implements OrderRequestBuilderInterface
         }
 
         $transactionType = $payment->getMethodInstance()->getConfigData('transaction_type') ?:
-            $payment->getAdditionalInformation()['transaction_type'];
+            $payment->getAdditionalInformation()['transaction_type'] ??
+            TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE;
 
         // If transaction type is not set to 'direct' then do not add gateway info
-        if ($transactionType !== 'direct') {
+        if ($transactionType !== TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE) {
             return;
         }
 
