@@ -29,6 +29,7 @@ use MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBu
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\ConnectCore\Util\ShoppingCartRefundUtil;
 use MultiSafepay\ConnectCore\Util\TransactionUtil;
 
 /**
@@ -108,8 +109,8 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
         $refundRequest = $this->getMockBuilder(ShoppingCartRefundRequestBuilder::class)->setConstructorArgs([
             $this->getObjectManager()->get(CurrencyUtil::class),
             $this->getObjectManager()->get(Logger::class),
-            $this->getObjectManager()->get(Config::class),
-            $transactionUtilMock
+            $transactionUtilMock,
+            $this->getObjectManager()->get(ShoppingCartRefundUtil::class),
         ])->setMethodsExcept(['build'])->getMock();
 
         $stateObject = new DataObject();

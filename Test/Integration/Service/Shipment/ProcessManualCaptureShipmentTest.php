@@ -19,6 +19,10 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Exception\CouldNotInvoiceException;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Shipment;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\OrderRepository;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
@@ -28,11 +32,6 @@ use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use MultiSafepay\ConnectCore\Util\ShipmentUtil;
 use MultiSafepay\ConnectCore\Service\Shipment\ProcessManualCaptureShipment;
-use Magento\Sales\Api\Data\ShipmentInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Psr\Http\Client\ClientExceptionInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -78,14 +77,13 @@ class ProcessManualCaptureShipmentTest extends AbstractTestCase
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      *
      * @throws CouldNotInvoiceException
-     * @throws ClientExceptionInterface
      * @throws LocalizedException
      */
     public function testExecuteCreatesInvoiceAfterShipment()
     {
-        $shipment = $this->createMock(ShipmentInterface::class);
+        $shipment = $this->createMock(Shipment::class);
         $order = $this->getOrder();
-        $payment = $this->createMock(OrderPaymentInterface::class);
+        $payment = $this->createMock(Payment::class);
 
         $this->createInvoiceAfterShipment->expects($this->once())
             ->method('execute')
@@ -99,16 +97,15 @@ class ProcessManualCaptureShipmentTest extends AbstractTestCase
      * Test if the execute function throws an exception when it cannot create an invoice
      *
      * @return void
-     * @throws ClientExceptionInterface
      * @throws CouldNotInvoiceException
      */
     public function testExecuteThrowsExceptionWhenCannotCreateInvoice()
     {
         $this->expectException(CouldNotInvoiceException::class);
 
-        $shipment = $this->createMock(ShipmentInterface::class);
-        $order = $this->createMock(OrderInterface::class);
-        $payment = $this->createMock(OrderPaymentInterface::class);
+        $shipment = $this->createMock(Shipment::class);
+        $order = $this->createMock(Order::class);
+        $payment = $this->createMock(Payment::class);
 
         $this->createInvoiceAfterShipment->expects($this->once())
             ->method('execute')
@@ -128,8 +125,8 @@ class ProcessManualCaptureShipmentTest extends AbstractTestCase
     {
         $this->expectException(MailException::class);
 
-        $payment = $this->createMock(OrderPaymentInterface::class);
-        $invoice = $this->createMock(InvoiceInterface::class);
+        $payment = $this->createMock(Payment::class);
+        $invoice = $this->createMock(Invoice::class);
         $service = $this->getMockBuilder(ProcessManualCaptureShipment::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['sendInvoiceEmail'])
