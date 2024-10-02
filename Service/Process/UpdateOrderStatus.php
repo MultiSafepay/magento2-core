@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
@@ -48,12 +48,12 @@ class UpdateOrderStatus implements ProcessInterface
     /**
      * Update the status if needed
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $saveOrder = false;
         $statusToUpdate = $this->orderStatusUtil->getOrderStatusByTransactionStatus($order, $transaction['status']);

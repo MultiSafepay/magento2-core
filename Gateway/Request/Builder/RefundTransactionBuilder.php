@@ -14,12 +14,13 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\Api\Transactions\RefundRequest;
@@ -103,24 +104,22 @@ class RefundTransactionBuilder implements BuilderInterface
      * @inheritDoc
      * @throws NoSuchEntityException
      * @throws LocalizedException
+     * @throws CouldNotRefundException
+     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $amount = (float)SubjectReader::readAmount($buildSubject);
-        /** @var OrderInterface $order */
-        $order = $paymentDataObject->getPayment()->getOrder();
+
+        /** @var Payment $payment */
+        $payment = $paymentDataObject->getPayment();
+
+        $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
 
         if ($amount <= 0) {
             $message = __('Refunds with 0 amount can not be processed. Please set a different amount');
-            $this->logger->logInfoForOrder($orderId, $message->render());
-
-            throw new CouldNotRefundException($message);
-        }
-
-        if (!($payment = $order->getPayment())) {
-            $message = __('Refund can not be processed, because the payment has not been found');
             $this->logger->logInfoForOrder($orderId, $message->render());
 
             throw new CouldNotRefundException($message);

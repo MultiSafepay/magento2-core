@@ -17,7 +17,6 @@ namespace MultiSafepay\ConnectCore\Logger;
 use Exception;
 use Magento\Framework\Exception\FileSystemException;
 use Monolog\Logger as CoreLogger;
-use MultiSafepay\Api\Transactions\RefundRequest;
 use MultiSafepay\Exception\ApiException;
 use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Exception\InvalidArgumentException;
@@ -283,7 +282,8 @@ class Logger extends CoreLogger
      */
     public function logApplePayGetMerchantSessionException(Exception $exception): void
     {
-        if ($exception->getContextValue('raw_response_body') !== null) {
+        if (method_exists($exception, 'getContextValue')
+            && $exception->getContextValue('raw_response_body') !== null) {
             $response = $exception->getContextValue('raw_response_body');
         }
 
@@ -354,7 +354,7 @@ class Logger extends CoreLogger
             $logLevel,
             sprintf(
                 '(Order ID: %1$s, PSP ID: %8$s, Status: %7$s) %2$s: %6$s (code: %3$d, line: %4$d, file: %5$s)',
-                $orderId ?? 'unknown',
+                $orderId,
                 static::getLevelName($logLevel),
                 $exception->getCode(),
                 $exception->getLine(),

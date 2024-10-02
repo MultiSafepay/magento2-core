@@ -21,8 +21,8 @@ use Exception;
 use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderRepository;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
@@ -54,12 +54,12 @@ class SaveOrder implements ProcessInterface
     /**
      * Save the order
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $orderId = $order->getIncrementId();
 

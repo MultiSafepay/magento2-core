@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 use Exception;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 use Magento\Framework\Exception\LocalizedException;
@@ -50,10 +51,13 @@ class RecurringTransactionBuilder implements BuilderInterface
     /**
      * @param array $buildSubject
      * @return array
+     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
+
+        /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 

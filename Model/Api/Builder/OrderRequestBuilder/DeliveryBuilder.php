@@ -14,12 +14,13 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class DeliveryBuilder implements OrderRequestBuilderInterface
 {
@@ -40,12 +41,15 @@ class DeliveryBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
+     * @throws InvalidArgumentException
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(OrderInterface $order, OrderPaymentInterface $payment, OrderRequest $orderRequest): void
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
     {
         /** @var Address $shippingAddress */
         $shippingAddress = $order->getShippingAddress();

@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Process;
 
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 
 interface ProcessInterface
 {
@@ -24,9 +24,9 @@ interface ProcessInterface
     /**
      * Execute the command
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      */
-    public function execute(OrderInterface $order, array $transaction): array;
+    public function execute(Order $order, array $transaction): array;
 }

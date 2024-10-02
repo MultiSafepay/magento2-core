@@ -21,7 +21,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Payment\Info;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use MultiSafepay\ConnectCore\Model\Api\Initializer\OrderRequestInitializer;
 use MultiSafepay\Exception\ApiException;
@@ -81,6 +83,7 @@ class PaymentLink
      * @throws ClientExceptionInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws ApiException
      */
     public function getPaymentLinkByOrder(OrderInterface $order): string
     {
@@ -114,10 +117,13 @@ class PaymentLink
      */
     public function getPaymentLinkFromOrder(OrderInterface $order): string
     {
-        if (!($paymentLink =
-            (string)$order->getPayment()->getAdditionalInformation(self::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME)
-        )) {
-            return $order->getPayment()->getAdditionalInformation(Transaction::RAW_DETAILS)['payment_link'] ?? '';
+        /** @var Info $payment */
+        $payment = $order->getPayment();
+
+        $paymentLink = $payment->getAdditionalInformation(self::MULTISAFEPAY_PAYMENT_LINK_PARAM_NAME) ?? '';
+
+        if (!$paymentLink) {
+            $paymentLink = $payment->getAdditionalInformation(Transaction::RAW_DETAILS)['payment_link'] ?? '';
         }
 
         return $paymentLink;
@@ -146,15 +152,14 @@ class PaymentLink
      * or completed notification, so we want to save the comments only in the notification process in those cases.
      * For admin backend orders, a payment link should always be added immediately.
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param string $paymentUrl
      * @param bool $isNotification
      * @return void
-     * @throws LocalizedException
      * @throws Exception
      */
     public function addPaymentLinkToOrderComments(
-        OrderInterface $order,
+        Order $order,
         string $paymentUrl,
         bool $isNotification = false
     ): void {
@@ -164,7 +169,7 @@ class PaymentLink
             return;
         }
 
-        /** @var Payment $payment */
+        /** @var Info $payment */
         $payment = $order->getPayment();
         $orderId = $order->getIncrementId();
 

@@ -16,7 +16,9 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
+use Magento\Payment\Model\Info;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\GiftcardUtil;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
@@ -48,13 +50,14 @@ class AddGiftCardInformation implements ProcessInterface
     /**
      * Add gift card information to the order
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
+        /** @var Info $payment */
         $payment = $order->getPayment();
 
         if ($payment === null) {

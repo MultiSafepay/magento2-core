@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model;
 
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\StatusResolver;
@@ -55,9 +55,10 @@ class SecondChance
     }
 
     /**
-     * @param OrderInterface $order
+     * @param Order $order
+     * @throws LocalizedException
      */
-    public function reopenOrder(OrderInterface $order): void
+    public function reopenOrder(Order $order): void
     {
         $order->setBaseDiscountCanceled(0)
             ->setBaseShippingCanceled(0)

@@ -12,6 +12,7 @@
 
 namespace MultiSafepay\ConnectCore\CustomerData\PaymentRequest;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -92,6 +93,7 @@ class PaymentComponentRequest
      *
      * @param CartInterface|null $quote
      * @return array
+     * @throws LocalizedException
      */
     public function create(?CartInterface $quote): array
     {

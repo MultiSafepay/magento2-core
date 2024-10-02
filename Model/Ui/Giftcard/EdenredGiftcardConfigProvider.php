@@ -16,8 +16,9 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Giftcard;
 
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Quote\Api\Data\CartInterface;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote;
+use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Model\Ui\GenericGiftcardConfigProvider;
 
 class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
@@ -95,19 +96,20 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
     }
 
     /**
-     * @param CartInterface $quote
+     * @param Quote $quote
      * @return array
+     * @throws NoSuchEntityException
      */
-    public function getAvailableCouponsByQuote(CartInterface $quote): array
+    public function getAvailableCouponsByQuote(Quote $quote): array
     {
         return $this->getAvailableCouponsForSpecificItems($quote->getAllItems(), (int)$quote->getStoreId());
     }
 
     /**
-     * @param OrderInterface $order
+     * @param Order $order
      * @return array
      */
-    public function getAvailableCouponsByOrder(OrderInterface $order): array
+    public function getAvailableCouponsByOrder(Order $order): array
     {
         return $this->getAvailableCouponsForSpecificItems($order->getAllItems(), (int)$order->getStoreId());
     }

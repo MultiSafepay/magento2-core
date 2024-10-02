@@ -17,7 +17,7 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\PaymentLink;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
@@ -51,12 +51,12 @@ class AddPaymentLink implements ProcessInterface
     /**
      * Add the payment link to the order comments
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $paymentLink = $this->paymentLink->getPaymentLinkFromOrder($order);
 

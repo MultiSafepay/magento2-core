@@ -18,6 +18,7 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Container\InvoiceIdentity;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Payment;
@@ -79,12 +80,12 @@ class SendInvoice implements ProcessInterface
     /**
      * Send the invoice
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $orderId = $order->getIncrementId();
 

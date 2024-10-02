@@ -15,8 +15,10 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Gateway\Validator;
 
 use Magento\Customer\Model\Session;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Config\Config;
-use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 
 class CustomerGroupValidator
 {
@@ -36,14 +38,16 @@ class CustomerGroupValidator
     }
 
     /**
-     * @param CartInterface $quote
+     * @param Quote $quote
      * @param Config $config
      * @param string $methodCode
      * @return bool
      *
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate(CartInterface $quote, Config $config, string $methodCode): bool
+    public function validate(Quote $quote, Config $config, string $methodCode): bool
     {
         $storeId = $quote->getStoreId();
 

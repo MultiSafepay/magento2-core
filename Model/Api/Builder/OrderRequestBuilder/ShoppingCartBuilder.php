@@ -16,13 +16,14 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\Gateways;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class ShoppingCartBuilder implements OrderRequestBuilderInterface
 {
@@ -59,18 +60,18 @@ class ShoppingCartBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
      * @return void
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws InvalidArgumentException
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         if (!$this->isShoppingCartNeeded($orderRequest)) {
             return;
         }

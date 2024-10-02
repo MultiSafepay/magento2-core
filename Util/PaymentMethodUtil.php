@@ -15,19 +15,24 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Quote\Api\Data\CartInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Payment\Model\MethodInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 class PaymentMethodUtil
 {
     public const MULTISAFEPAY_METHOD_ID = 'is_multisafepay';
 
     /**
-     * @param CartInterface $cart
+     * @param Quote $cart
      * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function isMultisafepayCart(CartInterface $cart): bool
+    public function isMultisafepayCart(Quote $cart): bool
     {
         return $this->checkIsMultisafepayMethodByPayment($cart->getPayment()->getMethodInstance());
     }
@@ -35,17 +40,20 @@ class PaymentMethodUtil
     /**
      * Check if it is a MultiSafepay order
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @return bool
      * @throws LocalizedException
      */
-    public function isMultisafepayOrder(OrderInterface $order): bool
+    public function isMultisafepayOrder(Order $order): bool
     {
         if ($order->getPayment() === null) {
             return false;
         }
 
-        return $this->checkIsMultisafepayMethodByPayment($order->getPayment()->getMethodInstance());
+        /** @var Payment $payment */
+        $payment = $order->getPayment();
+
+        return $this->checkIsMultisafepayMethodByPayment($payment->getMethodInstance());
     }
 
     /**

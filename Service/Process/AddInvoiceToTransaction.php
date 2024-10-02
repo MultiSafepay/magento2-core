@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\TransactionManager;
@@ -73,12 +74,12 @@ class AddInvoiceToTransaction implements ProcessInterface
     /**
      * Send an update request to MultiSafepay with the newly added invoice data
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $orderId = $order->getIncrementId();
 

@@ -17,10 +17,10 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
-use Magento\Sales\Model\Order\Payment\Transaction as PaymentTransaction;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
@@ -73,12 +73,12 @@ class CreateInvoice implements ProcessInterface
     /**
      * Process the creation of the invoice
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array|bool[]
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $orderId = $order->getIncrementId();
 
@@ -102,6 +102,7 @@ class CreateInvoice implements ProcessInterface
             ];
         }
 
+        /** @var Payment $payment */
         $payment = $order->getPayment();
 
         if ($payment === null) {

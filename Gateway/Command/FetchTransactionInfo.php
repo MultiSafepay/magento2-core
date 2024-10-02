@@ -14,13 +14,13 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Command;
 
+use Exception;
 use Magento\Framework\DataObject;
 use Magento\Payment\Gateway\CommandInterface;
-use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\Exception\ApiException;
-use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class FetchTransactionInfo extends DataObject implements CommandInterface
@@ -55,10 +55,11 @@ class FetchTransactionInfo extends DataObject implements CommandInterface
     /**
      * @param array $commandSubject
      * @return array
+     * @throws Exception
      */
     public function execute(array $commandSubject): array
     {
-        /** @var InfoInterface $payment */
+        /** @var Payment $payment */
         $payment = $commandSubject['payment']->getPayment();
         $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
@@ -84,8 +85,6 @@ class FetchTransactionInfo extends DataObject implements CommandInterface
             });
         } catch (ApiException $apiException) {
             $this->logger->logExceptionForOrder($orderId, $apiException);
-        } catch (InvalidApiKeyException $invalidApiKeyException) {
-            $this->logger->logInvalidApiKeyException($invalidApiKeyException);
         } catch (ClientExceptionInterface $clientException) {
             $this->logger->logClientException($orderId, $clientException);
         }

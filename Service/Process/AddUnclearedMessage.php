@@ -17,8 +17,8 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
 
@@ -41,14 +41,16 @@ class AddUnclearedMessage implements ProcessInterface
     /**
      * Add order comment and log for uncleared transaction
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
+        /** @var Payment $payment */
         $payment = $order->getPayment();
+
         $orderId = $order->getIncrementId();
 
         if ($payment === null) {

@@ -14,26 +14,27 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\CustomerData;
 
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\CustomerData\SectionSourceInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
-use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\ApplePayRequest;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\GooglePayRequest;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\PaymentComponentRequest;
 use MultiSafepay\ConnectCore\Util\ApiTokenUtil;
-use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidDataInitializationException;
 
 class PaymentRequest implements SectionSourceInterface
 {
     public const PAYMENT_COMPONENT_CONTAINER_ID = 'multisafepay-payment-component';
 
     /**
-     * @var CartInterface|null
+     * @var Quote|null
      */
     private $quote = null;
 
@@ -113,6 +114,9 @@ class PaymentRequest implements SectionSourceInterface
      * Load all the customer data that is necessary for
      *
      * @return array
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
+     * @throws Exception
      */
     public function getSectionData(): array
     {
@@ -135,21 +139,17 @@ class PaymentRequest implements SectionSourceInterface
                 unset($paymentComponentData['payment_component_template_id']);
             }
 
-            try {
-                $apiTokenData = $this->apiTokenUtil->getApiTokenFromCache($quote);
+            $apiTokenData = $this->apiTokenUtil->getApiTokenFromCache($quote);
 
-                $result = array_merge(
-                    $result,
-                    [
-                        "paymentComponentContainerId" => self::PAYMENT_COMPONENT_CONTAINER_ID,
-                        "paymentComponentConfig" => $paymentComponentData,
-                        'apiToken' => $apiTokenData['apiToken'],
-                        'apiTokenLifeTime' => $apiTokenData['lifeTime']
-                    ]
-                );
-            } catch (ApiException $apiException) {
-                $this->logger->logPaymentComponentException($apiException);
-            }
+            $result = array_merge(
+                $result,
+                [
+                    "paymentComponentContainerId" => self::PAYMENT_COMPONENT_CONTAINER_ID,
+                    "paymentComponentConfig" => $paymentComponentData,
+                    'apiToken' => $apiTokenData['apiToken'],
+                    'apiTokenLifeTime' => $apiTokenData['lifeTime']
+                ]
+            );
 
             if (isset($paymentComponentData['tokens'])) {
                 $result['tokens'] = $paymentComponentData['tokens'];
@@ -174,9 +174,9 @@ class PaymentRequest implements SectionSourceInterface
     /**
      * Retrieve the quote from the checkout session
      *
-     * @return CartInterface|null
+     * @return Quote|null
      */
-    private function getQuote(): ?CartInterface
+    private function getQuote(): ?Quote
     {
         try {
             if (!$this->quote) {
@@ -193,6 +193,7 @@ class PaymentRequest implements SectionSourceInterface
      * Get the Store ID from the quote
      *
      * @return int|null
+     * @throws NoSuchEntityException
      */
     private function getStoreIdFromQuote():?int
     {

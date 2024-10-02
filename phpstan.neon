@@ -1,5 +1,5 @@
 parameters:
-    level: 0
+    level: 2
     errorFormat: github
     paths:
         - .
@@ -9,6 +9,3 @@ parameters:
         - view
         - Model/Api/Builder/OrderRequestBuilder/ShoppingCartBuilder/CustomTotalBuilder.php
         - Util/ThirdPartyPluginsUtil.php
-    ignoreErrors:
-        - '#Parameter \$\w+ of method [a-zA-Z0-9\\_]+::__construct\(\) has invalid type .*Factory.*#'
-        - '#Method [a-zA-Z0-9\\_]+::getExtensionAttributes\(\) has invalid return type .*OrderPaymentExtension.*#'

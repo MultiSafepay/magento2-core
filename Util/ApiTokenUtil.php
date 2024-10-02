@@ -14,9 +14,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
+use Exception;
 use Magento\Framework\App\CacheInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
+use MultiSafepay\Exception\InvalidDataInitializationException;
 
 class ApiTokenUtil
 {
@@ -62,6 +64,7 @@ class ApiTokenUtil
      *
      * @param CartInterface $quote
      * @return array
+     * @throws Exception
      */
     public function getApiTokenFromCache(CartInterface $quote): array
     {

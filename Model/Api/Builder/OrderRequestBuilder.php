@@ -14,13 +14,12 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder;
 
-use Exception;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Config\Config;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
@@ -85,13 +84,12 @@ class OrderRequestBuilder
     }
 
     /**
-     * @param OrderInterface $order
+     * @param Order $order
      * @return OrderRequest
      * @throws LocalizedException
      * @throws NoSuchEntityException
-     * @throws Exception
      */
-    public function build(OrderInterface $order): OrderRequest
+    public function build(Order $order): OrderRequest
     {
         $payment = $order->getPayment();
         $orderId = (string) $order->getRealOrderId();

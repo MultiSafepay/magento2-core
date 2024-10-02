@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\AdditionalDataBuilder\AdditionalDataBuilderInterface;
 
@@ -38,11 +38,11 @@ class AdditionalDataBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
      */
-    public function build(OrderInterface $order, OrderPaymentInterface $payment, OrderRequest $orderRequest): void
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
     {
         $paymentCode = $payment->getMethod();
 

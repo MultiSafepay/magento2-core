@@ -18,9 +18,10 @@ use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment;
 use Magento\SalesSequence\Model\Manager;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotInvoiceException;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\CaptureRequest;
@@ -116,13 +117,16 @@ class CaptureTransactionBuilder implements BuilderInterface
      * @return array
      * @throws CouldNotInvoiceException
      * @throws LocalizedException
+     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
         $amount = (float)SubjectReader::readAmount($buildSubject);
+
+        /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
-        /** @var OrderInterface $order */
+
         $order = $payment->getOrder();
         $orderIncrementId = $order->getIncrementId();
 
@@ -189,13 +193,16 @@ class CaptureTransactionBuilder implements BuilderInterface
 
     /**
      * @param float $amount
-     * @param OrderInterface $order
-     * @param InfoInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @return array
+     * @throws CouldNotInvoiceException
      * @throws LocalizedException
+     * @throws Exception
      */
-    private function prepareCaptureRequestData(float $amount, OrderInterface $order, InfoInterface $payment): array
+    private function prepareCaptureRequestData(float $amount, Order $order, Payment $payment): array
     {
+        /** @var Invoice $invoice */
         $invoice = $payment->getInvoice() ?: $order->getInvoiceCollection()->getLastItem();
         $orderIncrementId = $order->getIncrementId();
 

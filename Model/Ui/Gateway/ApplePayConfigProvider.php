@@ -20,6 +20,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Wallets\ApplePay\MerchantSessionRequest;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -112,7 +113,10 @@ class ApplePayConfigProvider extends GenericConfigProvider
      */
     public function getApplePayMerchantSessionUrl(int $storeId = null): string
     {
-        return $this->storeManager->getStore($storeId)->getUrl('multisafepay/apple/session');
+        /** @var Store $store */
+        $store = $this->storeManager->getStore($storeId);
+
+        return $store->getUrl('multisafepay/apple/session');
     }
 
     /**

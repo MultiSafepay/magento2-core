@@ -17,8 +17,8 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\SecondChance;
 
@@ -49,16 +49,16 @@ class SecondChanceBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
      * @throws LocalizedException
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         if ($this->state->getAreaCode() === Area::AREA_ADMINHTML) {
             $orderRequest->addSecondChance($this->secondChance->addSendEmail(false));
         }

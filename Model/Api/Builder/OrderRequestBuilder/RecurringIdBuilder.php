@@ -15,8 +15,8 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
@@ -26,6 +26,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class RecurringIdBuilder implements OrderRequestBuilderInterface
 {
@@ -44,6 +45,9 @@ class RecurringIdBuilder implements OrderRequestBuilderInterface
      */
     private $logger;
 
+    /**
+     * @param Logger $logger
+     */
     public function __construct(
         Logger $logger
     ) {
@@ -51,12 +55,14 @@ class RecurringIdBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
+     * @throws InvalidArgumentException
      * @throws LocalizedException
+     * @return void
      */
-    public function build(OrderInterface $order, OrderPaymentInterface $payment, OrderRequest $orderRequest): void
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
     {
         if (in_array($payment->getMethod(), self::ALLOWED_METHODS, true)) {
             $extensionAttributes = $payment->getExtensionAttributes();

@@ -15,8 +15,8 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Payment\Gateway\Config\Config;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Exception\InvalidArgumentException;
 
@@ -43,17 +43,16 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
     /**
      * Retrieve the transaction type with a fallback to redirect
      *
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
-     * @return void
      * @throws InvalidArgumentException
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         $transactionType = $payment->getAdditionalInformation()['transaction_type'] ??
             $this->config->getValue('transaction_type') ??
             self::TRANSACTION_TYPE_REDIRECT_VALUE;

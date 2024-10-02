@@ -18,9 +18,11 @@ use Magento\Bundle\Model\Product\Price;
 use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderItemInterface;
+use Magento\Sales\Model\Order\Item;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item as TransactionItem;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\ShoppingCartBuilder\OrderItemBuilder\WeeeTaxBuilder;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
+use MultiSafepay\Exception\InvalidArgumentException;
 use MultiSafepay\ValueObject\Money;
 
 class OrderItemBuilder implements ShoppingCartBuilderInterface
@@ -52,6 +54,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
     /**
      * @param OrderInterface $order
      * @param string $currency
+     * @throws InvalidArgumentException
      * @return array
      */
     public function build(OrderInterface $order, string $currency): array
@@ -103,10 +106,10 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
     }
 
     /**
-     * @param OrderItemInterface $item
+     * @param Item $item
      * @return bool
      */
-    private function canAddToShoppingCart(OrderItemInterface $item): bool
+    private function canAddToShoppingCart(Item $item): bool
     {
         $product = $item->getProduct();
 
@@ -122,6 +125,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
         }
 
         // Products with no parent can be added
+        /** @var Item $parentItem */
         $parentItem = $item->getParentItem();
         if ($parentItem === null) {
             return true;

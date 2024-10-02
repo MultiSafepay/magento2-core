@@ -19,6 +19,7 @@ use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class RemoveAdditionalInformation
@@ -56,10 +57,10 @@ class RemoveAdditionalInformation
     /**
      * Remove sensitive additional information when needed
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @throws Exception
      */
-    public function execute(OrderInterface $order): void
+    public function execute(Order $order): void
     {
         if ($order->getPayment()) {
             $additionalInformation = $order->getPayment()->getAdditionalInformation();

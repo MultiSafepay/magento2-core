@@ -13,8 +13,8 @@
 namespace MultiSafepay\ConnectCore\CustomerData\PaymentRequest;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\CartItemInterface;
+use Magento\Quote\Model\Quote;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\ApplePayConfigProvider;
 
 class ApplePayRequest
@@ -36,10 +36,11 @@ class ApplePayRequest
     /**
      * Create the Apple Pay Direct request data
      *
-     * @param CartInterface|null $quote
+     * @param Quote|null $quote
      * @return array
+     * @throws NoSuchEntityException
      */
-    public function create(?CartInterface $quote): ?array
+    public function create(?Quote $quote): ?array
     {
         if ($quote === null) {
             return null;
@@ -68,10 +69,10 @@ class ApplePayRequest
     /**
      * Get quote items
      *
-     * @param CartInterface $quote
+     * @param Quote $quote
      * @return array
      */
-    private function getQuoteItems(CartInterface $quote): array
+    private function getQuoteItems(Quote $quote): array
     {
         $products = [];
 
@@ -88,10 +89,10 @@ class ApplePayRequest
     /**
      * Get additional line items from quote
      *
-     * @param CartInterface $quote
+     * @param Quote $quote
      * @return array
      */
-    private function getAdditionalTotalItems(CartInterface $quote): array
+    private function getAdditionalTotalItems(Quote $quote): array
     {
         $result = [];
 

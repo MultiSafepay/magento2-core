@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
@@ -51,12 +50,12 @@ class SetOrderProcessingStatus implements ProcessInterface
     /**
      * Set the order processing status
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $status = $this->orderStatusUtil->getProcessingStatus($order);
         $defaultStatuses = [Order::STATE_PROCESSING, Order::STATE_COMPLETE];

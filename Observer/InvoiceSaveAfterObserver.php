@@ -18,10 +18,9 @@ use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
@@ -96,10 +95,12 @@ class InvoiceSaveAfterObserver implements ObserverInterface
     public function execute(Observer $observer): void
     {
         $event = $observer->getEvent();
-        /** @var InvoiceInterface $invoice */
+
+        /** @var Invoice $invoice */
         $invoice = $event->getInvoice();
         $order = $invoice->getOrder();
-        /** @var OrderPaymentInterface $payment */
+
+        /** @var Payment $payment */
         $payment = $order->getPayment();
 
         if (!$this->paymentMethodUtil->isMultisafepayOrder($order)) {

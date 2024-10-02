@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Controller\Connect;
 
 use Exception;
+use Laminas\Http\Request;
+use Laminas\Http\Response;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
@@ -107,8 +109,14 @@ class Notification extends Action implements CsrfAwareActionInterface
         $params = $this->getRequest()->getParams();
         $response = $this->checkParams($params);
 
+        /** @var Response $httpResponse */
+        $httpResponse = $this->getResponse();
+
+        /** @var Request $httpRequest */
+        $httpRequest = $this->getRequest();
+
         if ($response !== null) {
-            return $this->getResponse()->setContent($response);
+            return $httpResponse->setContent($response);
         }
 
         $orderIncrementId = $params['transactionid'];
@@ -123,14 +131,14 @@ class Notification extends Action implements CsrfAwareActionInterface
 
             $this->logger->logInfoForOrder($orderIncrementId, 'Webhook response set: ' . $message);
 
-            return $this->getResponse()->setContent($message);
+            return $httpResponse->setContent($message);
         }
 
         $response = ['success' => false, 'message' => 'ng: no incoming POST or GET notification detected'];
 
-        if ($this->getRequest()->getMethod() === Client::METHOD_POST) {
+        if ($httpRequest->getMethod() === Client::METHOD_POST) {
             $response = $this->postNotification->execute(
-                $this->getRequest(),
+                $httpRequest,
                 $storeId
             );
         }
@@ -143,11 +151,11 @@ class Notification extends Action implements CsrfAwareActionInterface
             }
         }
 
-        if ($this->getRequest()->getMethod() === Client::METHOD_GET) {
+        if ($httpRequest->getMethod() === Client::METHOD_GET) {
             $response = $this->getNotification->execute($orderIncrementId, $storeId);
         }
 
-        return $this->getResponse()->setContent($this->processResponse($response));
+        return $httpResponse->setContent($this->processResponse($response));
     }
 
     /**

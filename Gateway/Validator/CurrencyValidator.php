@@ -14,20 +14,22 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Validator;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Config\Config;
-use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 
 class CurrencyValidator
 {
     /**
-     * @param CartInterface $quote
+     * @param Quote $quote
      * @param Config $config
      * @param string $methodCode
      * @return bool
      *
+     * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate(CartInterface $quote, Config $config, string $methodCode): bool
+    public function validate(Quote $quote, Config $config, string $methodCode): bool
     {
         $storeId = $quote->getStoreId();
 

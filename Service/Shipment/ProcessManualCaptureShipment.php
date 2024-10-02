@@ -15,14 +15,16 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Shipment;
 
 use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\MailException;
 use Magento\Framework\Message\ManagerInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Exception\CouldNotInvoiceException;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\ConnectCore\Service\Invoice\CreateInvoiceAfterShipment;
@@ -108,16 +110,13 @@ class ProcessManualCaptureShipment
 
     /**
      * @param ShipmentInterface $shipment
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @throws CouldNotInvoiceException
      * @throws Exception
      */
-    public function execute(
-        ShipmentInterface $shipment,
-        OrderInterface $order,
-        OrderPaymentInterface $payment
-    ): void {
+    public function execute(ShipmentInterface $shipment, Order $order, Payment $payment): void
+    {
         $orderIncrementId = $order->getIncrementId();
 
         try {
@@ -148,10 +147,11 @@ class ProcessManualCaptureShipment
 
     /**
      * @param OrderPaymentInterface $payment
-     * @param InvoiceInterface $invoice
+     * @param Invoice $invoice
+     * @throws LocalizedException
      * @throws Exception
      */
-    public function sendInvoiceEmail(OrderPaymentInterface $payment, InvoiceInterface $invoice): void
+    public function sendInvoiceEmail(OrderPaymentInterface $payment, Invoice $invoice): void
     {
         $orderIncrementId = $invoice->getOrder()->getIncrementId();
 

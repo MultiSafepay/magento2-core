@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Request\Builder;
 
+use Exception;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
@@ -21,6 +22,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Service\EmailSender;
@@ -75,11 +77,14 @@ class RedirectTransactionBuilder implements BuilderInterface
      * @param array $buildSubject
      * @return array
      * @throws LocalizedException
+     * @throws Exception
      */
     public function build(array $buildSubject): array
     {
         $stateObject = $buildSubject['stateObject'];
         $paymentDataObject = SubjectReader::readPayment($buildSubject);
+
+        /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
         $order = $payment->getOrder();
 

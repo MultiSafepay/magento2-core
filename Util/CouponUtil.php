@@ -18,7 +18,7 @@ use Exception;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\SalesRule\Api\CouponRepositoryInterface;
 use Magento\SalesRule\Model\Coupon;
 use Magento\SalesRule\Model\CouponFactory;
@@ -31,7 +31,7 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 class CouponUtil
 {
     /**
-     * @var CouponInterface
+     * @var CouponFactory
      */
     private $couponFactory;
 
@@ -87,10 +87,11 @@ class CouponUtil
     /**
      * Restore an earlier used coupon
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @return void
+     * @throws Exception
      */
-    public function restoreCoupon(OrderInterface $order)
+    public function restoreCoupon(Order $order)
     {
         if ($order->canCancel() && $order->getCouponCode()) {
             try {

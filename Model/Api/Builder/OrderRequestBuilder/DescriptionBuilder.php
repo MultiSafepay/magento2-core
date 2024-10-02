@@ -14,15 +14,14 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\ConnectCore\Config\Config;
 
 class DescriptionBuilder implements OrderRequestBuilderInterface
 {
-
     /**
      * @var Description
      */
@@ -48,16 +47,15 @@ class DescriptionBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         $orderId = (string) $order->getRealOrderId();
         $customDescription = (string)$this->config->getValue(Config::TRANSACTION_DESCRIPTION);
 

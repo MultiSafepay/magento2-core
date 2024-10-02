@@ -18,6 +18,8 @@ use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\GiftcardUtil;
@@ -67,14 +69,16 @@ class ChangePaymentMethod implements ProcessInterface
     /**
      * Execute the process to change the payment method
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $orderId = $order->getIncrementId();
+
+        /** @var Payment $payment */
         $payment = $order->getPayment();
 
         if ($payment === null) {
@@ -149,15 +153,15 @@ class ChangePaymentMethod implements ProcessInterface
     /**
      * Change the payment method if needed
      *
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param array $transaction
      * @param string $transactionType
      * @throws Exception
      */
     private function changePaymentMethod(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
+        Order $order,
+        Payment $payment,
         array $transaction,
         string $transactionType
     ): void {

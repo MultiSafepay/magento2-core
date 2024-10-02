@@ -18,7 +18,7 @@ use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 
@@ -50,7 +50,8 @@ class CaptureResponseHandler implements HandlerInterface
     {
         $paymentDataObject = SubjectReader::readPayment($handlingSubject);
         $amount = (float)SubjectReader::readAmount($handlingSubject);
-        /** @var OrderPaymentInterface $payment */
+
+        /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
 
         if (!$response || !isset($response['transaction_id'], $response['order_id'])) {

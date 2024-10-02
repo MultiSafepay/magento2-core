@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
@@ -45,12 +44,12 @@ class SetOrderProcessingState implements ProcessInterface
      * Setting the order processing state before creating the invoice to make sure that orders in payment_review
      * state are still invoiced
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         if (in_array($order->getState(), [Order::STATE_PROCESSING, Order::STATE_COMPLETE], true)) {
             $this->logger->logInfoForNotification(

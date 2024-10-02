@@ -20,6 +20,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Api\StoreRepositoryInterface;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -86,6 +87,7 @@ class CustomReturnUrlUtil
      * @param array $transactionParameters
      * @param string $customUrlType
      * @return string|null
+     * @throws \Exception
      */
     public function getCustomReturnUrlByType(
         OrderInterface $order,
@@ -127,12 +129,12 @@ class CustomReturnUrlUtil
 
     /**
      * @param string $urlString
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transactionParameters
      * @return string
      * @throws NoSuchEntityException
      */
-    private function buildCustomUrl(string $urlString, OrderInterface $order, array $transactionParameters): string
+    private function buildCustomUrl(string $urlString, Order $order, array $transactionParameters): string
     {
         $storeId = $order->getStoreId();
         $orderStore = $this->storeRepository->getById($storeId);

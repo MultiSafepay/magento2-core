@@ -17,8 +17,8 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Locale\ResolverInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\CustomerDetails;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\CustomerBuilder\AddressBuilder;
@@ -94,17 +94,14 @@ class CustomerBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
-     * @throws NoSuchEntityException
      * @throws InvalidArgumentException
+     * @throws NoSuchEntityException
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         $billingAddress = $order->getBillingAddress();
         if ($billingAddress === null) {
             $msg = __('The transaction could not be created because the billing address is missing');
@@ -114,12 +111,12 @@ class CustomerBuilder implements OrderRequestBuilderInterface
         $customerAddress = $this->addressBuilder->build($order->getBillingAddress());
 
         $this->customerDetails->addLocale((string)$this->localeResolver->emulate($order->getStoreId()))
+            ->addUserAgent($this->httpHeader->getHttpUserAgent())
             ->addFirstName($billingAddress->getFirstname())
             ->addLastName($billingAddress->getLastname())
             ->addAddress($customerAddress)
             ->addPhoneNumberAsString($billingAddress->getTelephone() ?? '')
-            ->addEmailAddressAsString($billingAddress->getEmail())
-            ->addUserAgent($this->httpHeader->getHttpUserAgent());
+            ->addEmailAddressAsString($billingAddress->getEmail());
 
         $this->ipAddressBuilder->build($this->customerDetails, $order);
         $this->browserInfoBuilder->build($this->customerDetails, $payment);

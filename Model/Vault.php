@@ -301,10 +301,10 @@ class Vault
     }
 
     /**
-     * @param InfoInterface $payment
+     * @param Payment $payment
      * @return OrderPaymentExtension
      */
-    public function getExtensionAttributes(InfoInterface $payment): OrderPaymentExtension
+    public function getExtensionAttributes(Payment $payment): OrderPaymentExtension
     {
         if ($extensionAttributes = $payment->getExtensionAttributes()) {
             $extensionAttributes = $this->paymentExtensionFactory->create();
@@ -341,6 +341,7 @@ class Vault
         $tokensToRemove = array_diff($tokenList, $apiTokenList);
 
         foreach ($tokensToRemove as $tokenToRemove) {
+            /** @var PaymentToken $token */
             foreach ($tokenRepository as $token) {
                 if ($token->getGatewayToken() === $tokenToRemove) {
                     $this->paymentTokenRepository->delete($token);

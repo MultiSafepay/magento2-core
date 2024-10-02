@@ -14,7 +14,8 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Plugin\Sales\Model;
 
-use Magento\Sales\Api\Data\OrderInterface;
+use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Service\Order\CancelMultisafepayOrderPaymentLink;
@@ -55,10 +56,12 @@ class OrderPlugin
     }
 
     /**
-     * @param OrderInterface $subject
-     * @return OrderInterface[]
+     * @param Order $subject
+     * @return array
+     * @throws LocalizedException
+     * @throws Exception
      */
-    public function beforeCancel(OrderInterface $subject): array
+    public function beforeCancel(Order $subject): array
     {
         if ($this->config->getCancelPaymentLinkOption($subject->getStoreId())
             !== CancelMultisafepayOrderPaymentLink::CANCEL_ALWAYS_PRETRANSACTION_OPTION

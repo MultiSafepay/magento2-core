@@ -14,10 +14,9 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Order;
 
-use Exception;
 use Magento\Framework\Exception\MailException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -26,9 +25,6 @@ use MultiSafepay\ConnectCore\Util\InvoiceUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
 class AddInvoicesDataToTransactionAndSendEmail
 {
     /**
@@ -72,17 +68,13 @@ class AddInvoicesDataToTransactionAndSendEmail
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param TransactionManager $transactionManager
      * @throws ClientExceptionInterface
-     * @throws Exception
      */
-    public function execute(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        TransactionManager $transactionManager
-    ): void {
+    public function execute(Order $order, Payment $payment, TransactionManager $transactionManager): void
+    {
         $orderId = $order->getIncrementId();
 
         foreach ($this->invoiceUtil->getInvoicesByOrderId($order->getId()) as $invoice) {

@@ -19,6 +19,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\Store;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction;
@@ -87,14 +88,15 @@ class CancelTransactionBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
+        /** @var Payment $payment */
+        $payment = SubjectReader::readPayment($buildSubject)->getPayment();
+
         /** @var OrderInterface $order */
-        $order = SubjectReader::readPayment($buildSubject)->getPayment()->getOrder();
+        $order = $payment->getOrder();
+
         $orderIncrementId = $order->getIncrementId();
         $storeId = (int)$order->getStoreId();
-        $result = [
-            'order_id' => $orderIncrementId,
-            Store::STORE_ID => $storeId,
-        ];
+        $result = ['order_id' => $orderIncrementId, Store::STORE_ID => $storeId];
 
         try {
             if ($this->paymentMethodUtil->isMultisafepayOrder($order)

@@ -17,9 +17,9 @@ namespace MultiSafepay\ConnectCore\Service\Invoice;
 use Exception;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Exception\CouldNotInvoiceException;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class CreateInvoiceByInvoiceData
@@ -49,17 +49,15 @@ class CreateInvoiceByInvoiceData
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param array $invoiceData
      * @return InvoiceInterface|null
      * @throws CouldNotInvoiceException
+     * @throws Exception
      */
-    public function execute(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        array $invoiceData
-    ): ?InvoiceInterface {
+    public function execute(Order $order, Payment $payment, array $invoiceData): ?InvoiceInterface
+    {
         $orderIncrementId = $order->getIncrementId();
 
         if (!$order->canInvoice()) {
@@ -70,7 +68,6 @@ class CreateInvoiceByInvoiceData
         }
 
         try {
-            /** @var InvoiceInterface $invoice */
             $invoice = $order->prepareInvoice($invoiceData);
             $invoice->register();
             $invoice->getOrder()->setIsInProcess(true);

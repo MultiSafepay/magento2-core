@@ -16,7 +16,8 @@ namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\CaptureRequest;
 use MultiSafepay\Api\Transactions\Transaction as TransactionStatus;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
@@ -101,11 +102,11 @@ class CaptureUtil
     }
 
     /**
-     * @param OrderPaymentInterface $payment
+     * @param Payment $payment
      * @return bool
      * @throws LocalizedException
      */
-    public function isManualCaptureEnabled(OrderPaymentInterface $payment): bool
+    public function isManualCaptureEnabled(Payment $payment): bool
     {
         if ($payment->getMethodInstance()->getConfigData('manual_capture') === '1'
             && $payment->getMethodInstance()->getConfigPaymentAction() === 'authorize'
@@ -118,10 +119,10 @@ class CaptureUtil
 
     /**
      * @param string $transactionId
-     * @param OrderPaymentInterface $payment
+     * @param InfoInterface $payment
      * @return array|null
      */
-    public function getCaptureDataByTransactionId(string $transactionId, OrderPaymentInterface $payment): ?array
+    public function getCaptureDataByTransactionId(string $transactionId, InfoInterface $payment): ?array
     {
         $captures = $payment->getAdditionalInformation(self::MULTISAFEPAY_CAPTURE_DATA_FIELD_NAME);
 

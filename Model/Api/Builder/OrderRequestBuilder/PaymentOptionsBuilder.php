@@ -14,14 +14,18 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
+use Exception;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
 use MultiSafepay\ConnectCore\Model\SecureToken;
 use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class PaymentOptionsBuilder implements OrderRequestBuilderInterface
 {
@@ -70,17 +74,16 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
-     * @return void
+     * @throws InvalidArgumentException
      * @throws NoSuchEntityException
+     * @throws Exception
+     * @return void
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         $storeId = $order->getStoreId();
         $this->storeManager->setCurrentStore($order->getStoreId());
         $params = [
@@ -107,7 +110,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
-     * @return array|\array[][]
+     * @return array
      */
     private function getAdditionalSettings(
         OrderInterface $order,

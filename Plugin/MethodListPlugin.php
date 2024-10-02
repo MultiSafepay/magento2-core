@@ -64,7 +64,7 @@ class MethodListPlugin
      * @param CustomerGroupValidator $customerGroupValidator
      * @param ShippingValidator $shippingValidator
      * @param CategoryValidator $categoryValidator
-     *
+     * @param CurrencyValidator $currencyValidator
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __construct(
@@ -86,7 +86,7 @@ class MethodListPlugin
     /**
      * @param MethodList $subject
      * @param $availableMethods
-     * @param CartInterface|null $quote
+     * @param CartInterface $quote
      * @return MethodInterface[]
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

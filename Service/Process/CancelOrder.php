@@ -17,7 +17,6 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Service\OrderService;
@@ -61,12 +60,12 @@ class CancelOrder implements ProcessInterface
     /**
      * Cancel the order
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         if ($order->getState() === Order::STATE_CANCELED) {
             $this->logger->logInfoForNotification(
@@ -98,7 +97,9 @@ class CancelOrder implements ProcessInterface
             ];
         }
 
+        /** @var Order $order */
         $order = $this->orderRepository->get($order->getEntityId());
+
         $this->logger->logInfoForNotification($order->getIncrementId(), 'Order has been canceled', $transaction);
         $transactionStatus = $transaction['status'] ?? 'unknown';
         $order->addCommentToStatusHistory(

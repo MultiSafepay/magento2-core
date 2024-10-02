@@ -16,6 +16,8 @@ namespace MultiSafepay\ConnectCore\Util;
 
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Model\Order;
+use Zend_Db_Select_Exception;
 
 class ShipmentUtil
 {
@@ -49,10 +51,11 @@ class ShipmentUtil
     }
 
     /**
-     * @param OrderInterface $order
+     * @param Order $order
      * @return bool
+     * @throws Zend_Db_Select_Exception
      */
-    public function isOrderShippedPartially(OrderInterface $order): bool
+    public function isOrderShippedPartially(Order $order): bool
     {
         return !($this->isOrderShipped($order)
                  && $order->getShipmentsCollection()
@@ -60,10 +63,10 @@ class ShipmentUtil
     }
 
     /**
-     * @param OrderInterface $order
+     * @param Order $order
      * @return bool
      */
-    public function isOrderShipped(OrderInterface $order): bool
+    public function isOrderShipped(Order $order): bool
     {
         foreach ($order->getAllItems() as $item) {
             if ($item->getQtyToShip() > 0 && !$item->getIsVirtual() && !$item->getLockedDoShip()) {

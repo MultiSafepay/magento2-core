@@ -14,9 +14,10 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Gateway\Response;
 
+use Exception;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class RefundResponseHandler implements HandlerInterface
@@ -42,12 +43,15 @@ class RefundResponseHandler implements HandlerInterface
      * @param array $handlingSubject
      * @param array $response
      * @return $this
+     * @throws Exception
      */
     public function handle(array $handlingSubject, array $response): RefundResponseHandler
     {
         $paymentDataObject = SubjectReader::readPayment($handlingSubject);
-        /** @var OrderPaymentInterface $payment */
+
+        /** @var Payment $payment */
         $payment = $paymentDataObject->getPayment();
+
         $orderId = $payment->getOrder()->getIncrementId();
 
         if (!$response) {

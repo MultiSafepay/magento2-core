@@ -15,10 +15,11 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\TaxTable\TaxRate;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\TaxTable\TaxRule;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class CheckoutOptionsBuilder
 {
@@ -26,16 +27,15 @@ class CheckoutOptionsBuilder
      * Create the checkout_options argument and add 0 tax table
      *
      * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
+     * @param Payment $payment
      * @param OrderRequest $orderRequest
+     * @throws InvalidArgumentException
+     * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function build(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): void {
+    public function build(OrderInterface $order, Payment $payment, OrderRequest $orderRequest): void
+    {
         if ($orderRequest->getShoppingCart() === null) {
             return;
         }

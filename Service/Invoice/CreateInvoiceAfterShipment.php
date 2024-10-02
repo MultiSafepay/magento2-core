@@ -14,13 +14,15 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Service\Invoice;
 
+use Exception;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\Data\ShipmentInterface;
 use Magento\Sales\Api\OrderItemRepositoryInterface;
 use Magento\Sales\Exception\CouldNotInvoiceException;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Item;
+use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Shipment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class CreateInvoiceAfterShipment
@@ -58,19 +60,17 @@ class CreateInvoiceAfterShipment
     }
 
     /**
-     * @param OrderInterface $order
-     * @param ShipmentInterface $shipment
-     * @param OrderPaymentInterface $payment
+     * @param Order $order
+     * @param Shipment $shipment
+     * @param Payment $payment
      * @return bool
      * @throws CouldNotInvoiceException
-     * @throws LocalizedException
      * @throws InputException
+     * @throws LocalizedException
+     * @throws Exception
      */
-    public function execute(
-        OrderInterface $order,
-        ShipmentInterface $shipment,
-        OrderPaymentInterface $payment
-    ): bool {
+    public function execute(Order $order, Shipment $shipment, Payment $payment): bool
+    {
         if (($invoiceData = $this->getInvoiceItemsQtyDataFromShipment($shipment)) && $order->canInvoice()) {
             $payment->setShipment($shipment);
 
@@ -98,17 +98,20 @@ class CreateInvoiceAfterShipment
     }
 
     /**
-     * @param ShipmentInterface $shipment
+     * @param Shipment $shipment
      * @return array
      */
-    private function getInvoiceItemsQtyDataFromShipment(ShipmentInterface $shipment): array
+    private function getInvoiceItemsQtyDataFromShipment(Shipment $shipment): array
     {
         $invoiceData = [];
 
         foreach ($shipment->getItems() as $item) {
             $orderItemId = (int)$item->getOrderItemId();
             $shippedQty = (float)$item->getQty();
+
+            /** @var Item $orderItem */
             $orderItem = $this->orderItemRepository->get($orderItemId);
+
             $orderQtyToInvoice = $orderItem->getQtyToInvoice();
             $canInvoiceQty = ($shippedQty <= $orderQtyToInvoice) ? $shippedQty : $orderQtyToInvoice;
 

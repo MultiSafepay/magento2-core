@@ -21,6 +21,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
@@ -88,12 +89,13 @@ class TaxUtil
     }
 
     /**
-     * @param CartInterface $cart
+     * @param Quote $cart
      * @param $taxRateId
      * @return float
      * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function getTaxRateByTaxRateIdAndCart(CartInterface $cart, $taxRateId): float
+    public function getTaxRateByTaxRateIdAndCart(Quote $cart, $taxRateId): float
     {
         $request = $this->calculation->getRateRequest(
             $cart->getShippingAddress(),

@@ -18,7 +18,7 @@ use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Api\Data\ShipmentInterface;
+use Magento\Sales\Model\Order\Shipment;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Shipment\AddShippingToTransaction;
@@ -94,8 +94,10 @@ class ShipmentSaveAfterObserver implements ObserverInterface
     public function execute(Observer $observer): void
     {
         $event = $observer->getEvent();
-        /** @var ShipmentInterface $shipment */
+
+        /** @var Shipment $shipment */
         $shipment = $event->getShipment();
+
         $order = $shipment->getOrder();
         $orderId = $order->getIncrementId();
 
@@ -116,7 +118,7 @@ class ShipmentSaveAfterObserver implements ObserverInterface
             }
         } catch (ApiException | ClientExceptionInterface $exception) {
             $this->logger->logExceptionForOrder($orderId, $exception);
-            
+
             throw new LocalizedException(__(
                 'The manual capture could not be created at MultiSafepay, please check the logs.'
             ));
