@@ -79,6 +79,9 @@ class CancelOrder implements ProcessInterface
         if ($order->getState() === Order::STATE_PAYMENT_REVIEW) {
             $order->setState(Order::STATE_PENDING_PAYMENT);
             $order->setStatus(Order::STATE_PENDING_PAYMENT);
+
+            $this->orderRepository->save($order);
+
             $this->logger->logInfoForNotification(
                 $order->getIncrementId(),
                 'Order state and status put to pending_payment from payment_review',
@@ -100,12 +103,14 @@ class CancelOrder implements ProcessInterface
         /** @var Order $order */
         $order = $this->orderRepository->get($order->getEntityId());
 
-        $this->logger->logInfoForNotification($order->getIncrementId(), 'Order has been canceled', $transaction);
         $transactionStatus = $transaction['status'] ?? 'unknown';
+
         $order->addCommentToStatusHistory(
             __('Order canceled by MultiSafepay, Transaction status: ' . $transactionStatus)
         );
+
         $this->orderRepository->save($order);
+        $this->logger->logInfoForNotification($order->getIncrementId(), 'Order has been canceled', $transaction);
 
         return [StatusOperationInterface::SUCCESS_PARAMETER => true];
     }
