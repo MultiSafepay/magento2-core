@@ -58,6 +58,7 @@ class Config
     public const ADVANCED_DISABLE_SHOPPING_CART = 'disable_shopping_cart';
     public const CANCEL_PAYMENTLINK = 'second_chance_paymentlink';
     public const PAYMENT_COMPONENT_TEMPLATE_ID = 'payment_component_template_id';
+    public const ADD_COUPON_TO_ITEM_NAMES = 'add_coupon_to_item_names';
 
     public const USE_CUSTOMER_GROUP_COLLECTING_FLOWS = 'use_customer_group_collecting_flows';
     public const CUSTOMER_GROUP_COLLECTING_FLOWS = 'customer_group_collecting_flows';
@@ -369,5 +370,14 @@ class Config
     public function getPaymentComponentTemplateId($storeId = null): string
     {
         return (string)$this->getAdvancedValue(self::PAYMENT_COMPONENT_TEMPLATE_ID, $storeId);
+    }
+
+    /**
+     * @param $storeId
+     * @return bool
+     */
+    public function canAddCouponToItemNames($storeId = null): bool
+    {
+        return (bool)$this->getAdvancedValue(self::ADD_COUPON_TO_ITEM_NAMES, $storeId);
     }
 }

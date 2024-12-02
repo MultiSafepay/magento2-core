@@ -19,6 +19,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\ShoppingCart\Item;
 use MultiSafepay\ConnectCore\Util\PriceUtil;
 use MultiSafepay\ConnectCore\Util\TaxUtil;
+use MultiSafepay\Exception\InvalidArgumentException;
 use MultiSafepay\ValueObject\Money;
 
 class ShippingItemBuilder implements ShoppingCartBuilderInterface
@@ -54,6 +55,7 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
      * @param string $currency
      * @return Item[]
      * @throws NoSuchEntityException
+     * @throws InvalidArgumentException
      */
     public function build(OrderInterface $order, string $currency): array
     {
@@ -63,7 +65,7 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
             $shippingPrice = $this->priceUtil->getShippingUnitPrice($order);
 
             $items[] = (new Item())
-                ->addName($order->getShippingDescription() ?? 'shipment')
+                ->addName($this->getShippingItemName($order))
                 ->addUnitPrice(new Money($shippingPrice * 100, $currency))
                 ->addQuantity(1)
                 ->addDescription('Shipping')
@@ -86,5 +88,22 @@ class ShippingItemBuilder implements ShoppingCartBuilderInterface
         }
 
         return 0.0;
+    }
+
+    /**
+     * Get the shipping item name
+     *
+     * @param OrderInterface $order
+     * @return string
+     */
+    private function getShippingItemName(OrderInterface $order): string
+    {
+        $shippingDescription = $order->getShippingDescription() ?? 'shipment';
+
+        if ($order->getShippingDiscountAmount() > 0.0) {
+            return $shippingDescription . __(' (Discount applied)');
+        }
+
+        return $shippingDescription;
     }
 }
