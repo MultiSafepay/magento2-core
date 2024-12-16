@@ -372,6 +372,32 @@
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>BELFIUS</gateway_code>
             </multisafepay_belfius>
+            <multisafepay_bizum>
+                <active>0</active>
+                <model>MultiSafepayBizumFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>initialize</payment_action>
+                <title>Bizum</title>
+                <currency>EUR</currency>
+                <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>1</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <allowspecific>0</allowspecific>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <allow_amount>0</allow_amount>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>direct</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>BIZUM</gateway_code>
+            </multisafepay_bizum>
             <multisafepay_creditcard>
                 <active>0</active>
                 <model>MultiSafepayCreditCardFacade</model>
