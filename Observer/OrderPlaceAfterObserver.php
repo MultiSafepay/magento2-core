@@ -73,6 +73,12 @@ class OrderPlaceAfterObserver implements ObserverInterface
 
         /** @var Payment $payment */
         $payment = $order->getPayment();
+
+        // Fast Checkout orders should not be processed by this observer
+        if ($payment->getAdditionalInformation('multisafepay_fastcheckout')) {
+            return;
+        }
+
         $isMultiSafepay = $payment->getMethodInstance()->getConfigData('is_multisafepay');
 
         if ($isMultiSafepay) {
