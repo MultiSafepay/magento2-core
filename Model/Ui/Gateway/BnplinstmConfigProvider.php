@@ -34,7 +34,8 @@ class BnplinstmConfigProvider extends GenericConfigProvider
                 $this->getCode() => [
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
-                    'payment_type' => $this->getPaymentType()
+                    'payment_type' => $this->getPaymentType(),
+                    'instructions' => $this->getInstructions()
                 ]
             ]
         ];

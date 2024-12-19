@@ -36,6 +36,7 @@ class MastercardConfigProvider extends GenericConfigProvider
                     'image' => $this->getImage(),
                     'vaultCode' => self::VAULT_CODE,
                     'is_preselected' => $this->isPreselected(),
+                    'instructions' => $this->getInstructions()
                 ]
             ]
         ];

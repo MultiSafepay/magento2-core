@@ -37,7 +37,8 @@ class CreditCardConfigProvider extends GenericConfigProvider
                     'image' => $this->getImage(),
                     'vaultCode' => self::VAULT_CODE,
                     'is_preselected' => $this->isPreselected(),
-                    'payment_type' => $this->getPaymentType()
+                    'payment_type' => $this->getPaymentType(),
+                    'instructions' => $this->getInstructions()
                 ]
             ]
         ];

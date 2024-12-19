@@ -37,6 +37,7 @@ class MyBankConfigProvider extends GenericConfigProvider
                     'issuers' => $this->getIssuers(),
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
+                    'instructions' => $this->getInstructions()
                 ],
             ],
         ];

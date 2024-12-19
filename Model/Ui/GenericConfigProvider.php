@@ -151,6 +151,7 @@ class GenericConfigProvider implements ConfigProviderInterface
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
                     'transaction_type' => $this->getTransactionType(),
+                    'instructions' => $this->getInstructions(),
                 ],
             ],
         ];
@@ -426,5 +427,17 @@ class GenericConfigProvider implements ConfigProviderInterface
         }
 
         return $storeId;
+    }
+
+    /**
+     * Get the payment instructions
+     *
+     * @return string
+     */
+    protected function getInstructions(): string
+    {
+        $this->paymentConfig->setMethodCode($this->getCode());
+
+        return (string)$this->paymentConfig->getValue('instructions', $this->getStoreIdFromCheckoutSession());
     }
 }

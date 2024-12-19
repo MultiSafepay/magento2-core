@@ -45,6 +45,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
                     'transaction_type' => $this->getTransactionType(),
+                    'instructions' => $this->getInstructions(),
                     'coupons' => $this->getAvailableCouponsByQuote($this->checkoutSession->getQuote()),
                 ],
             ],

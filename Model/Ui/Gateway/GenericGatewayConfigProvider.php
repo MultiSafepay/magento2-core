@@ -111,7 +111,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         foreach ($this->getGenericList() as $gatewayCode) {
             $configData[$gatewayCode] = [
                 'image' => $this->getGenericFullImagePath($gatewayCode),
-                'is_preselected' => $this->isPreselectedByCode($gatewayCode)
+                'is_preselected' => $this->isPreselectedByCode($gatewayCode),
+                'instructions' => $this->getInstructions()
             ];
         }
 

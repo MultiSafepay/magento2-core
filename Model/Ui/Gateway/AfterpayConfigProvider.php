@@ -53,6 +53,7 @@ class AfterpayConfigProvider extends GenericConfigProvider
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
                     'transaction_type' => $this->getTransactionType(),
+                    'instructions' => $this->getInstructions(),
                     'payment_type' => $this->getPaymentType(),
                     'afterpay_terms_url' => $this->getAfterpayTermsAndConditionUrl(),
                 ],

@@ -35,6 +35,7 @@ class EinvoicingConfigProvider extends GenericConfigProvider
                     'image' => $this->getImage(),
                     'is_preselected' => $this->isPreselected(),
                     'transaction_type' => $this->getTransactionType(),
+                    'instructions' => $this->getInstructions(),
                     'payment_type' => $this->getPaymentType(),
                     'checkout_fields' => $this->checkoutFieldsUtil->getCheckoutFields(
                         self::CODE,

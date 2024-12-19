@@ -37,6 +37,7 @@ class DirectDebitConfigProvider extends GenericConfigProvider
                     'vaultCode' => self::VAULT_CODE,
                     'is_preselected' => $this->isPreselected(),
                     'transaction_type' => $this->getTransactionType(),
+                    'instructions' => $this->getInstructions()
                 ],
             ],
         ];
