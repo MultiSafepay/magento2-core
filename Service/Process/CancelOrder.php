@@ -106,7 +106,8 @@ class CancelOrder implements ProcessInterface
         $transactionStatus = $transaction['status'] ?? 'unknown';
 
         $order->addCommentToStatusHistory(
-            __('Order canceled by MultiSafepay, Transaction status: ' . $transactionStatus)
+            __('Order canceled by MultiSafepay, Transaction status: ') . $transactionStatus .
+            __(', Transaction ID: ') . $transaction['transaction_id'] ?? 'unknown'
         );
 
         $this->orderRepository->save($order);
