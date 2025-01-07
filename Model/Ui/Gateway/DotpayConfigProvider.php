@@ -16,6 +16,9 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
+/**
+ * @deprecated No longer supported by MultiSafepay
+ */
 class DotpayConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_dotpay';

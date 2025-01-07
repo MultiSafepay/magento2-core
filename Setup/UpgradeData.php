@@ -1,4 +1,14 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is provided with Magento in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * See DISCLAIMER.md for disclaimer details.
+ */
 
 declare(strict_types=1);
 
@@ -14,7 +24,13 @@ use MultiSafepay\ConnectCore\Config\Config;
 
 class UpgradeData implements UpgradeDataInterface
 {
-    public const SANTANDER_PATH = 'payment/multisafepay_santander/active';
+    public const PAYMENT_METHOD_PATHS = [
+        'payment/multisafepay_santander/active',
+        'payment/multisafepay_giropay/active',
+        'payment/multisafepay_sofort/active',
+        'payment/multisafepay_directbanktransfer/active',
+        'payment/multisafepay_dotpay/active'
+    ];
 
     /**
      * @var WriterInterface
@@ -58,22 +74,17 @@ class UpgradeData implements UpgradeDataInterface
     {
         $stores = $this->storeRepository->getList();
 
-        // Disable Santander for all stores
-        foreach ($stores as $store) {
-            $storeId = $store->getId();
-            $isSantanderActive = (bool)$this->config->getValue(self::SANTANDER_PATH, $storeId);
+        foreach (self::PAYMENT_METHOD_PATHS as $path) {
+            foreach ($stores as $store) {
+                $storeId = $store->getId();
+                $isActive = (bool)$this->config->getValue($path, $storeId);
 
-            if ($isSantanderActive) {
-                $this->configWriter->save(
-                    self::SANTANDER_PATH,
-                    0,
-                    ScopeInterface::SCOPE_STORE,
-                    $storeId
-                );
+                if ($isActive) {
+                    $this->configWriter->save($path, 0, ScopeInterface::SCOPE_STORE, $storeId);
+                }
             }
-        }
 
-        // Disable Santander for default store view
-        $this->configWriter->save(self::SANTANDER_PATH, 0);
+            $this->configWriter->save($path, 0);
+        }
     }
 }
