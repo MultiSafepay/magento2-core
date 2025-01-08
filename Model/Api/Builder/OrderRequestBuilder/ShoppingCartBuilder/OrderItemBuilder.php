@@ -142,7 +142,7 @@ class OrderItemBuilder implements ShoppingCartBuilderInterface
             return $item->getName() . __(' - (Discount applied: ') . $discountDescription . __(')');
         }
 
-        return $item->getName() . __(' - (Discount applied)');
+        return $item->getName();
     }
 
     /**
