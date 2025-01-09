@@ -1492,6 +1492,33 @@
                 <is_multisafepay>1</is_multisafepay>
                 <gateway_code>ZINIA</gateway_code>
             </multisafepay_zinia>
+            <multisafepay_billink>
+                <active>0</active>
+                <model>MultiSafepayBillinkFacade</model>
+                <order_status>pending</order_status>
+                <payment_action>initialize</payment_action>
+                <title>Billink</title>
+                <payment_type>redirect</payment_type>
+                <currency>EUR</currency>
+                <can_initialize>1</can_initialize>
+                <can_fetch_transaction_information>1</can_fetch_transaction_information>
+                <can_fetch_transaction_info>1</can_fetch_transaction_info>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+                <allowspecific>1</allowspecific>
+                <specificcountry>NL,BE</specificcountry>
+                <allow_specific_currency>0</allow_specific_currency>
+                <allow_specific_shipping_method>0</allow_specific_shipping_method>
+                <allow_specific_customer_group>0</allow_specific_customer_group>
+                <custom_payment_link_lifetime>0</custom_payment_link_lifetime>
+                <transaction_type>redirect</transaction_type>
+                <is_multisafepay>1</is_multisafepay>
+                <gateway_code>BILLINK</gateway_code>
+            </multisafepay_billink>
             <multisafepay_genericgateway>
                 <active>0</active>
                 <model>MultiSafepayGenericGatewayFacade</model>

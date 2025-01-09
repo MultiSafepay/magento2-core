@@ -16,15 +16,13 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Exception;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
+use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PaymentOptionsBuilder\SettingsBuilder;
 use MultiSafepay\ConnectCore\Model\SecureToken;
-use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 use MultiSafepay\Exception\InvalidArgumentException;
 
 class PaymentOptionsBuilder implements OrderRequestBuilderInterface
@@ -47,11 +45,10 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @var StoreManagerInterface
      */
     private $storeManager;
-
     /**
-     * @var EdenredGiftcardConfigProvider
+     * @var SettingsBuilder
      */
-    private $edenredGiftcardConfigProvider;
+    private $settingsBuilder;
 
     /**
      * PaymentOptionsBuilder constructor.
@@ -59,18 +56,18 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @param PaymentOptions $paymentOptions
      * @param SecureToken $secureToken
      * @param StoreManagerInterface $storeManager
-     * @param EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
+     * @param SettingsBuilder $settingsBuilder
      */
     public function __construct(
         PaymentOptions $paymentOptions,
         SecureToken $secureToken,
         StoreManagerInterface $storeManager,
-        EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
+        SettingsBuilder $settingsBuilder
     ) {
         $this->secureToken = $secureToken;
         $this->paymentOptions = $paymentOptions;
         $this->storeManager = $storeManager;
-        $this->edenredGiftcardConfigProvider = $edenredGiftcardConfigProvider;
+        $this->settingsBuilder = $settingsBuilder;
     }
 
     /**
@@ -99,47 +96,13 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
             ->addCloseWindow(false)
             ->addNotificationMethod();
 
-        if ($additionalSettings = $this->getAdditionalSettings($order, $payment, $orderRequest)) {
+        $additionalSettings = $this->settingsBuilder->build($order, $payment, $orderRequest);
+
+        if ($additionalSettings) {
             $paymentOptions->addSettings($additionalSettings);
         }
 
         $orderRequest->addPaymentOptions($paymentOptions);
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param OrderPaymentInterface $payment
-     * @param OrderRequest $orderRequest
-     * @return array
-     */
-    private function getAdditionalSettings(
-        OrderInterface $order,
-        OrderPaymentInterface $payment,
-        OrderRequest $orderRequest
-    ): array {
-        $settings = [];
-
-        if ($payment->getMethod() === EdenredGiftcardConfigProvider::CODE) {
-            $coupons = $this->edenredGiftcardConfigProvider->getAvailableCouponsByOrder($order);
-            $settings = [
-                'gateways' => [
-                    'coupons' => [
-                        'allow' => array_map('strtoupper', $coupons),
-                        'disabled' => count($coupons) === 0,
-                    ],
-                ],
-            ];
-
-            // We have to set coupon as a gateway code if we have only one available coupon code
-            /**
-             * @todo create and move it to separate gateway code builder
-             */
-            if (count($coupons) === 1) {
-                $orderRequest->addGatewayCode(strtoupper(reset($coupons)));
-            }
-        }
-
-        return $settings;
     }
 
     /**

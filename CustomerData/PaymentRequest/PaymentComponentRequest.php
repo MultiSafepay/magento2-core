@@ -19,6 +19,7 @@ use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Model\Ui\ConfigProviderPool;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AfterpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BillinkConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplinstmConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BnplmfConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
@@ -45,7 +46,8 @@ class PaymentComponentRequest
         In3B2bConfigProvider::CODE,
         AfterpayConfigProvider::CODE,
         EinvoicingConfigProvider::CODE,
-        In3ConfigProvider::CODE
+        In3ConfigProvider::CODE,
+        BillinkConfigProvider::CODE
     ];
 
     /**
