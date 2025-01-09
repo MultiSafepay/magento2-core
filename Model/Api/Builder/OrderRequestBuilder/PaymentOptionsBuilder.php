@@ -16,13 +16,15 @@ namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
 use Exception;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
-use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PaymentOptionsBuilder\SettingsBuilder;
 use MultiSafepay\ConnectCore\Model\SecureToken;
+use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 use MultiSafepay\Exception\InvalidArgumentException;
 
 class PaymentOptionsBuilder implements OrderRequestBuilderInterface
@@ -45,10 +47,11 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @var StoreManagerInterface
      */
     private $storeManager;
+
     /**
-     * @var SettingsBuilder
+     * @var EdenredGiftcardConfigProvider
      */
-    private $settingsBuilder;
+    private $edenredGiftcardConfigProvider;
 
     /**
      * PaymentOptionsBuilder constructor.
@@ -56,31 +59,34 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @param PaymentOptions $paymentOptions
      * @param SecureToken $secureToken
      * @param StoreManagerInterface $storeManager
-     * @param SettingsBuilder $settingsBuilder
+     * @param EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
      */
     public function __construct(
         PaymentOptions $paymentOptions,
         SecureToken $secureToken,
         StoreManagerInterface $storeManager,
-        SettingsBuilder $settingsBuilder
+        EdenredGiftcardConfigProvider $edenredGiftcardConfigProvider
     ) {
         $this->secureToken = $secureToken;
         $this->paymentOptions = $paymentOptions;
         $this->storeManager = $storeManager;
-        $this->settingsBuilder = $settingsBuilder;
+        $this->edenredGiftcardConfigProvider = $edenredGiftcardConfigProvider;
     }
 
     /**
      * @param Order $order
      * @param Payment $payment
      * @param OrderRequest $orderRequest
-     * @throws InvalidArgumentException
-     * @throws NoSuchEntityException
-     * @throws Exception
      * @return void
+     * @throws NoSuchEntityException
+     * @throws InvalidArgumentException
+     * @throws Exception
      */
-    public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
-    {
+    public function build(
+        Order $order,
+        Payment $payment,
+        OrderRequest $orderRequest
+    ): void {
         $storeId = $order->getStoreId();
         $this->storeManager->setCurrentStore($order->getStoreId());
         $params = [
@@ -96,13 +102,47 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
             ->addCloseWindow(false)
             ->addNotificationMethod();
 
-        $additionalSettings = $this->settingsBuilder->build($order, $payment, $orderRequest);
-
-        if ($additionalSettings) {
+        if ($additionalSettings = $this->getAdditionalSettings($order, $payment, $orderRequest)) {
             $paymentOptions->addSettings($additionalSettings);
         }
 
         $orderRequest->addPaymentOptions($paymentOptions);
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @param OrderPaymentInterface $payment
+     * @param OrderRequest $orderRequest
+     * @return array|\array[][]
+     */
+    private function getAdditionalSettings(
+        OrderInterface $order,
+        OrderPaymentInterface $payment,
+        OrderRequest $orderRequest
+    ): array {
+        $settings = [];
+
+        if ($payment->getMethod() === EdenredGiftcardConfigProvider::CODE) {
+            $coupons = $this->edenredGiftcardConfigProvider->getAvailableCouponsByOrder($order);
+            $settings = [
+                'gateways' => [
+                    'coupons' => [
+                        'allow' => array_map('strtoupper', $coupons),
+                        'disabled' => count($coupons) === 0,
+                    ],
+                ],
+            ];
+
+            // We have to set coupon as a gateway code if we have only one available coupon code
+            /**
+             * @todo create and move it to separate gateway code builder
+             */
+            if (count($coupons) === 1) {
+                $orderRequest->addGatewayCode(strtoupper(reset($coupons)));
+            }
+        }
+
+        return $settings;
     }
 
     /**
@@ -111,7 +151,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     private function getUrl(string $endPoint, $storeId = null, array $params = null): string
     {
         return $this->storeManager->getStore($storeId)->getBaseUrl()
-               . $endPoint
-               . ($params ? "?" . http_build_query($params) : '');
+            . $endPoint
+            . ($params ? "?" . http_build_query($params) : '');
     }
 }
