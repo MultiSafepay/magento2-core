@@ -50,15 +50,15 @@ jobs:
       - name: Add module to composer
         working-directory: /home/runner/work/magento
         run: composer require multisafepay/magento2-core --no-update --no-interaction
+      - name: Install PHPStan extension installer
+        working-directory: /home/runner/work/magento
+        run: composer require --dev phpstan/extension-installer --no-update --no-interaction
+      - name: Install PHPStan Magento extension
+        working-directory: /home/runner/work/magento
+        run: composer require --dev bitexpert/phpstan-magento --no-update --no-interaction
       - name: Install composer dependencies
         working-directory: /home/runner/work/magento
         run: composer install --no-interaction
-      - name: Install PHPStan extension installer
-        working-directory: /home/runner/work/magento
-        run: composer require --dev phpstan/extension-installer
-      - name: Install PHPStan Magento extension
-        working-directory: /home/runner/work/magento
-        run: composer require --dev bitexpert/phpstan-magento
       - name: Run PHPStan
         working-directory: /home/runner/work/magento
         run: vendor/bin/phpstan analyse -c vendor/multisafepay/magento2-core/phpstan.neon --error-format github

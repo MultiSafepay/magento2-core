@@ -113,7 +113,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
      * @param OrderInterface $order
      * @param OrderPaymentInterface $payment
      * @param OrderRequest $orderRequest
-     * @return array|\array[][]
+     * @return array
      */
     private function getAdditionalSettings(
         OrderInterface $order,
