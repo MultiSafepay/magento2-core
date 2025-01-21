@@ -47,10 +47,6 @@ class In3DataAssignObserver extends AbstractDataAssignObserver
             return;
         }
 
-        if (isset($additionalData['gender'])) {
-            $payment->setAdditionalInformation('gender', $additionalData['gender']);
-        }
-
         $payment->setAdditionalInformation('transaction_type', TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE);
     }
 }
