@@ -21,6 +21,7 @@ use MultiSafepay\ConnectCore\Service\Process\AddUnclearedMessage;
 use MultiSafepay\ConnectCore\Service\Process\ChangePaymentMethod;
 use MultiSafepay\ConnectCore\Service\Process\LogTransactionStatus;
 use MultiSafepay\ConnectCore\Service\Process\ProcessInterface;
+use MultiSafepay\ConnectCore\Service\Process\ReopenOrder;
 use MultiSafepay\ConnectCore\Service\Process\SaveOrder;
 use MultiSafepay\ConnectCore\Service\Process\SendOrderConfirmation;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderPaymentReviewStatus;
@@ -64,6 +65,11 @@ class UnclearedStatusOperation implements StatusOperationInterface
     private $setOrderPaymentReviewStatus;
 
     /**
+     * @var ReopenOrder
+     */
+    private $reopenOrder;
+
+    /**
      * UnclearedStatusOperation constructor
      *
      * @param LogTransactionStatus $logTransactionStatus
@@ -73,6 +79,7 @@ class UnclearedStatusOperation implements StatusOperationInterface
      * @param AddUnclearedMessage $addUnclearedMessage
      * @param SetOrderPaymentReviewStatus $setOrderPaymentReviewStatus
      * @param SaveOrder $saveOrder
+     * @param ReopenOrder $reopenOrder
      */
     public function __construct(
         LogTransactionStatus $logTransactionStatus,
@@ -81,7 +88,8 @@ class UnclearedStatusOperation implements StatusOperationInterface
         ChangePaymentMethod $changePaymentMethod,
         AddUnclearedMessage $addUnclearedMessage,
         SetOrderPaymentReviewStatus $setOrderPaymentReviewStatus,
-        SaveOrder $saveOrder
+        SaveOrder $saveOrder,
+        ReopenOrder $reopenOrder
     ) {
         $this->logTransactionStatus = $logTransactionStatus;
         $this->sendOrderConfirmation = $sendOrderConfirmation;
@@ -90,6 +98,7 @@ class UnclearedStatusOperation implements StatusOperationInterface
         $this->addUnclearedMessage = $addUnclearedMessage;
         $this->setOrderPaymentReviewStatus = $setOrderPaymentReviewStatus;
         $this->saveOrder = $saveOrder;
+        $this->reopenOrder = $reopenOrder;
     }
 
     /**
@@ -105,6 +114,7 @@ class UnclearedStatusOperation implements StatusOperationInterface
         $processes = [
             $this->logTransactionStatus,
             $this->sendOrderConfirmation,
+            $this->reopenOrder,
             $this->updateOrderStatus,
             $this->changePaymentMethod,
             $this->addUnclearedMessage,
