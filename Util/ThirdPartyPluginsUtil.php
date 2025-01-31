@@ -151,21 +151,35 @@ class ThirdPartyPluginsUtil
      */
     private function getFoomanTotals($subject, CartInterface $quote, array &$resultData): void
     {
-        if (method_exists($subject, 'collect') && method_exists($subject, 'fetch')) {
-            $total = $quote->getTotals()['fooman_surcharge'] ?? null;
+        if (!method_exists($subject, 'collect') || !method_exists($subject, 'fetch')) {
+            return;
+        }
 
-            if ($total) {
-                $foomanTotal = $subject->collect($quote, $this->getShippingAssignment($quote), $total)
-                    ->fetch($quote, $total);
+        $total = $quote->getTotals()['fooman_surcharge'] ?? null;
 
-                if ($foomanTotal && isset($foomanTotal['code'], $foomanTotal['full_info'])) {
-                    $fullTotalInfo = $foomanTotal['full_info'];
-                    foreach ($fullTotalInfo as $totalInfo) {
-                        $totalInfo->setTaxAmount($total->getTaxAmount());
-                        $totalInfo->setBaseTaxAmount($total->getBaseTaxAmount() ?: $total->getTaxAmount());
-                        $resultData[$totalInfo->getTypeId()] = $totalInfo;
-                    }
+        if (!$total) {
+            return;
+        }
+
+        $totalCalculation = $subject->collect($quote, $this->getShippingAssignment($quote), $total)
+            ->fetch($quote, $total);
+
+        if ($totalCalculation && isset($totalCalculation['code'], $totalCalculation['full_info'])) {
+            $fullTotalInfo = $totalCalculation['full_info'];
+            foreach ($fullTotalInfo as $totalInfo) {
+                if (isset($foomanTotal)) {
+                    $foomanTotal->setAmount($foomanTotal->getAmount() + $totalInfo->getAmount());
+                    $foomanTotal->setBaseAmount($foomanTotal->getBaseAmount() + $totalInfo->getBaseAmount());
+                    $foomanTotal->setLabel($foomanTotal->getLabel() . ', ' . $totalInfo->getLabel());
+
+                    continue;
                 }
+
+                $foomanTotal = $totalInfo;
+
+                $foomanTotal->setTaxAmount($total->getTaxAmount());
+                $foomanTotal->setBaseTaxAmount($total->getBaseTaxAmount() ?: $total->getTaxAmount());
+                $resultData['multisafepay_custom_fooman_total'] = $foomanTotal;
             }
         }
     }
