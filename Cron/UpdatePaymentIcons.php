@@ -25,12 +25,10 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectBankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\DotpayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\GiropayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\INGHomePayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\SantanderConfigProvider;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\SofortConfigProvider;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class UpdatePaymentIcons
@@ -44,13 +42,11 @@ class UpdatePaymentIcons
         // Payment methods that give the option for alternative icons
         CreditCardConfigProvider::CODE,
 
-        // Payment methods that are deprecated
+        // Payment methods that are removed
         INGHomePayConfigProvider::CODE,
         SantanderConfigProvider::CODE,
-        GiropayConfigProvider::CODE,
-        SofortConfigProvider::CODE,
         DirectBankTransferConfigProvider::CODE,
-        DotpayConfigProvider::CODE
+        GiropayConfigProvider::CODE,
     ];
 
     /**
