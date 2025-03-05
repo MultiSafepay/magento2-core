@@ -16,16 +16,15 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Process;
 
 use Exception;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
-use MultiSafepay\Api\TransactionManager;
 use MultiSafepay\Api\Transactions\UpdateRequest;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperationInterface;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
+use MultiSafepay\ConnectCore\Util\InvoiceUrlUtil;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
@@ -52,23 +51,31 @@ class AddInvoiceToTransaction implements ProcessInterface
     private $captureUtil;
 
     /**
+     * @var InvoiceUrlUtil
+     */
+    private $invoiceUrlUtil;
+
+    /**
      * AddInvoiceDataToTransaction constructor
      *
      * @param Logger $logger
      * @param UpdateRequest $updateRequest
      * @param SdkFactory $sdkFactory
      * @param CaptureUtil $captureUtil
+     * @param InvoiceUrlUtil $invoiceUrlUtil
      */
     public function __construct(
         Logger $logger,
         UpdateRequest $updateRequest,
         SdkFactory $sdkFactory,
-        CaptureUtil $captureUtil
+        CaptureUtil $captureUtil,
+        InvoiceUrlUtil $invoiceUrlUtil
     ) {
         $this->logger = $logger;
         $this->updateRequest = $updateRequest;
         $this->sdkFactory = $sdkFactory;
         $this->captureUtil = $captureUtil;
+        $this->invoiceUrlUtil = $invoiceUrlUtil;
     }
 
     /**
@@ -132,13 +139,17 @@ class AddInvoiceToTransaction implements ProcessInterface
             return [StatusOperationInterface::SUCCESS_PARAMETER => true];
         }
 
-        $updateRequest = $this->updateRequest->addData([
-            "invoice_id" => $invoiceId,
-        ]);
+        $this->updateRequest->addData(["invoice_id" => $invoiceId]);
+
+        $invoiceUrl = $this->invoiceUrlUtil->getInvoiceUrl($order, $invoice);
+
+        if ($invoiceUrl) {
+            $this->updateRequest->addData(["invoice_url" => $invoiceUrl]);
+        }
 
         try {
             $transactionManager = $this->sdkFactory->create((int)$order->getStoreId())->getTransactionManager();
-            $transactionManager->update($orderId, $updateRequest)->getResponseData();
+            $transactionManager->update($orderId, $this->updateRequest)->getResponseData();
             $this->logger->logInfoForNotification(
                 $orderId,
                 'Invoice: ' . $invoiceId . ' update request has been sent to MultiSafepay.',

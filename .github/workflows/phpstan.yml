@@ -55,7 +55,7 @@ jobs:
         run: composer require --dev phpstan/extension-installer --no-update --no-interaction
       - name: Install PHPStan Magento extension
         working-directory: /home/runner/work/magento
-        run: composer require --dev bitexpert/phpstan-magento --no-update --no-interaction
+        run: composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
       - name: Install composer dependencies
         working-directory: /home/runner/work/magento
         run: composer install --no-interaction

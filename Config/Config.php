@@ -47,6 +47,8 @@ class Config
     public const PAYMENT_ICON = 'payment_icon';
     public const ICON_TYPE = 'icon_type';
     public const DISABLE_UTM_NOOVERRIDE = 'disable_utm_nooverride';
+    public const USE_CUSTOM_INVOICE_URL = 'use_custom_invoice_url';
+    public const CUSTOM_INVOICE_URL = 'custom_invoice_url';
 
     public const MULTISAFEPAY_INITIALIZED_STATUS = 'initialized_status';
     public const MULTISAFEPAY_UNCLEARED_STATUS = 'uncleared_status';
