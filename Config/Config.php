@@ -47,6 +47,7 @@ class Config
     public const PAYMENT_ICON = 'payment_icon';
     public const ICON_TYPE = 'icon_type';
     public const DISABLE_UTM_NOOVERRIDE = 'disable_utm_nooverride';
+    public const SHOW_PAYMENT_PAGE = 'show_payment_page';
     public const USE_CUSTOM_INVOICE_URL = 'use_custom_invoice_url';
     public const CUSTOM_INVOICE_URL = 'custom_invoice_url';
 

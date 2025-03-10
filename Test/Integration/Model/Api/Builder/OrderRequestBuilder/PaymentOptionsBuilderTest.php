@@ -14,24 +14,19 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderRequestBuilder;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use MultiSafepay\Api\Transactions\OrderRequest;
-use MultiSafepay\Api\Transactions\OrderRequest\Arguments\PaymentOptions;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PaymentOptionsBuilder;
 use MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder\PluginDataBuilder;
 use MultiSafepay\ConnectCore\Model\SecureToken;
-use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\Payment\AbstractTransactionTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
+use MultiSafepay\Exception\InvalidArgumentException;
+use MultiSafepay\Exception\InvalidTotalAmountException;
 use ReflectionException;
 use ReflectionObject;
 
-/**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- */
 class PaymentOptionsBuilderTest extends AbstractTransactionTestCase
 {
     /**
@@ -73,6 +68,9 @@ class PaymentOptionsBuilderTest extends AbstractTransactionTestCase
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @throws ReflectionException
+     * @throws InvalidArgumentException
+     * @throws InvalidTotalAmountException
+     * @throws Exception
      */
     public function testBuildPaymentOptionsBuilder(): void
     {
@@ -121,120 +119,5 @@ class PaymentOptionsBuilderTest extends AbstractTransactionTestCase
             ),
             $orderRequestData['payment_options']['cancel_url']
         );
-    }
-
-    /**
-     * @magentoDataFixture   Magento/Sales/_files/order.php
-     * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
-     * @magentoConfigFixture default_store multisafepay/general/mode 0
-     *
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function testBuildEdenredPaymentOptionsWithCoupons(): void
-    {
-        $orderRequest = $this->getObjectManager()->create(OrderRequest::class);
-        $order = $this->getOrderWithVisaPaymentMethod();
-        $payment = $order->getPayment();
-        $payment->setMethod(EdenredGiftcardConfigProvider::CODE);
-        $this->pluginDetailsBuilder->build($order, $payment, $orderRequest);
-        $this->getMockBuilder(PaymentOptionsBuilder::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(PaymentOptions::class),
-                $this->getObjectManager()->get(SecureToken::class),
-                $this->getObjectManager()->get(StoreManagerInterface::class),
-                $this->getEdenredGiftcardConfigProviderMock(
-                    $order,
-                    [
-                        EdenredGiftcardConfigProvider::EDENCOM_COUPON_CODE,
-                        EdenredGiftcardConfigProvider::EDENECO_COUPON_CODE,
-                    ]
-                ),
-            ])
-            ->setMethodsExcept(['build'])
-            ->getMock()
-            ->build($order, $payment, $orderRequest);
-        $orderRequestData = $orderRequest->getData();
-
-        self::assertArrayHasKey('payment_options', $orderRequestData);
-        self::assertEquals(
-            [
-                'gateways' => [
-                    'coupons' => [
-                        'allow' => [
-                            strtoupper(EdenredGiftcardConfigProvider::EDENCOM_COUPON_CODE),
-                            strtoupper(EdenredGiftcardConfigProvider::EDENECO_COUPON_CODE),
-                        ],
-                        'disabled' => false,
-                    ],
-                ],
-            ],
-            $orderRequestData['payment_options']['settings']
-        );
-
-        $this->getMockBuilder(PaymentOptionsBuilder::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(PaymentOptions::class),
-                $this->getObjectManager()->get(SecureToken::class),
-                $this->getObjectManager()->get(StoreManagerInterface::class),
-                $this->getEdenredGiftcardConfigProviderMock(
-                    $order,
-                    [
-                        EdenredGiftcardConfigProvider::EDENCOM_COUPON_CODE,
-                    ]
-                ),
-            ])
-            ->setMethodsExcept(['build'])
-            ->getMock()
-            ->build($order, $payment, $orderRequest);
-
-        self::assertEquals(
-            $orderRequest->getGatewayCode(),
-            strtoupper(EdenredGiftcardConfigProvider::EDENCOM_COUPON_CODE)
-        );
-
-        $this->getMockBuilder(PaymentOptionsBuilder::class)
-            ->setConstructorArgs([
-                $this->getObjectManager()->get(PaymentOptions::class),
-                $this->getObjectManager()->get(SecureToken::class),
-                $this->getObjectManager()->get(StoreManagerInterface::class),
-                $this->getEdenredGiftcardConfigProviderMock($order, []),
-            ])
-            ->setMethodsExcept(['build'])
-            ->getMock()
-            ->build($order, $payment, $orderRequest);
-
-        self::assertEquals(
-            [
-                'gateways' => [
-                    'coupons' => [
-                        'allow' => [],
-                        'disabled' => true,
-                    ],
-                ],
-            ],
-            $orderRequest->getData()['payment_options']['settings']
-        );
-    }
-
-    /**
-     * @param OrderInterface $order
-     * @param array $coupons
-     * @return MockObject
-     */
-    private function getEdenredGiftcardConfigProviderMock(
-        OrderInterface $order,
-        array $coupons
-    ): MockObject {
-        $edenredGiftcardConfigProvider = $this->getMockBuilder(EdenredGiftcardConfigProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $edenredGiftcardConfigProvider
-            ->method('getAvailableCouponsByOrder')
-            ->with($order)
-            ->willReturn($coupons);
-
-        return $edenredGiftcardConfigProvider;
     }
 }

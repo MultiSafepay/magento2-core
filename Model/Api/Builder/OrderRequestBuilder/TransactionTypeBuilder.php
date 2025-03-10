@@ -14,10 +14,12 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Api\Builder\OrderRequestBuilder;
 
-use Magento\Payment\Gateway\Config\Config;
+use Magento\Payment\Gateway\Config\Config as GatewayConfig;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
+use MultiSafepay\ConnectCore\Config\Config;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\Exception\InvalidArgumentException;
 
 class TransactionTypeBuilder implements OrderRequestBuilderInterface
@@ -26,18 +28,18 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
     public const TRANSACTION_TYPE_REDIRECT_VALUE = 'redirect';
 
     /**
-     * @var Config
+     * @var GatewayConfig
      */
-    private $config;
+    private $gatewayConfig;
 
     /**
      * TransactionTypeBuilder constructor.
      *
-     * @param Config $config
+     * @param GatewayConfig $gatewayConfig
      */
-    public function __construct(Config $config)
+    public function __construct(GatewayConfig $gatewayConfig)
     {
-        $this->config = $config;
+        $this->gatewayConfig = $gatewayConfig;
     }
 
     /**
@@ -53,12 +55,21 @@ class TransactionTypeBuilder implements OrderRequestBuilderInterface
      */
     public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
     {
+        $this->gatewayConfig->setMethodCode($payment->getMethod());
+
         $transactionType = $payment->getAdditionalInformation()['transaction_type'] ??
-            $this->config->getValue('transaction_type') ??
+            $this->gatewayConfig->getValue('transaction_type') ??
             self::TRANSACTION_TYPE_REDIRECT_VALUE;
 
         if ($transactionType === 'payment_component') {
             $orderRequest->addType(self::TRANSACTION_TYPE_DIRECT_VALUE);
+            return;
+        }
+
+        if ($payment->getMethod() === IdealConfigProvider::CODE
+            && $this->gatewayConfig->getValue(Config::SHOW_PAYMENT_PAGE)
+        ) {
+            $orderRequest->addType(self::TRANSACTION_TYPE_REDIRECT_VALUE);
             return;
         }
 
