@@ -5698,7 +5698,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">MultiSafepayEinvoicingRefundRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\TransferFactory</argument>
-            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\RefundClient</argument>
+            <argument name="client" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Http\Client\ShoppingCartRefundClient</argument>
             <argument name="handler" xsi:type="object">MultiSafepay\ConnectCore\Gateway\Response\RefundResponseHandler</argument>
         </arguments>
     </virtualType>
