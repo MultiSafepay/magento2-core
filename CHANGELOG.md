@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.10.0] - 2025-04-02
+### Added
+- PLGMAG2V2-831: Added invoice_url to invoice update request for E-invoicing
+- PLGMAG2V2-832: Added setting for adding iDEAL payment page step
+
+### Fixed
+- PLGMAG2V2-835: Fixed broken Einvoicing refund
+
 ## [3.9.1] - 2025-02-24
 ### Fixed
 - PLGMAG2V2-826: Fix uncleared orders not being able to be invoiced
