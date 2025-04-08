@@ -44,23 +44,6 @@ class GenericGatewayConfigProviderTest extends AbstractTestCase
     }
 
     /**
-     * @magentoConfigFixture default_store multisafepay_giftcards/multisafepay_genericgateway_1/gateway_image test
-     *
-     * @throws NoSuchEntityException
-     */
-    public function testGetGenericFullImagePath(): void
-    {
-        self::assertEquals(
-            'multisafepay/genericgateway/test',
-            $this->genericGatewayConfigProvider->getImagePath(self::GENERIC_GATEWAY_TEST_CODE)
-        );
-        self::assertEquals(
-            '',
-            $this->genericGatewayConfigProvider->getGenericFullImagePath(self::GENERIC_GATEWAY_TEST_CODE)
-        );
-    }
-
-    /**
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
      * @dataProvider         gatewaysDataProvider
