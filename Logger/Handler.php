@@ -28,9 +28,9 @@ class Handler extends Base
     protected $fileName = '/var/log/multisafepay.log';
 
     /**
-     * @var int
+     * @var \Monolog\Level
      */
-    protected $level = Logger::INFO;
+    protected \Monolog\Level $level = \Monolog\Level::Info;
 
     /**
      * @var Config
@@ -57,15 +57,15 @@ class Handler extends Base
     }
 
     /**
-     * @param array $record
+     * @param \Monolog\LogRecord $record
      * @return bool
      */
-    public function isHandling(array $record): bool
+    public function isHandling(\Monolog\LogRecord $record): bool
     {
         if ($this->config->isDebug()) {
             return true;
         }
 
-        return $record['level'] >= Logger::WARNING;
+        return $record['level'] >= \Monolog\Level::Warning->value;
     }
 }
