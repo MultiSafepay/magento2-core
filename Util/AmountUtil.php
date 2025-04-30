@@ -66,7 +66,7 @@ class AmountUtil
      * @param string|null $currency
      * @return string
      */
-    public function getFormattedPriceFromAmount(float $amount, int $scope = null, string $currency = null): string
+    public function getFormattedPriceFromAmount(float $amount, ?int $scope = null, ?string $currency = null): string
     {
         return $this->priceCurrency->format(
             $amount / 100,

@@ -32,7 +32,7 @@ class GooglePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return bool
      */
-    public function isGooglePayActive(int $storeId = null): bool
+    public function isGooglePayActive(?int $storeId = null): bool
     {
         return (bool)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_CONFIG_PATH]
                && (bool)$this->getPaymentConfig($storeId)['active'];
@@ -42,7 +42,7 @@ class GooglePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return string
      */
-    public function getGooglePayMode(int $storeId = null): string
+    public function getGooglePayMode(?int $storeId = null): string
     {
         return (bool)$this->getPaymentConfig($storeId)[self::GOOGLE_PAY_BUTTON_MODE_CONFIG_PATH]
             ? self::GOOGLE_PAY_PRODUCTION_MODE : self::GOOGLE_PAY_TEST_MODE;
@@ -52,7 +52,7 @@ class GooglePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return string
      */
-    public function getMultisafepayAccountId(int $storeId = null): string
+    public function getMultisafepayAccountId(?int $storeId = null): string
     {
         return $this->isGooglePayActive($storeId)
             ? (string)($this->getAccountData($storeId)[Account::ACCOUNT_ID_PARAM_NAME] ?? '')
@@ -63,7 +63,7 @@ class GooglePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return string[]
      */
-    public function getGooglePayMerchantInfo(int $storeId = null): array
+    public function getGooglePayMerchantInfo(?int $storeId = null): array
     {
         if (!$this->isGooglePayActive($storeId)) {
             return [

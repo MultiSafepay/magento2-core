@@ -110,7 +110,7 @@ abstract class AbstractTestCase extends TestCase
      */
     protected function getPaymentDataObject(
         string $type = 'direct',
-        OrderInterface $order = null
+        ?OrderInterface $order = null
     ): PaymentDataObjectInterface {
         if (!$order) {
             $order = $this->getOrder();

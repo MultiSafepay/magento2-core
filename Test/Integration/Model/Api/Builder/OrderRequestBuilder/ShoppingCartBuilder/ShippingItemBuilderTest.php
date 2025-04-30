@@ -105,7 +105,7 @@ class ShippingItemBuilderTest extends AbstractTestCase
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    private function checkBuiltShippingItem(OrderInterface $order, float $customShippingAmount = null): void
+    private function checkBuiltShippingItem(OrderInterface $order, ?float $customShippingAmount = null): void
     {
         $shippingItem = $this->getBuiltShippingItem($order, $customShippingAmount);
 
@@ -132,7 +132,7 @@ class ShippingItemBuilderTest extends AbstractTestCase
      * @throws NoSuchEntityException
      * @throws Exception
      */
-    private function getBuiltShippingItem(OrderInterface $order, float $customShippingAmount = null): ?Item
+    private function getBuiltShippingItem(OrderInterface $order, ?float $customShippingAmount = null): ?Item
     {
         $quote = $this->getQuote('tableRate');
         $order->setShippingDescription('test_shipping')

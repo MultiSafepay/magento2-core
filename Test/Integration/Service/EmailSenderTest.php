@@ -160,7 +160,7 @@ class EmailSenderTest extends AbstractTestCase
      * @param bool $isEnabled
      * @return EmailSender
      */
-    private function getEmailSender(bool $isEnabled = null): EmailSender
+    private function getEmailSender(?bool $isEnabled = null): EmailSender
     {
         $orderIdentityMock = $this->getMockBuilder(OrderIdentity::class)
             ->disableOriginalConstructor()

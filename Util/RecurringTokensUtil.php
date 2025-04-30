@@ -44,7 +44,7 @@ class RecurringTokensUtil
      * @param int|null $storeId
      * @return array
      */
-    public function getListByGatewayCode(string $customerId, array $paymentConfig, int $storeId = null): array
+    public function getListByGatewayCode(string $customerId, array $paymentConfig, ?int $storeId = null): array
     {
         try {
             $sdk = $this->sdkFactory->create($storeId);

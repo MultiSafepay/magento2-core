@@ -56,7 +56,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
      * @param int|null $storeId
      * @return array
      */
-    public function getAvailableCategoriesAndCoupons(int $storeId = null): array
+    public function getAvailableCategoriesAndCoupons(?int $storeId = null): array
     {
         return array_filter([
             self::EDENCOM_COUPON_CODE => $this->getAvailableCategoriesByCouponCode(
@@ -87,7 +87,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
      * @param int|null $storeId
      * @return array
      */
-    public function getAvailableCategoriesByCouponCode(string $couponCode, int $storeId = null): array
+    public function getAvailableCategoriesByCouponCode(string $couponCode, ?int $storeId = null): array
     {
         if ($ids = ($this->getPaymentConfig($storeId)[$couponCode . '_categories'] ?? null)) {
             return explode(',', $ids);
@@ -120,7 +120,7 @@ class EdenredGiftcardConfigProvider extends GenericGiftcardConfigProvider
      * @param int|null $storeId
      * @return array
      */
-    public function getAvailableCouponsForSpecificItems(array $items, int $storeId = null): array
+    public function getAvailableCouponsForSpecificItems(array $items, ?int $storeId = null): array
     {
         $result = [];
         // All available coupons with assigned categories in configuration panel

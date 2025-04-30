@@ -101,7 +101,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return bool
      */
-    public function isApplePayActive(int $storeId = null): bool
+    public function isApplePayActive(?int $storeId = null): bool
     {
         return (bool)$this->getPaymentConfig($storeId)[self::APPLE_PAY_BUTTON_CONFIG_PATH];
     }
@@ -111,7 +111,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @return string
      * @throws NoSuchEntityException
      */
-    public function getApplePayMerchantSessionUrl(int $storeId = null): string
+    public function getApplePayMerchantSessionUrl(?int $storeId = null): string
     {
         /** @var Store $store */
         $store = $this->storeManager->getStore($storeId);
@@ -124,7 +124,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param int|null $storeId
      * @return string
      */
-    public function createApplePayMerchantSession(array $requestData, int $storeId = null): string
+    public function createApplePayMerchantSession(array $requestData, ?int $storeId = null): string
     {
         if ($multiSafepaySdk = $this->getSdk($storeId)) {
             try {

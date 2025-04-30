@@ -110,7 +110,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
     /**
      * @throws NoSuchEntityException
      */
-    private function getUrl(string $endPoint, $storeId = null, array $params = null): string
+    private function getUrl(string $endPoint, ?int $storeId = null, ?array $params = null): string
     {
         return $this->storeManager->getStore($storeId)->getBaseUrl()
             . $endPoint

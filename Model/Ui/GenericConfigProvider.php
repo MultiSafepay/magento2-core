@@ -311,7 +311,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param int|null $storeId
      * @return array
      */
-    public function getPaymentConfig(int $storeId = null): array
+    public function getPaymentConfig(?int $storeId = null): array
     {
         return (array)$this->config->getValueByPath(
             sprintf(self::DEFAULT_CONFIG_PAYMENT_PATH, $this->getCode()),
@@ -336,7 +336,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param int|null $storeId
      * @return array
      */
-    public function getAccountData(int $storeId = null): array
+    public function getAccountData(?int $storeId = null): array
     {
         $accountData = $this->jsonHandler->readJSON($this->config->getAccountData($storeId));
 

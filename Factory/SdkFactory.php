@@ -91,7 +91,7 @@ class SdkFactory
      * @return Sdk
      * @throws Exception
      */
-    private function get(int $storeId = null): Sdk
+    private function get(?int $storeId = null): Sdk
     {
         return new Sdk(
             $this->config->getApiKey($storeId),
