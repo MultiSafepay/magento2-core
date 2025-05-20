@@ -27,7 +27,8 @@ class UpgradeData implements UpgradeDataInterface
     public const PAYMENT_METHOD_PATHS = [
         'payment/multisafepay_santander/active',
         'payment/multisafepay_directbanktransfer/active',
-        'payment/multisafepay_giropay/active'
+        'payment/multisafepay_giropay/active',
+        'payment/multisafepay_alipay/active'
     ];
 
     /**

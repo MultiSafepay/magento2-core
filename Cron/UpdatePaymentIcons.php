@@ -21,6 +21,7 @@ use MultiSafepay\Api\PaymentMethods\PaymentMethod;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Factory\SdkFactory;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\AlipayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectBankTransferConfigProvider;
@@ -47,6 +48,7 @@ class UpdatePaymentIcons
         SantanderConfigProvider::CODE,
         DirectBankTransferConfigProvider::CODE,
         GiropayConfigProvider::CODE,
+        AlipayConfigProvider::CODE
     ];
 
     /**
