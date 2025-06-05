@@ -116,7 +116,8 @@ class CustomerBuilder implements OrderRequestBuilderInterface
             ->addLastName($billingAddress->getLastname())
             ->addAddress($customerAddress)
             ->addPhoneNumberAsString($billingAddress->getTelephone() ?? '')
-            ->addEmailAddressAsString($billingAddress->getEmail());
+            ->addEmailAddressAsString($billingAddress->getEmail())
+            ->addCompanyName($billingAddress->getCompany() ?? '');
 
         $this->ipAddressBuilder->build($this->customerDetails, $order);
         $this->browserInfoBuilder->build($this->customerDetails, $payment);
