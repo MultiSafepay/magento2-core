@@ -117,6 +117,13 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         $response['adjustment'] = $this->shoppingCartRefundUtil->getAdjustment($creditMemo);
         $response['transaction'] = $transaction;
 
+        $extensionAttributes = $creditMemo->getExtensionAttributes();
+        $foomanSurcharge = $this->shoppingCartRefundUtil->getFoomanSurcharge($extensionAttributes);
+
+        if ($foomanSurcharge !== null) {
+            $response['fooman_surcharge'] = $foomanSurcharge;
+        }
+
         return $response;
     }
 }

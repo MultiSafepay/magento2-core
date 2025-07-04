@@ -107,6 +107,37 @@ class ShoppingCartRefundUtil
     }
 
     /**
+     * Get Fooman Surcharge data from extension attributes
+     *
+     * @param mixed $extensionAttributes
+     * @return array|null
+     */
+    public function getFoomanSurcharge($extensionAttributes): ?array
+    {
+        if (!method_exists($extensionAttributes, 'getFoomanTotalGroup')) {
+            return null;
+        }
+
+        if ($extensionAttributes->getFoomanTotalGroup() === null) {
+            return null;
+        }
+
+        $foomanSurcharge = [];
+
+        foreach ($extensionAttributes->getFoomanTotalGroup()->getItems() as $foomanTotal) {
+            if (empty($foomanSurcharge)) {
+                $foomanSurcharge = ['amount' => 0.0, 'base_amount' => 0.0,];
+            }
+
+            $foomanSurcharge['amount'] += (float)($foomanTotal->getAmount());
+            $foomanSurcharge['base_amount'] += (float)($foomanTotal->getBaseAmount());
+            $foomanSurcharge['tax_rate'] = (float)$foomanTotal->getTaxPercent();
+        }
+
+        return !empty($foomanSurcharge) ? $foomanSurcharge : null;
+    }
+
+    /**
      * Check if the parent item is bundle
      *
      * @param OrderItemInterface $orderItem

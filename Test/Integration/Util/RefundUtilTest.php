@@ -21,6 +21,7 @@ use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\RefundUtil;
+use MultiSafepay\Exception\InvalidArgumentException;
 
 class RefundUtilTest extends AbstractTestCase
 {
@@ -41,6 +42,7 @@ class RefundUtilTest extends AbstractTestCase
      * Test if the adjustment item is correctly built
      *
      * @return void
+     * @throws InvalidArgumentException
      */
     public function testBuildAdjustment()
     {
@@ -51,8 +53,7 @@ class RefundUtilTest extends AbstractTestCase
         self::assertEquals(1, $result->getQuantity());
         self::assertEquals('Adjustment for refund', $result->getName());
         self::assertEquals('Adjustment for refund', $result->getDescription());
-        self::assertEquals(-300.0, $result->getUnitPrice()->getAmount());
-        self::assertEquals('EUR', $result->getUnitPrice()->getCurrency());
+        self::assertEquals(-3.0, $result->getUnitPriceValue());
         self::assertEquals(0, $result->getTaxRate());
     }
 
@@ -79,8 +80,7 @@ class RefundUtilTest extends AbstractTestCase
         self::assertEquals(1, $result->getQuantity());
         self::assertEquals('Refund for shipping', $result->getName());
         self::assertEquals('Refund for shipping', $result->getDescription());
-        self::assertEquals(-500.0, $result->getUnitPrice()->getAmount());
-        self::assertEquals('EUR', $result->getUnitPrice()->getCurrency());
+        self::assertEquals(-5.0, $result->getUnitPriceValue());
         self::assertEquals(0, $result->getTaxRate());
     }
 }

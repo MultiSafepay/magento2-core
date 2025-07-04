@@ -145,4 +145,72 @@ class ShoppingCartRefundUtilTest extends AbstractTestCase
 
         $this->assertEquals($expected, $shoppingCartRefundUtil->buildItems($this->creditMemo, $this->transaction));
     }
+
+    /**
+     * Test getFoomanSurcharge method when method doesn't exist
+     *
+     * @return void
+     */
+    public function testGetFoomanSurchargeWhenMethodDoesntExist(): void
+    {
+        $extensionAttributes = new \stdClass();
+
+        $shoppingCartRefundUtil = $this->getObjectManager()->create(ShoppingCartRefundUtil::class, [$this->config]);
+
+        self::assertNull($shoppingCartRefundUtil->getFoomanSurcharge($extensionAttributes));
+    }
+
+    /**
+     * Test getFoomanSurcharge method when FoomanTotalGroup is null
+     *
+     * @return void
+     */
+    public function testGetFoomanSurchargeWhenTotalGroupIsNull(): void
+    {
+        $extensionAttributes = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['getFoomanTotalGroup'])
+            ->getMock();
+
+        $extensionAttributes->method('getFoomanTotalGroup')->willReturn(null);
+
+        $shoppingCartRefundUtil = $this->getObjectManager()->create(ShoppingCartRefundUtil::class, [$this->config]);
+
+        self::assertNull($shoppingCartRefundUtil->getFoomanSurcharge($extensionAttributes));
+    }
+
+    /**
+     * Test getFoomanSurcharge method with valid data
+     *
+     * @return void
+     */
+    public function testGetFoomanSurchargeWithValidData(): void
+    {
+        $foomanTotal = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['getAmount', 'getBaseAmount', 'getTaxPercent'])
+            ->getMock();
+
+        $foomanTotal->method('getAmount')->willReturn(10.0);
+        $foomanTotal->method('getBaseAmount')->willReturn(12.0);
+        $foomanTotal->method('getTaxPercent')->willReturn(21.0);
+
+        $foomanTotalGroup = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['getItems'])
+            ->getMock();
+
+        $foomanTotalGroup->method('getItems')->willReturn([$foomanTotal]);
+
+        $extensionAttributes = $this->getMockBuilder(\stdClass::class)
+            ->addMethods(['getFoomanTotalGroup'])
+            ->getMock();
+
+        $extensionAttributes->method('getFoomanTotalGroup')->willReturn($foomanTotalGroup);
+
+        $shoppingCartRefundUtil = $this->getObjectManager()->create(ShoppingCartRefundUtil::class, [$this->config]);
+        $result = $shoppingCartRefundUtil->getFoomanSurcharge($extensionAttributes);
+
+        self::assertIsArray($result);
+        self::assertEquals(10.0, $result['amount']);
+        self::assertEquals(12.0, $result['base_amount']);
+        self::assertEquals(21.0, $result['tax_rate']);
+    }
 }

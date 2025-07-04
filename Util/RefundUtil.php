@@ -19,8 +19,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use MultiSafepay\Api\Transactions\OrderRequest\Arguments\Description;
 use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\Exception\InvalidArgumentException;
 use MultiSafepay\ValueObject\CartItem;
-use MultiSafepay\ValueObject\Money;
+use MultiSafepay\ValueObject\UnitPrice;
 
 class RefundUtil
 {
@@ -71,10 +72,32 @@ class RefundUtil
     }
 
     /**
+     * Build the Fooman surcharge item that needs to be refunded
+     *
+     * @param array $request
+     * @return CartItem
+     * @throws InvalidArgumentException
+     */
+    public function buildFoomanSurcharge(array $request): CartItem
+    {
+        $amount = $this->config->useBaseCurrency($request['store_id'])
+            ? $request['fooman_surcharge']['base_amount']
+            : $request['fooman_surcharge']['amount'];
+
+        return (new CartItem())->addMerchantItemId('fooman_surcharge-' . (new DateTime())->getTimestamp())
+            ->addQuantity(1)
+            ->addName(__('Fooman Surcharge')->render())
+            ->addDescription(__('Fooman Surcharge')->render())
+            ->addUnitPriceValue((new UnitPrice(-abs($amount))))
+            ->addTaxRate($request['fooman_surcharge']['tax_rate'] ?? 0);
+    }
+
+    /**
      * Build the adjustment that needs to be refunded
      *
      * @param array $request
      * @return CartItem
+     * @throws InvalidArgumentException
      */
     public function buildAdjustment(array $request): CartItem
     {
@@ -82,7 +105,7 @@ class RefundUtil
             ->addQuantity(1)
             ->addName(__('Adjustment for refund')->render())
             ->addDescription(__('Adjustment for refund')->render())
-            ->addUnitPrice((new Money($request['adjustment'] * 100, $request['currency']))->negative())
+            ->addUnitPriceValue((new UnitPrice(-abs($request['adjustment']))))
             ->addTaxRate(0);
     }
 
@@ -91,6 +114,7 @@ class RefundUtil
      *
      * @param array $request
      * @return CartItem
+     * @throws InvalidArgumentException
      */
     public function buildShipping(array $request): CartItem
     {
@@ -105,7 +129,7 @@ class RefundUtil
             ->addQuantity(1)
             ->addName(__('Refund for shipping')->render())
             ->addDescription(__('Refund for shipping')->render())
-            ->addUnitPrice((new Money($request['shipping'] * 100, $request['currency']))->negative())
+            ->addUnitPriceValue(new UnitPrice(-abs($request['shipping'])))
             ->addTaxRate($shippingTaxRate ?? 0);
     }
 

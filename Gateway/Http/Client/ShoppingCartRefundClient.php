@@ -54,6 +54,7 @@ class ShoppingCartRefundClient implements ClientInterface
      * @param SdkFactory $sdkFactory
      * @param Logger $logger
      * @param RefundUtil $refundUtil
+     * @param JsonHandler $jsonHandler
      */
     public function __construct(
         SdkFactory $sdkFactory,
@@ -102,6 +103,10 @@ class ShoppingCartRefundClient implements ClientInterface
 
             if (!empty($request['shipping'])) {
                 $refundRequest->getCheckoutData()->addItem($this->refundUtil->buildShipping($request));
+            }
+
+            if (isset($request['fooman_surcharge'])) {
+                $refundRequest->getCheckoutData()->addItem($this->refundUtil->buildFoomanSurcharge($request));
             }
 
             $this->logger->logRefundRequest($orderId, $this->jsonHandler->convertToJSON($refundRequest->getData()));
