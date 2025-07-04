@@ -259,17 +259,30 @@ class Logger extends CoreLogger
     }
 
     /**
-     * @param Exception $exception
+     * Log the error if it occurred when trying to load the payment component
+     *
+     * @param string $paymentMethod
+     * @param string $gatewayCode
+     * @param string $errorMessage
+     * @param string $paymentComponentData
      */
-    public function logPaymentComponentException(Exception $exception): void
-    {
+    public function logPaymentComponentError(
+        string $paymentMethod,
+        string $gatewayCode,
+        string $errorMessage,
+        string $paymentComponentData
+    ): void {
         $this->debug(
             sprintf(
-                '(Exception when trying to load payment component data): %1$s (code: %2$d, line: %3$d, file: %4$s)',
-                $exception->getMessage(),
-                $exception->getCode(),
-                $exception->getLine(),
-                $exception->getFile()
+                "An error occurred when trying to load the payment component: \n" .
+                "(Payment method: %1\$s\n" .
+                "Gateway code: %2\$s\n" .
+                "Error message: %3\$s\n" .
+                "Payment component data: %4\$s",
+                $paymentMethod,
+                $gatewayCode,
+                $errorMessage,
+                $paymentComponentData
             )
         );
     }

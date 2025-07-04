@@ -128,7 +128,8 @@ class PaymentRequest implements SectionSourceInterface
             "locale" => $this->localeResolver->getLocale(),
             "cartTotal" => $quote->getGrandTotal(),
             "currency" => $quote->getCurrency()->getQuoteCurrencyCode() ?? '',
-            "storeId" => $storeId
+            "storeId" => $storeId,
+            "debug_mode" => $this->config->isDebug($storeId)
         ];
 
         $paymentComponentData = $this->paymentComponentRequest->create($quote);
