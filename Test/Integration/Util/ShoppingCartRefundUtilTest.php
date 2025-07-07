@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\Test\Integration\Util;
 
+use Magento\Catalog\Model\Product;
 use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Creditmemo\Item;
@@ -84,7 +85,11 @@ class ShoppingCartRefundUtilTest extends AbstractTestCase
      */
     public function testBuildItemsToRefundWithValidItems()
     {
+        // Create a product for the order item since it's checked in processRefundItem
+        $product = $this->createMock(Product::class);
+
         $this->orderItem->setProductType('simple');
+        $this->orderItem->setProduct($product); // Add product to order item
         $this->item->setOrderItem($this->orderItem);
         $this->item->setQty(2);
         $this->item->setSku('sku123');
@@ -133,7 +138,11 @@ class ShoppingCartRefundUtilTest extends AbstractTestCase
      */
     public function testRetrievesMerchantItemIdForOlderVersion()
     {
+        // Create a product mock since it's now checked in processRefundItem
+        $product = $this->createMock(Product::class);
+
         $this->orderItem->setProductType('simple');
+        $this->orderItem->setProduct($product); // Add product to order item
         $this->item->setOrderItem($this->orderItem);
         $this->item->setSku('sku123');
         $this->item->setQty(1);

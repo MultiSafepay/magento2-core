@@ -14,9 +14,12 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Util;
 
-use Magento\Sales\Api\Data\OrderItemInterface;
+use Magento\Bundle\Model\Product\Price;
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Type;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Creditmemo\Item;
+use Magento\Sales\Model\Order\Item as OrderItem;
 use MultiSafepay\Api\Transactions\TransactionResponse;
 use MultiSafepay\ConnectCore\Config\Config;
 
@@ -46,34 +49,112 @@ class ShoppingCartRefundUtil
     public function buildItems(Creditmemo $creditMemo, TransactionResponse $transaction): array
     {
         $itemsToRefund = [];
+        $transactionVar1 = $transaction->getVar1();
 
         /** @var Item $item */
         foreach ($creditMemo->getItems() as $item) {
-            $orderItem = $item->getOrderItem();
-
-            if ($orderItem === null) {
-                continue;
-            }
-
-            // Don't add the item if it's a bundle product
-            if ($orderItem->getProductType() === 'bundle') {
-                continue;
-            }
-
-            // Don't add the item if it has a parent item and the parent item is not a bundle
-            if ($orderItem->getParentItem() !== null && !$this->isParentItemBundle($orderItem)) {
-                continue;
-            }
-
-            if ($item->getQty() > 0) {
-                $itemsToRefund[] = [
-                    'merchant_item_id' => $this->getMerchantItemId($item, $transaction->getVar1()),
-                    'quantity' => (int) $item->getQty(),
-                ];
+            $refundItem = $this->processRefundItem($item, $transactionVar1);
+            if ($refundItem !== null) {
+                $itemsToRefund[] = $refundItem;
             }
         }
 
         return $itemsToRefund;
+    }
+
+    /**
+     * Process a credit memo item and determine if it should be refunded
+     *
+     * @param Item $item
+     * @param string $var1
+     * @return array|null
+     */
+    private function processRefundItem(Item $item, string $var1): ?array
+    {
+        $orderItem = $item->getOrderItem();
+        $product = $orderItem->getProduct();
+
+        if (!$product || $item->getQty() <= 0) {
+            return null;
+        }
+
+        // Skip dynamic price bundle products
+        if ($this->isDynamicPriceBundle($orderItem, $product)) {
+            return null;
+        }
+
+        $parentItem = $orderItem->getParentItem();
+
+        // Handle standalone items
+        if ($parentItem === null) {
+            return $this->createRefundItemData($item, $var1);
+        }
+
+        // Handle child items
+        return $this->processChildItem($item, $parentItem, $var1);
+    }
+
+    /**
+     * Check if item is a dynamic price bundle product
+     *
+     * @param OrderItem $orderItem
+     * @param Product $product
+     * @return bool
+     */
+    private function isDynamicPriceBundle(OrderItem $orderItem, Product $product): bool
+    {
+        return $orderItem->getProductType() === Type::TYPE_BUNDLE
+            && (int)$product->getPriceType() === Price::PRICE_TYPE_DYNAMIC;
+    }
+
+    /**
+     * Process a child item to determine if it should be refunded
+     *
+     * @param Item $item
+     * @param OrderItem $parentItem
+     * @param string $var1
+     * @return array|null
+     */
+    private function processChildItem(Item $item, OrderItem $parentItem, string $var1): ?array
+    {
+        // We only want child items of bundle products
+        if ($parentItem->getProductType() !== Type::TYPE_BUNDLE) {
+            return null;
+        }
+
+        // Skip children of fixed price bundle products
+        if ($this->isFixedPriceBundle($parentItem)) {
+            return null;
+        }
+
+        return $this->createRefundItemData($item, $var1);
+    }
+
+    /**
+     * Check if the parent item is a fixed price bundle product
+     *
+     * @param OrderItem $parentItem
+     * @return bool
+     */
+    private function isFixedPriceBundle(OrderItem $parentItem): bool
+    {
+        return ($parentItem->getProduct() !== null)
+            && (int)$parentItem->getProduct()->getPriceType() === Price::PRICE_TYPE_FIXED;
+    }
+
+    /**
+     * Create refund item data array
+     *
+     * @param Item $item
+     * @param string $var1
+     * @return array
+     */
+    private function createRefundItemData(Item $item, string $var1): array
+    {
+        return [
+            'merchant_item_id' => $this->getMerchantItemId($item, $var1),
+            'quantity' => (int) $item->getQty(),
+        ];
     }
 
     /**
@@ -135,28 +216,6 @@ class ShoppingCartRefundUtil
         }
 
         return !empty($foomanSurcharge) ? $foomanSurcharge : null;
-    }
-
-    /**
-     * Check if the parent item is bundle
-     *
-     * @param OrderItemInterface $orderItem
-     * @return bool
-     */
-    private function isParentItemBundle(OrderItemInterface $orderItem): bool
-    {
-        $parentItem = $orderItem->getParentItem();
-
-        // Parent item is not bundle, because it doesn't exist
-        if ($parentItem === null) {
-            return false;
-        }
-
-        if ($parentItem->getProductType() === 'bundle') {
-            return true;
-        }
-
-        return false;
     }
 
     /**

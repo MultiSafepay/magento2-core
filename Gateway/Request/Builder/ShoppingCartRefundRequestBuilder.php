@@ -112,14 +112,22 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
         $response['order_id'] = $orderId;
         $response['store_id'] = (int)$order->getStoreId();
         $response['currency'] = $this->currencyUtil->getCurrencyCode($order);
-        $response['items'] = $this->shoppingCartRefundUtil->buildItems($creditMemo, $transaction);
         $response['shipping'] = $this->shoppingCartRefundUtil->getShippingAmount($creditMemo);
         $response['adjustment'] = $this->shoppingCartRefundUtil->getAdjustment($creditMemo);
         $response['transaction'] = $transaction;
 
+        try {
+            $response['items'] = $this->shoppingCartRefundUtil->buildItems($creditMemo, $transaction);
+        } catch (NoSuchEntityException $noSuchEntityException) {
+            $this->logger->logExceptionForOrder($orderId, $noSuchEntityException);
+
+            $message = 'The refund can not be created because an error occurred while retrieving the items to refund';
+            throw new CouldNotRefundException(__($message));
+        }
+        
         $extensionAttributes = $creditMemo->getExtensionAttributes();
         $foomanSurcharge = $this->shoppingCartRefundUtil->getFoomanSurcharge($extensionAttributes);
-
+        
         if ($foomanSurcharge !== null) {
             $response['fooman_surcharge'] = $foomanSurcharge;
         }
