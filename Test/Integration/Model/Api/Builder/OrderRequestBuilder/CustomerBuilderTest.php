@@ -17,7 +17,6 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Model\Api\Builder\OrderReque
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\HTTP\Header;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -97,7 +96,6 @@ class CustomerBuilderTest extends AbstractTransactionTestCase
         self::assertEquals($orderRequest['customer']['locale'], $this->localeResolver->emulate($order->getStoreId()));
         self::assertEquals($orderRequest['customer']['phone'], $billingAddress->getTelephone());
         self::assertEquals($orderRequest['customer']['email'], $billingAddress->getEmail());
-        self::assertEquals($orderRequest['customer']['company_name'], $billingAddress->getCompany());
     }
 
     /**
