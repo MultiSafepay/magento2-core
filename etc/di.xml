@@ -9862,11 +9862,6 @@
         <plugin name="multisafepay_cancel_order_pretransaction" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\OrderPlugin" />
     </type>
 
-
-    <type name="Magento\Sales\Model\Order\CustomerManagement">
-        <plugin name="multisafepay_customer_management_plugin" type="MultiSafepay\ConnectCore\Plugin\Sales\Model\Order\CustomerManagementPlugin" />
-    </type>
-
     <type name="MultiSafepay\ConnectCore\Config\Config">
         <arguments>
             <argument name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</argument>

@@ -224,4 +224,18 @@ class ThirdPartyPluginsUtil
         return $this->shippingAssignmentProcessor->create($quote)
             ->setItems($quote->getAllItems());
     }
+
+    /**
+     * Check if Amasty Checkout is enabled and if the option to create an account after placing an order is set.
+     *
+     * @return bool
+     */
+    public function canCreateAccountAfterPlacingOrder(): bool
+    {
+        return $this->moduleManager->isEnabled('Amasty_CheckoutCore')
+            && $this->scopeConfig->getValue(
+                'amasty_checkout/additional_options/create_account',
+                ScopeInterface::SCOPE_STORE
+            ) === '1';
+    }
 }
