@@ -25,6 +25,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Vault\Model\Ui\VaultConfigProvider;
 use MultiSafepay\ConnectCore\Api\PaymentTokenInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
 
 class VaultUtil
@@ -43,21 +44,28 @@ class VaultUtil
      * @var Logger
      */
     private $logger;
+    /**
+     * @var BancontactConfigProvider
+     */
+    private $bancontactConfigProvider;
 
     /**
      * VaultUtil constructor.
      *
      * @param AssetRepository $assetRepository
      * @param DirectDebitConfigProvider $directDebitConfigProvider
+     * @param BancontactConfigProvider $bancontactConfigProvider
      * @param Logger $logger
      */
     public function __construct(
         AssetRepository $assetRepository,
         DirectDebitConfigProvider $directDebitConfigProvider,
+        BancontactConfigProvider $bancontactConfigProvider,
         Logger $logger
     ) {
         $this->assetRepository = $assetRepository;
         $this->directDebitConfigProvider = $directDebitConfigProvider;
+        $this->bancontactConfigProvider = $bancontactConfigProvider;
         $this->logger = $logger;
     }
 
@@ -119,10 +127,13 @@ class VaultUtil
      */
     private function getImagePathByType(string $type): string
     {
-        $paymentMethodCode = $this->directDebitConfigProvider->getCode();
-
         if ($type === $this->directDebitConfigProvider->getGatewayCode()) {
-            $image = $this->directDebitConfigProvider->getImagePath($paymentMethodCode);
+            $image = $this->directDebitConfigProvider->getImagePath($this->directDebitConfigProvider->getCode());
+            return str_replace('svg', 'png', $image);
+        }
+
+        if ($type === $this->bancontactConfigProvider->getGatewayCode()) {
+            $image = $this->bancontactConfigProvider->getImagePath($this->bancontactConfigProvider->getCode());
             return str_replace('svg', 'png', $image);
         }
 

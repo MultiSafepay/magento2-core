@@ -20,6 +20,7 @@ use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\Api\Transactions\OrderRequest;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
@@ -37,7 +38,8 @@ class RecurringIdBuilder implements OrderRequestBuilderInterface
         VisaConfigProvider::VAULT_CODE,
         IdealConfigProvider::VAULT_CODE,
         DirectDebitConfigProvider::VAULT_CODE,
-        MaestroConfigProvider::VAULT_CODE
+        MaestroConfigProvider::VAULT_CODE,
+        BancontactConfigProvider::VAULT_CODE
     ];
 
     /**

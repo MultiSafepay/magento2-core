@@ -32,6 +32,8 @@ use Magento\Vault\Model\PaymentToken;
 use MultiSafepay\ConnectCore\Api\RecurringDetailsInterface;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\AmexRecurringConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\CreditCardRecurringConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\DirectDebitConfigProvider;
@@ -60,7 +62,8 @@ class Vault
         AmexConfigProvider::CODE => AmexRecurringConfigProvider::CODE,
         IdealConfigProvider::CODE => IdealRecurringConfigProvider::CODE,
         DirectDebitConfigProvider::CODE => DirectDebitRecurringConfigProvider::CODE,
-        MaestroConfigProvider::CODE => MaestroRecurringConfigProvider::CODE
+        MaestroConfigProvider::CODE => MaestroRecurringConfigProvider::CODE,
+        BancontactConfigProvider::CODE => BancontactRecurringConfigProvider::CODE
     ];
 
     /**
