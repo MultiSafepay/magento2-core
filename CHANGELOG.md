@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.0] - 2025-07-29
+### Added
+- PLGMAG2V2-852: Added support for Bancontact WIP in Magento Vault
+- PLGMAG2V2-859: Added CODE_OF_CONDUCT.md
+
+### Fixed
+- PLGMAG2V2-860: Fixed an issue where some orders do not have correct values after invoice creation with a specific Amasty Checkout Pro configuration
+- PLGMAG2V2-862: Fixed CancelOrder process error when transaction_id param can not be found, thanks to @CanvasCompanyHylke
+
 ## [3.12.0] - 2025-07-09
 ### Added
 - PLGMAG2V2-850: Added customer company name to the order request
