@@ -17,7 +17,6 @@ namespace MultiSafepay\ConnectCore\Service\Process;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -144,6 +143,11 @@ class ChangePaymentMethod implements ProcessInterface
             if (in_array($transactionType, $disallowedTransactionTypes)) {
                 return false;
             }
+        }
+
+        // If the transaction type is 'Coupon::Intersolve', we do not change the payment method
+        if ($transactionType === 'Coupon::Intersolve') {
+            return false;
         }
 
         return $transactionType && $transactionType !== $gatewayCode
