@@ -30,6 +30,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\GiropayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\INGHomePayConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\PayafterConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\SantanderConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class UpdatePaymentIcons
@@ -48,7 +49,8 @@ class UpdatePaymentIcons
         SantanderConfigProvider::CODE,
         DirectBankTransferConfigProvider::CODE,
         GiropayConfigProvider::CODE,
-        AlipayConfigProvider::CODE
+        AlipayConfigProvider::CODE,
+        ZiniaConfigProvider::CODE
     ];
 
     /**

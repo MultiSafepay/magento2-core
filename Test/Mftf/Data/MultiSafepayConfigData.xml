@@ -157,28 +157,4 @@
         <data key="label">No</data>
         <data key="value">redirect</data>
     </entity>
-    <entity name="ZiniaEnableConfigData">
-        <data key="path">payment/multisafepay_zinia/active</data>
-        <data key="scope_id">0</data>
-        <data key="label">Yes</data>
-        <data key="value">1</data>
-    </entity>
-    <entity name="ZiniaDisableConfigData">
-        <data key="path">payment/multisafepay_zinia/active</data>
-        <data key="scope_id">0</data>
-        <data key="label">No</data>
-        <data key="value">0</data>
-    </entity>
-    <entity name="ZiniaComponentEnableConfigData">
-        <data key="path">payment/multisafepay_zinia/payment_type</data>
-        <data key="scope_id">0</data>
-        <data key="label">Yes</data>
-        <data key="value">payment_component</data>
-    </entity>
-    <entity name="ZiniaComponentDisableConfigData">
-        <data key="path">payment/multisafepay_zinia/payment_type</data>
-        <data key="scope_id">0</data>
-        <data key="label">No</data>
-        <data key="value">redirect</data>
-    </entity>
 </entities>

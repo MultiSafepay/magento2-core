@@ -53,9 +53,6 @@
     <event name="payment_method_assign_data_multisafepay_bnplinstm">
         <observer name="multisafepay_bnplinstm_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver" />
     </event>
-    <event name="payment_method_assign_data_multisafepay_zinia">
-        <observer name="multisafepay_zinia_assign_payment_data" instance="MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver" />
-    </event>
     <event name="email_order_set_template_vars_before">
         <observer name="payment_link_email_var" instance="MultiSafepay\ConnectCore\Observer\SetTemplateVarsBefore" />
     </event>

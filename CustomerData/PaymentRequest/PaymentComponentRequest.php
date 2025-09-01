@@ -29,7 +29,6 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\MaestroConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\MastercardConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use MultiSafepay\ConnectCore\Util\RecurringTokensUtil;
-use MultiSafepay\ConnectCore\Model\Ui\Gateway\ZiniaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\In3B2bConfigProvider;
 
 class PaymentComponentRequest
@@ -41,7 +40,6 @@ class PaymentComponentRequest
         VisaConfigProvider::CODE,
         CreditCardConfigProvider::CODE,
         BnplinstmConfigProvider::CODE,
-        ZiniaConfigProvider::CODE,
         BnplmfConfigProvider::CODE,
         In3B2bConfigProvider::CODE,
         AfterpayConfigProvider::CODE,
