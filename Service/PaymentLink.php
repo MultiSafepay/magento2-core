@@ -26,6 +26,7 @@ use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment\Info;
 use Magento\Sales\Model\Order\Payment\Transaction;
 use MultiSafepay\ConnectCore\Model\Api\Initializer\OrderRequestInitializer;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
 use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
@@ -149,7 +150,8 @@ class PaymentLink
      * Add the Payment link to the order comments
      *
      * Saving the order when the order is being placed on the frontend can cause issues with the initialized
-     * or completed notification, so we want to save the comments only in the notification process in those cases.
+     * or completed notification, so we want to save the comments only in the notification process in those cases,
+     * Except for Bank Transfer orders, since the initialized notification will be sent at a later moment.
      * For admin backend orders, a payment link should always be added immediately.
      *
      * @param Order $order
@@ -163,19 +165,19 @@ class PaymentLink
         string $paymentUrl,
         bool $isNotification = false
     ): void {
-        $isAdmin = $this->isAreaCodeAdminHtml();
-
-        if (!$isNotification && !$isAdmin) {
-            return;
-        }
-
-        /** @var Info $payment */
+        /** @var Payment $payment */
         $payment = $order->getPayment();
         $orderId = $order->getIncrementId();
 
         if ($payment === null) {
             $this->logger->logInfoForOrder($orderId, 'Payment object could not be found', Logger::DEBUG);
 
+            return;
+        }
+
+        $isAdmin = $this->isAreaCodeAdminHtml();
+
+        if (!$isNotification && !$isAdmin && $payment->getMethod() !== BankTransferConfigProvider::CODE) {
             return;
         }
 
