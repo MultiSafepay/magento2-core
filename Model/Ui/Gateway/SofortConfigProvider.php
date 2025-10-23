@@ -17,6 +17,9 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 use Magento\Framework\Exception\LocalizedException;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 
+/**
+ * @deprecated No longer supported by MultiSafepay
+ */
 class SofortConfigProvider extends GenericConfigProvider
 {
     public const CODE = 'multisafepay_sofort';

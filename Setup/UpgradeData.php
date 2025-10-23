@@ -29,7 +29,8 @@ class UpgradeData implements UpgradeDataInterface
         'payment/multisafepay_directbanktransfer/active',
         'payment/multisafepay_giropay/active',
         'payment/multisafepay_alipay/active',
-        'payment/multisafepay_zinia/active'
+        'payment/multisafepay_zinia/active',
+        'payment/multisafepay_sofort/active',
     ];
 
     /**
