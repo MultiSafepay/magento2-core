@@ -20,11 +20,11 @@ use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\BankTransferConfigProvider;
+use MultiSafepay\ConnectCore\Model\Ui\Gateway\MultibancoConfigProvider;
 use MultiSafepay\ConnectCore\Service\EmailSender;
 use MultiSafepay\ConnectCore\Util\OrderStatusUtil;
 
@@ -116,14 +116,16 @@ class RedirectTransactionBuilder implements BuilderInterface
     }
 
     /**
-     * @param OrderInterface $order
+     * Get order state and status based on payment method and area code
+     *
+     * @param Order $order
      * @param string $paymentMethod
      * @param string $areaCode
      * @return array
      */
-    private function getOrderStateAndStatus(OrderInterface $order, string $paymentMethod, string $areaCode): array
+    private function getOrderStateAndStatus(Order $order, string $paymentMethod, string $areaCode): array
     {
-        if ($paymentMethod === BankTransferConfigProvider::CODE || $areaCode === Area::AREA_ADMINHTML) {
+        if ($this->shouldUseNewOrderState($paymentMethod, $areaCode)) {
             return [
                 self::ORDER_STATE => Order::STATE_NEW,
                 self::ORDER_STATUS => $this->orderStatusUtil->getPendingStatus($order)
@@ -134,5 +136,22 @@ class RedirectTransactionBuilder implements BuilderInterface
             self::ORDER_STATE => Order::STATE_PENDING_PAYMENT,
             self::ORDER_STATUS => $this->orderStatusUtil->getPendingPaymentStatus($order)
         ];
+    }
+
+    /**
+     * Check if new order state should be used
+     *
+     * @param string $paymentMethod
+     * @param string $areaCode
+     * @return bool
+     */
+    private function shouldUseNewOrderState(string $paymentMethod, string $areaCode): bool
+    {
+        $paymentMethodsWithNewState = [
+            BankTransferConfigProvider::CODE,
+            MultibancoConfigProvider::CODE
+        ];
+
+        return $areaCode === Area::AREA_ADMINHTML || in_array($paymentMethod, $paymentMethodsWithNewState, true);
     }
 }
