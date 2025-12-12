@@ -42,4 +42,16 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/multisafepay/notification" method="POST">
+        <service class="MultiSafepay\ConnectCore\Api\NotificationInterface" method="process"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/multisafepay/notification" method="GET">
+        <service class="MultiSafepay\ConnectCore\Api\NotificationInterface" method="process"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
 </routes>

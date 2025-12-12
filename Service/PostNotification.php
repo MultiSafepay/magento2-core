@@ -17,6 +17,7 @@ namespace MultiSafepay\ConnectCore\Service;
 
 use Exception;
 use Laminas\Http\Request;
+use Magento\Framework\Webapi\Rest\Request as WebapiRequest;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Config\Config;
@@ -88,12 +89,12 @@ class PostNotification
     /**
      * Execute the POST notification process
      *
-     * @param Request $request
+     * @param Request|WebapiRequest $request
      * @param int $storeId
      * @return array
      * @throws Exception
      */
-    public function execute(Request $request, int $storeId): array
+    public function execute($request, int $storeId): array
     {
         $requestBody = $request->getContent();
         $authHeader = (string)$request->getHeader('Auth');
