@@ -16,6 +16,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
@@ -29,6 +30,8 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Model\Ui\GenericConfigProvider;
 use MultiSafepay\ConnectCore\Util\CheckoutFieldsUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
+use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidDataInitializationException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 /**
@@ -63,6 +66,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
      * @param CheckoutFieldsUtil $checkoutFieldsUtil
+     * @param RequestInterface $request
      * @param StoreManagerInterface $storeManager
      * @param MerchantSessionRequest $merchantSessionRequest
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -78,6 +82,7 @@ class ApplePayConfigProvider extends GenericConfigProvider
         WriterInterface $configWriter,
         JsonHandler $jsonHandler,
         CheckoutFieldsUtil $checkoutFieldsUtil,
+        RequestInterface $request,
         StoreManagerInterface $storeManager,
         MerchantSessionRequest $merchantSessionRequest
     ) {
@@ -93,7 +98,8 @@ class ApplePayConfigProvider extends GenericConfigProvider
             $paymentConfig,
             $configWriter,
             $jsonHandler,
-            $checkoutFieldsUtil
+            $checkoutFieldsUtil,
+            $request
         );
     }
 
@@ -123,9 +129,15 @@ class ApplePayConfigProvider extends GenericConfigProvider
      * @param array $requestData
      * @param int|null $storeId
      * @return string
+     * @throws ApiException
+     * @throws InvalidDataInitializationException
      */
     public function createApplePayMerchantSession(array $requestData, ?int $storeId = null): string
     {
+        if ($this->isCartPage()) {
+            return '';
+        }
+
         if ($multiSafepaySdk = $this->getSdk($storeId)) {
             try {
                 return $multiSafepaySdk->getWalletManager()

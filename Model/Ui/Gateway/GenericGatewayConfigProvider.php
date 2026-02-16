@@ -6,6 +6,7 @@ namespace MultiSafepay\ConnectCore\Model\Ui\Gateway;
 
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
@@ -45,6 +46,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
      * @param CheckoutFieldsUtil $checkoutFieldsUtil
+     * @param RequestInterface $request
      * @param GenericGatewayUtil $genericGatewayUtil
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -59,6 +61,7 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
         WriterInterface $configWriter,
         JsonHandler $jsonHandler,
         CheckoutFieldsUtil $checkoutFieldsUtil,
+        RequestInterface $request,
         GenericGatewayUtil $genericGatewayUtil
     ) {
         $this->genericGatewayUtil = $genericGatewayUtil;
@@ -72,7 +75,8 @@ class GenericGatewayConfigProvider extends GenericConfigProvider
             $paymentConfig,
             $configWriter,
             $jsonHandler,
-            $checkoutFieldsUtil
+            $checkoutFieldsUtil,
+            $request
         );
     }
 

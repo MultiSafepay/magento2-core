@@ -18,6 +18,8 @@ use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
@@ -100,6 +102,11 @@ class GenericConfigProvider implements ConfigProviderInterface
     protected $checkoutFieldsUtil;
 
     /**
+     * @var RequestInterface
+     */
+    private $request;
+
+    /**
      * GenericConfigProvider constructor.
      *
      * @param AssetRepository $assetRepository
@@ -112,6 +119,7 @@ class GenericConfigProvider implements ConfigProviderInterface
      * @param WriterInterface $configWriter
      * @param JsonHandler $jsonHandler
      * @param CheckoutFieldsUtil $checkoutFieldsUtil
+     * @param RequestInterface $request
      */
     public function __construct(
         AssetRepository $assetRepository,
@@ -123,7 +131,8 @@ class GenericConfigProvider implements ConfigProviderInterface
         PaymentConfig $paymentConfig,
         WriterInterface $configWriter,
         JsonHandler $jsonHandler,
-        CheckoutFieldsUtil $checkoutFieldsUtil
+        CheckoutFieldsUtil $checkoutFieldsUtil,
+        RequestInterface $request
     ) {
         $this->assetRepository = $assetRepository;
         $this->config = $config;
@@ -135,6 +144,7 @@ class GenericConfigProvider implements ConfigProviderInterface
         $this->configWriter = $configWriter;
         $this->jsonHandler = $jsonHandler;
         $this->checkoutFieldsUtil = $checkoutFieldsUtil;
+        $this->request = $request;
     }
 
     /**
@@ -256,6 +266,10 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getApiToken(?int $storeId = null): string
     {
+        if ($this->isCartPage()) {
+            return '';
+        }
+
         if ($multiSafepaySdk = $this->getSdk($storeId)) {
             try {
                 return $multiSafepaySdk->getApiTokenManager()->get()->getApiToken();
@@ -346,14 +360,10 @@ class GenericConfigProvider implements ConfigProviderInterface
                     ->getAccountManager()
                     ->get()
                     ->getData();
-            } catch (ApiException $apiException) {
-                $this->logger->logException($apiException);
-            } catch (InvalidApiKeyException $invalidApiKeyException) {
-                $this->logger->logInvalidApiKeyException($invalidApiKeyException);
             } catch (ClientExceptionInterface $clientException) {
                 $this->logger->logClientException('', $clientException);
-            } catch (InvalidDataInitializationException $invalidDataInitializationException) {
-                $this->logger->logException($invalidDataInitializationException);
+            } catch (ApiException | Exception $exception) {
+                $this->logger->logException($exception);
             }
 
             $this->configWriter->save(
@@ -374,39 +384,76 @@ class GenericConfigProvider implements ConfigProviderInterface
      */
     public function getIssuers(): array
     {
-        $issuers = [];
+        if ($this->isCartPage()) {
+            return [];
+        }
 
+        if (!$this->isPaymentMethodActive()) {
+            return [];
+        }
+
+        return $this->fetchIssuersFromSdk();
+    }
+
+    /**
+     * Check if payment method is active
+     *
+     * @return bool
+     */
+    protected function isPaymentMethodActive(): bool
+    {
         $paymentConfig = $this->getPaymentConfig($this->getStoreIdFromCheckoutSession());
 
         if (!$paymentConfig) {
             $this->logger->debug('Payment config not found when retrieving issuers');
+            return false;
         }
 
         if (!isset($paymentConfig['active'])) {
             $this->logger->debug('Could not check if payment method is activated when retrieving issuers');
+            return false;
         }
 
-        if (!$paymentConfig['active']) {
-            // Payment method not activated, issuer request not sent
+        return (bool)$paymentConfig['active'];
+    }
+
+    /**
+     * Fetch issuers from MultiSafepay SDK
+     *
+     * @return array
+     */
+    protected function fetchIssuersFromSdk(): array
+    {
+        $multiSafepaySdk = $this->getSdk();
+
+        if (!$multiSafepaySdk) {
             return [];
         }
 
-        if ($multiSafepaySdk = $this->getSdk()) {
-            try {
-                $issuerListing = $multiSafepaySdk->getIssuerManager()->getIssuersByGatewayCode($this->getGatewayCode());
-                foreach ($issuerListing as $issuer) {
-                    $issuers[] = [
-                        'code' => $issuer->getCode(),
-                        'description' => $issuer->getDescription(),
-                    ];
-                }
-            } catch (InvalidArgumentException $invalidArgumentException) {
-                $this->logger->logException($invalidArgumentException);
-            } catch (ClientExceptionInterface $clientException) {
-                $this->logger->logException($clientException);
-            } catch (ApiException $apiException) {
-                $this->logger->logException($apiException);
-            }
+        try {
+            $issuerListing = $multiSafepaySdk->getIssuerManager()->getIssuersByGatewayCode($this->getGatewayCode());
+            return $this->formatIssuers($issuerListing);
+        } catch (InvalidArgumentException | ClientExceptionInterface | ApiException $exception) {
+            $this->logger->logException($exception);
+            return [];
+        }
+    }
+
+    /**
+     * Format issuers into array structure
+     *
+     * @param array $issuerListing
+     * @return array
+     */
+    protected function formatIssuers(array $issuerListing): array
+    {
+        $issuers = [];
+
+        foreach ($issuerListing as $issuer) {
+            $issuers[] = [
+                'code' => $issuer->getCode(),
+                'description' => $issuer->getDescription(),
+            ];
         }
 
         return $issuers;
@@ -439,5 +486,18 @@ class GenericConfigProvider implements ConfigProviderInterface
         $this->paymentConfig->setMethodCode($this->getCode());
 
         return (string)$this->paymentConfig->getValue('instructions', $this->getStoreIdFromCheckoutSession());
+    }
+
+    /**
+     * Check if the current page is the cart page
+     *
+     * @return bool
+     */
+    public function isCartPage(): bool
+    {
+        /** @var Http $request */
+        $request = $this->request;
+
+        return $request->getFullActionName() === 'checkout_cart_index';
     }
 }
