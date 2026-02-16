@@ -90,7 +90,7 @@ class EinvoicingValidator extends AbstractValidator
             $payment->getMethodInstance()->getStore()
         );
 
-        if ($transactionType === TransactionTypeBuilder::TRANSACTION_TYPE_REDIRECT_VALUE) {
+        if ($transactionType !== TransactionTypeBuilder::TRANSACTION_TYPE_DIRECT_VALUE) {
             return $this->createResult(true);
         }
 
