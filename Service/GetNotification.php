@@ -113,6 +113,21 @@ class GetNotification
             return ['success' => false, 'message' => $noSuchEntityException->getMessage()];
         }
 
+        if ((string)$order->getIncrementId() !== (string)$transaction['order_id']) {
+            $this->logger->logInfoForOrder(
+                $orderIncrementId,
+                sprintf(
+                    'Transaction order_id "%s" does not match Magento increment_id "%s"',
+                    $transaction['order_id'],
+                    $order->getIncrementId()
+                )
+            );
+            return [
+                'success' => false,
+                'message' => 'Transaction order_id does not match Magento increment_id'
+            ];
+        }
+
         return $this->statusOperationManager->processStatusOperation($order, $transaction);
     }
 }
