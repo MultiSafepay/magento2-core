@@ -19,9 +19,9 @@ use MultiSafepay\ConnectCore\Observer\Gateway\AfterpayDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\DirectBankTransferDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\DirectDebitDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\EinvoicingDataAssignObserver;
-use MultiSafepay\ConnectCore\Observer\Gateway\IssuersDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\PayafterDataAssignObserver;
 use MultiSafepay\ConnectCore\Observer\Gateway\PaymentComponentDataAssignObserver;
+use MultiSafepay\ConnectCore\Observer\Gateway\RedirectTokenDataAssignObserver;
 
 class EventsTest extends EventsTestCase
 {
@@ -63,6 +63,11 @@ class EventsTest extends EventsTestCase
         $this->findObserverForEvent(
             PaymentComponentDataAssignObserver::class,
             'payment_method_assign_data_multisafepay_in3b2b'
+        );
+
+        $this->findObserverForEvent(
+            RedirectTokenDataAssignObserver::class,
+            'payment_method_assign_data'
         );
     }
 }

@@ -21,6 +21,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order\Payment;
+use MultiSafepay\ConnectCore\Api\RedirectTokenRepositoryInterface;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Service\PaymentLink;
 use MultiSafepay\Exception\ApiException;
@@ -45,20 +46,28 @@ class OrderPlaceAfterObserver implements ObserverInterface
     private $messageManager;
 
     /**
+     * @var RedirectTokenRepositoryInterface
+     */
+    private $redirectTokenRepository;
+
+    /**
      * OrderPlaceAfterObserver constructor.
      *
      * @param Logger $logger
      * @param ManagerInterface $messageManager
      * @param PaymentLink $paymentLink
+     * @param RedirectTokenRepositoryInterface $redirectTokenRepository
      */
     public function __construct(
         Logger $logger,
         ManagerInterface $messageManager,
-        PaymentLink $paymentLink
+        PaymentLink $paymentLink,
+        RedirectTokenRepositoryInterface $redirectTokenRepository
     ) {
         $this->logger = $logger;
         $this->messageManager = $messageManager;
         $this->paymentLink = $paymentLink;
+        $this->redirectTokenRepository = $redirectTokenRepository;
     }
 
     /**
@@ -83,6 +92,10 @@ class OrderPlaceAfterObserver implements ObserverInterface
 
         if ($isMultiSafepay) {
             try {
+                $token = (string)$payment->getAdditionalInformation('multisafepay_redirect_token');
+                if ($token !== '') {
+                    $this->redirectTokenRepository->create((string)$order->getIncrementId(), $token);
+                }
                 $paymentUrl = $this->paymentLink->getPaymentLinkByOrder($order);
                 $this->paymentLink->addPaymentLink($order, $paymentUrl);
                 $this->logger->logInfoForOrder($orderId, 'Payment URL is: ' . $paymentUrl);

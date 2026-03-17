@@ -10064,4 +10064,6 @@
     <preference for="MultiSafepay\ConnectCore\Api\GuestPaymentMethodsInterface" type="MultiSafepay\ConnectCore\Model\GuestPaymentMethods"/>
     <preference for="MultiSafepay\ConnectCore\Api\RestoreQuoteInterface" type="MultiSafepay\ConnectCore\Model\RestoreQuote"/>
     <preference for="MultiSafepay\ConnectCore\Api\NotificationInterface" type="MultiSafepay\ConnectCore\Model\NotificationManagement"/>
+
+    <preference for="MultiSafepay\ConnectCore\Api\RedirectTokenRepositoryInterface" type="MultiSafepay\ConnectCore\Model\RedirectTokenRepository"/>
 </config>

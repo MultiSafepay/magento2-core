@@ -423,4 +423,22 @@ class Logger extends CoreLogger
             )
         );
     }
+
+    /**
+     * Log exceptions related to the retrieval and processing of the API Token
+     *
+     * @param Exception $exception
+     */
+    public function logExceptionForCron(Exception $exception): void
+    {
+        $this->error(
+            sprintf(
+                '(Exception when trying to run cron job): %1$s (code: %2$d, line: %3$d, file: %4$s)',
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getLine(),
+                $exception->getFile()
+            )
+        );
+    }
 }

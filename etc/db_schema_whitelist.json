@@ -1,0 +1,18 @@
+{
+    "multisafepay_redirect_token": {
+        "column": {
+            "token_id": true,
+            "order_increment_id": true,
+            "token": true,
+            "expired": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "MULTISAFEPAY_REDIRECT_TOKEN_TOKEN_UNQ": true
+        },
+        "index": {
+            "MULTISAFEPAY_REDIRECT_TOKEN_ORDER_INCREMENT_ID": true
+        }
+    }
+}
