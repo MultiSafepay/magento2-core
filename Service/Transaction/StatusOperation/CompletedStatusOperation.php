@@ -16,7 +16,8 @@ declare(strict_types=1);
 namespace MultiSafepay\ConnectCore\Service\Transaction\StatusOperation;
 
 use Exception;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Lock\LockManagerInterface;
+use Magento\Sales\Model\Order;
 use MultiSafepay\ConnectCore\Service\Process\AddCardPaymentInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddGiftCardInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddInvoiceToTransaction;
@@ -31,6 +32,7 @@ use MultiSafepay\ConnectCore\Service\Process\SendInvoice;
 use MultiSafepay\ConnectCore\Service\Process\SendOrderConfirmation;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderProcessingState;
 use MultiSafepay\ConnectCore\Service\Process\SetOrderProcessingStatus;
+use MultiSafepay\ConnectCore\Service\Process\SkipIfPaymentTransactionExists;
 use MultiSafepay\ConnectCore\Util\ProcessUtil;
 
 /**
@@ -39,6 +41,8 @@ use MultiSafepay\ConnectCore\Util\ProcessUtil;
  */
 class CompletedStatusOperation implements StatusOperationInterface
 {
+    private const COMPLETED_LOCK_TTL_SECONDS = 30;
+
     /**
      * @var LogTransactionStatus
      */
@@ -120,6 +124,16 @@ class CompletedStatusOperation implements StatusOperationInterface
     private $processUtil;
 
     /**
+     * @var SkipIfPaymentTransactionExists
+     */
+    private $skipIfPaymentTransactionExists;
+
+    /**
+     * @var LockManagerInterface
+     */
+    private $lockManager;
+
+    /**
      * CompletedStatusOperation constructor
      *
      * @param LogTransactionStatus $logTransactionStatus
@@ -138,6 +152,8 @@ class CompletedStatusOperation implements StatusOperationInterface
      * @param AddInvoiceToTransaction $addInvoiceToTransaction
      * @param CanceledStatusOperation $canceledStatusOperation
      * @param ProcessUtil $processUtil
+     * @param SkipIfPaymentTransactionExists $skipIfPaymentTransactionExists
+     * @param LockManagerInterface $lockManager
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -156,7 +172,9 @@ class CompletedStatusOperation implements StatusOperationInterface
         SendInvoice $sendInvoice,
         AddInvoiceToTransaction $addInvoiceToTransaction,
         CanceledStatusOperation $canceledStatusOperation,
-        ProcessUtil $processUtil
+        ProcessUtil $processUtil,
+        SkipIfPaymentTransactionExists $skipIfPaymentTransactionExists,
+        LockManagerInterface $lockManager
     ) {
         $this->logTransactionStatus = $logTransactionStatus;
         $this->changePaymentMethod = $changePaymentMethod;
@@ -174,17 +192,19 @@ class CompletedStatusOperation implements StatusOperationInterface
         $this->addInvoiceToTransaction = $addInvoiceToTransaction;
         $this->canceledStatusOperation = $canceledStatusOperation;
         $this->processUtil = $processUtil;
+        $this->skipIfPaymentTransactionExists = $skipIfPaymentTransactionExists;
+        $this->lockManager = $lockManager;
     }
 
     /**
      * Execute the cancel or completed status operation depending on the transaction type
      *
-     * @param OrderInterface $order
+     * @param Order $order
      * @param array $transaction
      * @return array
      * @throws Exception
      */
-    public function execute(OrderInterface $order, array $transaction): array
+    public function execute(Order $order, array $transaction): array
     {
         $relatedTransactions = $transaction['related_transactions'] ?? [];
 
@@ -200,25 +220,38 @@ class CompletedStatusOperation implements StatusOperationInterface
             }
         }
 
-        return $this->processUtil->executeProcesses(
-            [
-                $this->logTransactionStatus,
-                $this->sendOrderConfirmation,
-                $this->reopenOrder,
-                $this->initializeVault,
-                $this->changePaymentMethod,
-                $this->addPaymentLink,
-                $this->setOrderProcessingState,
-                $this->createInvoice,
-                $this->addGiftcardInformation,
-                $this->addCardPaymentInformation,
-                $this->setOrderProcessingStatus,
-                $this->saveOrder,
-                $this->sendInvoice,
-                $this->addInvoiceToTransaction
-            ],
-            $order,
-            $transaction
-        );
+        $lockName = sprintf('multisafepay_completed_webhook_order_inc_%s', (string)$order->getIncrementId());
+
+        if (!$this->lockManager->lock($lockName, self::COMPLETED_LOCK_TTL_SECONDS)) {
+            // Another process is already handling "completed" for this order.
+            return [StatusOperationInterface::SUCCESS_PARAMETER => true];
+        }
+
+        try {
+            return $this->processUtil->executeProcesses(
+                [
+                    $this->logTransactionStatus,
+                    $this->skipIfPaymentTransactionExists,
+                    $this->sendOrderConfirmation,
+                    $this->reopenOrder,
+                    $this->initializeVault,
+                    $this->changePaymentMethod,
+                    $this->addPaymentLink,
+                    $this->setOrderProcessingState,
+                    $this->createInvoice,
+                    $this->addGiftcardInformation,
+                    $this->addCardPaymentInformation,
+                    $this->setOrderProcessingStatus,
+                    $this->saveOrder,
+                    $this->sendInvoice,
+                    $this->addInvoiceToTransaction
+                ],
+                $order,
+                $transaction
+            );
+        } finally {
+            /** @noinspection PhpExpressionResultUnusedInspection */
+            $this->lockManager->unlock($lockName);
+        }
     }
 }
