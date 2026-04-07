@@ -57,6 +57,7 @@ class ChangePaymentMethodTest extends AbstractTestCase
      * Set up the test environment.
      *
      * @return void
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     protected function setUp(): void
     {
@@ -127,7 +128,6 @@ class ChangePaymentMethodTest extends AbstractTestCase
     /**
      * Test changing the payment method when the payment is null.
      *
-     * @magentoDataFixture Magento/Sales/_files/order.php
      * @throws Exception
      */
     public function testExecuteWithNullPayment(): void
@@ -185,17 +185,23 @@ class ChangePaymentMethodTest extends AbstractTestCase
         ];
 
         $this->paymentMethodUtil->expects($this->never())
-            ->method('isMultisafepayOrder')
-            ->with($order)
-            ->willReturn(true);
+            ->method('isMultisafepayOrder');
+
+        $this->giftcardUtil->expects($this->never())
+            ->method('isFullGiftcardTransaction');
+
+        $this->config->expects($this->never())
+            ->method('getValueByPath');
 
         $this->logger->expects($this->exactly(2))
             ->method('logInfoForNotification');
 
+        $originalMethod = $order->getPayment()->getMethod();
+
         $result = $this->changePaymentMethod->execute($order, $transaction);
 
         $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
-        $this->assertNotEquals('multisafepay_visa', $order->getPayment()->getMethod());
+        $this->assertEquals($originalMethod, $order->getPayment()->getMethod());
     }
 
     /**
@@ -246,6 +252,7 @@ class ChangePaymentMethodTest extends AbstractTestCase
         $result = $this->changePaymentMethod->execute($order, $transaction);
 
         $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
+        $this->assertEquals('multisafepay_webshopgiftcard', $order->getPayment()->getMethod());
     }
 
     /**
@@ -266,9 +273,17 @@ class ChangePaymentMethodTest extends AbstractTestCase
             ]
         ];
 
-        $this->paymentMethodUtil->expects($this->never())->method('isMultisafepayOrder');
-        $this->giftcardUtil->expects($this->never())->method('isFullGiftcardTransaction');
-        $this->logger->expects($this->exactly(2))->method('logInfoForNotification');
+        $this->paymentMethodUtil->expects($this->never())
+            ->method('isMultisafepayOrder');
+
+        $this->giftcardUtil->expects($this->never())
+            ->method('isFullGiftcardTransaction');
+
+        $this->config->expects($this->never())
+            ->method('getValueByPath');
+
+        $this->logger->expects($this->exactly(2))
+            ->method('logInfoForNotification');
 
         $result = $this->changePaymentMethod->execute($order, $transaction);
 
@@ -298,8 +313,14 @@ class ChangePaymentMethodTest extends AbstractTestCase
             ->with($order)
             ->willReturn(false);
 
-        $this->giftcardUtil->expects($this->never())->method('isFullGiftcardTransaction');
-        $this->logger->expects($this->exactly(2))->method('logInfoForNotification');
+        $this->giftcardUtil->expects($this->never())
+            ->method('isFullGiftcardTransaction');
+
+        $this->config->expects($this->never())
+            ->method('getValueByPath');
+
+        $this->logger->expects($this->exactly(2))
+            ->method('logInfoForNotification');
 
         $result = $this->changePaymentMethod->execute($order, $transaction);
 
@@ -320,7 +341,9 @@ class ChangePaymentMethodTest extends AbstractTestCase
 
         $payment = $order->getPayment();
         $paymentMethod = $this->createMock(MethodInterface::class);
-        $paymentMethod->method('getConfigData')->with('gateway_code')->willReturn('IDEAL');
+        $paymentMethod->method('getConfigData')
+            ->with('gateway_code')
+            ->willReturn('IDEAL');
         $payment->setMethodInstance($paymentMethod);
 
         $transaction = [
@@ -329,9 +352,17 @@ class ChangePaymentMethodTest extends AbstractTestCase
             ]
         ];
 
-        $this->paymentMethodUtil->expects($this->never())->method('isMultisafepayOrder');
-        $this->giftcardUtil->expects($this->never())->method('isFullGiftcardTransaction');
-        $this->logger->expects($this->exactly(2))->method('logInfoForNotification');
+        $this->paymentMethodUtil->expects($this->never())
+            ->method('isMultisafepayOrder');
+
+        $this->giftcardUtil->expects($this->never())
+            ->method('isFullGiftcardTransaction');
+
+        $this->config->expects($this->never())
+            ->method('getValueByPath');
+
+        $this->logger->expects($this->exactly(2))
+            ->method('logInfoForNotification');
 
         $result = $this->changePaymentMethod->execute($order, $transaction);
 
@@ -381,7 +412,202 @@ class ChangePaymentMethodTest extends AbstractTestCase
         $result = $this->changePaymentMethod->execute($order, $transaction);
 
         $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
-        // Should not change to recurring payment method
         $this->assertNotEquals('multisafepay_ideal_recurring', $order->getPayment()->getMethod());
+    }
+
+    /**
+     * Test executing the change payment method process with Google Pay and a non-card transaction type.
+     *
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testExecuteWithGooglePayAndNonCardTransactionType(): void
+    {
+        /** @var Order $order */
+        $order = $this->getOrder();
+
+        $payment = $order->getPayment();
+        $paymentMethod = $this->createMock(MethodInterface::class);
+        $paymentMethod->method('getConfigData')
+            ->with('gateway_code')
+            ->willReturn('GOOGLEPAY');
+        $payment->setMethodInstance($paymentMethod);
+
+        $transaction = [
+            'payment_details' => [
+                'type' => 'IDEAL'
+            ]
+        ];
+
+        $this->paymentMethodUtil->expects($this->once())
+            ->method('isMultisafepayOrder')
+            ->with($order)
+            ->willReturn(true);
+
+        $this->giftcardUtil->expects($this->once())
+            ->method('isFullGiftcardTransaction')
+            ->with($transaction)
+            ->willReturn(false);
+
+        $this->config->expects($this->once())
+            ->method('getValueByPath')
+            ->with('payment')
+            ->willReturn([
+                'multisafepay_ideal' => [
+                    'gateway_code' => 'IDEAL'
+                ]
+            ]);
+
+        $this->logger->expects($this->exactly(3))
+            ->method('logInfoForNotification');
+
+        $result = $this->changePaymentMethod->execute($order, $transaction);
+
+        $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
+        $this->assertEquals('multisafepay_ideal', $order->getPayment()->getMethod());
+    }
+
+    /**
+     * Test executing the change payment method process with Apple Pay and a non-card transaction type.
+     *
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testExecuteWithApplePayAndNonCardTransactionType(): void
+    {
+        /** @var Order $order */
+        $order = $this->getOrder();
+
+        $payment = $order->getPayment();
+        $paymentMethod = $this->createMock(MethodInterface::class);
+        $paymentMethod->method('getConfigData')
+            ->with('gateway_code')
+            ->willReturn('APPLEPAY');
+        $payment->setMethodInstance($paymentMethod);
+
+        $transaction = [
+            'payment_details' => [
+                'type' => 'IDEAL'
+            ]
+        ];
+
+        $this->paymentMethodUtil->expects($this->once())
+            ->method('isMultisafepayOrder')
+            ->with($order)
+            ->willReturn(true);
+
+        $this->giftcardUtil->expects($this->once())
+            ->method('isFullGiftcardTransaction')
+            ->with($transaction)
+            ->willReturn(false);
+
+        $this->config->expects($this->once())
+            ->method('getValueByPath')
+            ->with('payment')
+            ->willReturn([
+                'multisafepay_ideal' => [
+                    'gateway_code' => 'IDEAL'
+                ]
+            ]);
+
+        $this->logger->expects($this->exactly(3))
+            ->method('logInfoForNotification');
+
+        $result = $this->changePaymentMethod->execute($order, $transaction);
+
+        $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
+        $this->assertEquals('multisafepay_ideal', $order->getPayment()->getMethod());
+    }
+
+    /**
+     * Test executing the change payment method process with Google Pay and a card transaction type.
+     *
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testExecuteWithGooglePayAndCardTransactionType(): void
+    {
+        /** @var Order $order */
+        $order = $this->getOrder();
+
+        $payment = $order->getPayment();
+        $paymentMethod = $this->createMock(MethodInterface::class);
+        $paymentMethod->method('getConfigData')
+            ->with('gateway_code')
+            ->willReturn('GOOGLEPAY');
+        $payment->setMethodInstance($paymentMethod);
+
+        $transaction = [
+            'payment_details' => [
+                'type' => 'VISA'
+            ]
+        ];
+
+        $this->paymentMethodUtil->expects($this->never())
+            ->method('isMultisafepayOrder');
+
+        $this->giftcardUtil->expects($this->never())
+            ->method('isFullGiftcardTransaction');
+
+        $this->config->expects($this->never())
+            ->method('getValueByPath');
+
+        $this->logger->expects($this->exactly(2))
+            ->method('logInfoForNotification');
+
+        $originalMethod = $order->getPayment()->getMethod();
+
+        $result = $this->changePaymentMethod->execute($order, $transaction);
+
+        $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
+        $this->assertEquals($originalMethod, $order->getPayment()->getMethod());
+    }
+
+    /**
+     * Test executing the change payment method process with Apple Pay and a card transaction type.
+     *
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @throws LocalizedException
+     * @throws Exception
+     */
+    public function testExecuteWithApplePayAndCardTransactionType(): void
+    {
+        /** @var Order $order */
+        $order = $this->getOrder();
+
+        $payment = $order->getPayment();
+        $paymentMethod = $this->createMock(MethodInterface::class);
+        $paymentMethod->method('getConfigData')
+            ->with('gateway_code')
+            ->willReturn('APPLEPAY');
+        $payment->setMethodInstance($paymentMethod);
+
+        $transaction = [
+            'payment_details' => [
+                'type' => 'MASTERCARD'
+            ]
+        ];
+
+        $this->paymentMethodUtil->expects($this->never())
+            ->method('isMultisafepayOrder');
+
+        $this->giftcardUtil->expects($this->never())
+            ->method('isFullGiftcardTransaction');
+
+        $this->config->expects($this->never())
+            ->method('getValueByPath');
+
+        $this->logger->expects($this->exactly(2))
+            ->method('logInfoForNotification');
+
+        $originalMethod = $order->getPayment()->getMethod();
+
+        $result = $this->changePaymentMethod->execute($order, $transaction);
+
+        $this->assertTrue($result[StatusOperationInterface::SUCCESS_PARAMETER]);
+        $this->assertEquals($originalMethod, $order->getPayment()->getMethod());
     }
 }

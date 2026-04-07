@@ -22,6 +22,7 @@ use MultiSafepay\ConnectCore\Service\Process\AddCardPaymentInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddGiftCardInformation;
 use MultiSafepay\ConnectCore\Service\Process\AddInvoiceToTransaction;
 use MultiSafepay\ConnectCore\Service\Process\AddPaymentLink;
+use MultiSafepay\ConnectCore\Service\Process\AddWalletInformation;
 use MultiSafepay\ConnectCore\Service\Process\ChangePaymentMethod;
 use MultiSafepay\ConnectCore\Service\Process\CreateInvoice;
 use MultiSafepay\ConnectCore\Service\Process\InitializeVault;
@@ -134,6 +135,11 @@ class CompletedStatusOperation implements StatusOperationInterface
     private $lockManager;
 
     /**
+     * @var AddWalletInformation
+     */
+    private $addWalletInformation;
+
+    /**
      * CompletedStatusOperation constructor
      *
      * @param LogTransactionStatus $logTransactionStatus
@@ -154,6 +160,7 @@ class CompletedStatusOperation implements StatusOperationInterface
      * @param ProcessUtil $processUtil
      * @param SkipIfPaymentTransactionExists $skipIfPaymentTransactionExists
      * @param LockManagerInterface $lockManager
+     * @param AddWalletInformation $addWalletInformation
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -174,7 +181,8 @@ class CompletedStatusOperation implements StatusOperationInterface
         CanceledStatusOperation $canceledStatusOperation,
         ProcessUtil $processUtil,
         SkipIfPaymentTransactionExists $skipIfPaymentTransactionExists,
-        LockManagerInterface $lockManager
+        LockManagerInterface $lockManager,
+        AddWalletInformation $addWalletInformation
     ) {
         $this->logTransactionStatus = $logTransactionStatus;
         $this->changePaymentMethod = $changePaymentMethod;
@@ -194,6 +202,7 @@ class CompletedStatusOperation implements StatusOperationInterface
         $this->processUtil = $processUtil;
         $this->skipIfPaymentTransactionExists = $skipIfPaymentTransactionExists;
         $this->lockManager = $lockManager;
+        $this->addWalletInformation = $addWalletInformation;
     }
 
     /**
@@ -241,6 +250,7 @@ class CompletedStatusOperation implements StatusOperationInterface
                     $this->createInvoice,
                     $this->addGiftcardInformation,
                     $this->addCardPaymentInformation,
+                    $this->addWalletInformation,
                     $this->setOrderProcessingStatus,
                     $this->saveOrder,
                     $this->sendInvoice,

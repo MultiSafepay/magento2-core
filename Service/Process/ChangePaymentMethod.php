@@ -27,6 +27,18 @@ use MultiSafepay\ConnectCore\Service\Transaction\StatusOperation\StatusOperation
 
 class ChangePaymentMethod implements ProcessInterface
 {
+    private const CARD_TRANSACTION_TYPES = [
+        'AMEX',
+        'VISA',
+        'MAESTRO',
+        'MASTERCARD'
+    ];
+
+    private const WALLET_GATEWAYS = [
+        'GOOGLEPAY',
+        'APPLEPAY'
+    ];
+
     /**
      * @var Logger
      */
@@ -128,30 +140,22 @@ class ChangePaymentMethod implements ProcessInterface
      */
     private function canChangePaymentMethod(string $transactionType, string $gatewayCode, OrderInterface $order): bool
     {
-        /**
-         * In case Vault is being used, we want the credit card gateway to remain the same, so that Magento can process
-         * Vault as a credit card gateway, since that is also the gateway which the token was saved with
-         */
-        if ($gatewayCode === 'CREDITCARD') {
-            $disallowedTransactionTypes = [
-                'AMEX',
-                'VISA',
-                'MAESTRO',
-                'MASTERCARD'
-            ];
-
-            if (in_array($transactionType, $disallowedTransactionTypes)) {
-                return false;
-            }
+        if ($gatewayCode === 'CREDITCARD' && in_array($transactionType, self::CARD_TRANSACTION_TYPES, true)) {
+            return false;
         }
 
-        // If the transaction type is 'Coupon::Intersolve', we do not change the payment method
+        if (in_array($gatewayCode, self::WALLET_GATEWAYS, true)
+            && in_array($transactionType, self::CARD_TRANSACTION_TYPES, true)
+        ) {
+            return false;
+        }
+
         if ($transactionType === 'Coupon::Intersolve') {
             return false;
         }
 
         return $transactionType && $transactionType !== $gatewayCode
-               && $this->paymentMethodUtil->isMultisafepayOrder($order);
+            && $this->paymentMethodUtil->isMultisafepayOrder($order);
     }
 
     /**
