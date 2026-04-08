@@ -23,6 +23,21 @@ use OutOfBoundsException;
 
 class ThirdPartyPluginDataBuilder
 {
+    private const THIRD_PARTY_CHECKOUTS = [
+        [
+            'name' => 'Hyva React Checkout',
+            'config_path' => 'hyva_react_checkout/general/enable',
+            'composer_package' => 'hyva-themes/magento2-react-checkout',
+            'multisafepay_composer_package' => null,
+        ],
+        [
+            'name' => 'Loki Checkout',
+            'config_path' => 'loki_checkout/general/enable',
+            'composer_package' => 'loki-checkout/magento2-core',
+            'multisafepay_composer_package' => 'loki-checkout/magento2-multi-safepay'
+        ],
+    ];
+
     /**
      * @var ScopeConfigInterface
      */
@@ -52,58 +67,89 @@ class ThirdPartyPluginDataBuilder
      * @param OrderRequest $orderRequest
      * @return void
      */
-    public function build(OrderInterface $order, OrderRequest $orderRequest)
+    public function build(OrderInterface $order, OrderRequest $orderRequest): void
     {
         $storeId = (int)$order->getStoreId();
 
-        $this->addReactCheckoutDataIfEnabled($orderRequest, $storeId);
-    }
-
-    /**
-     * Add React Checkout plugin information if it enabled
-     *
-     * @param OrderRequest $orderRequest
-     * @param int $storeId
-     * @return void
-     */
-    private function addReactCheckoutDataIfEnabled(OrderRequest $orderRequest, int $storeId): void
-    {
-        if ($this->reactCheckoutEnabled($storeId)) {
-            $pluginDetails = $orderRequest->getPluginDetails();
-
-            $applicationName = $pluginDetails->getApplicationName();
-            $pluginDetails->addApplicationName($applicationName . ' - Hyva React Checkout');
-
-            $pluginVersion = $pluginDetails->getPluginVersion()->getPluginVersion();
-            $pluginDetails->addPluginVersion($pluginVersion . ' - ' . 'unknown');
-
-            $reactCheckoutVersion = 'unknown';
-
-            if (method_exists('\Composer\InstalledVersions', 'getVersion')) {
-                try {
-                    $reactCheckoutVersion = \Composer\InstalledVersions::getVersion(
-                        'hyva-themes/magento2-react-checkout'
-                    );
-                } catch (OutOfBoundsException $exception) {
-                    $this->logger->logExceptionForOrder($orderRequest->getOrderId(), $exception);
-                }
-            }
-
-            $applicationVersion = $pluginDetails->getApplicationVersion();
-            $pluginDetails->addApplicationVersion($applicationVersion . ' - ' . $reactCheckoutVersion);
+        foreach (self::THIRD_PARTY_CHECKOUTS as $checkout) {
+            $this->addThirdPartyCheckoutData(
+                $orderRequest,
+                $storeId,
+                $checkout['config_path'],
+                $checkout['name'],
+                $checkout['composer_package'],
+                $checkout['multisafepay_composer_package']
+            );
         }
     }
 
     /**
-     * Check if the Hyva React Checkout is enabled
+     * Add third party plugin information if it is enabled
+     *
+     * @param OrderRequest $orderRequest
+     * @param int $storeId
+     * @param string $configPath
+     * @param string $checkoutName
+     * @param string $composerPackage
+     * @param string|null $compatibilityPackage
+     * @return void
+     */
+    private function addThirdPartyCheckoutData(
+        OrderRequest $orderRequest,
+        int $storeId,
+        string $configPath,
+        string $checkoutName,
+        string $composerPackage,
+        ?string $compatibilityPackage = null
+    ): void {
+        if (!$this->isThirdPartyCheckoutEnabled($storeId, $configPath)) {
+            return;
+        }
+
+        $pluginDetails = $orderRequest->getPluginDetails();
+
+        // Application Name
+        $applicationName = $pluginDetails->getApplicationName();
+        $pluginDetails->addApplicationName($applicationName . ' - ' . $checkoutName);
+
+        // MultiSafepay Plugin Version
+        $pluginVersion = $pluginDetails->getPluginVersion()->getPluginVersion();
+
+        // MultiSafepay Compatibility Plugin Version
+        $thirdPartyMultiSafepayCheckoutVersion = 'unknown';
+        if ($compatibilityPackage && method_exists('\Composer\InstalledVersions', 'getVersion')) {
+            try {
+                $thirdPartyMultiSafepayCheckoutVersion = \Composer\InstalledVersions::getVersion($compatibilityPackage);
+            } catch (OutOfBoundsException $exception) {
+                $this->logger->logExceptionForOrder($orderRequest->getOrderId(), $exception);
+            }
+        }
+        $pluginDetails->addPluginVersion($pluginVersion . ' - ' . $thirdPartyMultiSafepayCheckoutVersion);
+
+        // Third Party Checkout Version
+        $thirdPartyCheckoutVersion = 'unknown';
+        if (method_exists('\Composer\InstalledVersions', 'getVersion')) {
+            try {
+                $thirdPartyCheckoutVersion = \Composer\InstalledVersions::getVersion($composerPackage);
+            } catch (OutOfBoundsException $exception) {
+                $this->logger->logExceptionForOrder($orderRequest->getOrderId(), $exception);
+            }
+        }
+        $applicationVersion = $pluginDetails->getApplicationVersion();
+        $pluginDetails->addApplicationVersion($applicationVersion . ' - ' . $thirdPartyCheckoutVersion);
+    }
+
+    /**
+     * Check if a third party plugin is enabled
      *
      * @param int $storeId
+     * @param string $configPath
      * @return bool
      */
-    private function reactCheckoutEnabled(int $storeId): bool
+    private function isThirdPartyCheckoutEnabled(int $storeId, string $configPath): bool
     {
         return (bool)$this->scopeConfig->getValue(
-            'hyva_react_checkout/general/enable',
+            $configPath,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
