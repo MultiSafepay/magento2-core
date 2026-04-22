@@ -23,6 +23,7 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\OrderUtil;
 use MultiSafepay\ConnectCore\Service\Process\DelayExecution;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperationManager;
+use MultiSafepay\Exception\ApiException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class GetNotification
@@ -91,8 +92,11 @@ class GetNotification
         try {
             $transactionResponse = $transactionManager->get($orderIncrementId);
         } catch (ClientExceptionInterface $clientException) {
-            $this->logger->logExceptionForOrder($orderIncrementId, $clientException);
+            $this->logger->logClientException($orderIncrementId, $clientException);
             return ['success' => false, 'message' => sprintf('%1$s', $clientException->getMessage())];
+        } catch (ApiException $apiException) {
+            $this->logger->logExceptionForOrder($orderIncrementId, $apiException);
+            return ['success' => false, 'message' => sprintf('%1$s', $apiException->getMessage())];
         }
 
         $transaction = $transactionResponse->getData();

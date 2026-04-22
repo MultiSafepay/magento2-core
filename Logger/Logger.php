@@ -203,7 +203,7 @@ class Logger extends CoreLogger
     {
         $this->error(
             sprintf(
-                '(Order ID: %1$s): Client exception when trying to place transaction: %2$s',
+                '(Order ID: %1$s): Client exception when trying to place/retrieve transaction: %2$s',
                 $orderId ?? 'unknown',
                 $clientException->getMessage()
             )
