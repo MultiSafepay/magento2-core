@@ -86,9 +86,9 @@ class RemoveAdditionalInformation
                 );
                 $this->orderPaymentRepository->save($orderPayment);
             } catch (InputException $inputException) {
-                $this->logger->logInfoForOrder($order->getRealOrderId(), $inputException->getMessage());
+                $this->logger->logInfoForOrder($order->getIncrementId(), $inputException->getMessage());
             } catch (NoSuchEntityException $noSuchEntityException) {
-                $this->logger->logInfoForOrder($order->getRealOrderId(), $noSuchEntityException->getMessage());
+                $this->logger->logInfoForOrder($order->getIncrementId(), $noSuchEntityException->getMessage());
             }
         }
     }

@@ -88,7 +88,7 @@ class PaymentOptionsBuilder implements OrderRequestBuilderInterface
         $storeId = (int)$order->getStoreId();
         $this->storeManager->setCurrentStore($order->getStoreId());
         $params = [
-            'secureToken' => $this->secureToken->generate((string)$order->getRealOrderId()),
+            'secureToken' => $this->secureToken->generate((string)$order->getIncrementId()),
         ];
 
         $notificationUrl = $this->getUrl(self::NOTIFICATION_URL, $storeId, ['store_id' => $storeId]);

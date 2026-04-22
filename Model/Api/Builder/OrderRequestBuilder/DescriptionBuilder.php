@@ -56,7 +56,7 @@ class DescriptionBuilder implements OrderRequestBuilderInterface
      */
     public function build(Order $order, Payment $payment, OrderRequest $orderRequest): void
     {
-        $orderId = (string) $order->getRealOrderId();
+        $orderId = (string) $order->getIncrementId();
         $customDescription = (string)$this->config->getValue(Config::TRANSACTION_DESCRIPTION);
 
         if (empty($customDescription)) {

@@ -124,7 +124,7 @@ class InvoiceSaveAfterObserver implements ObserverInterface
             $order->setState(Order::STATE_PROCESSING);
             $order->setStatus($this->orderStatusUtil->getProcessingStatus($order));
             $this->logger->logInfoForOrder(
-                $order->getRealOrderId(),
+                $order->getIncrementId(),
                 'Invoice has been created and processing status has been applied by InvoiceSaveAfterObserver'
             );
         }

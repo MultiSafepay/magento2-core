@@ -92,7 +92,7 @@ class OrderRequestBuilder
     public function build(Order $order): OrderRequest
     {
         $payment = $order->getPayment();
-        $orderId = (string) $order->getRealOrderId();
+        $orderId = (string) $order->getIncrementId();
 
         if (!$payment instanceof OrderPaymentInterface) {
             throw new LocalizedException(

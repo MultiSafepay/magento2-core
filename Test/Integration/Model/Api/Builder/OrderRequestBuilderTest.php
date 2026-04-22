@@ -42,7 +42,7 @@ class OrderRequestBuilderTest extends AbstractTestCase
         $orderRequestData = $this->getOrderRequestBuilderPreparedData($order);
 
         self::assertSame((float)$order->getGrandTotal(), (float)$orderRequestData['amount'] / 100);
-        self::assertSame($order->getRealOrderId(), $orderRequestData['order_id']);
+        self::assertSame($order->getIncrementId(), $orderRequestData['order_id']);
         self::assertSame(
             $order->getPayment()->getMethodInstance()->getConfigData(
                 'gateway_code'

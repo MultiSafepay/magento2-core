@@ -149,7 +149,7 @@ class CustomReturnUrlUtil
             '{{store.code}}' => $orderStore->getCode(),
             '{{store.store_id}}' => $orderStore->getId(),
             '{{secure_token}}' => $transactionParameters['secureToken'] ?? $this->secureToken->generate((string)
-                $order->getRealOrderId()),
+                $order->getIncrementId()),
         ];
 
         if ($this->quoteIdToMaskedQuoteId) {

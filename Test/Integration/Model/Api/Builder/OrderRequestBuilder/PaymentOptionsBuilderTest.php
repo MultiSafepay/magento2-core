@@ -82,7 +82,7 @@ class PaymentOptionsBuilderTest extends AbstractTransactionTestCase
         $this->paymentOptionsBuilder->build($order, $payment, $orderRequest);
         $orderRequestData = $orderRequest->getData();
         $params = [
-            'secureToken' => $this->secureToken->generate((string)$order->getRealOrderId()),
+            'secureToken' => $this->secureToken->generate((string)$order->getIncrementId()),
         ];
         $getUrlMetod = $this->paymentOptionsBuilderReflector->getMethod('getUrl');
         $getUrlMetod->setAccessible(true);

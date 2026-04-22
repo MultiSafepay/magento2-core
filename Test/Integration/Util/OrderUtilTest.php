@@ -47,7 +47,7 @@ class OrderUtilTest extends AbstractTestCase
         $incrementId = '100000001';
         $order = $this->orderUtil->getOrderByIncrementId($incrementId);
 
-        self::assertEquals($incrementId, $order->getRealOrderId());
+        self::assertEquals($incrementId, $order->getIncrementId());
         $this->expectException(NoSuchEntityException::class);
 
         $this->orderUtil->getOrderByIncrementId($incrementId . '_test_fail');
