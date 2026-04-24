@@ -79,13 +79,8 @@ class PriceUtil
     {
         $orderedQuantity = (float)$item->getQtyOrdered();
 
-        $isPriceIncludedTax = $this->scopeConfig->getValue(
-            MagentoConfig::CONFIG_XML_PATH_PRICE_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-
-        return $isPriceIncludedTax ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
+        return $this->shouldUseInclTaxAmounts($storeId)
+            ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
             : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
     }
 
@@ -178,5 +173,32 @@ class PriceUtil
 
         return $this->config->useBaseCurrency($storeId) ? $weeeTaxData[0][Tax::KEY_BASE_AMOUNT] :
             $weeeTaxData[0][Tax::KEY_AMOUNT];
+    }
+
+    /**
+     * Determines whether to use prices including tax based on the store configuration.
+     *
+     * @param $storeId
+     * @return bool
+     */
+    private function shouldUseInclTaxAmounts($storeId): bool
+    {
+        $salesDisplayPrice = (int)$this->scopeConfig->getValue(
+            MagentoConfig::XML_PATH_DISPLAY_SALES_PRICE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        $displayPricesIncludingTax = [MagentoConfig::DISPLAY_TYPE_INCLUDING_TAX, MagentoConfig::DISPLAY_TYPE_BOTH];
+
+        if (in_array($salesDisplayPrice, $displayPricesIncludingTax, true)) {
+            return true;
+        }
+
+        return (bool)$this->scopeConfig->getValue(
+            MagentoConfig::CONFIG_XML_PATH_PRICE_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 }
