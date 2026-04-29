@@ -187,7 +187,7 @@ class GenericConfigProvider implements ConfigProviderInterface
         }
 
         if (empty($url)) {
-            $path = self::IMAGE_PATH . $this->getCode() . '.png';
+            $path = static::IMAGE_PATH . $this->getCode() . '.png';
 
             $this->assetRepository->createAsset($path);
 

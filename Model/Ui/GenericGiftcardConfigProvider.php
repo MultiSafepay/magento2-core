@@ -14,25 +14,11 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Model\Ui;
 
-use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\View\Asset\Repository as AssetRepository;
-
 /**
  * @SuppressWarnings(PHPMD.NumberOfChildren)
  * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class GenericGiftcardConfigProvider extends GenericConfigProvider
 {
-    /**
-     * @return string
-     * @throws LocalizedException
-     */
-    public function getImage(): string
-    {
-        $path = 'MultiSafepay_ConnectCore::images/giftcard/' . $this->getCode() . '.png';
-
-        $this->assetRepository->createAsset($path);
-        return $this->assetRepository->getUrl($path);
-    }
+    public const IMAGE_PATH = 'MultiSafepay_ConnectCore::images/giftcard/';
 }
