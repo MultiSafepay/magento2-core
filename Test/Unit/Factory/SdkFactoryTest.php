@@ -21,7 +21,7 @@ use MultiSafepay\Exception\InvalidApiKeyException;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
-use Http\Adapter\Guzzle6\Client;
+use MultiSafepay\ConnectCore\Client\Client;
 
 class SdkFactoryTest extends TestCase
 {
@@ -48,9 +48,9 @@ class SdkFactoryTest extends TestCase
         $config = $this->createMock(Config::class);
         $config->method('getApiKey')->willThrowException(new InvalidApiKeyException);
 
-        $psrClient = new Client();
+        $client = $this->createMock(Client::class);
 
-        $arguments = ['config' => $config, 'psrClient' => $psrClient];
+        $arguments = ['config' => $config, 'client' => $client];
         $sdkFactory = $this->objectManager->getObject(SdkFactory::class, $arguments);
         $sdkFactory->create();
     }
@@ -64,9 +64,9 @@ class SdkFactoryTest extends TestCase
         $config = $this->createMock(Config::class);
         $config->method('getApiKey')->willReturn('__FAKE_KEY__');
 
-        $psrClient = new Client();
+        $client = $this->createMock(Client::class);
 
-        $arguments = ['config' => $config, 'psrClient' => $psrClient];
+        $arguments = ['config' => $config, 'client' => $client];
         $sdkFactory = $this->objectManager->getObject(SdkFactory::class, $arguments);
         $result = $sdkFactory->create();
         $this->assertInstanceOf(Sdk::class, $result);
