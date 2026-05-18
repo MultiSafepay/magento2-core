@@ -26,8 +26,6 @@ use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\ApplePayRequest;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\GooglePayRequest;
 use MultiSafepay\ConnectCore\CustomerData\PaymentRequest\PaymentComponentRequest;
-use MultiSafepay\ConnectCore\Util\ApiTokenUtil;
-use MultiSafepay\Exception\InvalidDataInitializationException;
 
 class PaymentRequest implements SectionSourceInterface
 {
@@ -74,11 +72,6 @@ class PaymentRequest implements SectionSourceInterface
     private $googlePayRequest;
 
     /**
-     * @var ApiTokenUtil
-     */
-    private $apiTokenUtil;
-
-    /**
      * PaymentRequest constructor.
      *
      * @param ApplePayRequest $applePayRequest
@@ -88,7 +81,6 @@ class PaymentRequest implements SectionSourceInterface
      * @param ResolverInterface $localeResolver
      * @param PaymentComponentRequest $paymentComponentRequest
      * @param Session $session
-     * @param ApiTokenUtil $apiTokenUtil
      */
     public function __construct(
         ApplePayRequest $applePayRequest,
@@ -97,8 +89,7 @@ class PaymentRequest implements SectionSourceInterface
         Config $config,
         ResolverInterface $localeResolver,
         PaymentComponentRequest $paymentComponentRequest,
-        Session $session,
-        ApiTokenUtil $apiTokenUtil
+        Session $session
     ) {
         $this->applePayRequest = $applePayRequest;
         $this->googlePayRequest = $googlePayRequest;
@@ -107,7 +98,6 @@ class PaymentRequest implements SectionSourceInterface
         $this->localeResolver = $localeResolver;
         $this->paymentComponentRequest = $paymentComponentRequest;
         $this->session = $session;
-        $this->apiTokenUtil = $apiTokenUtil;
     }
 
     /**
@@ -140,15 +130,11 @@ class PaymentRequest implements SectionSourceInterface
                 unset($paymentComponentData['payment_component_template_id']);
             }
 
-            $apiTokenData = $this->apiTokenUtil->getApiTokenFromCache($quote);
-
             $result = array_merge(
                 $result,
                 [
                     "paymentComponentContainerId" => self::PAYMENT_COMPONENT_CONTAINER_ID,
                     "paymentComponentConfig" => $paymentComponentData,
-                    'apiToken' => $apiTokenData['apiToken'],
-                    'apiTokenLifeTime' => $apiTokenData['lifeTime']
                 ]
             );
 

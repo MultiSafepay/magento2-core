@@ -249,8 +249,5 @@ class PaymentRequestTest extends AbstractTestCase
 
         self::assertArrayHasKey('payment_type', $result['paymentComponentConfig'][CreditCardConfig::CODE]['additionalInfo']); // phpcs:ignore
         self::assertEquals('payment_component', $result['paymentComponentConfig'][CreditCardConfig::CODE]['additionalInfo']['payment_type']); // phpcs:ignore
-
-        self::assertArrayHasKey('apiToken', $result);
-        self::assertIsString($result['apiToken']);
     }
 }
