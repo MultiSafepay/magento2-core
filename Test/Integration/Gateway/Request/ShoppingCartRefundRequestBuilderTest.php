@@ -24,7 +24,6 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use MultiSafepay\Api\Transactions\TransactionResponse;
-use MultiSafepay\ConnectCore\Config\Config;
 use MultiSafepay\ConnectCore\Gateway\Request\Builder\ShoppingCartRefundRequestBuilder;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
@@ -111,7 +110,7 @@ class ShoppingCartRefundRequestBuilderTest extends AbstractTestCase
             $this->getObjectManager()->get(Logger::class),
             $transactionUtilMock,
             $this->getObjectManager()->get(ShoppingCartRefundUtil::class),
-        ])->setMethodsExcept(['build'])->getMock();
+        ])->onlyMethods($this->mockAllExcept(ShoppingCartRefundRequestBuilder::class, ['build']))->getMock();
 
         $stateObject = new DataObject();
         $order = $this->getOrder();

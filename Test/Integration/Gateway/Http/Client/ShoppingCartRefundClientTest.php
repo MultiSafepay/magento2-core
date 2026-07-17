@@ -70,7 +70,7 @@ class ShoppingCartRefundClientTest extends AbstractTestCase
             $this->getObjectManager()->get(Logger::class),
             $this->getObjectManager()->get(RefundUtil::class),
             $this->getObjectManager()->get(JsonHandler::class)
-        ])->setMethodsExcept(['placeRequest'])->getMock();
+        ])->onlyMethods($this->mockAllExcept(ShoppingCartRefundClient::class, ['placeRequest']))->getMock();
 
         /** @var TransferInterface $transferObject */
         $transferObject = $this->prepareTransferObjectMock([

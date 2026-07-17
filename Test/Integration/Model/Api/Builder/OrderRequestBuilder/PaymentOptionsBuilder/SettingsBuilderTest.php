@@ -23,6 +23,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\BancontactConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Gateway\IdealConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
+use ReflectionException;
 
 class SettingsBuilderTest extends AbstractTestCase
 {
@@ -91,6 +92,7 @@ class SettingsBuilderTest extends AbstractTestCase
 
     /**
      * @return void
+     * @throws ReflectionException
      */
     public function testBuildWillReturnSettingsForEdenRedPaymentMethodWithCoupons()
     {
@@ -107,7 +109,7 @@ class SettingsBuilderTest extends AbstractTestCase
 
         $settingsBuilder = $this->getMockBuilder(SettingsBuilder::class)
             ->setConstructorArgs([$this->getObjectManager()->create(Config::class), $edenredGiftcardConfigProvider])
-            ->setMethodsExcept(['build'])
+            ->onlyMethods($this->mockAllExcept(SettingsBuilder::class, ['build']))
             ->getMock();
 
         $expectedSettings = [

@@ -1,5 +1,14 @@
 name: Magento 2 PHPStan
-on: [push]
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - master
+      - release/**
 
 jobs:
   phpstan:
@@ -9,116 +18,148 @@ jobs:
     permissions:
       contents: read
 
+    env:
+      TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+
+    strategy:
+      matrix:
+        include:
+          - PHP_VERSION: php74-fpm
+            MAGENTO_VERSION: 2.3.7-p4
+          - PHP_VERSION: php82-fpm
+            MAGENTO_VERSION: 2.4.6-p12
+
     steps:
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v5
         with:
-          php-version: '8.1'
-        env:
-          COMPOSER_AUTH_JSON: |
-            {
-              "http-basic": {
-                "repo.magento.com": {
-                  "username": "${{ secrets.MAGENTO_MARKETPLACE_USERNAME }}",
-                  "password": "${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}"
-                }
-              }
-            }
+          fetch-depth: 0
+          path: module-src
 
-      - uses: actions/checkout@v4
-        with:
-          path: magento2-core-src
+      - name: Start Docker
+        run: docker run --detach --name magento-project-community-edition michielgerritsen/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
 
-      - name: Pick internal branches
+      - name: Extract branch name
+        id: extract_branch
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+
+      - name: Pick repositories and branches
         id: pick
         shell: bash
-        env:
-          TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
           check_branch() {
-            local OWNER="$1" REPO="$2" BRANCH="$3" DEFAULT="$4"
-            local ENCODED_BRANCH STATUS
+            local OWNER="$1"
+            local REPO="$2"
+            local BRANCH="$3"
+            local DEFAULT="$4"
+
+            local ENCODED_BRANCH
             ENCODED_BRANCH=$(jq -rn --arg b "$BRANCH" '$b|@uri')
+
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer $TOKEN" \
-              -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/$OWNER/$REPO/branches/$ENCODED_BRANCH")
 
-            case "$STATUS" in
-              200) echo "$BRANCH" ;;
-              404) echo "$DEFAULT" ;;
-              *)
-                echo "Unexpected HTTP $STATUS when checking $OWNER/$REPO@$BRANCH" >&2
-                exit 1
-                ;;
-            esac
+            if [ "$STATUS" -eq 200 ]; then
+              echo "$BRANCH"
+            else
+              echo "$DEFAULT"
+            fi
           }
 
           OWNER="$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f1)"
-          BRANCH="${GITHUB_REF_NAME}"
+          CURRENT_REPO="$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)"
+          BRANCH="${{ steps.extract_branch.outputs.branch }}"
           DEFAULT="master"
 
-          SDK_BRANCH=$(check_branch "$OWNER" "php-sdk-internal" "$BRANCH" "$DEFAULT")
+          if [[ "$CURRENT_REPO" == *internal* ]]; then
+            SDK_REPO="php-sdk-internal"
+            CORE_REPO="magento2-internal-core"
+          else
+            SDK_REPO="php-sdk"
+            CORE_REPO="magento2-core"
+          fi
 
-          echo "Selected sdk: $OWNER/php-sdk-internal@$SDK_BRANCH"
+          SDK_BRANCH=$(check_branch "$OWNER" "$SDK_REPO" "$BRANCH" "$DEFAULT")
+          CORE_BRANCH=$(check_branch "$OWNER" "$CORE_REPO" "$BRANCH" "$DEFAULT")
 
-          {
-            echo "sdk-repo=$OWNER/php-sdk-internal"
-            echo "sdk-branch=$SDK_BRANCH"
-          } >> "$GITHUB_OUTPUT"
+          case "$CURRENT_REPO" in
+            magento2-internal-core) MODULE_PACKAGE="multisafepay/magento2-core" ;;
+            magento2-core)           MODULE_PACKAGE="multisafepay/magento2-core" ;;
+            *)                       MODULE_PACKAGE="multisafepay/$CURRENT_REPO" ;;
+          esac
 
-      - name: Checkout PHP-SDK (internal)
-        uses: actions/checkout@v4
+          echo "sdk-repo=$OWNER/$SDK_REPO"        >> $GITHUB_OUTPUT
+          echo "sdk-branch=$SDK_BRANCH"           >> $GITHUB_OUTPUT
+          echo "core-repo=$OWNER/$CORE_REPO"      >> $GITHUB_OUTPUT
+          echo "core-branch=$CORE_BRANCH"         >> $GITHUB_OUTPUT
+          echo "current-repo=$CURRENT_REPO"       >> $GITHUB_OUTPUT
+          echo "module-package=$MODULE_PACKAGE"   >> $GITHUB_OUTPUT
+
+      - name: Checkout PHP-SDK
+        uses: actions/checkout@v5
         with:
           repository: ${{ steps.pick.outputs.sdk-repo }}
-          token: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
           ref: ${{ steps.pick.outputs.sdk-branch }}
+          token: ${{ env.TOKEN }}
           path: php-sdk-src
 
-      - name: Create composer project
-        run: composer create-project --no-install --no-interaction --no-plugins --repository-url=https://repo-magento-mirror.fooman.co.nz/ magento/project-community-edition:2.4.5-p14 /home/runner/work/magento
+      - name: Checkout Magento 2 Core (companion)
+        if: ${{ steps.pick.outputs.current-repo != 'magento2-core' && steps.pick.outputs.current-repo != 'magento2-internal-core' }}
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ steps.pick.outputs.core-repo }}
+          ref: ${{ steps.pick.outputs.core-branch }}
+          token: ${{ env.TOKEN }}
+          path: magento2-core-src
 
-      - name: Create package-source directories
+      - name: Create package-source directories in the container
         run: |
-          mkdir -p /home/runner/work/magento/package-source/multisafepay/magento2-core
-          mkdir -p /home/runner/work/magento/package-source/multisafepay/php-sdk
+          docker exec magento-project-community-edition mkdir -p /data/package-source/multisafepay/magento2-core
+          docker exec magento-project-community-edition mkdir -p /data/package-source/multisafepay/php-sdk
 
-      - name: Move repository content
-        run: rsync -a --exclude='.git' "${{ github.workspace }}/magento2-core-src/" "/home/runner/work/magento/package-source/multisafepay/magento2-core/"
+      - name: Copy the current module into the container as a path package
+        run: |
+          if [ "${{ steps.pick.outputs.current-repo }}" = "magento2-core" ] || \
+             [ "${{ steps.pick.outputs.current-repo }}" = "magento2-internal-core" ]; then
+            docker cp "${{ github.workspace }}/module-src/." magento-project-community-edition:/data/package-source/multisafepay/magento2-core
+          else
+            docker exec magento-project-community-edition mkdir -p /data/package-source/multisafepay/${{ steps.pick.outputs.current-repo }}
+            docker cp "${{ github.workspace }}/module-src/."      magento-project-community-edition:/data/package-source/multisafepay/${{ steps.pick.outputs.current-repo }}
+            docker cp "${{ github.workspace }}/magento2-core-src/." magento-project-community-edition:/data/package-source/multisafepay/magento2-core
+          fi
 
-      - name: Move PHP-SDK Repository content
-        run: rsync -a --exclude='.git' "${{ github.workspace }}/php-sdk-src/" "/home/runner/work/magento/package-source/multisafepay/php-sdk/"
+      - name: Copy PHP-SDK into the container as a path package
+        run: docker cp "${{ github.workspace }}/php-sdk-src/." magento-project-community-edition:/data/package-source/multisafepay/php-sdk
 
-      - name: Add composer plugins
-        working-directory: /home/runner/work/magento
-        run: composer config --no-plugins allow-plugins true
-
-      - name: Add MultiSafepay packages to Composer
-        working-directory: /home/runner/work/magento
-        run: composer config repositories.multisafepay "path" "package-source/multisafepay/*"
-
-      - name: Add module to composer
-        working-directory: /home/runner/work/magento
-        run: composer require multisafepay/magento2-core --no-update --no-interaction
-
-      - name: Install PHPStan extension installer
-        working-directory: /home/runner/work/magento
-        run: composer require --dev phpstan/extension-installer --no-update --no-interaction
-
-      - name: Install PHPStan Magento extension
-        working-directory: /home/runner/work/magento
-        run: composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
+      - name: Allow composer plugins
+        run: docker exec --workdir /data magento-project-community-edition composer config --no-plugins allow-plugins true
 
       - name: Disable Composer audit blocking
-        working-directory: /home/runner/work/magento
-        run: composer config audit.block-insecure false
+        run: docker exec --workdir /data magento-project-community-edition composer config audit.block-insecure false
+
+      - name: Register MultiSafepay path repositories
+        run: docker exec --workdir /data magento-project-community-edition composer config repositories.multisafepay path "package-source/multisafepay/*"
+
+      - name: Require the module from the local path repo
+        run: docker exec --workdir /data magento-project-community-edition composer require ${{ steps.pick.outputs.module-package }}:@dev --no-update --no-interaction
+
+      - name: Install PHPStan and Magento extension (deferred install)
+        run: |
+          docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/extension-installer --no-update --no-interaction
+          docker exec --workdir /data magento-project-community-edition composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
 
       - name: Install composer dependencies
-        working-directory: /home/runner/work/magento
-        run: composer install --no-interaction
+        run: |
+          docker exec --workdir /data magento-project-community-edition composer update \
+            multisafepay/magento2-core \
+            multisafepay/php-sdk \
+            phpstan/extension-installer \
+            bitexpert/phpstan-magento \
+            --with-all-dependencies \
+            --no-interaction
 
       - name: Run PHPStan
-        working-directory: /home/runner/work/magento
-        run: vendor/bin/phpstan analyse -c vendor/multisafepay/magento2-core/phpstan.neon --error-format github
+        run: docker exec --workdir /data magento-project-community-edition vendor/bin/phpstan analyse -c vendor/multisafepay/magento2-core/phpstan.neon --error-format table --no-progress

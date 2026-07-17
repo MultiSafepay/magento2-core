@@ -54,8 +54,8 @@ class CancelClientTest extends AbstractGatewayTestCase
         $fakeOrderIncrementId = '1000010010';
         $captureRequestPayload = $this->captureRequest->addData(
             [
-                "status" => Transaction::CANCELLED,
-                "reason" => "Order cancelled",
+                'status' => Transaction::CANCELLED,
+                'reason' => 'Order cancelled',
             ]
         );
 
@@ -64,12 +64,13 @@ class CancelClientTest extends AbstractGatewayTestCase
                 $this->setupSdkFactory(
                     $this->getSdkMockWithCaptureReservationCancel($fakeOrderIncrementId, $captureRequestPayload)
                 ),
-                $this->getObjectManager()->get(Logger::class)
+                $this->getObjectManager()->get(Logger::class),
             ])
-            ->setMethodsExcept(['placeRequest'])
+            ->onlyMethods($this->mockAllExcept(CancelClient::class, ['placeRequest']))
             ->getMock();
 
         self::assertNull($cancelClientMock->placeRequest($this->prepareTransferObjectMock([])));
+
         $cancelResult = $cancelClientMock->placeRequest(
             $this->prepareTransferObjectMock(
                 [
@@ -78,8 +79,12 @@ class CancelClientTest extends AbstractGatewayTestCase
                 ]
             )
         );
-        self::isTrue(isset($cancelResult['order_id']));
-        self::isTrue(isset($cancelResult['payload']));
+
+        self::assertIsArray($cancelResult);
+        self::assertArrayHasKey('order_id', $cancelResult);
+        self::assertArrayHasKey('payload', $cancelResult);
+        self::assertEquals($fakeOrderIncrementId, $cancelResult['order_id']);
+        self::assertSame($captureRequestPayload, $cancelResult['payload']);
     }
 
     /**
@@ -93,27 +98,27 @@ class CancelClientTest extends AbstractGatewayTestCase
     ): MockObject {
         $sdk = $this->getMockBuilder(Sdk::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['getTransactionManager'])
             ->getMock();
 
         $transactionManagerMock = $this->getMockBuilder(TransactionManager::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['captureReservationCancel'])
             ->getMock();
 
         $mockResponse = $this->getMockBuilder(Response::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['getResponseData'])
             ->getMock();
 
-        $mockResponse->expects(self::any())
-            ->method('getResponseData')
+        $mockResponse->method('getResponseData')
             ->willReturn([]);
 
-        $transactionManagerMock->expects(self::any())
-            ->method('captureReservationCancel')
+        $transactionManagerMock->method('captureReservationCancel')
             ->with($orderId, $captureRequestPayload)
             ->willReturn($mockResponse);
 
-        $sdk->expects(self::any())
-            ->method('getTransactionManager')
+        $sdk->method('getTransactionManager')
             ->willReturn($transactionManagerMock);
 
         return $sdk;

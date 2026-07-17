@@ -70,7 +70,7 @@ class CaptureClientTest extends AbstractGatewayTestCase
                 ),
                 $this->getObjectManager()->get(Logger::class)
             ])
-            ->setMethodsExcept(['placeRequest'])
+            ->onlyMethods($this->mockAllExcept(CaptureClient::class, ['placeRequest']))
             ->getMock();
 
         $result = $captureClientMock->placeRequest(

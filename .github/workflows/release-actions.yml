@@ -19,6 +19,7 @@ jobs:
 
     env:
       TOKEN: ${{ secrets.GLOBAL_GITHUB_TOKEN }}
+      CONTAINER: magento
 
     strategy:
       fail-fast: true
@@ -26,8 +27,8 @@ jobs:
         include:
           - PHP_VERSION: php74-fpm
             MAGENTO_VERSION: 2.3.7-p4
-          - PHP_VERSION: php82-fpm
-            MAGENTO_VERSION: 2.4.6-p12
+          - PHP_VERSION: php84-fpm
+            MAGENTO_VERSION: 2.4.8-p4
 
     steps:
       - uses: actions/checkout@v5
@@ -35,10 +36,10 @@ jobs:
           fetch-depth: 0
 
       - name: Start Docker
-        run: docker run --detach --name magento-project-community-edition michielgerritsen/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
+        run: docker run --detach --rm --name="$CONTAINER" michielgerritsen/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
 
       - name: Upload our code into the docker container
-        run: docker cp "$(pwd)" magento-project-community-edition:/data/extensions/
+        run: docker cp "$(pwd)" "$CONTAINER":/data/extensions/
 
       - name: Extract branch name
         id: extract_branch
@@ -53,9 +54,13 @@ jobs:
             local BRANCH="$3"
             local DEFAULT="$4"
 
+            # URL-encode the branch name so refs containing "/" (e.g. release/1.2) work
+            local ENCODED_BRANCH
+            ENCODED_BRANCH=$(jq -rn --arg b "$BRANCH" '$b|@uri')
+
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer $TOKEN" \
-              "https://api.github.com/repos/$OWNER/$REPO/branches/$BRANCH")
+              "https://api.github.com/repos/$OWNER/$REPO/branches/$ENCODED_BRANCH")
 
             if [ "$STATUS" -eq 200 ]; then
               echo "$BRANCH"
@@ -89,17 +94,17 @@ jobs:
 
       - name: Create directories in the container
         run: |
-          docker exec magento-project-community-edition mkdir -p /data/extensions/php-sdk
+          docker exec "$CONTAINER" mkdir -p /data/extensions/php-sdk
 
       - name: Copy repositories into the container
         run: |
-          docker cp "${{ github.workspace }}/php-sdk/." magento-project-community-edition:/data/extensions/php-sdk
+          docker cp "${{ github.workspace }}/php-sdk/." "$CONTAINER":/data/extensions/php-sdk
 
       - name: Install the extension in Magento
-        run: docker exec magento-project-community-edition composer require multisafepay/magento2-core
+        run: docker exec "$CONTAINER" composer require multisafepay/magento2-core
 
       - name: Run tests
-        run: docker exec magento-project-community-edition bash -c "cd /data/dev/tests/integration/ && ../../../vendor/bin/phpunit ../../../vendor/multisafepay/magento2-core/Test/Integration"
+        run: docker exec "$CONTAINER" bash -c "cd /data/dev/tests/integration/ && ../../../vendor/bin/phpunit ../../../vendor/multisafepay/magento2-core/Test/Integration"
 
   release:
     name: Create GitHub Release

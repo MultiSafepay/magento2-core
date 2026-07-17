@@ -102,7 +102,6 @@ class CreateInvoice implements ProcessInterface
             ];
         }
 
-        /** @var Payment $payment */
         $payment = $order->getPayment();
 
         if ($payment === null) {
@@ -115,6 +114,7 @@ class CreateInvoice implements ProcessInterface
             ];
         }
 
+        /** @var Payment $payment */
         $invoiceAmount = $order->getBaseTotalDue();
         $isManualCaptureTransaction = $this->captureUtil->isCaptureManualTransaction($transaction);
 

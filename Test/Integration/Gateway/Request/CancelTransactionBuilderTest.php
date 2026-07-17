@@ -23,6 +23,7 @@ use MultiSafepay\ConnectCore\Test\Integration\Gateway\AbstractGatewayTestCase;
 use MultiSafepay\ConnectCore\Util\CaptureUtil;
 use MultiSafepay\ConnectCore\Util\PaymentMethodUtil;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -114,6 +115,7 @@ class CancelTransactionBuilderTest extends AbstractGatewayTestCase
      * @param string $orderId
      * @param array $transactionData
      * @return MockObject
+     * @throws ReflectionException
      */
     private function getCancelTransactionBuilderMock(
         string $orderId,
@@ -127,7 +129,7 @@ class CancelTransactionBuilderTest extends AbstractGatewayTestCase
                 $this->getObjectManager()->get(Logger::class),
                 $this->getObjectManager()->get(PaymentMethodUtil::class),
             ])
-            ->setMethodsExcept(['build'])
+            ->onlyMethods($this->mockAllExcept(CancelTransactionBuilder::class, ['build']))
             ->getMock();
     }
 }

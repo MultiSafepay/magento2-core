@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Validator;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Config\Config as PaymentGatewayConfig;
 use Magento\Quote\Api\Data\CartInterface;
 use MultiSafepay\ConnectCore\Gateway\Validator\CategoryValidator;
@@ -21,6 +22,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use MultiSafepay\ConnectCore\Model\Ui\Giftcard\EdenredGiftcardConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 
 class CategoryValidatorTest extends AbstractTestCase
 {
@@ -48,6 +50,8 @@ class CategoryValidatorTest extends AbstractTestCase
      * @magentoDataFixture   Magento/Sales/_files/quote_with_multiple_products.php
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
+     * @throws ReflectionException
+     * @throws NoSuchEntityException
      */
     public function testValidateForEdenredPaymentMethod(): void
     {
@@ -58,7 +62,7 @@ class CategoryValidatorTest extends AbstractTestCase
                 ->setConstructorArgs([
                     $this->getEdenredGiftcardConfigProviderMock($quote, []),
                 ])
-                ->setMethodsExcept(['validate'])
+                ->onlyMethods($this->mockAllExcept(CategoryValidator::class, ['validate']))
                 ->getMock()->validate($quote, $this->paymentConfig, EdenredGiftcardConfigProvider::CODE)
         );
 
@@ -72,7 +76,7 @@ class CategoryValidatorTest extends AbstractTestCase
                         ]
                     ),
                 ])
-                ->setMethodsExcept(['validate'])
+                ->onlyMethods($this->mockAllExcept(CategoryValidator::class, ['validate']))
                 ->getMock()->validate($quote, $this->paymentConfig, EdenredGiftcardConfigProvider::CODE)
         );
     }

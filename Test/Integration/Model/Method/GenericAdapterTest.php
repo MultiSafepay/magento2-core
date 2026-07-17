@@ -53,6 +53,7 @@ class GenericAdapterTest extends AbstractTestCase
 
     /**
      * {@inheritdoc}
+     * @throws ReflectionException
      */
     protected function setUp(): void
     {
@@ -75,22 +76,19 @@ class GenericAdapterTest extends AbstractTestCase
             GenericGatewayConfigProvider::CODE,
             Form::class,
             ConfigurableInfo::class,
-            $this->getObjectManager()->get(CommandPool::class)
-        ])->setMethodsExcept(
-            [
-                'initGeneric',
-                'getBaseGenericConfig',
-                'setCode',
-                'setBaseMethodCode',
-                'getBaseCode',
-                'getCode',
-                'getConfiguredValue',
-                'canUseForCountry',
-                'validateByInstance',
-                'setPaymentConfigCode',
-                'canUseForCurrency'
-            ]
-        )->getMock();
+            $this->getObjectManager()->get(CommandPool::class)])
+            ->onlyMethods([
+                'authorize',
+                'capture',
+                'refund',
+                'cancel',
+                'void',
+                'order',
+                'sale',
+                'acceptPayment',
+                'denyPayment',
+                'fetchTransactionInfo',
+            ])->getMock();
 
         $this->genericAdapter->initGeneric(
             self::GENERIC_GATEWAY_TEST_CODE,

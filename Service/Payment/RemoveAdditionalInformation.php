@@ -17,9 +17,9 @@ namespace MultiSafepay\ConnectCore\Service\Payment;
 use Exception;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use MultiSafepay\ConnectCore\Logger\Logger;
 
 class RemoveAdditionalInformation
@@ -74,6 +74,7 @@ class RemoveAdditionalInformation
             }
 
             try {
+                /** @var Payment $orderPayment */
                 $orderPayment = $this->orderPaymentRepository->get($order->getPayment()->getEntityId());
                 $orderPayment->setAdditionalInformation(
                     array_filter(

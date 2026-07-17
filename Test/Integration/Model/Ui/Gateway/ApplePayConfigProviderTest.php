@@ -20,6 +20,8 @@ namespace MultiSafepay\ConnectCore\Test\Integration\Model\Ui\Gateway;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
@@ -33,8 +35,11 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\ApplePayConfigProvider;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\ConnectCore\Util\CheckoutFieldsUtil;
 use MultiSafepay\ConnectCore\Util\JsonHandler;
+use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidDataInitializationException;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -61,6 +66,12 @@ class ApplePayConfigProviderTest extends AbstractTestCase
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
+     *
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws ApiException
+     * @throws InvalidDataInitializationException
+     * @throws ReflectionException
      */
     public function testCreateApplePayMerchantSession(): void
     {
@@ -85,7 +96,10 @@ class ApplePayConfigProviderTest extends AbstractTestCase
             $this->getObjectManager()->get(RequestInterface::class),
             $this->storeManager,
             $this->getObjectManager()->get(MerchantSessionRequest::class),
-        ])->setMethodsExcept(['createApplePayMerchantSession', 'getSdk'])->getMock();
+        ])->onlyMethods($this->mockAllExcept(
+            ApplePayConfigProvider::class,
+            ['createApplePayMerchantSession', 'getSdk']
+        ))->getMock();
 
         self::assertSame(
             self::FAKE_APPLE_SESSION_RESPONSE,

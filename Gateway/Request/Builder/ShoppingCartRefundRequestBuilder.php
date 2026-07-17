@@ -21,7 +21,6 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Exception\CouldNotRefundException;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Sales\Model\Order\Creditmemo;
 use MultiSafepay\ConnectCore\Logger\Logger;
 use MultiSafepay\ConnectCore\Util\CurrencyUtil;
 use MultiSafepay\ConnectCore\Util\ShoppingCartRefundUtil;
@@ -89,8 +88,6 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
 
         $order = $payment->getOrder();
         $orderId = $order->getIncrementId();
-
-        /** @var Creditmemo $creditMemo */
         $creditMemo = $payment->getCreditMemo();
 
         if ($creditMemo === null) {
@@ -124,10 +121,10 @@ class ShoppingCartRefundRequestBuilder implements BuilderInterface
             $message = 'The refund can not be created because an error occurred while retrieving the items to refund';
             throw new CouldNotRefundException(__($message));
         }
-        
+
         $extensionAttributes = $creditMemo->getExtensionAttributes();
         $foomanSurcharge = $this->shoppingCartRefundUtil->getFoomanSurcharge($extensionAttributes);
-        
+
         if ($foomanSurcharge !== null) {
             $response['fooman_surcharge'] = $foomanSurcharge;
         }

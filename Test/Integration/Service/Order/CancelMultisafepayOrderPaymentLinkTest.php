@@ -23,6 +23,7 @@ use MultiSafepay\ConnectCore\Service\Order\CancelMultisafepayOrderPaymentLink;
 use MultiSafepay\ConnectCore\Test\Integration\AbstractTestCase;
 use MultiSafepay\Sdk;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 
 class CancelMultisafepayOrderPaymentLinkTest extends AbstractTestCase
 {
@@ -45,7 +46,9 @@ class CancelMultisafepayOrderPaymentLinkTest extends AbstractTestCase
      * @magentoDataFixture   Magento/Sales/_files/order.php
      * @magentoConfigFixture default_store multisafepay/general/test_api_key testkey
      * @magentoConfigFixture default_store multisafepay/general/mode 0
+     *
      * @throws LocalizedException
+     * @throws ReflectionException
      */
     public function testCancelMultisafepayOrderPaymentLinkSuccess(): void
     {
@@ -56,7 +59,7 @@ class CancelMultisafepayOrderPaymentLinkTest extends AbstractTestCase
                 $this->getObjectManager()->get(Logger::class),
                 $this->setupSdkFactory($this->getSdkMock($order->getIncrementId())),
             ])
-                ->setMethodsExcept(['execute'])
+                ->onlyMethods($this->mockAllExcept(CancelMultisafepayOrderPaymentLink::class, ['execute']))
                 ->getMock();
 
         self::assertTrue($cancelMultisafepayOrderPaymentLinkMock->execute($order));

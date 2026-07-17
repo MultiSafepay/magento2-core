@@ -6,7 +6,7 @@
 
 namespace MultiSafepay\ConnectCore\Client;
 
-use Magento\Framework\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 
 class Response
 {
@@ -130,7 +130,7 @@ class Response
             }
 
             // Anything else is an error condition
-            throw new InvalidArgumentException(__('Invalid header line detected'));
+            throw new InvalidArgumentException('Invalid header line detected');
         }
 
         return $headers;
@@ -177,7 +177,7 @@ class Response
                 || $ascii === 127
                 || $ascii > 254
             ) {
-                throw new InvalidArgumentException(__('Invalid header value'));
+                throw new InvalidArgumentException('Invalid header value');
             }
         }
     }

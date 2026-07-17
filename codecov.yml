@@ -1,0 +1,6 @@
+fixes:
+  - "/data/extensions/magento2-internal-core/::"
+
+ignore:
+  - "Test/**"
+  - "**/Test/**"

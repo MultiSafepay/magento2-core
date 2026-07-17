@@ -48,6 +48,7 @@ use MultiSafepay\ConnectCore\Model\Ui\Gateway\VisaConfigProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
+use ReflectionMethod;
 use ReflectionObject;
 
 /**
@@ -73,6 +74,33 @@ abstract class AbstractTestCase extends TestCase
     protected function getObjectManager(): ObjectManagerInterface
     {
         return Bootstrap::getObjectManager();
+    }
+
+    /**
+     * Returns the list of public, non-static methods of the given class,
+     * minus the ones passed in $except (and always minus the constructor).
+     *
+     * This is the PHPUnit 10 replacement for MockBuilder::setMethodsExcept():
+     *
+     * @param string $class
+     * @param array<int, string> $except
+     * @return array<int, string>
+     * @throws ReflectionException
+     */
+    protected function mockAllExcept(string $class, array $except): array
+    {
+        $reflection = new \ReflectionClass($class);
+        $methods = [];
+
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if ($method->isStatic() || $method->isConstructor() || $method->isFinal()) {
+                continue;
+            }
+
+            $methods[] = $method->getName();
+        }
+
+        return array_values(array_diff($methods, $except));
     }
 
     /**
@@ -332,7 +360,9 @@ abstract class AbstractTestCase extends TestCase
             ->setConstructorArgs([
                 $this->getObjectManager()->get(MultiSafepayConfig::class),
                 $this->getObjectManager()->get(Client::class)
-            ])->getMock();
+            ])
+            ->onlyMethods(['create'])
+            ->getMock();
 
         $sdkFactory->expects(self::any())
             ->method('create')
@@ -367,6 +397,7 @@ abstract class AbstractTestCase extends TestCase
     {
         $transferObject = $this->getMockBuilder(Transfer::class)
             ->disableOriginalConstructor()
+            ->onlyMethods(['getBody'])
             ->getMock();
 
         $transferObject

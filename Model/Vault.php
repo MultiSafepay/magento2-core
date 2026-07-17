@@ -20,7 +20,6 @@ namespace MultiSafepay\ConnectCore\Model;
 use DateTime;
 use Exception;
 use Magento\Framework\Encryption\EncryptorInterface;
-use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentExtension;
 use Magento\Sales\Api\Data\OrderPaymentExtensionInterfaceFactory;
 use Magento\Sales\Model\Order\Payment;

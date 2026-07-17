@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace MultiSafepay\ConnectCore\Test\Integration\Gateway\Http\Client;
 
+use Exception;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use MultiSafepay\Api\Base\Response;
 use MultiSafepay\Api\TransactionManager;
@@ -33,7 +34,7 @@ class RefundClientTest extends AbstractTestCase
     public const FAKE_REFUND_ID = '11223344';
 
     /**
-     * @throws ClientExceptionInterface
+     * @throws Exception
      */
     public function testRefundClient(): void
     {
@@ -49,7 +50,7 @@ class RefundClientTest extends AbstractTestCase
             $this->setupSdkFactory($this->getSdkMockWithRefundMethod($fakeOrderIncrementId, $refundRequestPayload)),
             $this->getObjectManager()->get(Logger::class),
             $this->getObjectManager()->get(JsonHandler::class)
-        ])->setMethodsExcept(['placeRequest'])->getMock();
+        ])->onlyMethods($this->mockAllExcept(RefundClient::class, ['placeRequest']))->getMock();
 
         /** @var TransferInterface $transferObject */
         $transferObject = $this->prepareTransferObjectMock([
