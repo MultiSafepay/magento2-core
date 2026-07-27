@@ -79,12 +79,18 @@ class PriceUtil
     {
         $orderedQuantity = (float)$item->getQtyOrdered();
 
+        if ($orderedQuantity <= 0) {
+            return 0.0;
+        }
+
         return $this->shouldUseInclTaxAmounts($storeId)
             ? $this->getUnitPriceInclTax($item, $storeId, $orderedQuantity)
             : $this->getUnitPriceExclTax($item, $storeId, $orderedQuantity);
     }
 
     /**
+     * Returns the unit price excluding tax for the given order item, store ID, and ordered quantity.
+     *
      * @param OrderItemInterface $item
      * @param $storeId
      * @param float $orderedQuantity
@@ -92,16 +98,22 @@ class PriceUtil
      */
     public function getUnitPriceExclTax(OrderItemInterface $item, $storeId, float $orderedQuantity): float
     {
-        if ($this->config->useBaseCurrency($storeId)) {
-            return ($item->getBasePrice() - ($item->getBaseDiscountAmount() / $orderedQuantity))
-                   + ($item->getBaseDiscountTaxCompensationAmount() / $orderedQuantity);
+        if ($orderedQuantity <= 0) {
+            return 0.0;
         }
 
-        return ($item->getPrice() - ($item->getDiscountAmount() / $orderedQuantity))
-               + ($item->getDiscountTaxCompensationAmount() / $orderedQuantity);
+        if ($this->config->useBaseCurrency($storeId)) {
+            return ($item->getBaseRowTotal() - $item->getBaseDiscountAmount()
+                    + $item->getBaseDiscountTaxCompensationAmount()) / $orderedQuantity;
+        }
+
+        return ($item->getRowTotal() - $item->getDiscountAmount()
+                + $item->getDiscountTaxCompensationAmount()) / $orderedQuantity;
     }
 
     /**
+     * Returns the incl-tax unit price derived from the row total so that
+     *
      * @param OrderItemInterface $item
      * @param $storeId
      * @param float $orderedQuantity
@@ -109,15 +121,36 @@ class PriceUtil
      */
     public function getUnitPriceInclTax(OrderItemInterface $item, $storeId, float $orderedQuantity): float
     {
-        $addedTaxPercentage = 1 + ($item->getTaxPercent() / 100);
-
-        if ($this->config->useBaseCurrency($storeId)) {
-            return (($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount()) /
-                    $orderedQuantity / ($addedTaxPercentage));
+        if ($orderedQuantity <= 0) {
+            return 0.0;
         }
 
-        return (($item->getRowTotalInclTax() - $item->getDiscountAmount()) /
-                $orderedQuantity / ($addedTaxPercentage));
+        $addedTaxPercentage = 1 + ($item->getTaxPercent() / 100);
+        $discountScaleFactor = $this->catalogPriceIncludesTax($storeId) ? 1.0 : $addedTaxPercentage;
+
+        if ($this->config->useBaseCurrency($storeId)) {
+            return (($item->getBaseRowTotalInclTax() - $item->getBaseDiscountAmount() * $discountScaleFactor) /
+                    $orderedQuantity / $addedTaxPercentage);
+        }
+
+        return (($item->getRowTotalInclTax() - $item->getDiscountAmount() * $discountScaleFactor) /
+                $orderedQuantity / $addedTaxPercentage);
+    }
+
+    /**
+     * Returns true when the catalog price configuration is set to "Including Tax"
+     * (tax/calculation/price_includes_tax = 1).
+     *
+     * @param $storeId
+     * @return bool
+     */
+    private function catalogPriceIncludesTax($storeId): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            MagentoConfig::CONFIG_XML_PATH_PRICE_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**
@@ -127,14 +160,22 @@ class PriceUtil
      */
     public function getUnitRowItemPriceWithTax(OrderItemInterface $item, $storeId): float
     {
-        if ($this->config->useBaseCurrency($storeId)) {
-            return $this->getUnitPrice($item, $storeId) + ($item->getBaseTaxAmount() / $item->getQtyOrdered());
+        $orderedQuantity = (float)$item->getQtyOrdered();
+
+        if ($orderedQuantity <= 0) {
+            return 0.0;
         }
 
-        return $this->getUnitPrice($item, $storeId) + ($item->getTaxAmount() / $item->getQtyOrdered());
+        if ($this->config->useBaseCurrency($storeId)) {
+            return $this->getUnitPrice($item, $storeId) + ($item->getBaseTaxAmount() / $orderedQuantity);
+        }
+
+        return $this->getUnitPrice($item, $storeId) + ($item->getTaxAmount() / $orderedQuantity);
     }
 
     /**
+     * Returns the shipping unit price (excl tax) derived from the order's shipping amounts so that
+     *
      * @param OrderInterface $order
      * @return float
      * @throws NoSuchEntityException
@@ -142,13 +183,16 @@ class PriceUtil
     public function getShippingUnitPrice(OrderInterface $order): float
     {
         $shippingTaxRate = 1 + ($this->taxUtil->getShippingTaxRate($order) / 100);
+        $discountScaleFactor = $this->discountAppliedOnInclTaxPrices($order->getStoreId())
+            ? 1.0
+            : $shippingTaxRate;
 
         if ($this->config->useBaseCurrency($order->getStoreId())) {
             if ($order->getBaseShippingInclTax() === $order->getBaseShippingAmount()) {
                 return $order->getBaseShippingAmount() - $order->getBaseShippingDiscountAmount();
             }
 
-            return ($order->getBaseShippingInclTax() - ($order->getBaseShippingDiscountAmount() * $shippingTaxRate))
+            return ($order->getBaseShippingInclTax() - ($order->getBaseShippingDiscountAmount() * $discountScaleFactor))
                    / $shippingTaxRate;
         }
 
@@ -156,8 +200,23 @@ class PriceUtil
             return $order->getShippingAmount() - $order->getShippingDiscountAmount();
         }
 
-        return ($order->getShippingInclTax() - ($order->getShippingDiscountAmount() * $shippingTaxRate))
+        return ($order->getShippingInclTax() - ($order->getShippingDiscountAmount() * $discountScaleFactor))
                / $shippingTaxRate;
+    }
+
+    /**
+     * Returns true when the discount is applied on prices including tax (tax/calculation/discount_tax = 1)
+     *
+     * @param $storeId
+     * @return bool
+     */
+    private function discountAppliedOnInclTaxPrices($storeId): bool
+    {
+        return (bool)$this->scopeConfig->getValue(
+            MagentoConfig::CONFIG_XML_PATH_DISCOUNT_TAX,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
 
     /**
