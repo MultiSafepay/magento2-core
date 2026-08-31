@@ -45,6 +45,7 @@ class Config
     public const MULTISAFEPAY_ACCOUNT_DATA = 'account_data';
     public const CHECKOUT_FIELDS = 'checkout_fields';
     public const PAYMENT_ICON = 'payment_icon';
+    public const SHOW_PAYMENT_ICONS = 'show_payment_icons';
     public const ICON_TYPE = 'icon_type';
     public const DISABLE_UTM_NOOVERRIDE = 'disable_utm_nooverride';
     public const SHOW_PAYMENT_PAGE = 'show_payment_page';
@@ -382,5 +383,14 @@ class Config
     public function canAddCouponToItemNames($storeId = null): bool
     {
         return (bool)$this->getAdvancedValue(self::ADD_COUPON_TO_ITEM_NAMES, $storeId);
+    }
+
+    /**
+     * @param $storeId
+     * @return bool
+     */
+    public function canShowPaymentIcons($storeId = null): bool
+    {
+        return (bool)$this->getValue(self::SHOW_PAYMENT_ICONS, $storeId);
     }
 }

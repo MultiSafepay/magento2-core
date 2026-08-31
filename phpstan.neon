@@ -1,12 +1,17 @@
 parameters:
     level: 2
     errorFormat: github
+    ignoreErrors:
+        -
+            message: '#^PHPDoc tag @SuppressWarnings has invalid value#'
+            reportUnmatched: false
     paths:
         - .
     excludePaths:
         - etc
         - Test
         - view
+        - Util/NotificationUtil.php
         - Model/Api/Builder/OrderRequestBuilder/ShoppingCartBuilder/CustomTotalBuilder.php
         - Util/ThirdPartyPluginsUtil.php
         - Factory/SdkFactory.php

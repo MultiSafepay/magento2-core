@@ -50,6 +50,13 @@ class CreditCardConfigProvider extends GenericConfigProvider
      */
     public function getImage(): string
     {
+        $url = '';
+        $storeId = $this->getStoreIdFromCheckoutSession();
+
+        if (!$this->config->canShowPaymentIcons($storeId)) {
+            return $url;
+        }
+
         $extension = '.png';
 
         if ($this->config->getIconType() === 'svg') {

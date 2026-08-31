@@ -178,6 +178,10 @@ class GenericConfigProvider implements ConfigProviderInterface
         $url = '';
         $storeId = $this->getStoreIdFromCheckoutSession();
 
+        if (!$this->config->canShowPaymentIcons($storeId)) {
+            return $url;
+        }
+
         if ($this->config->getIconType($storeId) === 'default') {
             $url = $this->getPaymentConfig()['icon_url_default'] ?? '';
         }

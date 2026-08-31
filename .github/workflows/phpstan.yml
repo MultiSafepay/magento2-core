@@ -144,12 +144,19 @@ jobs:
         run: docker exec --workdir /data magento-project-community-edition composer config repositories.multisafepay path "package-source/multisafepay/*"
 
       - name: Require the module from the local path repo
-        run: docker exec --workdir /data magento-project-community-edition composer require ${{ steps.pick.outputs.module-package }}:@dev --no-update --no-interaction
+        run: docker exec --workdir /data magento-project-community-edition composer require ${{ steps.pick.outputs.module-package }}:* --no-update --no-interaction
 
       - name: Install PHPStan and Magento extension (deferred install)
         run: |
           docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/extension-installer --no-update --no-interaction
-          docker exec --workdir /data magento-project-community-edition composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
+
+          if [ "${{ matrix.PHP_VERSION }}" = "php74-fpm" ]; then
+            docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/phpstan:^1.12 --no-update --no-interaction
+            docker exec --workdir /data magento-project-community-edition composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
+          else
+            docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/phpstan:^2.2 --no-update --no-interaction
+            docker exec --workdir /data magento-project-community-edition composer require --dev bitexpert/phpstan-magento:^0.43.0 --no-update --no-interaction
+          fi
 
       - name: Install composer dependencies
         run: |
@@ -157,6 +164,7 @@ jobs:
             multisafepay/magento2-core \
             multisafepay/php-sdk \
             phpstan/extension-installer \
+            phpstan/phpstan \
             bitexpert/phpstan-magento \
             --with-all-dependencies \
             --no-interaction

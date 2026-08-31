@@ -27,6 +27,13 @@ class PayafterConfigProvider extends GenericConfigProvider
      */
     public function getImage(): string
     {
+        $url = '';
+        $storeId = $this->getStoreIdFromCheckoutSession();
+
+        if (!$this->config->canShowPaymentIcons($storeId)) {
+            return $url;
+        }
+
         $path = $this->getImagePath($this->getCode());
         $this->assetRepository->createAsset($path);
 
