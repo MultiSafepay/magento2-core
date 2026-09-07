@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Start Docker
-        run: docker run --detach --rm --name="$CONTAINER" michielgerritsen/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
+        run: docker run --detach --rm --name="$CONTAINER" ghcr.io/controlaltdelete-nl/magento2-in-a-box/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
 
       - name: Upload our code into the docker container
         run: docker cp "$(pwd)" "$CONTAINER":/data/extensions/
