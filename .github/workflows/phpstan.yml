@@ -25,9 +25,15 @@ jobs:
       matrix:
         include:
           - PHP_VERSION: php74-fpm
-            MAGENTO_VERSION: 2.3.7-p4
-          - PHP_VERSION: php82-fpm
-            MAGENTO_VERSION: 2.4.6-p12
+            IMAGE: magento-project-community-edition
+            IMAGE_VERSION: magento2.3.7-p4
+          - PHP_VERSION: php84-fpm
+            IMAGE: magento-project-community-edition
+            IMAGE_VERSION: magento2.4.8-p4
+            COVERAGE: true
+          - PHP_VERSION: php84-fpm
+            IMAGE: mage-os-community-edition
+            IMAGE_VERSION: mage-os3.3.0
 
     steps:
       - uses: actions/checkout@v5
@@ -36,7 +42,7 @@ jobs:
           path: module-src
 
       - name: Start Docker
-        run: docker run --detach --name magento-project-community-edition ghcr.io/controlaltdelete-nl/magento2-in-a-box/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
+        run: docker run --detach --name ${{ matrix.IMAGE }} ghcr.io/controlaltdelete-nl/magento2-in-a-box/${{ matrix.IMAGE }}:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_VERSION }}
 
       - name: Extract branch name
         id: extract_branch
@@ -117,50 +123,50 @@ jobs:
 
       - name: Create package-source directories in the container
         run: |
-          docker exec magento-project-community-edition mkdir -p /data/package-source/multisafepay/magento2-core
-          docker exec magento-project-community-edition mkdir -p /data/package-source/multisafepay/php-sdk
+          docker exec ${{ matrix.IMAGE }} mkdir -p /data/package-source/multisafepay/magento2-core
+          docker exec ${{ matrix.IMAGE }} mkdir -p /data/package-source/multisafepay/php-sdk
 
       - name: Copy the current module into the container as a path package
         run: |
           if [ "${{ steps.pick.outputs.current-repo }}" = "magento2-core" ] || \
              [ "${{ steps.pick.outputs.current-repo }}" = "magento2-internal-core" ]; then
-            docker cp "${{ github.workspace }}/module-src/." magento-project-community-edition:/data/package-source/multisafepay/magento2-core
+            docker cp "${{ github.workspace }}/module-src/." ${{ matrix.IMAGE }}:/data/package-source/multisafepay/magento2-core
           else
-            docker exec magento-project-community-edition mkdir -p /data/package-source/multisafepay/${{ steps.pick.outputs.current-repo }}
-            docker cp "${{ github.workspace }}/module-src/."      magento-project-community-edition:/data/package-source/multisafepay/${{ steps.pick.outputs.current-repo }}
-            docker cp "${{ github.workspace }}/magento2-core-src/." magento-project-community-edition:/data/package-source/multisafepay/magento2-core
+            docker exec ${{ matrix.IMAGE }} mkdir -p /data/package-source/multisafepay/${{ steps.pick.outputs.current-repo }}
+            docker cp "${{ github.workspace }}/module-src/."      ${{ matrix.IMAGE }}:/data/package-source/multisafepay/${{ steps.pick.outputs.current-repo }}
+            docker cp "${{ github.workspace }}/magento2-core-src/." ${{ matrix.IMAGE }}:/data/package-source/multisafepay/magento2-core
           fi
 
       - name: Copy PHP-SDK into the container as a path package
-        run: docker cp "${{ github.workspace }}/php-sdk-src/." magento-project-community-edition:/data/package-source/multisafepay/php-sdk
+        run: docker cp "${{ github.workspace }}/php-sdk-src/." ${{ matrix.IMAGE }}:/data/package-source/multisafepay/php-sdk
 
       - name: Allow composer plugins
-        run: docker exec --workdir /data magento-project-community-edition composer config --no-plugins allow-plugins true
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} composer config --no-plugins allow-plugins true
 
       - name: Disable Composer audit blocking
-        run: docker exec --workdir /data magento-project-community-edition composer config audit.block-insecure false
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} composer config audit.block-insecure false
 
       - name: Register MultiSafepay path repositories
-        run: docker exec --workdir /data magento-project-community-edition composer config repositories.multisafepay path "package-source/multisafepay/*"
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} composer config repositories.multisafepay path "package-source/multisafepay/*"
 
       - name: Require the module from the local path repo
-        run: docker exec --workdir /data magento-project-community-edition composer require ${{ steps.pick.outputs.module-package }}:* --no-update --no-interaction
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} composer require ${{ steps.pick.outputs.module-package }}:* --no-update --no-interaction
 
       - name: Install PHPStan and Magento extension (deferred install)
         run: |
-          docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/extension-installer --no-update --no-interaction
+          docker exec --workdir /data ${{ matrix.IMAGE }} composer require --dev phpstan/extension-installer --no-update --no-interaction
 
           if [ "${{ matrix.PHP_VERSION }}" = "php74-fpm" ]; then
-            docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/phpstan:^1.12 --no-update --no-interaction
-            docker exec --workdir /data magento-project-community-edition composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
+            docker exec --workdir /data ${{ matrix.IMAGE }} composer require --dev phpstan/phpstan:^1.12 --no-update --no-interaction
+            docker exec --workdir /data ${{ matrix.IMAGE }} composer require --dev bitexpert/phpstan-magento:0.32.0 --no-update --no-interaction
           else
-            docker exec --workdir /data magento-project-community-edition composer require --dev phpstan/phpstan:^2.2 --no-update --no-interaction
-            docker exec --workdir /data magento-project-community-edition composer require --dev bitexpert/phpstan-magento:^0.43.0 --no-update --no-interaction
+            docker exec --workdir /data ${{ matrix.IMAGE }} composer require --dev phpstan/phpstan:2.2.9 --no-update --no-interaction
+            docker exec --workdir /data ${{ matrix.IMAGE }} composer require --dev bitexpert/phpstan-magento:^0.43.0 --no-update --no-interaction
           fi
 
       - name: Install composer dependencies
         run: |
-          docker exec --workdir /data magento-project-community-edition composer update \
+          docker exec --workdir /data ${{ matrix.IMAGE }} composer update \
             multisafepay/magento2-core \
             multisafepay/php-sdk \
             phpstan/extension-installer \
@@ -169,5 +175,9 @@ jobs:
             --with-all-dependencies \
             --no-interaction
 
+      - name: Show installed PHPStan versions
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} composer show phpstan/phpstan bitexpert/phpstan-magento | cat
+
+
       - name: Run PHPStan
-        run: docker exec --workdir /data magento-project-community-edition vendor/bin/phpstan analyse -c vendor/multisafepay/magento2-core/phpstan.neon --error-format table --no-progress
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} vendor/bin/phpstan analyse -c vendor/multisafepay/magento2-core/phpstan.neon --error-format table --no-progress

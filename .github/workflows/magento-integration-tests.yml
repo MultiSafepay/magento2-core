@@ -24,9 +24,15 @@ jobs:
       matrix:
         include:
           - PHP_VERSION: php74-fpm
-            MAGENTO_VERSION: 2.3.7-p4
+            IMAGE: magento-project-community-edition
+            IMAGE_VERSION: magento2.3.7-p4
           - PHP_VERSION: php84-fpm
-            MAGENTO_VERSION: 2.4.8-p4
+            IMAGE: magento-project-community-edition
+            IMAGE_VERSION: magento2.4.8-p4
+            COVERAGE: true
+          - PHP_VERSION: php84-fpm
+            IMAGE: mage-os-community-edition
+            IMAGE_VERSION: mage-os3.3.0
 
     steps:
       - uses: actions/checkout@v5
@@ -34,10 +40,10 @@ jobs:
           fetch-depth: 0
 
       - name: Start Docker
-        run: docker run --detach --name magento-project-community-edition ghcr.io/controlaltdelete-nl/magento2-in-a-box/magento-project-community-edition:${{ matrix.PHP_VERSION }}-magento${{ matrix.MAGENTO_VERSION }}
+        run: docker run --detach --name ${{ matrix.IMAGE }} ghcr.io/controlaltdelete-nl/magento2-in-a-box/${{ matrix.IMAGE }}:${{ matrix.PHP_VERSION }}-${{ matrix.IMAGE_VERSION }}
 
       - name: Upload our code into the docker container
-        run: docker cp "$(pwd)" magento-project-community-edition:/data/extensions/
+        run: docker cp "$(pwd)" ${{ matrix.IMAGE }}:/data/extensions/
 
       - name: Extract branch name
         id: extract_branch
@@ -90,53 +96,53 @@ jobs:
 
       - name: Create directories in the container
         run: |
-          docker exec --workdir /data magento-project-community-edition mkdir -p /data/extensions/php-sdk
+          docker exec --workdir /data ${{ matrix.IMAGE }} mkdir -p /data/extensions/php-sdk
 
       - name: Copy repositories into the container
         run: |
-          docker cp "${{ github.workspace }}/php-sdk/." magento-project-community-edition:/data/extensions/php-sdk
+          docker cp "${{ github.workspace }}/php-sdk/." ${{ matrix.IMAGE }}:/data/extensions/php-sdk
 
       - name: Install the extension in Magento
         run: |
-          docker exec --workdir /data magento-project-community-edition \
+          docker exec --workdir /data ${{ matrix.IMAGE }} \
             composer require multisafepay/magento2-core \
               --no-update --no-interaction
-          docker exec --workdir /data magento-project-community-edition \
+          docker exec --workdir /data ${{ matrix.IMAGE }} \
             composer update multisafepay/magento2-core multisafepay/php-sdk \
               --no-interaction
 
       - name: Refresh Magento module registry and caches
         run: |
-          docker exec --workdir /data magento-project-community-edition \
+          docker exec --workdir /data ${{ matrix.IMAGE }} \
             php bin/magento module:enable MultiSafepay_ConnectCore
-          docker exec --workdir /data magento-project-community-edition \
+          docker exec --workdir /data ${{ matrix.IMAGE }} \
             php bin/magento cache:clean config full_page config_integration
-          docker exec --workdir /data magento-project-community-edition \
+          docker exec --workdir /data ${{ matrix.IMAGE }} \
             php bin/magento module:status | head -80
 
       - name: Install PCOV coverage driver in container
-        if: matrix.PHP_VERSION == 'php84-fpm'
+        if: matrix.COVERAGE
         run: |
-          docker exec magento-project-community-edition bash -c '\
+          docker exec ${{ matrix.IMAGE }} bash -c '\
             PHPVER=$(php -r "echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;") && \
             echo "Detected PHP $PHPVER" && \
             apt-get update && \
             apt-get install -y php${PHPVER}-pcov'
 
       - name: Scope PCOV coverage to the extension
-        if: matrix.PHP_VERSION == 'php84-fpm'
+        if: matrix.COVERAGE
         run: |
-          docker exec magento-project-community-edition bash -c '\
+          docker exec ${{ matrix.IMAGE }} bash -c '\
             PHPVER=$(php -r "echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION;") && \
             printf "pcov.enabled=1\npcov.directory=/data/extensions/magento2-internal-core\n" \
               > /etc/php/${PHPVER}/cli/conf.d/99-pcov-scope.ini'
           echo "=== Effective PCOV config ==="
-          docker exec magento-project-community-edition php -i | grep -i "pcov.directory"
+          docker exec ${{ matrix.IMAGE }} php -i | grep -i "pcov.directory"
 
       - name: Run tests (with coverage)
-        if: matrix.PHP_VERSION == 'php84-fpm'
+        if: matrix.COVERAGE
         run: |
-          docker exec --workdir /data magento-project-community-edition \
+          docker exec --workdir /data ${{ matrix.IMAGE }} \
             bash -c "cd /data/dev/tests/integration/ && \
               ../../../vendor/bin/phpunit \
               ../../../vendor/multisafepay/magento2-core/Test/Integration \
@@ -144,11 +150,11 @@ jobs:
               --coverage-clover=/data/coverage.xml"
 
       - name: Copy coverage report out of the container
-        if: matrix.PHP_VERSION == 'php84-fpm'
-        run: docker cp magento-project-community-edition:/data/coverage.xml "${{ github.workspace }}/coverage.xml"
+        if: matrix.COVERAGE
+        run: docker cp ${{ matrix.IMAGE }}:/data/coverage.xml "${{ github.workspace }}/coverage.xml"
 
       - name: Send clover to Codecov
-        if: matrix.PHP_VERSION == 'php84-fpm'
+        if: matrix.COVERAGE
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -158,4 +164,4 @@ jobs:
 
       - name: Run tests
         if: matrix.PHP_VERSION != 'php84-fpm'
-        run: docker exec --workdir /data magento-project-community-edition bash -c "cd /data/dev/tests/integration/ && ../../../vendor/bin/phpunit ../../../vendor/multisafepay/magento2-core/Test/Integration"
+        run: docker exec --workdir /data ${{ matrix.IMAGE }} bash -c "cd /data/dev/tests/integration/ && ../../../vendor/bin/phpunit ../../../vendor/multisafepay/magento2-core/Test/Integration"

@@ -14,5 +14,8 @@ parameters:
         - Util/NotificationUtil.php
         - Model/Api/Builder/OrderRequestBuilder/ShoppingCartBuilder/CustomTotalBuilder.php
         - Util/ThirdPartyPluginsUtil.php
+        - Logger/Logger.php
         - Factory/SdkFactory.php
         - Logger/Handler.php
+        - generated (?)
+        - var/generation (?)
