@@ -104,9 +104,18 @@ class PostNotification
         $transaction = $this->jsonHandler->readJSON($requestBody);
         $orderIncrementId = $transaction['order_id'] ?? '';
 
-        // Validate the POST notification
         try {
-            if (!SdkNotification::verifyNotification($requestBody, $authHeader, $this->config->getApiKey($storeId))) {
+            $apiKey = trim($this->config->getApiKey($storeId));
+
+            if ($apiKey === '') {
+                $message = 'API key is not configured for this store';
+
+                $this->logger->logInfoForNotification($orderIncrementId, $message, $transaction);
+
+                return ['success' => false, 'message' => $message];
+            }
+
+            if (!SdkNotification::verifyNotification($requestBody, $authHeader, $apiKey)) {
                 $message = 'Unable to verify POST notification';
 
                 $this->logger->logInfoForNotification($orderIncrementId, $message, $transaction);
@@ -128,6 +137,16 @@ class PostNotification
             $this->logger->logExceptionForOrder($orderIncrementId, $noSuchEntityException);
 
             return ['success' => false, 'message' => sprintf('%1$s', $noSuchEntityException->getMessage())];
+        }
+
+        // The signature was verified with the API key of the requested store scope,
+        // so the order must belong to that same store
+        if ((int)$order->getStoreId() !== $storeId) {
+            $message = 'Order does not belong to the requested store';
+
+            $this->logger->logInfoForNotification($orderIncrementId, $message, $transaction);
+
+            return ['success' => false, 'message' => $message];
         }
 
         return $this->statusOperationManager->processStatusOperation($order, $transaction);

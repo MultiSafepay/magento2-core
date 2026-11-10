@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PLGMAG2V2-919: Add Mage-OS to the CI matrix, thanks to @michielgerritsen
 - PLGMAG2V2-918: Update docker images in CI - Testing, thanks to @michielgerritsen
 
+### Security
+- PLGMAG2V2-920: Improve webhook notification validation by rejecting notifications for store views without a configured API key and verifying the order belongs to the notified store
+
 ## [3.21.0] - 2026-09-01
 ### Added
 - PLGMAG2V2-912: Add option to show no icon

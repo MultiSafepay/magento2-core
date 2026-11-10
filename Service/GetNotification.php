@@ -24,6 +24,7 @@ use MultiSafepay\ConnectCore\Util\OrderUtil;
 use MultiSafepay\ConnectCore\Service\Process\DelayExecution;
 use MultiSafepay\ConnectCore\Service\Transaction\StatusOperationManager;
 use MultiSafepay\Exception\ApiException;
+use MultiSafepay\Exception\InvalidApiKeyException;
 use Psr\Http\Client\ClientExceptionInterface;
 
 class GetNotification
@@ -86,8 +87,14 @@ class GetNotification
      */
     public function execute(string $orderIncrementId, int $storeId): array
     {
-        //Retrieve transaction from API call
-        $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
+        try {
+            $transactionManager = $this->sdkFactory->create($storeId)->getTransactionManager();
+        } catch (InvalidApiKeyException $invalidApiKeyException) {
+            $message = 'API key is not configured for this store';
+            $this->logger->logInfoForOrder($orderIncrementId, $message);
+
+            return ['success' => false, 'message' => $message];
+        }
 
         try {
             $transactionResponse = $transactionManager->get($orderIncrementId);

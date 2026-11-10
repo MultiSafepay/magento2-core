@@ -30,7 +30,6 @@ jobs:
           - PHP_VERSION: php84-fpm
             IMAGE: magento-project-community-edition
             IMAGE_VERSION: magento2.4.8-p4
-            COVERAGE: true
           - PHP_VERSION: php84-fpm
             IMAGE: mage-os-community-edition
             IMAGE_VERSION: mage-os3.3.0
@@ -165,13 +164,27 @@ jobs:
           fi
 
       - name: Install composer dependencies
+        shell: bash
         run: |
+          set -euo pipefail
+
+          # The base images are rebuilt upstream and may lock packages (e.g. rector/rector)
+          # that require a newer phpstan/phpstan than the one pinned above.
+          # Allow every locked package depending on phpstan/phpstan to be up/downgraded.
+          ROOT_NAME=$(docker exec --workdir /data ${{ matrix.IMAGE }} composer config name 2>/dev/null || true)
+          PHPSTAN_DEPENDENTS=$(docker exec --workdir /data ${{ matrix.IMAGE }} composer depends phpstan/phpstan --locked 2>/dev/null \
+            | awk '/ requires /{print $1}' \
+            | grep '/' \
+            | grep -vx "${ROOT_NAME:-__none__}" \
+            | sort -u | tr '\n' ' ' || true)
+          echo "Locked packages depending on phpstan/phpstan: ${PHPSTAN_DEPENDENTS:-none}"
+
           docker exec --workdir /data ${{ matrix.IMAGE }} composer update \
             multisafepay/magento2-core \
-            multisafepay/php-sdk \
             phpstan/extension-installer \
             phpstan/phpstan \
             bitexpert/phpstan-magento \
+            ${PHPSTAN_DEPENDENTS} \
             --with-all-dependencies \
             --no-interaction
 
