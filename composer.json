@@ -23,7 +23,11 @@
     },
     "require-dev": {
         "object-calisthenics/phpcs-calisthenics-rules": "^3.5 || ^2.0",
-        "php-http/mock-client": "^1.3"
+        "php-http/mock-client": "^1.3",
+        "magento/magento-coding-standard": "^41",
+        "phpstan/phpstan": "^2.1",
+        "bitexpert/phpstan-magento": "^0.44",
+        "phpstan/extension-installer": "^1.4"
     },
     "type": "magento2-module",
     "license": [
@@ -35,6 +39,12 @@
         ],
         "psr-4": {
             "MultiSafepay\\ConnectCore\\": ""
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
         }
     }
 }
